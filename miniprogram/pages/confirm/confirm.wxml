@@ -70,10 +70,114 @@
       </view>
     </view>
 
+    <view class="scene">
+      <view class="section-title">场景</view>
+
+      <view class="chip-row">
+        <view
+          wx:for="{{mealTypeOptions}}"
+          wx:key="id"
+          class="chip {{mealType === item.id ? 'chip-on' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onMealTypeTap"
+        >{{item.label}}</view>
+      </view>
+
+      <view class="field">
+        <text class="field-label">人数</text>
+        <input
+          class="field-input"
+          type="number"
+          placeholder="{{isDaily ? '人数' : '填写人数后自动推荐搭配'}}"
+          value="{{peopleCountText}}"
+          bindinput="onPeopleInput"
+        />
+      </view>
+
+      <view class="field">
+        <text class="field-label">搭配</text>
+        <view class="combo-row" wx:if="{{combo}}">
+          <view class="combo-item">
+            <text>荤 {{combo.meat}}</text>
+            <view class="stepper">
+              <text class="step-btn" data-field="meat" data-delta="-1" bindtap="bumpCombo">−</text>
+              <text class="step-btn" data-field="meat" data-delta="1" bindtap="bumpCombo">+</text>
+            </view>
+          </view>
+          <view class="combo-item">
+            <text>素 {{combo.veg}}</text>
+            <view class="stepper">
+              <text class="step-btn" data-field="veg" data-delta="-1" bindtap="bumpCombo">−</text>
+              <text class="step-btn" data-field="veg" data-delta="1" bindtap="bumpCombo">+</text>
+            </view>
+          </view>
+          <view class="combo-item">
+            <text>汤 {{combo.soup}}</text>
+            <view class="stepper">
+              <text class="step-btn" data-field="soup" data-delta="-1" bindtap="bumpCombo">−</text>
+              <text class="step-btn" data-field="soup" data-delta="1" bindtap="bumpCombo">+</text>
+            </view>
+          </view>
+        </view>
+        <text wx:else class="hint">填写人数后自动推荐</text>
+      </view>
+
+      <view class="field" wx:if="{{isDaily}}">
+        <text class="field-label">几顿</text>
+        <view class="chip-row">
+          <view
+            wx:for="{{dailySlotPresets}}"
+            wx:key="id"
+            class="chip {{dailySlotPresetId === item.id ? 'chip-on' : ''}}"
+            data-id="{{item.id}}"
+            bindtap="onDailySlotPreset"
+          >{{item.label}}</view>
+        </view>
+      </view>
+
+      <view class="field" wx:else>
+        <text class="field-label">几顿</text>
+        <view class="slot-stepper">
+          <text class="step-btn" data-delta="-1" bindtap="bumpPartySlots">−</text>
+          <text class="slot-count">{{partySlotCount}}</text>
+          <text class="step-btn" data-delta="1" bindtap="bumpPartySlots">+</text>
+        </view>
+      </view>
+
+      <view class="field" wx:if="{{!isDaily}}">
+        <text class="field-label">本场忌口</text>
+        <view class="chip-row">
+          <view
+            wx:for="{{partyAvoidOptions}}"
+            wx:key="id"
+            class="chip {{partyAvoidChecked[item.id] ? 'chip-on' : ''}}"
+            data-id="{{item.id}}"
+            bindtap="togglePartyAvoid"
+          >{{item.label}}</view>
+        </view>
+      </view>
+
+      <view class="field" wx:if="{{isHoliday}}">
+        <text class="field-label">节日</text>
+        <view wx:if="{{!upcomingHolidays.length}}" class="hint">近 30 天暂无节日</view>
+        <view
+          wx:for="{{upcomingHolidays}}"
+          wx:key="id"
+          class="holiday-row {{holidayId === item.id ? 'holiday-on' : ''}}"
+          data-id="{{item.id}}"
+          data-date="{{item.date}}"
+          bindtap="onHolidayTap"
+        >
+          <text class="name">{{item.nameZh}}</text>
+          <text class="holiday-date">{{item.date}}</text>
+        </view>
+      </view>
+    </view>
+
     <view class="footer-spacer"></view>
   </block>
 
   <view class="footer" wx:if="{{!loading && !error}}">
-    <button type="primary" bindtap="onConfirm">确认（已选 {{count}}）</button>
+    <button type="primary" loading="{{submitting}}" disabled="{{submitting}}" bindtap="onConfirm">确认（已选 {{count}}）</button>
   </view>
 </view>

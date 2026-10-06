@@ -116,6 +116,128 @@
   justify-content: space-between;
 }
 
+.scene {
+  margin: 32rpx 0 24rpx;
+  padding-top: 8rpx;
+  border-top: 1rpx solid #eee;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-top: 16rpx;
+}
+
+.chip {
+  padding: 12rpx 24rpx;
+  font-size: 26rpx;
+  color: #333;
+  background: #fff;
+  border: 1rpx solid #ddd;
+  border-radius: 8rpx;
+}
+
+.chip-on {
+  color: #07c160;
+  border-color: #07c160;
+  background: #e8f8ef;
+}
+
+.field {
+  margin-top: 28rpx;
+}
+
+.field-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.field-input {
+  margin-top: 12rpx;
+  height: 64rpx;
+  padding: 0 20rpx;
+  background: #fff;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+}
+
+.combo-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24rpx;
+  margin-top: 12rpx;
+}
+
+.combo-item {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  font-size: 28rpx;
+  color: #222;
+}
+
+.stepper {
+  display: flex;
+  gap: 8rpx;
+}
+
+.step-btn {
+  width: 48rpx;
+  height: 48rpx;
+  line-height: 48rpx;
+  text-align: center;
+  font-size: 32rpx;
+  color: #576b95;
+  background: #fff;
+  border: 1rpx solid #ddd;
+  border-radius: 8rpx;
+}
+
+.slot-stepper {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  margin-top: 12rpx;
+}
+
+.slot-count {
+  font-size: 30rpx;
+  color: #222;
+  min-width: 40rpx;
+  text-align: center;
+}
+
+.hint {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: #888;
+}
+
+.holiday-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12rpx;
+  padding: 20rpx;
+  background: #fff;
+  border: 1rpx solid #eee;
+  border-radius: 8rpx;
+}
+
+.holiday-on {
+  border-color: #07c160;
+  background: #e8f8ef;
+}
+
+.holiday-date {
+  font-size: 26rpx;
+  color: #888;
+}
+
 .footer-spacer {
   height: 160rpx;
 }
