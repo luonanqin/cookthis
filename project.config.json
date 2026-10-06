@@ -1,0 +1,12 @@
+{
+  "miniprogramRoot": "miniprogram/",
+  "cloudfunctionRoot": "cloudfunctions/",
+  "setting": {
+    "es6": true,
+    "minified": true
+  },
+  "appid": "touristappid",
+  "compileType": "miniprogram",
+  "cloudfunctionTemplateRoot": "",
+  "condition": {}
+}

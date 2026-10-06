@@ -1,0 +1,7 @@
+{
+  "name": "cookthis",
+  "private": true,
+  "scripts": {
+    "test": "node --test cloudfunctions/_shared/*.test.js"
+  }
+}
