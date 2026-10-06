@@ -1,0 +1,38 @@
+<view class="page">
+  <view wx:if="{{empty}}" class="state">{{emptyText}}</view>
+
+  <block wx:else>
+    <view
+      wx:for="{{plans}}"
+      wx:for-item="plan"
+      wx:key="planIndex"
+      class="plan"
+    >
+      <view class="plan-title">方案 {{plan.planIndex + 1}}</view>
+      <view
+        wx:for="{{plan.meals}}"
+        wx:for-item="meal"
+        wx:for-index="mealIdx"
+        wx:key="mealIdx"
+        class="meal"
+      >
+        <view class="meal-label">{{meal.slot.label}}</view>
+        <view
+          wx:for="{{meal.dishes}}"
+          wx:for-item="dish"
+          wx:key="recipeId"
+          class="dish"
+        >
+          <text class="dish-name">{{dish.name}}</text>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <view class="footer-spacer"></view>
+
+  <view class="footer">
+    <text class="next-hint">下一步（换一批 / 可以）稍后开放</text>
+    <button bindtap="onBack">返回改场景</button>
+  </view>
+</view>

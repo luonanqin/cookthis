@@ -2,7 +2,8 @@
   "pages": [
     "pages/index/index",
     "pages/mine/mine",
-    "pages/confirm/confirm"
+    "pages/confirm/confirm",
+    "pages/recommend/recommend"
   ],
   "window": {
     "navigationBarTitleText": "做什么菜",
