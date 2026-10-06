@@ -1,0 +1,4 @@
+<view class="wrap">
+  <image class="avatar" src="{{avatarSrc}}" mode="aspectFill" />
+  <text class="nickname">{{nickname}}</text>
+</view>

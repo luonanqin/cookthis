@@ -1,0 +1,6 @@
+<view class="wrap">
+  <view class="brand">做什么菜</view>
+  <button type="primary" bindtap="goMarket">今天菜场有什么</button>
+  <button bindtap="goRecord">记一下吃了什么</button>
+  <view class="link" bindtap="goMine">我的</view>
+</view>
