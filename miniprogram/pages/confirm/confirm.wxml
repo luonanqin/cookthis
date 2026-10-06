@@ -1,0 +1,79 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="state">加载中…</view>
+  <view wx:elif="{{error}}" class="state">{{error}}</view>
+
+  <block wx:else>
+    <view class="toolbar">
+      <text class="section-title">时令</text>
+      <view class="toolbar-actions">
+        <text class="link" bindtap="selectAllSeasonal">全选</text>
+        <text class="link" bindtap="clearSeasonal">清空</text>
+      </view>
+    </view>
+
+    <view class="groups">
+      <view wx:for="{{seasonalGroups}}" wx:key="category" class="group">
+        <view class="group-label">{{item.label}}</view>
+        <view
+          wx:for="{{item.list}}"
+          wx:for-item="ing"
+          wx:key="id"
+          class="row"
+          data-id="{{ing.id}}"
+          catchtap="toggleSeasonal"
+        >
+          <checkbox checked="{{seasonalChecked[ing.id]}}" color="#07c160" disabled />
+          <text class="name">{{ing.name}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="year-round">
+      <view class="fold-bar" bindtap="toggleYearRoundSection">
+        <text>四季常见 · 已计入 {{yearRoundCount}} 样</text>
+        <text class="fold-icon">{{yearRoundExpanded ? '收起' : '展开'}}</text>
+      </view>
+      <view wx:if="{{yearRoundExpanded}}" class="fold-body">
+        <view
+          wx:for="{{yearRound}}"
+          wx:key="id"
+          class="row"
+          data-id="{{item.id}}"
+          catchtap="toggleYearRound"
+        >
+          <checkbox checked="{{yearRoundChecked[item.id]}}" color="#07c160" disabled />
+          <text class="name">{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="manual">
+      <view class="section-title">补菜</view>
+      <view class="manual-row">
+        <input
+          class="manual-input"
+          placeholder="输入菜名"
+          value="{{manualInput}}"
+          bindinput="onManualInput"
+          confirm-type="done"
+          bindconfirm="addManual"
+        />
+        <button size="mini" type="primary" bindtap="addManual">添加</button>
+      </view>
+      <view
+        wx:for="{{manuals}}"
+        wx:key="id"
+        class="row manual-item"
+      >
+        <text class="name">{{item.name}}</text>
+        <text class="link" data-id="{{item.id}}" bindtap="removeManual">移除</text>
+      </view>
+    </view>
+
+    <view class="footer-spacer"></view>
+  </block>
+
+  <view class="footer" wx:if="{{!loading && !error}}">
+    <button type="primary" bindtap="onConfirm">确认（已选 {{count}}）</button>
+  </view>
+</view>
