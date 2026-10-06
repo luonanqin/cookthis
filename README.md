@@ -6,10 +6,11 @@
 
 1. 用**微信开发者工具**打开本仓库**根目录**（含 `project.config.json` 的目录）。
 2. 在开发者工具中**开通云开发**并创建环境；将环境 ID 填入 `miniprogram/app.js` 中 `wx.cloud.init` 的 `env` 字段（取消注释并替换 `your-env-id`）。云开发需使用真实小程序 AppID（在 `project.config.json` 中配置 `appid`）。
-3. 在开发者工具中右键 **上传并部署** 云函数：`cloudfunctions/auth`、`cloudfunctions/ingredients`（云端安装依赖）。两函数均内置 `_shared` 副本（`auth/nickname.js`、`ingredients/confirmList.js`），上传时只需打包各自函数目录，不必依赖云端解析 `../_shared`。改算法时请同步：`_shared/nickname.js` ↔ `auth/nickname.js`；`_shared/confirmList.js` ↔ `ingredients/confirmList.js`。
-4. 在云开发控制台创建数据库集合：`users`、`user_identities`、`ingredients`；权限建议：**仅管理端可写**，业务读写由云函数完成。`user_identities` 建议建复合唯一索引：`provider` + `providerUserId`。
+3. 在开发者工具中右键 **上传并部署** 云函数：`cloudfunctions/auth`、`cloudfunctions/ingredients`、`cloudfunctions/recommend`（云端安装依赖）。各函数均内置 `_shared` 副本（`auth/nickname.js`、`ingredients/confirmList.js`、`recommend/homePlans.js`），上传时只需打包各自函数目录，不必依赖云端解析 `../_shared`。改算法时请同步：`_shared/nickname.js` ↔ `auth/nickname.js`；`_shared/confirmList.js` ↔ `ingredients/confirmList.js`；`_shared/homePlans.js` ↔ `recommend/homePlans.js`。
+4. 在云开发控制台创建数据库集合：`users`、`user_identities`、`ingredients`、`recipes`、`recommendations`；权限建议：**仅管理端可写**，业务读写由云函数完成。`user_identities` 建议建复合唯一索引：`provider` + `providerUserId`。
 5. 食材导入：云库对 `ingredients` 导入 `data/ingredients-for-import.json`（扩展名是 `.json`，但内容是 **每行一条** 的 JSON Lines，带 `_id`）。不要导入 `ingredients-builtin.json`（数组格式会失败）。可用 `node scripts/import-ingredients.js` 重新生成导入文件。
-6. 纯函数单测：在仓库根目录执行 `npm test`（运行 `cloudfunctions/_shared/*.test.js`）。
+6. 菜谱导入：云库对 `recipes` 导入 `data/recipes-for-import.json`（JSON Lines；字段含业务主键 `id`）。不要导入 `recipes-builtin.json`（数组格式会失败）。可用 `node scripts/import-recipes.js` 校验并重新生成导入文件；导入后如控制台要求文档 `_id`，可将其设为与 `id` 相同。
+7. 纯函数单测：在仓库根目录执行 `npm test`（运行 `cloudfunctions/_shared/*.test.js`）。
 
 ## 本切片验收清单（Slice 1）
 
