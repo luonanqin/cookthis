@@ -1,3 +1,5 @@
+const { ensureLogin } = require('./services/session.js')
+
 App({
   globalData: {
     user: null
@@ -10,6 +12,10 @@ App({
     wx.cloud.init({
       // env: 'your-env-id',  // 开通云开发后填入
       traceUser: true
+    })
+    ensureLogin().catch(err => {
+      console.error(err)
+      wx.showToast({ title: '登录失败', icon: 'none' })
     })
   }
 })
