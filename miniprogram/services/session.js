@@ -15,7 +15,10 @@ function ensureLogin() {
       nickname: user.nickname,
       avatarUrl: user.avatarUrl,
       city: user.city,
-      isNewUser: user.isNewUser
+      isNewUser: user.isNewUser,
+      familyAvoids: user.familyAvoids || [],
+      defaultPeopleCount: user.defaultPeopleCount ?? 2,
+      defaultCombo: user.defaultCombo || { meat: 1, veg: 1, soup: 0 }
     }
     wx.setStorageSync(KEY, slim)
     const app = getApp()

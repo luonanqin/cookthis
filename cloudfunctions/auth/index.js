@@ -38,7 +38,10 @@ exports.main = async (event) => {
       nickname: user.nickname,
       avatarUrl: user.avatarUrl || null,
       isNewUser: false,
-      city: user.city || null
+      city: user.city || null,
+      familyAvoids: user.familyAvoids || [],
+      defaultPeopleCount: user.defaultPeopleCount ?? 2,
+      defaultCombo: user.defaultCombo || { meat: 1, veg: 1, soup: 0 }
     }
   }
 
@@ -84,6 +87,9 @@ exports.main = async (event) => {
     nickname,
     avatarUrl: null,
     isNewUser: true,
-    city: null
+    city: null,
+    familyAvoids: [],
+    defaultPeopleCount: 2,
+    defaultCombo: { meat: 1, veg: 1, soup: 0 }
   }
 }
