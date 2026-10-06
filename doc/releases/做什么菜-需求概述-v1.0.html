@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<title>做什么菜 / cookthis 产品需求文档 v1.0</title>
+<style>
+  @page { margin: 18mm 16mm; }
+  body {
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+    font-size: 11pt;
+    line-height: 1.65;
+    color: #1a1a1a;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 24px 8px 48px;
+  }
+  .cover {
+    border-bottom: 2px solid #2c5f4a;
+    padding-bottom: 16px;
+    margin-bottom: 28px;
+  }
+  .cover h1 {
+    font-size: 22pt;
+    margin: 0 0 8px;
+    color: #1b3d30;
+    border: none;
+  }
+  .meta { color: #555; font-size: 10pt; }
+  .meta span { margin-right: 16px; }
+  h1 { font-size: 16pt; color: #1b3d30; border-bottom: 1px solid #d0ddd6; padding-bottom: 6px; margin-top: 28px; }
+  h2 { font-size: 13.5pt; color: #2c5f4a; margin-top: 22px; }
+  h3 { font-size: 12pt; color: #334; margin-top: 16px; }
+  p { margin: 8px 0; }
+  ul, ol { margin: 8px 0; padding-left: 1.4em; }
+  li { margin: 4px 0; }
+  li.nested { list-style: circle; margin-left: 1em; }
+  blockquote {
+    margin: 12px 0;
+    padding: 8px 14px;
+    background: #f3f7f5;
+    border-left: 4px solid #2c5f4a;
+    color: #333;
+  }
+  code {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.9em;
+    background: #f0f2f1;
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 12px 0 16px;
+    font-size: 10pt;
+  }
+  th, td {
+    border: 1px solid #c5d0cb;
+    padding: 6px 8px;
+    vertical-align: top;
+    text-align: left;
+  }
+  th { background: #e8f0ec; font-weight: 600; }
+  strong { color: #122; }
+</style>
+</head>
+<body>
+  <div class="cover">
+    <h1>做什么菜 / cookthis<br/>产品需求文档</h1>
+    <div class="meta">
+      <span><strong>版本</strong> v1.0</span>
+      <span><strong>归档日期</strong> 2026-09-30</span>
+      <span><strong>形态</strong> 微信小程序</span>
+    </div>
+  </div>
+  <h1>产品需求文档：做什么菜 / cookthis（微信小程序）</h1>
+<h2>产品名称</h2>
+<table>
+<tr><th>语言</th><th>名称</th><th>用途</th></tr>
+<tr><td>中文</td><td><strong>做什么菜</strong></td><td>微信小程序展示名、用户可见文案</td></tr>
+<tr><td>英文</td><td><strong>cookthis</strong></td><td>工程名、仓库名、技术标识</td></tr>
+</table>
+<blockquote><p>一句话：站在菜场里，打开「做什么菜」，告诉它今天有什么，它告诉你回去做什么。</p></blockquote>
+<h2>市场突破点</h2>
+<p>相对下厨房、美团买菜菜谱、各类「今日吃什么」工具，本产品的切入点不是「先想好吃什么再找做法」，而是<strong>站在菜场决策现场</strong>：用「今天有什么」倒推出「买哪几样 + 回去做什么」。</p>
+<ol>
+<li>1. <strong>场景卡位：菜场即时决策</strong>  </li>
+</ol>
+<p>   用户痛点发生在摊位前（时间紧、选择多、怕买多买重）。小程序服务「确认在售食材 → 出方案 → 出购买清单」闭环，比回家后再翻菜谱更贴决策瞬间。</p>
+<ol>
+<li>2. <strong>供需反转：有什么 → 做什么</strong>  </li>
+</ol>
+<p>   默认全选当地常见菜 + 可修正，再结合人数、搭配、几顿饭出推荐；降低「先空想菜单再对照菜场」的认知负担。</p>
+<ol>
+<li>3. <strong>家庭真实约束，而不只是个人口味</strong>  </li>
+</ol>
+<p>   家庭忌口硬排除、成员忌口占比软约束、菜式品类偏好、避开近期已吃过——解决「一人决定全家吃腻 / 踩雷忌口」的家常难题，聚会与日常场景分流。</p>
+<ol>
+<li>4. <strong>一次买多顿，清单可执行</strong>  </li>
+</ol>
+<p>   支持「想做几顿」规划，点「可以」直达购买食材页（主料优先、调味靠后），把推荐落到菜场可勾选的采购动作，而不是停在菜名列表。</p>
+<ol>
+<li>5. <strong>微信搜一搜天然关键词</strong>  </li>
+</ol>
+<p>   产品中文名即高频生活问句「做什么菜」，利于搜一搜 / 小程序名匹配与内容种草；配合进场确认饮食记录，形成「用一次 → 记一次 → 下次更准」的留存钩子。</p>
+<h2>关键词热度备忘（微信指数）</h2>
+<p><strong>查询说明</strong>：微信内搜「微信指数」小程序；指数为生态综合热度（搜一搜 / 视频号 / 公众号等），≠ 纯搜索量。</p>
+<p><strong>实测记录</strong>（截图留档，数据日期 <strong>2026-09-29</strong>，录入 2026-09-30）：</p>
+<table>
+<tr><th>关键词</th><th>9/29 指数</th><th>日环比</th><th>近 30 日大致形态（8/31–9/29）</th></tr>
+<tr><td><strong>吃什么菜</strong></td><td><strong>76,886</strong></td><td>-5.97%</td><td>基线约 9万–12万；月末峰值约 26万级，整体热度稳定偏高</td></tr>
+<tr><td><strong>做什么菜</strong></td><td><strong>785</strong></td><td>+11.35%</td><td>多数时间接近底部；约 9/3–9/15 冲高（峰值约 6万–7万）后回落</td></tr>
+</table>
+<p><strong>对比结论</strong>：同日「吃什么菜」指数约为「做什么菜」的 <strong>~98 倍</strong>（76886 / 785），搜一搜侧前者明显更热。</p>
+<p><strong>命名决策（暂定）</strong>：</p>
+<ul>
+<li><strong>展示名仍用「做什么菜」</strong>，不改为「吃什么菜」。理由：产品是菜场→采购→<strong>做</strong>饭闭环；「吃」更偏外卖/下馆子/今日吃啥的宽需求，热词流量与场景匹配度差，且竞争更挤。</li>
+<li><strong>流量侧借用热词</strong>：小程序搜索关键词、简介、内容种草优先覆盖 <code>吃什么菜</code>、<code>今天吃什么</code> 等，与展示名分流（品牌名准、获客词热）。</li>
+<li>英文工程名 <strong>cookthis</strong> 不变。</li>
+<li>若上线后搜一搜转化差，再评估副标题或双名策略（如简介写「吃什么菜 · 菜场搭配」），而非立刻改掉主品牌名。</li>
+</ul>
+<h2>一、一句话定位</h2>
+<p>用户站在菜场里，打开「做什么菜」，确认今天可选食材；结合每人口味与忌口、菜式品类偏好、饭菜类型（日常 / 聚会）、想做几顿，以及最近吃过的菜，推荐“今天买哪几样 + 回去做什么菜”。</p>
+<h2>二、核心用户场景</h2>
+<p><strong>主场景</strong>：</p>
+<ol>
+<li>1. 用户走进菜场，打开小程序。</li>
+<li>2. 系统弹出待确认的近期推荐 / 近期菜（已与「最近一次搭配之后已记录的菜」去重），默认全选，用户确认哪些确实吃过。</li>
+<li>3. 系统默认给出常见菜品列表（按城市 / 超市数据），用户扫一眼确认，可一键全选，也可增删修正；支持拍照、语音辅助补充。</li>
+<li>4. 用户选择饭菜类型：日常则自动带出默认人数与搭配（可改）；非日常不预填，填人数后系统给出推荐搭配。再选想做几顿；非日常另选忌口。</li>
+<li>5. 系统结合每人画像与已确认的饮食记录，给出菜谱方案；用户可「换一批」。点「可以」后自动进入<strong>购买食材页</strong>；未点「可以」时，推荐页也有清晰入口可进入该页。</li>
+<li>6. 做完饭后，用户通过手动 / 拍照 / 语音自行记录吃了什么（不做自动记录）。</li>
+</ol>
+<p><strong>关键约束</strong>：</p>
+<ul>
+<li>推荐结果必须<strong>避开已确认吃过的菜</strong>（近期确认弹层 + 历史记录）。</li>
+<li>忌口分两层：<strong>家庭忌口</strong>硬排除；<strong>成员忌口</strong>按占比软约束（不因一人忌口清空所有相关菜），细则见模块 2 / 4，完整比例算法后续细化。</li>
+<li>日常场景用画像忌口，并<strong>自动带出</strong>默认人数与默认搭配（可改）；非日常不预填默认值，输入人数后系统给出<strong>推荐搭配</strong>（可改），当次忌口<strong>不写入</strong>日常偏好。</li>
+<li>最终搭配以用户当次确认值为准。</li>
+<li>用户不需要输入“我想吃什么”，系统主动给出方案。</li>
+</ul>
+<h2>三、功能模块</h2>
+<h3>模块 1：菜场输入与当次场景</h3>
+<p><strong>目标</strong>：快速确认“今天可选食材”，并设定这一次要做几顿、什么场合、怎么搭配。</p>
+<p><strong>食材确认方式</strong>：</p>
+<ol>
+<li>1. <strong>默认常见菜列表（主力）</strong>：进入后系统按用户城市给出常见菜品，<strong>默认全选</strong>，用户扫一眼确认即可；可取消个别项，也可补充漏掉的。列表按类别分组：叶菜、根茎、茄果、豆类、菌菇、肉类、水产、蛋奶、豆制品。</li>
+<li>2. <strong>拍照识别（辅助）</strong>：拍摊位照片，调用图像识别 API，返回菜品后用户增删修正。</li>
+<li>3. <strong>语音输入（辅助）</strong>：说出菜名，转文字后提取菜名让用户确认。</li>
+</ol>
+<p><strong>食材数据来源</strong>：</p>
+<ul>
+<li>内置常见菜品库（兜底）。</li>
+<li><strong>美团外卖 / 买菜侧超市菜品抓取</strong>：按城市日更；先以<strong>各省省会 + 直辖市</strong>为试点，按用户定位匹配当地超市在售菜品，丰富默认列表。</li>
+</ul>
+<p><strong>当次场景设置</strong>（确认食材前后均可，建议同页或下一步）：</p>
+<ul>
+<li><strong>饭菜类型</strong>：日常饭菜 / 亲戚聚会 / 朋友聚会 / 节日聚会。</li>
+<li class="nested">节日聚会：系统自动推送近期节日供选择（如中秋、国庆、春节等）。</li>
+<li><strong>人数与搭配（随类型变化）</strong>：</li>
+<li class="nested"><strong>日常</strong>：自动带出画像中的<strong>默认人数</strong>与<strong>默认搭配</strong>，方便直接用；用户仍可修改。修改后的搭配若确认使用，可按模块 4 规则写回默认（仅日常）。</li>
+<li class="nested"><strong>非日常</strong>：人数、搭配<strong>不给默认值</strong>；用户先输入人数后，系统按人数给出<strong>推荐搭配</strong>（如 2 人 → 一荤一素；4–6 人 → 两荤两素一汤等），用户可改；推荐搭配仅当次有效，不写回画像。</li>
+<li><strong>忌口</strong>：</li>
+<li class="nested"><strong>日常</strong>：使用画像中的<strong>家庭忌口</strong>（硬排除）+ <strong>各成员忌口</strong>（占比软约束），不在当次再选一遍。</li>
+<li class="nested"><strong>非日常</strong>：当次可勾选本场忌口（视为本场「家庭忌口」硬排除）；成员忌口仍按画像做占比约束。当次选择不写回日常画像。</li>
+<li><strong>想做几顿</strong>：例如「1 天 1 顿晚饭」「3 天：2 顿午饭 + 3 顿晚饭」，用于一次买齐多顿的食材与菜谱规划。</li>
+<li><strong>当次菜式品类（可选）</strong>：如今天想吃火锅 / 面食 / 凉菜；不选则按画像「菜式品类偏好」加权。</li>
+</ul>
+<p><strong>输出</strong>：可选食材列表 + 当次场景参数，进入推荐。</p>
+<h3>模块 2：用户画像（按人）</h3>
+<p><strong>目标</strong>：让推荐符合家庭整体硬约束与成员差异，并记住日常默认搭配、菜式品类偏好与大致用餐时间。</p>
+<p><strong>家庭与成员</strong>：</p>
+<ul>
+<li>家庭可添加多名成员（本人、配偶、孩子等）。</li>
+</ul>
+<p><strong>家庭忌口画像（整户硬约束）</strong>：</p>
+<ul>
+<li>单独维护一份<strong>家庭忌口</strong>（如全员过敏、家中绝不做的品类：花生、海鲜等）。</li>
+<li>推荐时对家庭忌口涉及的菜品 / 主食材：<strong>直接不推荐</strong>（硬排除）。</li>
+</ul>
+<p><strong>成员级信息（按人独立）</strong>：</p>
+<ul>
+<li>口味偏好（清淡 / 正常 / 重口 / 嗜辣）</li>
+<li>忌口或过敏（多选：香菜、内脏、海鲜、花生、乳制品、其他）</li>
+<li>说明：成员忌口<strong>不能</strong>简单取并集后清空所有相关菜（避免一人不吃香菜导致整桌无香菜菜）。处理见下方「成员忌口占比规则」。</li>
+</ul>
+<p><strong>成员忌口占比规则（软约束，后续细化）</strong>：</p>
+<ul>
+<li>按「对某忌口项持有的人数 / 当次总人数」得到占比 \(p\)（例：5 人中 3 人不吃香菜 → \(p = 0.6\)）。</li>
+<li>在一次推荐出的菜品集合中，含该忌口食材的菜占比应 <strong>≤ \(1 - p\)</strong>（上例香菜菜 ≤ 0.4）。</li>
+<li>中国家庭人数与单次菜数都偏少，简单比例容易失真（如只推 2～3 道菜时 0.4 很难落地），故 <strong>MVP 可先实现家庭忌口硬排除 + 成员忌口仅作排序降权</strong>；完整占比配额规则列入后续细化。</li>
+</ul>
+<p><strong>菜式品类偏好</strong>（与口味、忌口、几荤几素搭配并列的独立维度）：</p>
+<ul>
+<li>描述「爱吃 / 常做 / 少做」的餐食形态，<strong>不是</strong>咸淡辣，也<strong>不是</strong>忌口。</li>
+<li>细分两类（多选，可标偏好强度：爱吃 / 一般 / 少做）：</li>
+<li class="nested"><strong>菜式形态</strong>：热炒、凉菜、卤菜、火锅、汤羹、蒸菜、烧烤等</li>
+<li class="nested"><strong>主食形态</strong>：米食、面食、粥粉、饼类等</li>
+<li>归属建议：默认挂在<strong>家庭级</strong>（一家常做哪些品类）；若成员差异大，可按人覆盖（如某人不吃火锅则对该人降权，不上升为家庭忌口除非写入家庭忌口）。</li>
+<li>当次场景可选「今天想偏向某品类」（如今天想吃面 / 火锅），仅当次生效；未选则用画像偏好加权。</li>
+</ul>
+<p><strong>整户或账号级信息</strong>：</p>
+<ul>
+<li>家庭默认人数（日常场景自动带出，可被当次修改）</li>
+<li>做饭时间预算（15 分钟内 / 30 分钟左右 / 1 小时以上）</li>
+<li><strong>一般几点吃饭</strong>（如午饭 12:00、晚饭 18:30），方便后续推送“该记录了吗”之类提醒</li>
+<li><strong>默认搭配</strong>（用户可自定义）：一荤一素、一荤两素、一荤一素一汤等；选日常时自动带出</li>
+<li><strong>菜式品类偏好</strong>（见上；家庭默认一份，成员可覆盖）</li>
+</ul>
+<p><strong>收集时机</strong>：首次引导先填<strong>家庭忌口</strong>与<strong>菜式品类偏好</strong>，再建成员并逐人填口味 / 忌口（及可选的个人品类覆盖），再填用餐时间与默认搭配；后续在「我的」里修改。</p>
+<h3>模块 3：饮食记录</h3>
+<p><strong>目标</strong>：记住“最近吃过什么”，作为推荐排除项；记录全部由用户主动完成。</p>
+<p><strong>记录方式</strong>：</p>
+<ul>
+<li><strong>手动记录</strong>：从历史推荐里选，或手动输入菜名。</li>
+<li><strong>拍照记录</strong>：拍成品菜照片，识别或标注后存档。</li>
+<li><strong>语音记录</strong>：说出吃了什么，转写后确认写入。</li>
+<li>不做自动记录；采纳推荐不会自动写入饮食记录。</li>
+</ul>
+<p><strong>进入菜场输入时的确认弹层</strong>：</p>
+<ul>
+<li>进入菜场输入流程时，弹出待确认列表，来源为<strong>近期推荐</strong>与<strong>近期相关菜</strong>，默认全选。</li>
+<li><strong>去重</strong>：列表须排除「近期已记录」中已有的菜，避免与已记过的重复弹出。</li>
+<li><strong>「近期已记录」口径（暂定）</strong>：以<strong>最近一次使用 / 采纳搭配之后</strong>写入的饮食记录为准（该次搭配之后通过手动 / 拍照 / 语音 / 进场确认记下的菜）；更早的记录不纳入本次去重范围。</li>
+<li>用户确认哪些确实吃过（可取消未吃的），确认结果写入饮食记录，再继续食材输入。</li>
+</ul>
+<p><strong>数据结构</strong>：</p>
+<ul>
+<li>每条记录：日期、餐次（午 / 晚等）、菜名、主要食材、记录来源（手动 / 拍照 / 语音 / 进场确认）；若由某次搭配关联产生，保留对应 <code>recommendationId</code> / 搭配会话 id，便于界定「最近一次搭配之后」。</li>
+<li>推荐时读取最近 7 天（可配置）已确认记录，排除相同菜名或相同主食材。</li>
+</ul>
+<h3>模块 4：推荐引擎</h3>
+<p><strong>目标</strong>：根据可选食材、当次场景与每人画像，给出购买清单与多顿菜谱方案。</p>
+<p><strong>搭配来源</strong>：</p>
+<ul>
+<li><strong>日常</strong>：进入当次场景时自动带出默认人数 + 默认搭配，用户可改；若到推荐页仍为空则提示补选，补选 / 确认后可写回画像默认。</li>
+<li><strong>非日常</strong>：不预填；用户输入人数后，按人数规则给出推荐搭配（可改）；仅当次生效，<strong>不保存</strong>到画像。</li>
+<li>若推荐页仍未指定搭配：在本页提示补选（非日常可再次按人数推荐一版供选）。</li>
+</ul>
+<p><strong>推荐逻辑</strong>：</p>
+<ol>
+<li>1. <strong>过滤</strong>：</li>
+</ol>
+<p>   - <strong>家庭忌口</strong>（日常用画像；非日常用当次本场忌口）：硬排除相关菜品。</p>
+<p>   - <strong>成员忌口</strong>：不按并集硬删；按占比软约束或降权（见模块 2；完整配额后续细化）。</p>
+<p>   - 排除近期已确认吃过的菜 / 主食材。</p>
+<ol>
+<li>2. <strong>组合</strong>：严格按用户指定的几荤几素几汤生成候选；并按「想做几顿」拆成多顿菜单，避免多顿撞菜；若当次指定了菜式品类，优先在该品类内组合（如火锅则偏锅底 + 涮菜结构，面食则保证有主食面点）。</li>
+<li>3. <strong>打分排序</strong>：食材匹配度、各成员口味匹配、<strong>菜式品类匹配</strong>（当次指定 &gt; 画像爱吃加权 / 少做降权）、新鲜度（近期没吃过）、时间预算匹配、人数是否够吃。</li>
+<li>4. <strong>输出</strong>：1-3 个方案，每个包含：各顿菜名、简要做法（可选折叠）、人数与类型说明，以及对应的<strong>购买食材清单</strong>（详见食材页）。</li>
+</ol>
+<p><strong>购买食材页（清单）</strong>：</p>
+<ul>
+<li>汇总当前采纳 / 查看方案所需购买的食材。</li>
+<li><strong>排序</strong>：主要食材（肉禽蛋奶、蔬菜、水产等）靠前；调味品（盐、生抽、料酒、葱姜蒜等，若需单买）靠后。</li>
+<li>可按顿次或按分类展示；已在「今天可选」里确认有的可标记为「场内已有 / 不用再买」，突出还需购买项。</li>
+</ul>
+<p><strong>菜谱数据来源</strong>：</p>
+<ul>
+<li>初期内置 JSON 菜谱库（200-500 道家常菜）：菜名、主食材、调味品、荤素、口味、<strong>菜式品类</strong>（菜式形态 + 主食形态标签）、耗时、适合人数。</li>
+<li>后续可接 AI，初期以结构化数据保证稳定。</li>
+</ul>
+<h3>模块 5：反馈与迭代</h3>
+<ul>
+<li>用户可对推荐点「可以」或「不行」。</li>
+<li>「不行」可选原因：不想吃、食材不对、太麻烦、最近吃过。</li>
+<li><strong>点「可以」</strong>：采纳当前方案，并<strong>自动弹出 / 跳转购买食材页</strong>，方便在菜场对照采购。</li>
+<li><strong>未点「可以」</strong>：推荐页仍提供<strong>清晰入口</strong>（如「查看购买清单」），可进入同一食材页预览该方案要买什么，不视为正式采纳。</li>
+<li><strong>换一批</strong>：基于当前食材与场景参数重新生成方案（保留过滤与搭配约束，换具体菜品）；换一批行为计入反馈，用于降低被换掉组合的权重。</li>
+<li>上述信号用于调整后续推荐权重。</li>
+</ul>
+<h2>四、页面结构</h2>
+<ol>
+<li>1. <strong>首页</strong>：入口「今天菜场有什么」；次要入口「记一下吃了什么」（手动 / 拍照 / 语音）。</li>
+<li>2. <strong>进场确认弹层</strong>（进入输入流程时）：展示近期推荐 / 近期菜（排除最近一次搭配之后已记录的菜），默认全选 → 用户确认吃过哪些 → 写入记录后进入输入页。</li>
+<li>3. <strong>输入页</strong>：</li>
+</ol>
+<p>   - 常见菜默认列表（默认全选，可改）+ 拍照 / 语音补充；</p>
+<p>   - 当次场景：饭菜类型（含近期节日）；日常自动带出默认人数 / 搭配（可改）；非日常不预填，输入人数后出推荐搭配；忌口（非日常）、想做几顿、当次菜式品类（可选）；</p>
+<p>   - 确认后进入推荐页。</p>
+<ol>
+<li>4. <strong>推荐页</strong>：展示 1-3 个方案（含多顿拆分）；未选搭配则在此补选（日常可保存为默认 / 非日常按人数推荐且不保存）；「换一批」「可以 / 不行」；每个方案旁有明确入口「查看购买清单」。点「可以」后<strong>自动进入购买食材页</strong>；采纳后<strong>不自动记饮食</strong>。</li>
+<li>5. <strong>购买食材页</strong>：展示要买的食材；主料优先、调味品靠后；支持对照勾选「已买」。可从「可以」自动进入，或从推荐页入口进入。</li>
+<li>6. <strong>记录页 / 记录入口</strong>：手动、拍照、语音三种方式写入；可从首页或「我的 → 历史」进入。</li>
+<li>7. <strong>我的页</strong>：家庭忌口、菜式品类偏好、家庭成员管理（每人口味 / 忌口 / 可选品类覆盖）、用餐时间、默认搭配、做饭时间预算、历史记录、城市（影响默认菜品数据）。</li>
+</ol>
+<h2>五、技术实现提示（给 Cursor 的指令）</h2>
+<p><strong>技术栈</strong>：</p>
+<ul>
+<li>微信小程序原生开发（或 Taro / uni-app）</li>
+<li>后端：微信云开发（云函数 + 云数据库）优先</li>
+<li>数据库集合建议：</li>
+<li class="nested"><code>families</code> / <code>users</code>：账号与家庭级设置（用餐时间、默认搭配、城市、做饭预算、<strong>家庭忌口</strong>、<strong>菜式品类偏好</strong>）</li>
+<li class="nested"><code>members</code>：家庭成员（每人口味、个人忌口、可选品类偏好覆盖）</li>
+<li class="nested"><code>ingredients</code>：常见 / 在售菜品（含城市、来源、更新时间）</li>
+<li class="nested"><code>ingredient_sync_jobs</code>：美团侧抓取任务状态（城市、日期、成功条数）</li>
+<li class="nested"><code>recipes</code>：菜谱库（含 <code>dishForms</code> / <code>stapleForms</code> 品类标签）</li>
+<li class="nested"><code>meal_logs</code>：饮食记录（仅用户确认或主动记录后写入）</li>
+<li class="nested"><code>recommendations</code>：推荐历史与反馈（含「换一批」）</li>
+<li class="nested"><code>holidays</code>：节日日历（供节日聚会推送）</li>
+</ul>
+<p><strong>关键实现点</strong>：</p>
+<ol>
+<li>1. <strong>默认菜列表</strong>：按用户城市读 <code>ingredients</code>，进入输入页<strong>默认全选</strong>；提供「全选 / 清空」与按分类折叠。无城市数据时回退全国常见菜。</li>
+<li>2. <strong>菜品日更</strong>：云函数定时任务，试点城市 = 省会 + 直辖市；写入 / 更新 <code>ingredients</code>（注意合规与风控：频率、字段最小化、失败重试与人工兜底库）。</li>
+<li>3. <strong>推荐引擎</strong>：云函数纯规则引擎优先；输入 = 食材 ∩ 场景（类型、人数、搭配、顿数、当次品类）∩ <strong>家庭忌口硬排除</strong> ∩ 成员忌口软约束 / 降权 ∩ 菜式品类加权 ∩ 近 7 日 <code>meal_logs</code>。成员忌口占比配额（含香菜示例：\(p\) 持有占比 → 相关菜 ≤ \(1-p\)）先记需求，<strong>小家庭小菜数下的离散取整策略后续专项细化</strong>。</li>
+<li>4. <strong>人数 / 搭配预填与推荐</strong>：</li>
+</ol>
+<p>   - <code>mealType === 日常</code>：表单初始化写入 <code>defaultPeopleCount</code>、<code>defaultCombo</code>；用户修改后仅当确认采纳日常方案时可选写回。</p>
+<p>   - 非日常：人数、搭配初始为空；监听人数变化，调用 <code>suggestComboByPeople(n)</code>（规则表，如 1→一荤一素，2→一荤一素一汤，≥4→两荤两素一汤）填入推荐搭配，用户可改；<strong>禁止</strong>写回默认搭配。</p>
+<ol>
+<li>5. <strong>菜式品类</strong>：画像存 <code>prefer</code> / <code>neutral</code> / <code>avoid</code>；打分时当次指定品类强加权，画像 <code>prefer</code> 加分、<code>avoid</code> 降权（未写入家庭忌口则不硬删）。菜谱入库必须带品类标签。</li>
+<li>6. <strong>饮食记录</strong>：禁止在「采纳推荐」时自动写 <code>meal_logs</code>；写入入口仅为：进场确认弹层、手动、拍照、语音。</li>
+<li>7. <strong>进场确认</strong>：进入输入流程时组装待确认列表 = 近期 <code>recommendations</code> / 相关菜 − 「近期已记录」。<strong>近期已记录（暂定）</strong> = 时间戳 ≥ 最近一次 <code>accepted</code> 搭配 / 推荐会话时间 的 <code>meal_logs</code>。弹层默认全选，确认后批量写 <code>meal_logs</code>。</li>
+<li>8. <strong>换一批</strong>：同一 <code>requestId</code> 下换种子 / 排除已展示菜品再跑引擎，并记一条反馈。</li>
+<li>9. <strong>购买食材页</strong>：由方案菜谱聚合去重生成清单；菜谱字段区分 <code>mainIngredients</code> 与 <code>seasonings</code>，渲染时主料在前、调味在后。点「可以」→ <code>navigateTo</code> 食材页并标记 <code>accepted=true</code>；「查看购买清单」→ 同一页且 <code>accepted=false</code>。</li>
+<li>10. <strong>用餐时间</strong>：用成员 / 家庭配置的午饭晚饭时刻，后续可做订阅消息提醒「记一下今天吃了什么」（提醒本身可放后期）。</li>
+<li>11. <strong>菜谱库</strong>：先整理 100-200 道家常菜 JSON 入库；与多顿、几荤几素、菜式品类标签对齐；每道菜拆主料 / 调味便于清单排序。</li>
+</ol>
+<h2>六、最小可行版本（MVP）范围</h2>
+<p>第一版只做：</p>
+<ul>
+<li>默认常见菜列表 + 全选确认（支持少量手动增删）</li>
+<li>当次场景：日常自动带出默认人数 / 搭配（可改）；非日常不预填，输入人数后推荐搭配；想做几顿（节日列表可先写死几个）</li>
+<li>按人画像：口味、个人忌口；家庭：家庭忌口（硬排除）、菜式品类偏好、默认人数、用餐时间、默认搭配</li>
+<li>推荐：家庭忌口硬排除；成员忌口 MVP 先降权，占比配额后续细化；菜式品类按画像加权（当次指定可优先）</li>
+<li>进场确认近期是否吃过（默认全选；与最近一次搭配后已记录去重）</li>
+<li>规则引擎推荐 + <strong>换一批</strong></li>
+<li>点「可以」自动进购买食材页（主料优先、调味靠后）；推荐页另有「查看购买清单」入口</li>
+<li>手动记录饮食（拍照 / 语音可留接口）</li>
+</ul>
+<p><strong>不做 / 可延后</strong>：</p>
+<ul>
+<li>成员忌口的完整占比配额与小样本取整策略（先降权）</li>
+<li>菜式品类的复杂组合约束（如「火锅局」整桌结构规则可第二期加强）</li>
+<li>美团菜品抓取日更（可先用静态城市菜列表；接口与表结构先预留）</li>
+<li>拍照识别食材、语音输入食材（留接口）</li>
+<li>拍照 / 语音记饮食（可第二期）</li>
+<li>AI 生成菜谱</li>
+<li>社区、分享、排行榜</li>
+<li>用餐时间订阅消息推送</li>
+</ul>
+<h2>七、验证指标</h2>
+<ul>
+<li>用户是否在菜场完成「确认食材 + 场景」并看到推荐</li>
+<li>「进场确认吃过」的完成率与修改率（取消勾选比例）</li>
+<li>用户是否主动完成饮食记录（手动为主）</li>
+<li>「换一批」点击率与采纳前平均换批次数</li>
+<li>点「可以」后进入食材页的比例；从未采纳入口查看清单的比例</li>
+<li>7 天内回访率</li>
+<li>日常默认搭配被复用的比例</li>
+</ul>
+</body>
+</html>
