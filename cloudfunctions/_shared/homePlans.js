@@ -107,6 +107,7 @@ function buildHomePlans(input) {
     scene,
     familyAvoids = [],
     excludedDishIds = [],
+    downrankedIds = [],
     maxPlans = 3
   } = input || {}
 
@@ -116,6 +117,7 @@ function buildHomePlans(input) {
   const avoids =
     mealType === 'daily' ? familyAvoids || [] : (scene && scene.partyAvoids) || []
   const excluded = new Set(excludedDishIds || [])
+  const downranked = new Set(downrankedIds || [])
 
   const candidates = []
   for (const recipe of recipes) {
@@ -129,6 +131,14 @@ function buildHomePlans(input) {
   const buckets = { meat: [], veg: [], soup: [] }
   for (const r of candidates) {
     if (buckets[r.meatVeg]) buckets[r.meatVeg].push(r)
+  }
+  // Soft downrank: prefer recipes not in long-term reject list when picking.
+  for (const key of Object.keys(buckets)) {
+    buckets[key].sort((a, b) => {
+      const da = downranked.has(a.id) ? 1 : 0
+      const db = downranked.has(b.id) ? 1 : 0
+      return da - db
+    })
   }
 
   const plans = []

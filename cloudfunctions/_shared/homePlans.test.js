@@ -92,4 +92,33 @@ describe('buildHomePlans', () => {
     })
     assert.equal(result.plans.length, 1)
   })
+
+  it('prefers non-downranked meat when another meat exists', () => {
+    const withAltMeat = recipes.concat([
+      {
+        id: 'rcp_tomato_egg_meat_alt',
+        name: '番茄炒蛋荤替',
+        mainIngredients: ['猪肉', '番茄'],
+        seasonings: ['盐'],
+        meatVeg: 'meat',
+        cities: [],
+        enabled: true
+      }
+    ])
+    const ingredients = {
+      ...ingredientsByName,
+      番茄: { avoidTags: [] }
+    }
+    const result = buildHomePlans({
+      recipes: withAltMeat,
+      ingredientsByName: ingredients,
+      selectedNames: selectedNames.concat(['番茄']),
+      scene: baseScene,
+      familyAvoids: [],
+      downrankedIds: ['rcp_potato_pork']
+    })
+    assert.ok(result.plans.length >= 1)
+    const meatId = result.plans[0].meals[0].dishes.find((d) => d.meatVeg === 'meat').recipeId
+    assert.equal(meatId, 'rcp_tomato_egg_meat_alt')
+  })
 })
