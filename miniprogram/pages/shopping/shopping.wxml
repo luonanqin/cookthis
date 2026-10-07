@@ -1,0 +1,27 @@
+<view class="page">
+  <view wx:if="{{accepted}}" class="banner">已采纳，可按清单采购</view>
+
+  <view wx:if="{{empty}}" class="empty">
+    <text>{{emptyText}}</text>
+  </view>
+
+  <block wx:else>
+    <view
+      class="row {{item.bought ? 'bought' : ''}}"
+      wx:for="{{items}}"
+      wx:key="name"
+      data-name="{{item.name}}"
+      bindtap="onToggle"
+    >
+      <view class="check">{{item.bought ? '✓' : ''}}</view>
+      <view class="body">
+        <text class="name">{{item.name}}</text>
+        <text class="tag">{{item.tag}}</text>
+      </view>
+    </view>
+  </block>
+
+  <view class="footer">
+    <button bindtap="onBack">返回</button>
+  </view>
+</view>
