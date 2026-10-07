@@ -20,6 +20,7 @@
 | `confirmList.js` | `ingredients/confirmList.js` |
 | `homePlans.js` | `recommend/homePlans.js` |
 | `shoppingList.js` | 小程序 `miniprogram/utils/shoppingList.js`（清单页本地聚合，非云函数） |
+| `confirmCandidates.js` | `meals/confirmCandidates.js` |
 
 ---
 
@@ -54,6 +55,17 @@
 假定 **Slice 2 准备已完成**。本切片**无新集合**；上传/重新部署云函数 `recommend` 即可（含 swap/reject/accept/engage）。用户字段 `rejectDownranks` 由 reject 自动写入，无需手工建。
 
 做完即可对照下方「Slice 3 验收清单」。开发者工具人工点验**暂缓**，以 `npm test` 为主。
+
+---
+
+## Slice 4 准备（进场确认 + 饮食记录）
+
+假定 **Slice 3 准备已完成**。在此基础上**再补**：
+
+1. **上传并部署**云函数：`cloudfunctions/meals`；并**重新部署** `recommend`（消费近 7 日 `meal_logs` 同菜名硬排除）。
+2. **再建集合**：`meal_logs`（权限同上，业务读写走云函数）。
+
+做完即可对照下方「Slice 4 验收清单」。人工点验**暂缓**，以 `npm test` 为主。
 
 ---
 
@@ -113,3 +125,23 @@
 5. [ ] **engage** → 推荐页可见累计 ≥30s 写一次 `engagedAt`。
 
 **本切片范围（已交付）：** swap / reject / accept / engage、购买清单页、软降权。**未做：** 进场确认、饮食记录、非常规方案、埋点全表、广告。
+
+---
+
+## 本切片验收清单（Slice 4）
+
+**状态：自动化已通过 · 人工点验暂缓**（2026-10-07）
+
+**自动化（CI / 本地）：**
+
+- [x] 仓库根目录 `npm test` 全部 PASS（含 `buildConfirmCandidates`、近 7 日菜名硬排除及前序切片）。
+
+**需人工（暂缓）：** 完成「公共准备」+ Slice 1～4 准备后点验：
+
+1. [ ] **进场确认** → 有采纳/≥30s 停留锚点且候选非空时弹半屏；默认不选；确认写 `meal_logs`（source=confirm）；跳过不写。
+2. [ ] **无锚点 / 候选空** → 不弹层，直达食材确认页。
+3. [ ] **记一下** → 手动写入 `meal_logs`（source=manual）；列表展示近期。
+4. [ ] **推荐新鲜度** → 近 7 日已记录同菜名不再进家常方案。
+5. [ ] **采纳仍不写** `meal_logs`。
+
+**本切片范围（已交付）：** 进场确认、手动记录、列表、推荐同菜名硬排除。**未做：** 语音/拍照记录、完整画像、非常规方案、埋点全表。
