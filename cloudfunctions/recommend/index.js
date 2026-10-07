@@ -1,7 +1,6 @@
 'use strict'
 const cloud = require('wx-server-sdk')
-// Vendored copy: WeChat upload only packs this function dir (../_shared is unreliable).
-// Source of truth for tests: cloudfunctions/_shared/homePlans.js — keep in sync when changing.
+// Vendored: keep in sync with cloudfunctions/_shared/homePlans.js
 const { buildHomePlans } = require('./homePlans.js')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
@@ -36,6 +35,18 @@ function buildIngredientsByName(rows) {
   return map
 }
 
+function collectPlanRecipeIds(plans) {
+  const ids = []
+  for (const plan of plans || []) {
+    for (const meal of plan.meals || []) {
+      for (const dish of meal.dishes || []) {
+        if (dish.recipeId) ids.push(dish.recipeId)
+      }
+    }
+  }
+  return ids
+}
+
 async function resolveUid(openid) {
   const idRes = await db.collection('user_identities')
     .where({ provider: 'wechat_mp', providerUserId: openid })
@@ -45,23 +56,49 @@ async function resolveUid(openid) {
   return idRes.data[0].uid
 }
 
-exports.main = async (event) => {
-  const action = (event && event.action) || 'create'
-  if (action !== 'create') {
-    return { ok: false, error: 'UNSUPPORTED_ACTION' }
-  }
-
-  const wxContext = cloud.getWXContext()
-  const openid = wxContext.OPENID
-  if (!openid) return { ok: false, error: 'NO_OPENID' }
-
-  const uid = await resolveUid(openid)
-  if (!uid) return { ok: false, error: 'USER_NOT_FOUND' }
-
+async function loadUser(uid) {
   const userRes = await db.collection('users').where({ uid }).limit(1).get()
-  const user = userRes.data[0]
-  if (!user) return { ok: false, error: 'USER_NOT_FOUND' }
+  return userRes.data[0] || null
+}
 
+async function findRecommendation(uid, requestId) {
+  const res = await db.collection('recommendations')
+    .where({ uid, requestId })
+    .limit(1)
+    .get()
+  return res.data[0] || null
+}
+
+async function loadCatalog() {
+  const [recipesRes, ingredientsRes] = await Promise.all([
+    db.collection('recipes').limit(MAX).get(),
+    db.collection('ingredients').limit(MAX).get()
+  ])
+  return {
+    recipes: normalizeRecipes(recipesRes.data),
+    ingredientsByName: buildIngredientsByName(ingredientsRes.data)
+  }
+}
+
+function rebuildPlans(user, doc, excludedDishIds) {
+  const selected = doc.selectedIngredients || []
+  const selectedNames = selected.map((x) => x && x.name).filter(Boolean)
+  const downrankedIds = (user.rejectDownranks || []).map((x) =>
+    typeof x === 'string' ? x : x && x.recipeId
+  ).filter(Boolean)
+  return buildHomePlans({
+    recipes: doc._recipes,
+    ingredientsByName: doc._ingredientsByName,
+    selectedNames,
+    scene: doc.scene,
+    familyAvoids: user.familyAvoids || [],
+    excludedDishIds,
+    downrankedIds,
+    maxPlans: 3
+  })
+}
+
+async function handleCreate(event, uid, user) {
   const selected = (event && event.selected) || []
   const scene = (event && event.scene) || null
 
@@ -81,22 +118,20 @@ exports.main = async (event) => {
     return { ok: false, error: 'PEOPLE_COUNT_REQUIRED' }
   }
 
-  const [recipesRes, ingredientsRes] = await Promise.all([
-    db.collection('recipes').limit(MAX).get(),
-    db.collection('ingredients').limit(MAX).get()
-  ])
-
-  const recipes = normalizeRecipes(recipesRes.data)
-  const ingredientsByName = buildIngredientsByName(ingredientsRes.data)
+  const catalog = await loadCatalog()
   const selectedNames = selected.map((x) => x && x.name).filter(Boolean)
+  const downrankedIds = (user.rejectDownranks || []).map((x) =>
+    typeof x === 'string' ? x : x && x.recipeId
+  ).filter(Boolean)
 
   const built = buildHomePlans({
-    recipes,
-    ingredientsByName,
+    recipes: catalog.recipes,
+    ingredientsByName: catalog.ingredientsByName,
     selectedNames,
     scene,
     familyAvoids: user.familyAvoids || [],
     excludedDishIds: [],
+    downrankedIds,
     maxPlans: 3
   })
 
@@ -123,4 +158,140 @@ exports.main = async (event) => {
   const out = { ok: true, requestId, plans }
   if (built.emptyReason) out.emptyReason = built.emptyReason
   return out
+}
+
+async function handleSwapOrReject(event, uid, user, kind) {
+  const requestId = event && event.requestId
+  if (!requestId) return { ok: false, error: 'REQUEST_ID_REQUIRED' }
+
+  const doc = await findRecommendation(uid, requestId)
+  if (!doc) return { ok: false, error: 'RECOMMENDATION_NOT_FOUND' }
+
+  const catalog = await loadCatalog()
+  doc._recipes = catalog.recipes
+  doc._ingredientsByName = catalog.ingredientsByName
+
+  const fromPlans = collectPlanRecipeIds(doc.plans)
+  const excluded = Array.from(new Set([...(doc.excludedDishIds || []), ...fromPlans]))
+  const now = new Date().toISOString()
+  const feedback = Array.isArray(doc.feedback) ? doc.feedback.slice() : []
+  const entry = { type: kind, at: now }
+  if (kind === 'reject') {
+    if (event.reason) entry.reason = event.reason
+    if (typeof event.planIndex === 'number') entry.planIndex = event.planIndex
+  }
+  feedback.push(entry)
+
+  if (kind === 'reject' && fromPlans.length) {
+    const existing = (user.rejectDownranks || []).map((x) =>
+      typeof x === 'string' ? x : x && x.recipeId
+    ).filter(Boolean)
+    const merged = Array.from(new Set(existing.concat(fromPlans)))
+    const rejectDownranks = merged.map((recipeId) => ({ recipeId, at: now }))
+    await db.collection('users').where({ uid }).update({
+      data: {
+        rejectDownranks,
+        updatedAt: db.serverDate()
+      }
+    })
+    user.rejectDownranks = rejectDownranks
+  }
+
+  const built = rebuildPlans(user, doc, excluded)
+  const plans = built.plans || []
+  const swapCount = (doc.swapCount || 0) + 1
+
+  await db.collection('recommendations').doc(doc._id).update({
+    data: {
+      plans,
+      excludedDishIds: excluded,
+      swapCount,
+      feedback,
+      updatedAt: db.serverDate()
+    }
+  })
+
+  const out = { ok: true, requestId, plans, swapCount }
+  if (built.emptyReason) out.emptyReason = built.emptyReason
+  return out
+}
+
+async function handleAccept(event, uid, user) {
+  const requestId = event && event.requestId
+  if (!requestId) return { ok: false, error: 'REQUEST_ID_REQUIRED' }
+  const planIndex = typeof event.planIndex === 'number' ? event.planIndex : 0
+
+  const doc = await findRecommendation(uid, requestId)
+  if (!doc) return { ok: false, error: 'RECOMMENDATION_NOT_FOUND' }
+
+  await db.collection('recommendations').doc(doc._id).update({
+    data: {
+      accepted: true,
+      acceptedAt: db.serverDate(),
+      acceptedPlanIndex: planIndex,
+      updatedAt: db.serverDate()
+    }
+  })
+
+  const scene = doc.scene || {}
+  if (scene.mealType === 'daily') {
+    const data = { updatedAt: db.serverDate() }
+    if (typeof scene.peopleCount === 'number') data.defaultPeopleCount = scene.peopleCount
+    if (scene.combo) data.defaultCombo = scene.combo
+    await db.collection('users').where({ uid }).update({ data })
+  }
+
+  return {
+    ok: true,
+    requestId,
+    accepted: true,
+    acceptedPlanIndex: planIndex
+  }
+}
+
+async function handleEngage(event, uid) {
+  const requestId = event && event.requestId
+  if (!requestId) return { ok: false, error: 'REQUEST_ID_REQUIRED' }
+  const dwellMs = Number(event.dwellMs) || 0
+  const planIndex = typeof event.planIndex === 'number' ? event.planIndex : 0
+
+  const doc = await findRecommendation(uid, requestId)
+  if (!doc) return { ok: false, error: 'RECOMMENDATION_NOT_FOUND' }
+
+  const patch = {
+    dwellMs,
+    updatedAt: db.serverDate()
+  }
+  if (!doc.engagedAt && dwellMs >= 30000) {
+    patch.engagedAt = db.serverDate()
+    patch.engagedPlanIndex = planIndex
+  }
+
+  await db.collection('recommendations').doc(doc._id).update({ data: patch })
+  return {
+    ok: true,
+    requestId,
+    engaged: !!(doc.engagedAt || dwellMs >= 30000),
+    dwellMs
+  }
+}
+
+exports.main = async (event) => {
+  const action = (event && event.action) || 'create'
+  const wxContext = cloud.getWXContext()
+  const openid = wxContext.OPENID
+  if (!openid) return { ok: false, error: 'NO_OPENID' }
+
+  const uid = await resolveUid(openid)
+  if (!uid) return { ok: false, error: 'USER_NOT_FOUND' }
+
+  const user = await loadUser(uid)
+  if (!user) return { ok: false, error: 'USER_NOT_FOUND' }
+
+  if (action === 'create') return handleCreate(event, uid, user)
+  if (action === 'swap') return handleSwapOrReject(event, uid, user, 'swap')
+  if (action === 'reject') return handleSwapOrReject(event, uid, user, 'reject')
+  if (action === 'accept') return handleAccept(event, uid, user)
+  if (action === 'engage') return handleEngage(event, uid)
+  return { ok: false, error: 'UNSUPPORTED_ACTION' }
 }
