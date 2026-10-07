@@ -1,6 +1,28 @@
 <view class="wrap">
   <view class="brand">做什么菜</view>
-  <button type="primary" bindtap="goMarket">今天菜场有什么</button>
+  <button type="primary" loading="{{busy}}" disabled="{{busy}}" bindtap="goMarket">今天菜场有什么</button>
   <button bindtap="goRecord">记一下吃了什么</button>
   <view class="link" bindtap="goMine">我的</view>
+</view>
+
+<view class="mask" wx:if="{{showConfirm}}" catchtouchmove="true">
+  <view class="sheet">
+    <view class="sheet-title">上次推荐吃过哪些？</view>
+    <view class="sheet-hint">默认不选；可跳过</view>
+    <view
+      class="row {{selected[item] ? 'on' : ''}}"
+      wx:for="{{candidates}}"
+      wx:key="*this"
+      data-name="{{item}}"
+      bindtap="onToggleDish"
+    >
+      <text class="check">{{selected[item] ? '✓' : ''}}</text>
+      <text>{{item}}</text>
+    </view>
+    <view class="sheet-actions">
+      <button size="mini" bindtap="onSelectAll">全选</button>
+      <button size="mini" bindtap="onConfirmSkip">跳过</button>
+      <button size="mini" type="primary" loading="{{busy}}" bindtap="onConfirmSubmit">确认</button>
+    </view>
+  </view>
 </view>

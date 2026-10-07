@@ -1,0 +1,22 @@
+<view class="page">
+  <view class="label">吃过的菜（逗号或换行分隔）</view>
+  <textarea
+    class="input"
+    value="{{input}}"
+    placeholder="例如：红烧茄子，紫菜蛋花汤"
+    maxlength="200"
+    bindinput="onInput"
+  />
+  <button type="primary" loading="{{busy}}" disabled="{{busy}}" bindtap="onSubmit">记下</button>
+
+  <view class="section-title">近期记录</view>
+  <view wx:if="{{empty}}" class="empty">暂无记录</view>
+  <view class="item" wx:for="{{items}}" wx:key="logId">
+    <view class="meta">{{item.date}} · {{item.source}}</view>
+    <view class="dishes">{{item.dishesText}}</view>
+  </view>
+
+  <view class="footer">
+    <button bindtap="onBack">返回</button>
+  </view>
+</view>
