@@ -86,8 +86,10 @@ async function loadCatalog() {
   }
 }
 
-async function loadRecentDishNames(uid) {
+async function loadRecentMealSignals(uid) {
   const since = new Date(Date.now() - RECENT_MEAL_DAYS * 24 * 60 * 60 * 1000)
+  const dishNames = []
+  const ingredientNames = []
   try {
     const res = await db.collection('meal_logs')
       .where({
@@ -96,15 +98,31 @@ async function loadRecentDishNames(uid) {
       })
       .limit(MAX)
       .get()
-    const names = []
     for (const row of res.data || []) {
       for (const n of row.dishNames || []) {
-        if (n) names.push(n)
+        if (n) dishNames.push(n)
+      }
+      for (const n of row.ingredientNames || []) {
+        if (n) ingredientNames.push(n)
       }
     }
-    return names
   } catch (e) {
-    // collection may not exist yet in early envs
+    // collection may not exist yet
+  }
+  return { recentDishNames: dishNames, recentIngredientNames: ingredientNames }
+}
+
+async function loadMemberAvoids(uid) {
+  try {
+    const res = await db.collection('members').where({ uid }).limit(50).get()
+    const set = new Set()
+    for (const m of res.data || []) {
+      for (const a of m.avoids || []) {
+        if (a) set.add(a)
+      }
+    }
+    return Array.from(set)
+  } catch (e) {
     return []
   }
 }
@@ -124,6 +142,8 @@ function rebuildPlans(user, doc, excludedDishIds) {
     excludedDishIds,
     downrankedIds,
     recentDishNames: doc._recentDishNames || [],
+    memberAvoids: doc._memberAvoids || [],
+    recentIngredientNames: doc._recentIngredientNames || [],
     maxPlans: 3
   })
   const unc = buildUnconventionalPlan({
@@ -161,7 +181,8 @@ async function handleCreate(event, uid, user) {
   }
 
   const catalog = await loadCatalog()
-  const recentDishNames = await loadRecentDishNames(uid)
+  const recent = await loadRecentMealSignals(uid)
+  const memberAvoids = await loadMemberAvoids(uid)
   const selectedNames = selected.map((x) => x && x.name).filter(Boolean)
   const downrankedIds = (user.rejectDownranks || []).map((x) =>
     typeof x === 'string' ? x : x && x.recipeId
@@ -175,7 +196,9 @@ async function handleCreate(event, uid, user) {
     familyAvoids: user.familyAvoids || [],
     excludedDishIds: [],
     downrankedIds,
-    recentDishNames,
+    recentDishNames: recent.recentDishNames,
+    memberAvoids,
+    recentIngredientNames: recent.recentIngredientNames,
     maxPlans: 3
   })
 
@@ -222,7 +245,10 @@ async function handleSwapOrReject(event, uid, user, kind) {
   const catalog = await loadCatalog()
   doc._recipes = catalog.recipes
   doc._ingredientsByName = catalog.ingredientsByName
-  doc._recentDishNames = await loadRecentDishNames(uid)
+  const recent = await loadRecentMealSignals(uid)
+  doc._recentDishNames = recent.recentDishNames
+  doc._recentIngredientNames = recent.recentIngredientNames
+  doc._memberAvoids = await loadMemberAvoids(uid)
 
   const fromPlans = collectPlanRecipeIds(doc.plans)
   const excluded = Array.from(new Set([...(doc.excludedDishIds || []), ...fromPlans]))

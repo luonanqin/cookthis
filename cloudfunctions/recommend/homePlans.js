@@ -58,7 +58,6 @@ function pickFromBucket(bucket, count, usedIds, startOffset) {
     picked.push(r)
   }
   if (picked.length < count) {
-    // relax: allow reuse within remaining if multi-meal depleted
     for (let i = 0; i < n && picked.length < count; i++) {
       const r = bucket[(startOffset + i) % n]
       if (picked.find((p) => p.id === r.id)) continue
@@ -99,6 +98,19 @@ function planFingerprint(meals) {
     .join('|')
 }
 
+function softPenalty(recipe, ctx) {
+  let score = 0
+  if (ctx.downranked.has(recipe.id)) score += 100
+  const tags = recipeAvoidTags(recipe, ctx.ingredientsByName)
+  if (intersects(tags, ctx.memberAvoids)) score += 40
+  let overlap = 0
+  for (const name of recipe.mainIngredients || []) {
+    if (ctx.recentIngredients.has(name)) overlap += 1
+  }
+  score += overlap * 10
+  return score
+}
+
 function buildHomePlans(input) {
   const {
     recipes = [],
@@ -109,6 +121,8 @@ function buildHomePlans(input) {
     excludedDishIds = [],
     downrankedIds = [],
     recentDishNames = [],
+    memberAvoids = [],
+    recentIngredientNames = [],
     maxPlans = 3
   } = input || {}
 
@@ -122,6 +136,8 @@ function buildHomePlans(input) {
   const recentDishes = new Set(
     (recentDishNames || []).map((n) => String(n || '').replace(/\s+/g, '').trim()).filter(Boolean)
   )
+  const memberAvoidSet = new Set(memberAvoids || [])
+  const recentIngredients = new Set((recentIngredientNames || []).filter(Boolean))
 
   const candidates = []
   for (const recipe of recipes) {
@@ -138,19 +154,20 @@ function buildHomePlans(input) {
   for (const r of candidates) {
     if (buckets[r.meatVeg]) buckets[r.meatVeg].push(r)
   }
-  // Soft downrank: prefer recipes not in long-term reject list when picking.
+
+  const ctx = {
+    downranked,
+    memberAvoids: memberAvoidSet,
+    recentIngredients,
+    ingredientsByName
+  }
   for (const key of Object.keys(buckets)) {
-    buckets[key].sort((a, b) => {
-      const da = downranked.has(a.id) ? 1 : 0
-      const db = downranked.has(b.id) ? 1 : 0
-      return da - db
-    })
+    buckets[key].sort((a, b) => softPenalty(a, ctx) - softPenalty(b, ctx))
   }
 
   const plans = []
   const seen = new Set()
   const limit = Math.max(1, Number(maxPlans) || 3)
-  // try several offsets to diversify; keep unique fingerprints only
   const maxAttempts = Math.max(limit * 3, 6)
   for (let offset = 0; offset < maxAttempts && plans.length < limit; offset++) {
     const meals = fillMeals(buckets, combo, mealSlots, offset)

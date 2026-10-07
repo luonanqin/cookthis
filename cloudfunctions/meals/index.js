@@ -76,11 +76,36 @@ async function handleConfirmCandidates(uid) {
   }
 }
 
+async function resolveIngredientNames(dishNames, provided) {
+  if (Array.isArray(provided) && provided.length) return cleanDishNames(provided)
+  try {
+    const res = await db.collection('recipes').limit(500).get()
+    const byName = new Map()
+    for (const r of res.data || []) {
+      if (r && r.name) byName.set(r.name, r)
+    }
+    const set = new Set()
+    for (const name of dishNames) {
+      const r = byName.get(name)
+      for (const n of (r && r.mainIngredients) || []) {
+        if (n) set.add(n)
+      }
+    }
+    return Array.from(set)
+  } catch (e) {
+    return []
+  }
+}
+
 async function handleConfirmWrite(event, uid) {
   const dishNames = cleanDishNames(event && event.dishNames)
   if (dishNames.length === 0) {
     return { ok: true, skipped: true }
   }
+  const ingredientNames = await resolveIngredientNames(
+    dishNames,
+    event && event.ingredientNames
+  )
   const now = db.serverDate()
   const logId = makeLogId()
   await db.collection('meal_logs').add({
@@ -90,7 +115,7 @@ async function handleConfirmWrite(event, uid) {
       date: localDateYmd(),
       meal: (event && event.meal) || 'unknown',
       dishNames,
-      ingredientNames: [],
+      ingredientNames,
       source: 'confirm',
       recommendationId: (event && event.recommendationId) || null,
       requestId: (event && event.requestId) || null,
@@ -105,6 +130,10 @@ async function handleAddManual(event, uid) {
   if (dishNames.length === 0) {
     return { ok: false, error: 'DISH_NAMES_REQUIRED' }
   }
+  const ingredientNames = await resolveIngredientNames(
+    dishNames,
+    event && event.ingredientNames
+  )
   const now = db.serverDate()
   const logId = makeLogId()
   await db.collection('meal_logs').add({
@@ -114,7 +143,7 @@ async function handleAddManual(event, uid) {
       date: (event && event.date) || localDateYmd(),
       meal: (event && event.meal) || 'unknown',
       dishNames,
-      ingredientNames: [],
+      ingredientNames,
       source: 'manual',
       recommendationId: null,
       requestId: null,

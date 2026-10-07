@@ -122,6 +122,77 @@ describe('buildHomePlans', () => {
     assert.equal(meatId, 'rcp_tomato_egg_meat_alt')
   })
 
+  it('soft-downranks meat that hits memberAvoids when another meat exists', () => {
+    const withAltMeat = recipes.concat([
+      {
+        id: 'rcp_tomato_egg_meat_alt',
+        name: '番茄炒蛋荤替',
+        mainIngredients: ['猪肉', '番茄'],
+        seasonings: ['盐'],
+        meatVeg: 'meat',
+        cities: [],
+        enabled: true
+      },
+      {
+        id: 'rcp_beef_potato',
+        name: '土豆炖牛腩',
+        mainIngredients: ['牛肉', '土豆'],
+        seasonings: ['盐'],
+        meatVeg: 'meat',
+        cities: [],
+        enabled: true
+      }
+    ])
+    const ingredients = {
+      ...ingredientsByName,
+      番茄: { avoidTags: [] },
+      牛肉: { avoidTags: [] }
+    }
+    // pork hits memberAvoids → prefer beef
+    const result = buildHomePlans({
+      recipes: withAltMeat,
+      ingredientsByName: ingredients,
+      selectedNames: selectedNames.concat(['番茄', '牛肉']),
+      scene: baseScene,
+      familyAvoids: [],
+      memberAvoids: ['pork']
+    })
+    assert.ok(result.plans.length >= 1)
+    const meatId = result.plans[0].meals[0].dishes.find((d) => d.meatVeg === 'meat').recipeId
+    assert.equal(meatId, 'rcp_beef_potato')
+  })
+
+  it('soft-downranks meat with recent ingredient overlap', () => {
+    const withAltMeat = recipes.concat([
+      {
+        id: 'rcp_beef_potato',
+        name: '土豆炖牛腩',
+        mainIngredients: ['牛肉', '土豆'],
+        seasonings: ['盐'],
+        meatVeg: 'meat',
+        cities: [],
+        enabled: true
+      }
+    ])
+    const ingredients = {
+      ...ingredientsByName,
+      牛肉: { avoidTags: [] }
+    }
+    // 猪肉 overlap on potato_pork; beef has no 猪肉 → prefer beef if potato also recent?
+    // recent 猪肉 → potato_pork has pork, beef does not → prefer beef
+    const result = buildHomePlans({
+      recipes: withAltMeat,
+      ingredientsByName: ingredients,
+      selectedNames: selectedNames.concat(['牛肉']),
+      scene: baseScene,
+      familyAvoids: [],
+      recentIngredientNames: ['猪肉']
+    })
+    assert.ok(result.plans.length >= 1)
+    const meatId = result.plans[0].meals[0].dishes.find((d) => d.meatVeg === 'meat').recipeId
+    assert.equal(meatId, 'rcp_beef_potato')
+  })
+
   it('prefers non-downranked meat when another meat exists', () => {
     const withAltMeat = recipes.concat([
       {
