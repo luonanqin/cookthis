@@ -153,6 +153,34 @@ async function handleAddManual(event, uid) {
   return { ok: true, logId, dishNames }
 }
 
+async function handleAddVoice(event, uid) {
+  const dishNames = cleanDishNames(event && event.dishNames)
+  if (dishNames.length === 0) {
+    return { ok: false, error: 'DISH_NAMES_REQUIRED' }
+  }
+  const ingredientNames = await resolveIngredientNames(
+    dishNames,
+    event && event.ingredientNames
+  )
+  const now = db.serverDate()
+  const logId = makeLogId()
+  await db.collection('meal_logs').add({
+    data: {
+      uid,
+      logId,
+      date: (event && event.date) || localDateYmd(),
+      meal: (event && event.meal) || 'unknown',
+      dishNames,
+      ingredientNames,
+      source: 'voice',
+      recommendationId: null,
+      requestId: null,
+      createdAt: now
+    }
+  })
+  return { ok: true, logId, dishNames }
+}
+
 async function handleList(event, uid) {
   const limit = Math.min(50, Math.max(1, Number(event && event.limit) || 20))
   const res = await db.collection('meal_logs')
@@ -183,6 +211,7 @@ exports.main = async (event) => {
   if (action === 'confirmCandidates') return handleConfirmCandidates(uid)
   if (action === 'confirmWrite') return handleConfirmWrite(event, uid)
   if (action === 'addManual') return handleAddManual(event, uid)
+  if (action === 'addVoice') return handleAddVoice(event, uid)
   if (action === 'list') return handleList(event, uid)
   return { ok: false, error: 'UNKNOWN_ACTION' }
 }

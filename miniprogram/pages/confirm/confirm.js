@@ -3,6 +3,8 @@ const { getUser } = require('../../services/session.js')
 const { suggestComboByPeople } = require('../../utils/suggestCombo.js')
 const { filterHolidays } = require('../../utils/filterHolidays.js')
 const { track } = require('../../utils/track.js')
+const { recognizeOnce, stopRecognize } = require('../../utils/voice.js')
+const { parseFoodNames } = require('../../utils/parseFoodNames.js')
 const holidaysPack = require('../../data/holidays.json')
 
 const STORAGE_KEY = 'cookthis_last_selected'
@@ -143,6 +145,11 @@ Page({
     manualInput: '',
     count: 0,
     yearRoundCount: 0,
+    voiceListening: false,
+    showVoiceConfirm: false,
+    voiceCandidates: [],
+    voiceSelected: {},
+    voiceTranscript: '',
 
     mealTypeOptions: MEAL_TYPE_OPTIONS,
     mealType: 'daily',
@@ -304,6 +311,120 @@ Page({
       manuals,
       ...this._counts(this.data.seasonalChecked, this.data.yearRoundChecked, manuals)
     })
+  },
+
+  _knownIngredientNames() {
+    const names = []
+    for (const it of this.data.seasonal || []) {
+      if (it && it.name) names.push(it.name)
+    }
+    for (const it of this.data.yearRound || []) {
+      if (it && it.name) names.push(it.name)
+    }
+    return names
+  },
+
+  onVoiceAdd() {
+    if (this.data.voiceListening || this.data.submitting) return
+    track('ingredient_voice_start', {})
+    this.setData({ voiceListening: true })
+    wx.showToast({ title: '请说出菜名…', icon: 'none', duration: 2000 })
+    recognizeOnce({ duration: 12000 })
+      .then((text) => {
+        const names = parseFoodNames(text, {
+          knownNames: this._knownIngredientNames()
+        })
+        track('ingredient_voice_result', {
+          success: names.length > 0,
+          count: names.length
+        })
+        if (!names.length) {
+          this.setData({ voiceListening: false })
+          wx.showToast({ title: '没听清菜名', icon: 'none' })
+          return
+        }
+        const voiceSelected = {}
+        names.forEach((n) => {
+          voiceSelected[n] = true
+        })
+        this.setData({
+          voiceListening: false,
+          showVoiceConfirm: true,
+          voiceTranscript: text,
+          voiceCandidates: names,
+          voiceSelected
+        })
+      })
+      .catch((err) => {
+        this.setData({ voiceListening: false })
+        track('ingredient_voice_result', { success: false, count: 0 })
+        const code = err && err.error
+        let title = '语音失败'
+        if (code === 'VOICE_PLUGIN_UNAVAILABLE') title = '请先开通同声传译插件'
+        if (code === 'VOICE_EMPTY') title = '没听清，请再说一次'
+        wx.showToast({ title, icon: 'none' })
+      })
+  },
+
+  onToggleVoiceCandidate(e) {
+    const name = e.currentTarget.dataset.name
+    if (!name) return
+    const voiceSelected = Object.assign({}, this.data.voiceSelected)
+    voiceSelected[name] = !voiceSelected[name]
+    this.setData({ voiceSelected })
+  },
+
+  onVoiceSheetCancel() {
+    this.setData({
+      showVoiceConfirm: false,
+      voiceCandidates: [],
+      voiceTranscript: ''
+    })
+  },
+
+  onVoiceSheetConfirm() {
+    const picked = this.data.voiceCandidates.filter((n) => this.data.voiceSelected[n])
+    if (!picked.length) {
+      wx.showToast({ title: '请至少选一项', icon: 'none' })
+      return
+    }
+
+    const seasonalChecked = Object.assign({}, this.data.seasonalChecked)
+    const yearRoundChecked = Object.assign({}, this.data.yearRoundChecked)
+    let manuals = this.data.manuals.slice()
+    const seasonalByName = new Map((this.data.seasonal || []).map((x) => [x.name, x]))
+    const yearRoundByName = new Map((this.data.yearRound || []).map((x) => [x.name, x]))
+    const existingManual = new Set(manuals.map((m) => m.name))
+
+    for (const name of picked) {
+      if (seasonalByName.has(name)) {
+        seasonalChecked[seasonalByName.get(name).id] = true
+        continue
+      }
+      if (yearRoundByName.has(name)) {
+        yearRoundChecked[yearRoundByName.get(name).id] = true
+        continue
+      }
+      if (!existingManual.has(name)) {
+        manuals.push({
+          id: 'voice_' + Date.now() + '_' + manuals.length,
+          name,
+          source: 'voice'
+        })
+        existingManual.add(name)
+      }
+    }
+
+    this.setData({
+      showVoiceConfirm: false,
+      voiceCandidates: [],
+      voiceTranscript: '',
+      seasonalChecked,
+      yearRoundChecked,
+      manuals,
+      ...this._counts(seasonalChecked, yearRoundChecked, manuals)
+    })
+    wx.showToast({ title: '已加入', icon: 'success' })
   },
 
   onMealTypeTap(e) {
@@ -496,7 +617,8 @@ Page({
     }
 
     const methodsUsed = ['default_list']
-    if (this.data.manuals.length) methodsUsed.push('manual')
+    if (this.data.manuals.some((m) => m.source === 'manual')) methodsUsed.push('manual')
+    if (this.data.manuals.some((m) => m.source === 'voice')) methodsUsed.push('voice')
     wx.setStorageSync(STORAGE_KEY, { selected, methodsUsed, scene })
     track('ingredient_confirm', {
       selectedCount: selected.length,

@@ -7,7 +7,16 @@
     maxlength="200"
     bindinput="onInput"
   />
-  <button type="primary" loading="{{busy}}" disabled="{{busy}}" bindtap="onSubmit">记下</button>
+  <view class="btn-row">
+    <button type="primary" loading="{{busy}}" disabled="{{busy || listening}}" bindtap="onSubmit">记下</button>
+    <button
+      loading="{{listening}}"
+      disabled="{{busy}}"
+      bindtap="onVoiceTap"
+      bindlongpress="onStopVoice"
+    >{{listening ? '聆听中…松手结束可点停' : '语音记'}}</button>
+  </view>
+  <view class="hint">语音：点一下开始说，约十几秒内自动结束；也可长按按钮结束。</view>
 
   <view class="section-title">近期记录</view>
   <view wx:if="{{empty}}" class="empty">暂无记录</view>
@@ -18,5 +27,26 @@
 
   <view class="footer">
     <button bindtap="onBack">返回</button>
+  </view>
+
+  <view class="mask" wx:if="{{showVoiceConfirm}}" catchtouchmove="true">
+    <view class="sheet">
+      <view class="sheet-title">确认吃过的菜</view>
+      <view class="transcript" wx:if="{{transcript}}">识别：{{transcript}}</view>
+      <view
+        class="row {{voiceSelected[item] ? 'on' : ''}}"
+        wx:for="{{voiceCandidates}}"
+        wx:key="*this"
+        data-name="{{item}}"
+        bindtap="onToggleVoiceName"
+      >
+        <text class="check">{{voiceSelected[item] ? '✓' : ''}}</text>
+        <text>{{item}}</text>
+      </view>
+      <view class="sheet-actions">
+        <button size="mini" bindtap="onVoiceCancel">取消</button>
+        <button size="mini" type="primary" loading="{{busy}}" bindtap="onVoiceConfirm">确认记下</button>
+      </view>
+    </view>
   </view>
 </view>

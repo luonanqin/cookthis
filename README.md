@@ -88,8 +88,8 @@
 
 1. **重新部署**云函数：`auth`、`profile`、`recommend`、`meals`（及已有 `analytics`）。
 2. 集合 `members`（若未建）；`events` 继续收埋点。
-3. 广告：在 `miniprogram/utils/ads.js` 填入流量主 `shoppingNative` unitId；未填则不展示广告位。日常清单 1 条、非日常最多 2 条。
-4. **语音记饮食**：仍未做，留到最后。
+3. 广告：`miniprogram/utils/ads.js` 的 `ADS_ENABLED`（未开通前保持 `false`）+ 可选 `shoppingNative` unitId。
+4. **语音**：在微信公众平台 → 小程序 → 设置 → 第三方设置 → 插件管理，添加 **微信同声传译**（`WechatSI` / provider `wx069ba97219f66d99`）。本地已在 `app.json` 声明插件与录音权限。重新部署云函数 `meals`（含 `addVoice`）。
 
 ---
 
@@ -203,6 +203,22 @@
 1. [ ] 新用户进 **onboarding** 四步并 `onboardingDone`。
 2. [ ] 成员忌口 / 近期主料重叠会改变推荐排序（软降权，不硬删）。
 3. [ ] 关键路径写入 `events`（如 `market_entry`、`recommend_accept`、`meal_log_manual`）。
-4. [ ] 购买清单：配置 unitId 后日常 1 条 / 非日常最多 2 条原生广告。
+4. [ ] 购买清单：`ADS_ENABLED=true` 并配置 unitId 后，日常 1 条 / 非日常最多 2 条原生广告。
 
-**未做（刻意留后）：** 语音记饮食、语音补菜、拍照、激励视频换一批、封面广告、埋点全表每一个次要事件。
+---
+
+## 验收清单（语音补菜 · 语音记饮食）
+
+**状态：自动化已通过 · 人工点验暂缓**
+
+**自动化：**
+
+- [x] `npm test` PASS（含 `parseFoodNames`）。
+
+**需人工（暂缓）：** 先在公众平台添加 WechatSI 插件。
+
+1. [ ] **确认页 · 语音** → 说出库内食材名 → 确认半屏 → 勾选进汇总；`methodsUsed` 可含 `voice`。
+2. [ ] **记一下 · 语音记** → 说出菜名 → 确认后写入 `meal_logs`（`source=voice`）。
+3. [ ] 插件未开通 / 拒录音时 toast，手动入口仍可用。
+
+**未做（仍延后）：** 拍照、激励视频换一批、封面广告。

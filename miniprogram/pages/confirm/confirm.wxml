@@ -59,6 +59,7 @@
           bindconfirm="addManual"
         />
         <button size="mini" type="primary" bindtap="addManual">添加</button>
+        <button size="mini" loading="{{voiceListening}}" disabled="{{voiceListening}}" bindtap="onVoiceAdd">语音</button>
       </view>
       <view
         wx:for="{{manuals}}"
@@ -179,5 +180,26 @@
 
   <view class="footer" wx:if="{{!loading && !error}}">
     <button type="primary" loading="{{submitting}}" disabled="{{submitting}}" bindtap="onConfirm">确认（已选 {{count}}）</button>
+  </view>
+
+  <view class="mask" wx:if="{{showVoiceConfirm}}" catchtouchmove="true">
+    <view class="sheet">
+      <view class="sheet-title">确认补入的菜</view>
+      <view class="transcript" wx:if="{{voiceTranscript}}">识别：{{voiceTranscript}}</view>
+      <view
+        class="voice-row {{voiceSelected[item] ? 'on' : ''}}"
+        wx:for="{{voiceCandidates}}"
+        wx:key="*this"
+        data-name="{{item}}"
+        bindtap="onToggleVoiceCandidate"
+      >
+        <text class="check">{{voiceSelected[item] ? '✓' : ''}}</text>
+        <text>{{item}}</text>
+      </view>
+      <view class="sheet-actions">
+        <button size="mini" bindtap="onVoiceSheetCancel">取消</button>
+        <button size="mini" type="primary" bindtap="onVoiceSheetConfirm">加入</button>
+      </view>
+    </view>
   </view>
 </view>

@@ -1,5 +1,11 @@
 /**
- * 流量主广告 unitId。未配置（空字符串）时购物页不渲染广告位。
+ * 广告总开关：未开通流量主前保持 false，不渲染任何广告位。
+ * 开通并填好 unitId 后再改为 true。
+ */
+const ADS_ENABLED = false
+
+/**
+ * 流量主广告 unitId。总开关开启且 unitId 非空时才展示。
  * 在微信公众平台开通流量主后填入真实 unitId。
  */
 const AD_UNITS = {
@@ -8,6 +14,7 @@ const AD_UNITS = {
 }
 
 function shoppingAdSlots(mealType) {
+  if (!ADS_ENABLED) return []
   const unitId = AD_UNITS.shoppingNative
   if (!unitId) return []
   const count = mealType && mealType !== 'daily' ? 2 : 1
@@ -18,4 +25,4 @@ function shoppingAdSlots(mealType) {
   return slots
 }
 
-module.exports = { AD_UNITS, shoppingAdSlots }
+module.exports = { ADS_ENABLED, AD_UNITS, shoppingAdSlots }

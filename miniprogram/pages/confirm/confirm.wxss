@@ -251,3 +251,60 @@
   background: #f7f7f7;
   box-shadow: 0 -2rpx 8rpx rgba(0, 0, 0, 0.04);
 }
+
+.mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: flex-end;
+  z-index: 30;
+}
+
+.sheet {
+  width: 100%;
+  background: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  padding: 32rpx 24rpx calc(24rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.sheet-title {
+  font-weight: 600;
+  font-size: 32rpx;
+}
+
+.transcript {
+  color: #888;
+  font-size: 24rpx;
+  margin: 12rpx 0 16rpx;
+}
+
+.voice-row {
+  display: flex;
+  align-items: center;
+  padding: 22rpx 0;
+  border-bottom: 1rpx solid #eee;
+  font-size: 28rpx;
+}
+
+.voice-row.on {
+  color: #2e7d32;
+}
+
+.voice-row .check {
+  width: 40rpx;
+  margin-right: 12rpx;
+}
+
+.sheet-actions {
+  display: flex;
+  gap: 12rpx;
+  justify-content: flex-end;
+  margin-top: 24rpx;
+}
