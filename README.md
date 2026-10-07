@@ -19,6 +19,7 @@
 | `nickname.js` | `auth/nickname.js` |
 | `confirmList.js` | `ingredients/confirmList.js` |
 | `homePlans.js` | `recommend/homePlans.js` |
+| `shoppingList.js` | 小程序 `miniprogram/utils/shoppingList.js`（清单页本地聚合，非云函数） |
 
 ---
 
@@ -45,6 +46,14 @@
 节日列表已打进小程序（`miniprogram/data/holidays.json`），**不必**再导入云库。
 
 做完以上即可对照下方「Slice 2 验收清单」点验。
+
+---
+
+## Slice 3 准备（换一批 / 采纳 / 清单 / engage）
+
+假定 **Slice 2 准备已完成**。本切片**无新集合**；上传/重新部署云函数 `recommend` 即可（含 swap/reject/accept/engage）。用户字段 `rejectDownranks` 由 reject 自动写入，无需手工建。
+
+做完即可对照下方「Slice 3 验收清单」。开发者工具人工点验**暂缓**，以 `npm test` 为主。
 
 ---
 
@@ -84,3 +93,23 @@
 5. [ ] **忌口** → 日常用画像 `familyAvoids`、聚会用当次 `partyAvoids`（不写回画像）；含忌口的菜谱被排除。
 
 **本切片范围（已交付）：** 场景表单、`recommend.create` 家常方案、推荐页展示。**未做：** 换一批 / 可以 / 购买清单 / 非常规方案 / engage。
+
+---
+
+## 本切片验收清单（Slice 3）
+
+**状态：自动化已通过 · 人工点验暂缓**（2026-10-07）
+
+**自动化（CI / 本地）：**
+
+- [x] 仓库根目录 `npm test` 全部 PASS（含 `buildShoppingList`、`buildHomePlans` 降权用例及前序切片）。
+
+**需人工（暂缓）：** 完成「公共准备」+ Slice 1～3 准备后，在模拟器 / 真机点验：
+
+1. [ ] **换一批** → 调用 `recommend.swap`，方案刷新；不写长期降权。
+2. [ ] **不行** → 可选原因半屏；`reject` 后方案刷新；`users.rejectDownranks` 写入菜谱 id。
+3. [ ] **可以** → `accept` 成功；**不**写 `meal_logs`；跳转购买清单且 `accepted=true`；日常可写回人数/搭配默认。
+4. [ ] **查看购买清单** → 不调 accept；主料未持有优先、已有主料次之、调味靠后；勾选已买本地持久。
+5. [ ] **engage** → 推荐页可见累计 ≥30s 写一次 `engagedAt`。
+
+**本切片范围（已交付）：** swap / reject / accept / engage、购买清单页、软降权。**未做：** 进场确认、饮食记录、非常规方案、埋点全表、广告。
