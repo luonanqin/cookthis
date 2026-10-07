@@ -1,5 +1,6 @@
 const { ensureLogin, getUser } = require('../../services/session.js')
 const { callCloud } = require('../../services/cloud.js')
+const { track } = require('../../utils/track.js')
 
 function resolveAvatar(url) {
   return url ? url : '/assets/avatar-default.png'
@@ -109,6 +110,9 @@ Page({
       defaultPeopleCount: this.data.defaultPeopleCount
     })
       .then(() => {
+        track('profile_update', {
+          fields: ['familyAvoids', 'dishFormPrefs', 'defaultPeopleCount']
+        })
         wx.showToast({ title: '已保存', icon: 'success' })
         return ensureLogin()
       })

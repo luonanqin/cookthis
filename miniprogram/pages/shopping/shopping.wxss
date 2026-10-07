@@ -57,6 +57,10 @@
   font-size: 22rpx;
   color: #888;
 }
+.ad-slot {
+  margin: 24rpx 0;
+  min-height: 40rpx;
+}
 .footer {
   position: fixed;
   left: 0;

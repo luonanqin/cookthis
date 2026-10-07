@@ -1,4 +1,6 @@
 const { buildShoppingList } = require('../../utils/shoppingList.js')
+const { shoppingAdSlots } = require('../../utils/ads.js')
+const { track } = require('../../utils/track.js')
 
 const RECOMMEND_KEY = 'cookthis_last_recommend'
 const SELECTED_KEY = 'cookthis_last_selected'
@@ -33,7 +35,8 @@ Page({
     items: [],
     accepted: false,
     emptyText: '暂无清单',
-    empty: true
+    empty: true,
+    adSlots: []
   },
 
   _requestId: '',
@@ -44,6 +47,11 @@ Page({
     const planIndex = Number(query.planIndex)
     const idx = Number.isFinite(planIndex) ? planIndex : 0
     const recommend = readJson(RECOMMEND_KEY) || {}
+    const selectedSnap = readJson(SELECTED_KEY) || {}
+    const mealType =
+      (recommend.scene && recommend.scene.mealType) ||
+      (selectedSnap.scene && selectedSnap.scene.mealType) ||
+      'daily'
     const plans = Array.isArray(recommend.plans) ? recommend.plans : []
     const plan = plans[idx] || plans[0] || null
     const selectedNames = selectedNamesFromStorage()
@@ -62,11 +70,13 @@ Page({
 
     this._requestId = recommend.requestId || ''
     this._planIndex = idx
+    track('shopping_list_open', { accepted })
     this.setData({
       items,
       accepted,
       empty: items.length === 0,
-      emptyText: items.length === 0 ? '暂无清单，可返回推荐页' : ''
+      emptyText: items.length === 0 ? '暂无清单，可返回推荐页' : '',
+      adSlots: shoppingAdSlots(mealType)
     })
   },
 
@@ -75,7 +85,9 @@ Page({
     if (!name) return
     const items = this.data.items.map((it) => {
       if (it.name !== name) return it
-      return Object.assign({}, it, { bought: !it.bought })
+      const bought = !it.bought
+      track('shopping_list_item_check', { name, checked: bought })
+      return Object.assign({}, it, { bought })
     })
     this.setData({ items })
     this._persistChecks(items)
@@ -89,6 +101,8 @@ Page({
   },
 
   onBack() {
+    const checkedCount = this.data.items.filter((it) => it.bought).length
+    track('shopping_list_done', { checkedCount })
     wx.navigateBack({ delta: 1 })
   }
 })

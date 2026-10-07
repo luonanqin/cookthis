@@ -1,4 +1,5 @@
 const { callCloud } = require('../../services/cloud.js')
+const { ensureLogin, getUser } = require('../../services/session.js')
 const { track } = require('../../utils/track.js')
 
 Page({
@@ -11,8 +12,23 @@ Page({
     recommendationId: null
   },
 
+  onShow() {
+    ensureLogin()
+      .then((user) => {
+        if (user && !user.onboardingDone) {
+          wx.redirectTo({ url: '/pages/onboarding/onboarding' })
+        }
+      })
+      .catch(() => {})
+  },
+
   goMarket() {
     if (this.data.busy) return
+    const user = getUser()
+    if (user && !user.onboardingDone) {
+      wx.navigateTo({ url: '/pages/onboarding/onboarding' })
+      return
+    }
     track('market_entry', {})
     this.setData({ busy: true })
     callCloud('meals', { action: 'confirmCandidates' })
@@ -20,6 +36,7 @@ Page({
         if (result && result.show && (result.dishNames || []).length) {
           const selected = {}
           for (const name of result.dishNames) selected[name] = false
+          track('confirm_sheet_show', { candidateCount: result.dishNames.length })
           this.setData({
             showConfirm: true,
             candidates: result.dishNames,
@@ -56,6 +73,7 @@ Page({
   },
 
   onConfirmSkip() {
+    track('confirm_sheet_skip', {})
     this.setData({ showConfirm: false })
     this._goConfirm()
   },
@@ -63,22 +81,31 @@ Page({
   onConfirmSubmit() {
     if (this.data.busy) return
     const dishNames = this.data.candidates.filter((n) => this.data.selected[n])
+    const candidateCount = this.data.candidates.length
     this.setData({ busy: true, showConfirm: false })
     const finish = () => {
       this.setData({ busy: false })
       this._goConfirm()
     }
     if (!dishNames.length) {
+      track('confirm_sheet_submit', { selectedCount: 0, candidateCount })
       finish()
       return
     }
+    track('confirm_sheet_submit', {
+      selectedCount: dishNames.length,
+      candidateCount
+    })
     callCloud('meals', {
       action: 'confirmWrite',
       dishNames,
       requestId: this.data.requestId,
       recommendationId: this.data.recommendationId
     })
-      .then(finish)
+      .then(() => {
+        track('meal_log_confirm', { dishCount: dishNames.length })
+        finish()
+      })
       .catch((err) => {
         console.error(err)
         wx.showToast({ title: '记录失败，已跳过', icon: 'none' })

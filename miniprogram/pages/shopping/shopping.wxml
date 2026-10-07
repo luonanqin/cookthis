@@ -21,6 +21,10 @@
     </view>
   </block>
 
+  <view class="ad-slot" wx:for="{{adSlots}}" wx:key="id">
+    <ad unit-id="{{item.unitId}}"></ad>
+  </view>
+
   <view class="footer">
     <button bindtap="onBack">返回</button>
   </view>

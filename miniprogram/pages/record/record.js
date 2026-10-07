@@ -1,4 +1,5 @@
 const { callCloud } = require('../../services/cloud.js')
+const { track } = require('../../utils/track.js')
 
 Page({
   data: {
@@ -50,6 +51,7 @@ Page({
     this.setData({ busy: true })
     callCloud('meals', { action: 'addManual', dishNames })
       .then(() => {
+        track('meal_log_manual', { dishCount: dishNames.length })
         this.setData({ input: '', busy: false })
         wx.showToast({ title: '已记录', icon: 'success' })
         this.loadList()

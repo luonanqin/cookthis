@@ -1,4 +1,5 @@
 const { callCloud } = require('../../services/cloud.js')
+const { track } = require('../../utils/track.js')
 
 const RECOMMEND_KEY = 'cookthis_last_recommend'
 
@@ -93,6 +94,7 @@ Page({
     const ms = this._currentVisibleMs()
     if (ms < 30000) return
     this._engagedSent = true
+    track('recommend_engage', { planIndex: 0, dwellMs: ms })
     callCloud('recommend', {
       action: 'engage',
       requestId: this.data.requestId,
@@ -112,6 +114,20 @@ Page({
       emptyText: emptyMessage(snap && snap.emptyReason),
       requestId: (snap && snap.requestId) || ''
     })
+    if (empty) {
+      track('empty_recommend', { reasonCode: (snap && snap.emptyReason) || null })
+    } else {
+      track('recommend_show', {
+        planCount: plans.length,
+        planKinds: plans.map((p) => p.planKind || 'home')
+      })
+      plans.forEach((p) => {
+        track('recommend_plan_impression', {
+          planIndex: p.planIndex,
+          planKind: p.planKind || 'home'
+        })
+      })
+    }
   },
 
   onBack() {
@@ -119,6 +135,7 @@ Page({
   },
 
   onSwap() {
+    track('recommend_swap', { swapIndex: 1 })
     this._rerun('swap')
   },
 
@@ -132,12 +149,14 @@ Page({
 
   onRejectSkip() {
     this.setData({ showReject: false })
+    track('recommend_reject', { skippedReason: true })
     this._rerun('reject', {})
   },
 
   onRejectReason(e) {
     const reason = e.currentTarget.dataset.id
     this.setData({ showReject: false })
+    track('recommend_reject', { reason, skippedReason: false })
     this._rerun('reject', { reason, planIndex: 0 })
   },
 
@@ -173,6 +192,7 @@ Page({
   onAccept() {
     if (this.data.busy || this.data.empty || !this.data.requestId) return
     this.setData({ busy: true })
+    track('recommend_accept', { planIndex: 0 })
     callCloud('recommend', {
       action: 'accept',
       requestId: this.data.requestId,
@@ -199,3 +219,4 @@ Page({
     })
   }
 })
+

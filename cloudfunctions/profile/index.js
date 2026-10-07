@@ -167,6 +167,61 @@ async function handleRemoveMember(event, uid) {
   return { ok: true }
 }
 
+async function handleCompleteOnboarding(event, uid, user) {
+  const familyAvoids = sanitizeAvoids((event && event.familyAvoids) || [])
+  const dishFormPrefs = sanitizeDishFormPrefs((event && event.dishFormPrefs) || {})
+  const defaultPeopleCount =
+    typeof event.defaultPeopleCount === 'number' && event.defaultPeopleCount >= 1
+      ? Math.floor(event.defaultPeopleCount)
+      : user.defaultPeopleCount || 2
+  let defaultCombo = user.defaultCombo || { meat: 1, veg: 1, soup: 0 }
+  if (event.defaultCombo && typeof event.defaultCombo === 'object') {
+    defaultCombo = {
+      meat: Number(event.defaultCombo.meat) || 0,
+      veg: Number(event.defaultCombo.veg) || 0,
+      soup: Number(event.defaultCombo.soup) || 0
+    }
+  }
+  const city = typeof event.city === 'string' ? event.city : user.city || null
+  const cookBudget =
+    typeof event.cookBudget === 'string' ? event.cookBudget : user.cookBudget || 'about30'
+
+  const now = db.serverDate()
+  await db.collection('users').doc(user._id).update({
+    data: {
+      familyAvoids,
+      dishFormPrefs,
+      defaultPeopleCount,
+      defaultCombo,
+      city,
+      cookBudget,
+      onboardingDone: true,
+      updatedAt: now
+    }
+  })
+
+  const self = (event && event.selfMember) || {}
+  const name = String(self.name || '本人').trim() || '本人'
+  const memberId = makeMemberId()
+  await db.collection('members').add({
+    data: {
+      uid,
+      memberId,
+      name,
+      role: 'self',
+      ageBand: self.ageBand || '26_40',
+      taste: self.taste || 'normal',
+      avoids: sanitizeAvoids(self.avoids || []),
+      dishFormPrefs: null,
+      sort: 0,
+      createdAt: now,
+      updatedAt: now
+    }
+  })
+
+  return { ok: true, memberId, onboardingDone: true }
+}
+
 exports.main = async (event) => {
   const wxContext = cloud.getWXContext()
   const openid = wxContext.OPENID
@@ -183,5 +238,6 @@ exports.main = async (event) => {
   if (action === 'addMember') return handleAddMember(event, uid)
   if (action === 'updateMember') return handleUpdateMember(event, uid)
   if (action === 'removeMember') return handleRemoveMember(event, uid)
+  if (action === 'completeOnboarding') return handleCompleteOnboarding(event, uid, user)
   return { ok: false, error: 'UNKNOWN_ACTION' }
 }

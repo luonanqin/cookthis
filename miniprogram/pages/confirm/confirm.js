@@ -2,6 +2,7 @@ const { callCloud } = require('../../services/cloud.js')
 const { getUser } = require('../../services/session.js')
 const { suggestComboByPeople } = require('../../utils/suggestCombo.js')
 const { filterHolidays } = require('../../utils/filterHolidays.js')
+const { track } = require('../../utils/track.js')
 const holidaysPack = require('../../data/holidays.json')
 
 const STORAGE_KEY = 'cookthis_last_selected'
@@ -497,6 +498,13 @@ Page({
     const methodsUsed = ['default_list']
     if (this.data.manuals.length) methodsUsed.push('manual')
     wx.setStorageSync(STORAGE_KEY, { selected, methodsUsed, scene })
+    track('ingredient_confirm', {
+      selectedCount: selected.length,
+      methodsUsed,
+      mealType: scene.mealType,
+      people: scene.peopleCount,
+      combo: scene.combo
+    })
 
     this.setData({ submitting: true })
     callCloud('recommend', { action: 'create', selected, scene })
@@ -505,7 +513,7 @@ Page({
         if (result && result.emptyReason) {
           wx.showToast({ title: result.emptyReason, icon: 'none' })
         }
-        wx.setStorageSync(RECOMMEND_KEY, result)
+        wx.setStorageSync(RECOMMEND_KEY, Object.assign({}, result, { scene }))
         wx.navigateTo({ url: '/pages/recommend/recommend' })
       })
       .catch(err => {

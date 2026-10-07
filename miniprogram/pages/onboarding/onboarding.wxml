@@ -1,0 +1,92 @@
+<view class="page">
+  <view class="progress">步骤 {{step + 1}} / 4 · {{steps[step]}}</view>
+
+  <block wx:if="{{step === 0}}">
+    <view class="title">家里有什么忌口？</view>
+    <view class="hint">会硬排除相关菜（可跳过）</view>
+    <view class="chips">
+      <view
+        class="chip {{familyAvoids.indexOf(item.id) >= 0 ? 'on' : ''}}"
+        wx:for="{{avoidOptions}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onToggleFamilyAvoid"
+      >{{item.label}}</view>
+    </view>
+  </block>
+
+  <block wx:elif="{{step === 1}}">
+    <view class="title">喜欢火锅 / 面 / 饺吗？</view>
+    <view class="hint">选「喜欢」时推荐可能多出一套</view>
+    <view class="form-row" wx:for="{{formOptions}}" wx:key="id">
+      <text class="form-label">{{item.label}}</text>
+      <view class="chips">
+        <view
+          class="chip {{dishFormPrefs[item.id] === v.id ? 'on' : ''}}"
+          wx:for="{{formValues}}"
+          wx:for-item="v"
+          wx:key="id"
+          data-tag="{{item.id}}"
+          data-value="{{v.id}}"
+          bindtap="onFormPref"
+        >{{v.label}}</view>
+      </view>
+    </view>
+  </block>
+
+  <block wx:elif="{{step === 2}}">
+    <view class="title">先添本人</view>
+    <input class="input" value="{{selfName}}" bindinput="onSelfName" placeholder="称呼" />
+    <view class="sub">年龄段</view>
+    <view class="chips">
+      <view
+        class="chip {{selfAgeBand === item.id ? 'on' : ''}}"
+        wx:for="{{ageBands}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onPickAge"
+      >{{item.label}}</view>
+    </view>
+    <view class="sub">口味</view>
+    <view class="chips">
+      <view
+        class="chip {{selfTaste === item.id ? 'on' : ''}}"
+        wx:for="{{tastes}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onPickTaste"
+      >{{item.label}}</view>
+    </view>
+    <view class="sub">个人忌口（只降权，不硬排除）</view>
+    <view class="chips">
+      <view
+        class="chip {{selfAvoids.indexOf(item.id) >= 0 ? 'on' : ''}}"
+        wx:for="{{avoidOptions}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onToggleSelfAvoid"
+      >{{item.label}}</view>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="title">日常默认</view>
+    <view class="sub">人数</view>
+    <input class="input" type="number" value="{{defaultPeopleCount}}" bindinput="onPeople" />
+    <view class="sub">荤 / 素 / 汤</view>
+    <view class="combo">
+      <input class="small" type="number" value="{{meat}}" bindinput="onMeat" />
+      <input class="small" type="number" value="{{veg}}" bindinput="onVeg" />
+      <input class="small" type="number" value="{{soup}}" bindinput="onSoup" />
+    </view>
+    <view class="sub">城市（可选）</view>
+    <input class="input" value="{{city}}" bindinput="onCity" placeholder="如：上海" />
+  </block>
+
+  <view class="actions">
+    <button size="mini" wx:if="{{step > 0}}" bindtap="onBackStep">上一步</button>
+    <button type="primary" loading="{{busy}}" disabled="{{busy}}" bindtap="onNext">
+      {{step >= 3 ? '完成' : '下一步'}}
+    </button>
+  </view>
+</view>

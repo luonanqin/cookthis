@@ -1,4 +1,5 @@
 const { ensureLogin } = require('./services/session.js')
+const { track } = require('./utils/track.js')
 
 App({
   globalData: {
@@ -13,9 +14,15 @@ App({
       // env: 'your-env-id',  // 开通云开发后填入
       traceUser: true
     })
-    ensureLogin().catch(err => {
-      console.error(err)
-      wx.showToast({ title: '登录失败', icon: 'none' })
-    })
+    track('app_open', {})
+    track('session_start', {})
+    ensureLogin()
+      .then((user) => {
+        track('login_ok', { isNewUser: !!(user && user.isNewUser) })
+      })
+      .catch(err => {
+        console.error(err)
+        wx.showToast({ title: '登录失败', icon: 'none' })
+      })
   }
 })
