@@ -27,6 +27,11 @@
   font-weight: 600;
   margin-bottom: 12rpx;
 }
+.kind {
+  font-weight: 400;
+  color: #666;
+  font-size: 24rpx;
+}
 .meal {
   margin-top: 12rpx;
 }
