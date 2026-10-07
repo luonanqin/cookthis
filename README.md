@@ -21,6 +21,7 @@
 | `homePlans.js` | `recommend/homePlans.js` |
 | `shoppingList.js` | 小程序 `miniprogram/utils/shoppingList.js`（清单页本地聚合，非云函数） |
 | `confirmCandidates.js` | `meals/confirmCandidates.js` |
+| `unconventionalPlans.js` | `recommend/unconventionalPlans.js` |
 
 ---
 
@@ -66,6 +67,18 @@
 2. **再建集合**：`meal_logs`（权限同上，业务读写走云函数）。
 
 做完即可对照下方「Slice 4 验收清单」。人工点验**暂缓**，以 `npm test` 为主。
+
+---
+
+## Slice 5 准备（画像 + 非常规 + 埋点骨架）
+
+假定 **Slice 4 准备已完成**。在此基础上**再补**：
+
+1. **上传并部署**云函数：`profile`、`analytics`；并**重新部署** `recommend`（接入非常规方案）与 `auth`（登录返回 `dishFormPrefs`）。
+2. **再建集合**：`events`；可选 `members`（成员 CRUD 用）。
+3. **重导菜谱**（若已导入旧版）：用更新后的 `data/recipes-for-import.json`（含火锅/面/饺种子菜）。
+
+做完即可对照下方「Slice 5 验收清单」。人工点验**暂缓**，以 `npm test` 为主。
 
 ---
 
@@ -145,3 +158,21 @@
 5. [ ] **采纳仍不写** `meal_logs`。
 
 **本切片范围（已交付）：** 进场确认、手动记录、列表、推荐同菜名硬排除。**未做：** 语音/拍照记录、完整画像、非常规方案、埋点全表。
+
+---
+
+## 本切片验收清单（Slice 5）
+
+**状态：自动化已通过 · 人工点验暂缓**（2026-10-07）
+
+**自动化（CI / 本地）：**
+
+- [x] 仓库根目录 `npm test` 全部 PASS（含 `buildUnconventionalPlan` / `mergePlansWithUnconventional` 及前序切片）。
+
+**需人工（暂缓）：** 完成「公共准备」+ Slice 1～5 准备后点验：
+
+1. [ ] **我的** → 可改家庭忌口、火锅/面/饺偏好、默认人数并保存。
+2. [ ] **非常规** → 偏好设为「喜欢」且食材够时，推荐至多 1 套 `hotpot`/`noodle`/`dumpling`。
+3. [ ] **埋点骨架** → 点「今天菜场有什么」入队 `market_entry`；可批量写入 `events`。
+
+**本切片范围（已交付）：** 家庭画像编辑、非常规方案引擎、埋点 trackBatch 骨架。**未做：** 完整 onboarding 引导、语音记录、埋点全表业务事件、广告。

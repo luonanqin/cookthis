@@ -222,5 +222,61 @@
     "minutes": 20,
     "servings": 2,
     "enabled": true
+  },
+  {
+    "id": "rcp_hotpot_clear_base",
+    "name": "清汤锅底",
+    "mainIngredients": ["小白菜"],
+    "seasonings": ["盐"],
+    "meatVeg": "soup",
+    "tasteTags": ["light"],
+    "dishForms": ["hotpot"],
+    "stapleForms": [],
+    "cities": [],
+    "minutes": 15,
+    "servings": 4,
+    "enabled": true
+  },
+  {
+    "id": "rcp_hotpot_lamb",
+    "name": "涮羊肉",
+    "mainIngredients": ["羊肉"],
+    "seasonings": ["盐"],
+    "meatVeg": "meat",
+    "tasteTags": ["normal"],
+    "dishForms": ["hotpot"],
+    "stapleForms": [],
+    "cities": [],
+    "minutes": 10,
+    "servings": 4,
+    "enabled": true
+  },
+  {
+    "id": "rcp_tomato_egg_noodle",
+    "name": "西红柿鸡蛋面",
+    "mainIngredients": ["鸡蛋", "番茄"],
+    "seasonings": ["盐"],
+    "meatVeg": "meat",
+    "tasteTags": ["normal"],
+    "dishForms": ["noodle"],
+    "stapleForms": ["noodle"],
+    "cities": [],
+    "minutes": 20,
+    "servings": 2,
+    "enabled": true
+  },
+  {
+    "id": "rcp_pork_dumpling",
+    "name": "猪肉水饺",
+    "mainIngredients": ["猪肉", "鸡蛋"],
+    "seasonings": ["盐"],
+    "meatVeg": "meat",
+    "tasteTags": ["normal"],
+    "dishForms": ["dumpling"],
+    "stapleForms": ["dumpling"],
+    "cities": [],
+    "minutes": 40,
+    "servings": 3,
+    "enabled": true
   }
 ]

@@ -40,6 +40,7 @@ exports.main = async (event) => {
       isNewUser: false,
       city: user.city || null,
       familyAvoids: user.familyAvoids || [],
+      dishFormPrefs: user.dishFormPrefs || {},
       defaultPeopleCount: user.defaultPeopleCount ?? 2,
       defaultCombo: user.defaultCombo || { meat: 1, veg: 1, soup: 0 }
     }
@@ -89,6 +90,7 @@ exports.main = async (event) => {
     isNewUser: true,
     city: null,
     familyAvoids: [],
+    dishFormPrefs: {},
     defaultPeopleCount: 2,
     defaultCombo: { meat: 1, veg: 1, soup: 0 }
   }

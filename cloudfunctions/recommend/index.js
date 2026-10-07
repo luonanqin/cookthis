@@ -2,6 +2,10 @@
 const cloud = require('wx-server-sdk')
 // Vendored: keep in sync with cloudfunctions/_shared/homePlans.js
 const { buildHomePlans } = require('./homePlans.js')
+const {
+  buildUnconventionalPlan,
+  mergePlansWithUnconventional
+} = require('./unconventionalPlans.js')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
@@ -111,7 +115,7 @@ function rebuildPlans(user, doc, excludedDishIds) {
   const downrankedIds = (user.rejectDownranks || []).map((x) =>
     typeof x === 'string' ? x : x && x.recipeId
   ).filter(Boolean)
-  return buildHomePlans({
+  const built = buildHomePlans({
     recipes: doc._recipes,
     ingredientsByName: doc._ingredientsByName,
     selectedNames,
@@ -122,6 +126,18 @@ function rebuildPlans(user, doc, excludedDishIds) {
     recentDishNames: doc._recentDishNames || [],
     maxPlans: 3
   })
+  const unc = buildUnconventionalPlan({
+    recipes: doc._recipes,
+    selectedNames,
+    dishFormPrefs: user.dishFormPrefs || {},
+    mealSlots: (doc.scene && doc.scene.mealSlots) || [],
+    scene: doc.scene,
+    familyAvoids: user.familyAvoids || []
+  })
+  const plans = mergePlansWithUnconventional(built.plans || [], unc, 3)
+  const out = { plans }
+  if (built.emptyReason && plans.length === 0) out.emptyReason = built.emptyReason
+  return out
 }
 
 async function handleCreate(event, uid, user) {
@@ -163,9 +179,17 @@ async function handleCreate(event, uid, user) {
     maxPlans: 3
   })
 
+  const unc = buildUnconventionalPlan({
+    recipes: catalog.recipes,
+    selectedNames,
+    dishFormPrefs: user.dishFormPrefs || {},
+    mealSlots: scene.mealSlots,
+    scene,
+    familyAvoids: user.familyAvoids || []
+  })
   const requestId = makeRequestId()
   const now = db.serverDate()
-  const plans = built.plans || []
+  const plans = mergePlansWithUnconventional(built.plans || [], unc, 3)
 
   await db.collection('recommendations').add({
     data: {
@@ -184,7 +208,7 @@ async function handleCreate(event, uid, user) {
   })
 
   const out = { ok: true, requestId, plans }
-  if (built.emptyReason) out.emptyReason = built.emptyReason
+  if (built.emptyReason && plans.length === 0) out.emptyReason = built.emptyReason
   return out
 }
 
@@ -241,7 +265,7 @@ async function handleSwapOrReject(event, uid, user, kind) {
   })
 
   const out = { ok: true, requestId, plans, swapCount }
-  if (built.emptyReason) out.emptyReason = built.emptyReason
+  if (built.emptyReason && (out.plans || []).length === 0) out.emptyReason = built.emptyReason
   return out
 }
 

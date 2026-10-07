@@ -1,4 +1,5 @@
 const { callCloud } = require('../../services/cloud.js')
+const { track } = require('../../utils/track.js')
 
 Page({
   data: {
@@ -12,6 +13,7 @@ Page({
 
   goMarket() {
     if (this.data.busy) return
+    track('market_entry', {})
     this.setData({ busy: true })
     callCloud('meals', { action: 'confirmCandidates' })
       .then((result) => {

@@ -6,7 +6,7 @@
   <block wx:else>
     <view class="hint">{{hint}}</view>
     <view class="plan" wx:for="{{plans}}" wx:key="planIndex">
-      <view class="plan-title">方案 {{item.planIndex + 1}}</view>
+      <view class="plan-title">方案 {{item.planIndex + 1}}<text wx:if="{{item.planKind && item.planKind !== 'home'}}" class="kind"> · {{item.planKind}}</text></view>
       <view class="meal" wx:for="{{item.meals}}" wx:for-item="meal" wx:key="slot">
         <view class="meal-label">{{meal.slot.label || meal.slot.meal}}</view>
         <view class="dish" wx:for="{{meal.dishes}}" wx:for-item="dish" wx:key="recipeId">

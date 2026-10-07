@@ -1,4 +1,42 @@
 <view class="wrap">
   <image class="avatar" src="{{avatarSrc}}" mode="aspectFill" />
   <text class="nickname">{{nickname}}</text>
+
+  <view class="section">
+    <view class="section-title">家庭忌口</view>
+    <view class="chips">
+      <view
+        class="chip {{familyAvoids.indexOf(item.id) >= 0 ? 'on' : ''}}"
+        wx:for="{{avoidOptions}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onToggleAvoid"
+      >{{item.label}}</view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">菜式偏好（喜欢时可能出非常规方案）</view>
+    <view class="form-row" wx:for="{{formOptions}}" wx:key="id">
+      <text class="form-label">{{item.label}}</text>
+      <view class="chips">
+        <view
+          class="chip {{dishFormPrefs[item.id] === v.id ? 'on' : ''}}"
+          wx:for="{{formValues}}"
+          wx:for-item="v"
+          wx:key="id"
+          data-tag="{{item.id}}"
+          data-value="{{v.id}}"
+          bindtap="onFormPref"
+        >{{v.label}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">日常默认人数</view>
+    <input class="people" type="number" value="{{defaultPeopleCount}}" bindinput="onPeopleInput" />
+  </view>
+
+  <button type="primary" loading="{{busy}}" disabled="{{busy}}" bindtap="onSave">保存</button>
 </view>
