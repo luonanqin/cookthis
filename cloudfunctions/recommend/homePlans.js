@@ -108,6 +108,7 @@ function buildHomePlans(input) {
     familyAvoids = [],
     excludedDishIds = [],
     downrankedIds = [],
+    recentDishNames = [],
     maxPlans = 3
   } = input || {}
 
@@ -118,11 +119,16 @@ function buildHomePlans(input) {
     mealType === 'daily' ? familyAvoids || [] : (scene && scene.partyAvoids) || []
   const excluded = new Set(excludedDishIds || [])
   const downranked = new Set(downrankedIds || [])
+  const recentDishes = new Set(
+    (recentDishNames || []).map((n) => String(n || '').replace(/\s+/g, '').trim()).filter(Boolean)
+  )
 
   const candidates = []
   for (const recipe of recipes) {
     if (!isCandidate(recipe, selectedNames)) continue
     if (excluded.has(recipe.id)) continue
+    const nameKey = String(recipe.name || '').replace(/\s+/g, '').trim()
+    if (nameKey && recentDishes.has(nameKey)) continue
     const tags = recipeAvoidTags(recipe, ingredientsByName)
     if (intersects(tags, avoids)) continue
     candidates.push(recipe)

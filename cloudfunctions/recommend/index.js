@@ -5,7 +5,9 @@ const { buildHomePlans } = require('./homePlans.js')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
+const _ = db.command
 const MAX = 500
+const RECENT_MEAL_DAYS = 7
 
 function isComboPresent(combo) {
   if (!combo || typeof combo !== 'object') return false
@@ -80,6 +82,29 @@ async function loadCatalog() {
   }
 }
 
+async function loadRecentDishNames(uid) {
+  const since = new Date(Date.now() - RECENT_MEAL_DAYS * 24 * 60 * 60 * 1000)
+  try {
+    const res = await db.collection('meal_logs')
+      .where({
+        uid,
+        createdAt: _.gte(since)
+      })
+      .limit(MAX)
+      .get()
+    const names = []
+    for (const row of res.data || []) {
+      for (const n of row.dishNames || []) {
+        if (n) names.push(n)
+      }
+    }
+    return names
+  } catch (e) {
+    // collection may not exist yet in early envs
+    return []
+  }
+}
+
 function rebuildPlans(user, doc, excludedDishIds) {
   const selected = doc.selectedIngredients || []
   const selectedNames = selected.map((x) => x && x.name).filter(Boolean)
@@ -94,6 +119,7 @@ function rebuildPlans(user, doc, excludedDishIds) {
     familyAvoids: user.familyAvoids || [],
     excludedDishIds,
     downrankedIds,
+    recentDishNames: doc._recentDishNames || [],
     maxPlans: 3
   })
 }
@@ -119,6 +145,7 @@ async function handleCreate(event, uid, user) {
   }
 
   const catalog = await loadCatalog()
+  const recentDishNames = await loadRecentDishNames(uid)
   const selectedNames = selected.map((x) => x && x.name).filter(Boolean)
   const downrankedIds = (user.rejectDownranks || []).map((x) =>
     typeof x === 'string' ? x : x && x.recipeId
@@ -132,6 +159,7 @@ async function handleCreate(event, uid, user) {
     familyAvoids: user.familyAvoids || [],
     excludedDishIds: [],
     downrankedIds,
+    recentDishNames,
     maxPlans: 3
   })
 
@@ -170,6 +198,7 @@ async function handleSwapOrReject(event, uid, user, kind) {
   const catalog = await loadCatalog()
   doc._recipes = catalog.recipes
   doc._ingredientsByName = catalog.ingredientsByName
+  doc._recentDishNames = await loadRecentDishNames(uid)
 
   const fromPlans = collectPlanRecipeIds(doc.plans)
   const excluded = Array.from(new Set([...(doc.excludedDishIds || []), ...fromPlans]))
