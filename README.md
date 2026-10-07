@@ -2,15 +2,51 @@
 
 微信小程序 + 云开发。
 
-## 上手
+按切片验收时：**只做该切片列出的准备**；后面切片是在前面基础上**增量**补东西。
+
+---
+
+## 公共准备（所有切片共用，做一次即可）
 
 1. 用**微信开发者工具**打开本仓库**根目录**（含 `project.config.json` 的目录）。
-2. 在开发者工具中**开通云开发**并创建环境；将环境 ID 填入 `miniprogram/app.js` 中 `wx.cloud.init` 的 `env` 字段（取消注释并替换 `your-env-id`）。云开发需使用真实小程序 AppID（在 `project.config.json` 中配置 `appid`）。
-3. 在开发者工具中右键 **上传并部署** 云函数：`cloudfunctions/auth`、`cloudfunctions/ingredients`、`cloudfunctions/recommend`（云端安装依赖）。各函数均内置 `_shared` 副本（`auth/nickname.js`、`ingredients/confirmList.js`、`recommend/homePlans.js`），上传时只需打包各自函数目录，不必依赖云端解析 `../_shared`。改算法时请同步：`_shared/nickname.js` ↔ `auth/nickname.js`；`_shared/confirmList.js` ↔ `ingredients/confirmList.js`；`_shared/homePlans.js` ↔ `recommend/homePlans.js`。
-4. 在云开发控制台创建数据库集合：`users`、`user_identities`、`ingredients`、`recipes`、`recommendations`；权限建议：**仅管理端可写**，业务读写由云函数完成。`user_identities` 建议建复合唯一索引：`provider` + `providerUserId`。
-5. 食材导入：云库对 `ingredients` 导入 `data/ingredients-for-import.json`（扩展名是 `.json`，但内容是 **每行一条** 的 JSON Lines，带 `_id`）。不要导入 `ingredients-builtin.json`（数组格式会失败）。可用 `node scripts/import-ingredients.js` 重新生成导入文件。
-6. 菜谱导入：云库对 `recipes` 导入 `data/recipes-for-import.json`（JSON Lines；字段含业务主键 `id`）。不要导入 `recipes-builtin.json`（数组格式会失败）。可用 `node scripts/import-recipes.js` 校验并重新生成导入文件；导入后如控制台要求文档 `_id`，可将其设为与 `id` 相同。
-7. 纯函数单测：在仓库根目录执行 `npm test`（运行 `cloudfunctions/_shared/*.test.js`）。
+2. **开通云开发**并创建环境；在 `project.config.json` 填真实小程序 `appid`；在 `miniprogram/app.js` 的 `wx.cloud.init` 里填 `env`（取消注释并换成你的环境 ID）。
+3. 本地单测（可选随时跑）：仓库根目录 `npm test`。
+
+云函数若内置了 `_shared` 副本，上传时只打包**各自函数目录**即可。改纯逻辑后请同步：
+
+| `_shared` 源文件 | 云函数内副本 |
+|------------------|--------------|
+| `nickname.js` | `auth/nickname.js` |
+| `confirmList.js` | `ingredients/confirmList.js` |
+| `homePlans.js` | `recommend/homePlans.js` |
+
+---
+
+## Slice 1 准备（登录 + 食材确认）
+
+在「公共准备」之后，为跑通 Slice 1 还需要：
+
+1. **上传并部署**云函数：`cloudfunctions/auth`、`cloudfunctions/ingredients`（云端安装依赖）。
+2. **建集合**：`users`、`user_identities`、`ingredients`。权限建议：仅管理端可写，业务读写走云函数。`user_identities` 建议复合唯一索引：`provider` + `providerUserId`。
+3. **导入食材**：对集合 `ingredients` 导入 `data/ingredients-for-import.json`（**JSON Lines**，每行一条且带 `_id`）。**不要**导入 `ingredients-builtin.json`（数组格式会失败）。需要重生成时：`node scripts/import-ingredients.js`。
+
+做完以上即可对照下方「Slice 1 验收清单」点验。**此阶段不需要** `recommend`、`recipes`、`recommendations`。
+
+---
+
+## Slice 2 准备（场景 + 家常推荐）
+
+假定 **Slice 1 准备已完成**。在此基础上**再补**：
+
+1. **上传并部署**云函数：`cloudfunctions/recommend`（云端安装依赖）。
+2. **再建集合**：`recipes`、`recommendations`（权限同上）。
+3. **导入菜谱**：对集合 `recipes` 导入 `data/recipes-for-import.json`（JSON Lines；含业务字段 `id`）。**不要**导入 `recipes-builtin.json`。需要重生成时：`node scripts/import-recipes.js`。若控制台要求文档 `_id`，可设为与 `id` 相同。
+
+节日列表已打进小程序（`miniprogram/data/holidays.json`），**不必**再导入云库。
+
+做完以上即可对照下方「Slice 2 验收清单」点验。
+
+---
 
 ## 本切片验收清单（Slice 1）
 
@@ -20,14 +56,16 @@
 
 - [x] 仓库根目录 `npm test` 全部 PASS（昵称短码、`buildConfirmList` 分层逻辑）。
 
-**需人工：微信开发者工具 + 已部署云函数（见上文「上手」1～4 步）**
+**需人工：** 完成上文「公共准备」+「Slice 1 准备」后，在模拟器 / 真机点验：
 
 1. [x] **编译启动** → 小程序自动调用登录，无阻塞性报错。
 2. [x] **「我的」** → 展示默认昵称 **`大厨` + 4 位大写字母数字**（非微信资料拉取）。
 3. [x] **首页「今天菜场有什么」** → 进入 **食材确认页**：时令项默认全选；四季常见计入汇总、主列表不铺开；无调味项、无拍照入口。
-4. [x] **确认** → 本地 Storage 存在键 **`cookthis_last_selected`**，值为 `{ selected, methodsUsed }` 结构。
+4. [x] **确认** → 本地 Storage 存在键 **`cookthis_last_selected`**（含 `selected` / `methodsUsed`；Slice 2 起还会带上 `scene`）。
 
 **本切片范围（已交付）：** 骨架、登录、静态食材确认。
+
+---
 
 ## 本切片验收清单（Slice 2）
 
@@ -37,7 +75,7 @@
 
 - [ ] 仓库根目录 `npm test` 全部 PASS（含 `suggestComboByPeople`、`buildHomePlans`、`filterHolidays` 及 Slice 1 用例）。
 
-**需人工：微信开发者工具 + 已部署云函数与数据（见「上手」1～6 步，含 `recommend`、菜谱导入）**
+**需人工：** 完成上文「公共准备」+「Slice 1 准备」+「Slice 2 准备」后点验：
 
 1. [ ] **确认页场景区** → 可选 **日常 / 家庭聚会 / 朋友聚会 / 节日聚会**；日常人数与荤素汤搭配预填；非日常输入人数后自动填搭配，可选当次忌口（如 pork）；节日展示近 30 天节日并必选一项。
 2. [ ] **日常几顿** → 可选午/晚等快捷；**非日常** 默认 1 顿、无午晚分顿选项。
