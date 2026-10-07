@@ -1,75 +1,83 @@
 .page {
-  min-height: 100vh;
-  padding: 24rpx 32rpx 0;
+  padding: 24rpx 24rpx 200rpx;
   box-sizing: border-box;
+  min-height: 100vh;
+  background: #f7f7f7;
 }
-
-.state {
+.hint {
+  color: #888;
+  font-size: 24rpx;
+  margin-bottom: 16rpx;
+}
+.empty {
   padding: 80rpx 24rpx;
   text-align: center;
-  color: #888;
+}
+.empty-text {
+  color: #666;
+  font-size: 28rpx;
+}
+.plan {
+  background: #fff;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+}
+.plan-title {
+  font-weight: 600;
+  margin-bottom: 12rpx;
+}
+.meal {
+  margin-top: 12rpx;
+}
+.meal-label {
+  color: #666;
+  font-size: 24rpx;
+  margin-bottom: 6rpx;
+}
+.dish {
   font-size: 28rpx;
   line-height: 1.6;
 }
-
-.plan {
-  margin-bottom: 28rpx;
-  padding: 24rpx;
-  background: #fff;
-  border-radius: 12rpx;
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin: 24rpx 0;
 }
-
-.plan-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #111;
-  margin-bottom: 16rpx;
-}
-
-.meal {
-  margin-top: 12rpx;
-  padding-top: 12rpx;
-  border-top: 1rpx solid #eee;
-}
-
-.meal:first-of-type {
-  border-top: none;
-  padding-top: 0;
-}
-
-.meal-label {
-  font-size: 26rpx;
-  color: #888;
-  margin-bottom: 8rpx;
-}
-
-.dish {
-  padding: 10rpx 0;
-}
-
-.dish-name {
-  font-size: 30rpx;
-  color: #222;
-}
-
-.footer-spacer {
-  height: 200rpx;
-}
-
 .footer {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 16rpx 32rpx calc(16rpx + env(safe-area-inset-bottom));
-  background: #f7f7f7;
-  box-shadow: 0 -2rpx 8rpx rgba(0, 0, 0, 0.04);
+  padding: 16rpx 24rpx calc(16rpx + env(safe-area-inset-bottom));
+  background: #fff;
+  box-shadow: 0 -2rpx 8rpx rgba(0, 0, 0, 0.06);
 }
-
-.next-hint {
-  display: block;
-  text-align: center;
-  font-size: 24rpx;
-  color: #bbb;
-  margin-bottom: 12rpx;
+.mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: flex-end;
+  z-index: 20;
+}
+.sheet {
+  width: 100%;
+  background: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  padding: 32rpx 24rpx calc(24rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+.sheet-title {
+  font-weight: 600;
+  margin-bottom: 16rpx;
+}
+.reason {
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #eee;
+  font-size: 28rpx;
 }

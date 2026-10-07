@@ -1,38 +1,44 @@
 <view class="page">
-  <view wx:if="{{empty}}" class="state">{{emptyText}}</view>
+  <view wx:if="{{empty}}" class="empty">
+    <text class="empty-text">{{emptyText}}</text>
+  </view>
 
   <block wx:else>
-    <view
-      wx:for="{{plans}}"
-      wx:for-item="plan"
-      wx:key="planIndex"
-      class="plan"
-    >
-      <view class="plan-title">方案 {{plan.planIndex + 1}}</view>
-      <view
-        wx:for="{{plan.meals}}"
-        wx:for-item="meal"
-        wx:for-index="mealIdx"
-        wx:key="mealIdx"
-        class="meal"
-      >
-        <view class="meal-label">{{meal.slot.label}}</view>
-        <view
-          wx:for="{{meal.dishes}}"
-          wx:for-item="dish"
-          wx:key="recipeId"
-          class="dish"
-        >
-          <text class="dish-name">{{dish.name}}</text>
+    <view class="hint">{{hint}}</view>
+    <view class="plan" wx:for="{{plans}}" wx:key="planIndex">
+      <view class="plan-title">方案 {{item.planIndex + 1}}</view>
+      <view class="meal" wx:for="{{item.meals}}" wx:for-item="meal" wx:key="slot">
+        <view class="meal-label">{{meal.slot.label || meal.slot.meal}}</view>
+        <view class="dish" wx:for="{{meal.dishes}}" wx:for-item="dish" wx:key="recipeId">
+          {{dish.name}}
         </view>
       </view>
     </view>
   </block>
 
-  <view class="footer-spacer"></view>
+  <view class="actions" wx:if="{{!empty}}">
+    <button size="mini" loading="{{busy}}" disabled="{{busy}}" bindtap="onSwap">换一批</button>
+    <button size="mini" loading="{{busy}}" disabled="{{busy}}" bindtap="onRejectOpen">不行</button>
+    <button size="mini" type="primary" loading="{{busy}}" disabled="{{busy}}" bindtap="onAccept">可以</button>
+    <button size="mini" bindtap="onViewList">查看购买清单</button>
+  </view>
 
   <view class="footer">
-    <text class="next-hint">下一步（换一批 / 可以）稍后开放</text>
     <button bindtap="onBack">返回改场景</button>
+  </view>
+
+  <view class="mask" wx:if="{{showReject}}" catchtouchmove="true">
+    <view class="sheet">
+      <view class="sheet-title">不太合适的原因（可选）</view>
+      <view
+        class="reason"
+        wx:for="{{rejectReasons}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onRejectReason"
+      >{{item.label}}</view>
+      <button size="mini" bindtap="onRejectSkip">跳过</button>
+      <button size="mini" bindtap="onRejectClose">取消</button>
+    </view>
   </view>
 </view>
