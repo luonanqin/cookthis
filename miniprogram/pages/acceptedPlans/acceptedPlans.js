@@ -111,7 +111,7 @@ Page({
   loadFirst() {
     this._loadGen += 1
     const gen = this._loadGen
-    this.setData({ loading: true, nextCursor: null })
+    this.setData({ loading: true, loadingMore: false, nextCursor: null })
     callCloud('recommend', { action: 'listAccepted' })
       .then((result) => {
         if (gen !== this._loadGen) return
@@ -137,7 +137,10 @@ Page({
     this.setData({ loadingMore: true })
     callCloud('recommend', { action: 'listAccepted', cursor })
       .then((result) => {
-        if (gen !== this._loadGen) return
+        if (gen !== this._loadGen) {
+          this.setData({ loadingMore: false })
+          return
+        }
         const more = ((result && result.items) || []).map(mapItem)
         const nextCursor = (result && result.nextCursor) || null
         this.setData({
@@ -151,7 +154,10 @@ Page({
         })
       })
       .catch((err) => {
-        if (gen !== this._loadGen) return
+        if (gen !== this._loadGen) {
+          this.setData({ loadingMore: false })
+          return
+        }
         this.setData({ loadingMore: false })
         wx.showToast({
           title: (err && err.error) || '加载失败',
