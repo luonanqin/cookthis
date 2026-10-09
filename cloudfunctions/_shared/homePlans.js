@@ -85,9 +85,19 @@ function overlapsUsedMains(recipe, usedMains) {
 }
 
 /**
- * 从桶中取 count 道菜：优先避开本方案已用主料与跨方案已用菜，不够再放宽。
+ * 从桶中取 count 道菜：硬去重菜名/主料签名/近义名；软偏好避开已用主料与跨方案已用菜，不够再放宽。
  */
-function pickFromBucket(bucket, count, usedIds, usedMains, startOffset, preferAvoidIds) {
+function pickFromBucket(
+  bucket,
+  count,
+  usedIds,
+  usedNames,
+  usedSignatures,
+  usedNearKeys,
+  usedMains,
+  startOffset,
+  preferAvoidIds
+) {
   if (count <= 0) return []
   if (!bucket || bucket.length < count) return null
   const picked = []
@@ -95,14 +105,37 @@ function pickFromBucket(bucket, count, usedIds, usedMains, startOffset, preferAv
   const n = bucket.length
   const avoid = preferAvoidIds || null
 
+  function commit(r) {
+    picked.push(r)
+    localIds.add(r.id)
+    if (r.id != null) usedIds.add(r.id)
+    const name = normalizeDishName(r.name)
+    if (name) usedNames.add(name)
+    const sig = recipeMainSignature(r)
+    if (sig) usedSignatures.add(sig)
+    const near = nearDishNameKey(r.name)
+    if (near) usedNearKeys.add(near)
+    for (const key of recipeMainKeys(r)) usedMains.add(key)
+  }
+
+  function blockedHard(r) {
+    if (!r || usedIds.has(r.id) || localIds.has(r.id)) return true
+    const name = normalizeDishName(r.name)
+    if (name && usedNames.has(name)) return true
+    const sig = recipeMainSignature(r)
+    if (sig && usedSignatures.has(sig)) return true
+    const near = nearDishNameKey(r.name)
+    if (near && usedNearKeys.has(near)) return true
+    return false
+  }
+
   function tryPick(preferDiverse, preferCross) {
     for (let i = 0; i < n && picked.length < count; i++) {
       const r = bucket[(startOffset + i) % n]
-      if (!r || usedIds.has(r.id) || localIds.has(r.id)) continue
+      if (blockedHard(r)) continue
       if (preferCross && avoid && avoid.has(r.id)) continue
       if (preferDiverse && overlapsUsedMains(r, usedMains)) continue
-      picked.push(r)
-      localIds.add(r.id)
+      commit(r)
     }
   }
 
@@ -115,6 +148,9 @@ function pickFromBucket(bucket, count, usedIds, usedMains, startOffset, preferAv
 
 function fillMeals(buckets, combo, mealSlots, planOffset, preferAvoidIds) {
   const usedIds = new Set()
+  const usedNames = new Set()
+  const usedSignatures = new Set()
+  const usedNearKeys = new Set()
   const usedMains = new Set()
   const meals = []
   for (let s = 0; s < mealSlots.length; s++) {
@@ -131,16 +167,15 @@ function fillMeals(buckets, combo, mealSlots, planOffset, preferAvoidIds) {
         buckets[type] || [],
         count,
         usedIds,
+        usedNames,
+        usedSignatures,
+        usedNearKeys,
         usedMains,
         offset,
         preferAvoidIds
       )
       if (!picked) return null
-      for (const r of picked) {
-        usedIds.add(r.id)
-        for (const key of recipeMainKeys(r)) usedMains.add(key)
-        dishes.push(toDish(r))
-      }
+      for (const r of picked) dishes.push(toDish(r))
     }
     meals.push({ slot, dishes })
   }

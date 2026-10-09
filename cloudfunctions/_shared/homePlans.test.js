@@ -733,3 +733,307 @@ describe('within-plan dedupe helpers (3.0.7)', () => {
     assert.equal(nearDishNameKey('红烧牛肉'), '牛肉')
   })
 })
+
+describe('within-plan dedupe (3.0.7)', () => {
+  function flatNames(plan) {
+    return (plan.meals || []).flatMap((m) => (m.dishes || []).map((d) => d.name))
+  }
+
+  it('rejects two same display names with different recipeIds', () => {
+    const pool = [
+      {
+        id: 'rcp_lzj_a',
+        name: '辣子鸡',
+        mainIngredients: ['鸡肉'],
+        seasonings: ['辣椒'],
+        meatVeg: 'meat',
+        cities: [],
+        enabled: true
+      },
+      {
+        id: 'rcp_lzj_b',
+        name: '辣子鸡',
+        mainIngredients: ['鸡肉', '青椒'],
+        seasonings: ['辣椒'],
+        meatVeg: 'meat',
+        cities: [],
+        enabled: true
+      },
+      {
+        id: 'rcp_greens',
+        name: '蒜蓉小白菜',
+        mainIngredients: ['小白菜'],
+        seasonings: ['盐'],
+        meatVeg: 'veg',
+        cities: [],
+        enabled: true
+      },
+      {
+        id: 'rcp_egg',
+        name: '蛋花汤',
+        mainIngredients: ['鸡蛋'],
+        seasonings: ['盐'],
+        meatVeg: 'soup',
+        cities: [],
+        enabled: true
+      }
+    ]
+    const ingredients = {
+      鸡肉: { avoidTags: [] },
+      青椒: { avoidTags: [] },
+      小白菜: { avoidTags: [] },
+      鸡蛋: { avoidTags: [] },
+      辣椒: { avoidTags: [] },
+      盐: { avoidTags: [] }
+    }
+    const result = buildHomePlans({
+      recipes: pool,
+      ingredientsByName: ingredients,
+      selectedNames: ['鸡肉', '青椒', '小白菜', '鸡蛋'],
+      scene: {
+        combo: { meat: 2, veg: 1, soup: 1 },
+        mealSlots: [{ meal: 'dinner', label: '本场' }],
+        mealType: 'family_party'
+      },
+      familyAvoids: [],
+      sessionSeed: 'req_same_name'
+    })
+    // 肉桶只有两道同名：硬去重后无法凑 2 荤 → 无 plan 或 plans 内不得出现两道「辣子鸡」
+    for (const plan of result.plans) {
+      const names = flatNames(plan).filter((n) => n === '辣子鸡')
+      assert.ok(names.length <= 1)
+    }
+    if (result.plans.length === 0) {
+      assert.equal(result.emptyReason, 'cannot_fill_combo')
+    }
+  })
+
+  it('keeps at most one of 土豆烧牛肉 / 土豆炖牛肉 (same mains)', () => {
+    const pool = [
+      {
+        id: 'rcp_burn',
+        name: '土豆烧牛肉',
+        mainIngredients: ['牛肉', '土豆'],
+        seasonings: ['盐'],
+        meatVeg: 'meat',
+        cities: [],
+        enabled: true
+      },
+      {
+        id: 'rcp_stew',
+        name: '土豆炖牛肉',
+        mainIngredients: ['土豆', '牛肉'],
+        seasonings: ['生抽'],
+        meatVeg: 'meat',
+        cities: [],
+        enabled: true
+      },
+      {
+        id: 'rcp_pepper_pork',
+        name: '青椒炒肉',
+        mainIngredients: ['猪肉', '青椒'],
+        seasonings: ['盐'],
+        meatVeg: 'meat',
+        cities: [],
+        enabled: true
+      },
+      {
+        id: 'rcp_greens',
+        name: '蒜蓉小白菜',
+        mainIngredients: ['小白菜'],
+        seasonings: ['盐'],
+        meatVeg: 'veg',
+        cities: [],
+        enabled: true
+      },
+      {
+        id: 'rcp_egg',
+        name: '蛋花汤',
+        mainIngredients: ['鸡蛋'],
+        seasonings: ['盐'],
+        meatVeg: 'soup',
+        cities: [],
+        enabled: true
+      }
+    ]
+    const ingredients = {
+      牛肉: { avoidTags: [] },
+      土豆: { avoidTags: [] },
+      猪肉: { avoidTags: [] },
+      青椒: { avoidTags: [] },
+      小白菜: { avoidTags: [] },
+      鸡蛋: { avoidTags: [] },
+      盐: { avoidTags: [] },
+      生抽: { avoidTags: [] }
+    }
+    const result = buildHomePlans({
+      recipes: pool,
+      ingredientsByName: ingredients,
+      selectedNames: ['牛肉', '土豆', '猪肉', '青椒', '小白菜', '鸡蛋'],
+      scene: {
+        combo: { meat: 2, veg: 1, soup: 1 },
+        mealSlots: [{ meal: 'dinner', label: '本场' }],
+        mealType: 'family_party'
+      },
+      familyAvoids: [],
+      sessionSeed: 'req_same_mains'
+    })
+    assert.ok(result.plans.length >= 1)
+    for (const plan of result.plans) {
+      const names = new Set(flatNames(plan))
+      const both =
+        names.has('土豆烧牛肉') && names.has('土豆炖牛肉')
+      assert.equal(both, false)
+      const meatIds = plan.meals[0].dishes
+        .filter((d) => d.meatVeg === 'meat')
+        .map((d) => d.recipeId)
+      assert.equal(meatIds.length, 2)
+      assert.ok(meatIds.includes('rcp_pepper_pork'))
+    }
+  })
+
+  it('dedupes 白菜炖豆腐 vs 豆腐炖白菜 via same main signature', () => {
+    const pool = [
+      {
+        id: 'rcp_cab_tofu',
+        name: '白菜炖豆腐',
+        mainIngredients: ['白菜', '豆腐'],
+        seasonings: ['盐'],
+        meatVeg: 'veg',
+        cities: [],
+        enabled: true
+      },
+      {
+        id: 'rcp_tofu_cab',
+        name: '豆腐炖白菜',
+        mainIngredients: ['豆腐', '白菜'],
+        seasonings: ['盐'],
+        meatVeg: 'veg',
+        cities: [],
+        enabled: true
+      },
+      {
+        id: 'rcp_greens',
+        name: '蒜蓉小白菜',
+        mainIngredients: ['小白菜'],
+        seasonings: ['盐'],
+        meatVeg: 'veg',
+        cities: [],
+        enabled: true
+      },
+      {
+        id: 'rcp_pork',
+        name: '青椒炒肉',
+        mainIngredients: ['猪肉', '青椒'],
+        seasonings: ['盐'],
+        meatVeg: 'meat',
+        cities: [],
+        enabled: true
+      },
+      {
+        id: 'rcp_egg',
+        name: '蛋花汤',
+        mainIngredients: ['鸡蛋'],
+        seasonings: ['盐'],
+        meatVeg: 'soup',
+        cities: [],
+        enabled: true
+      }
+    ]
+    const ingredients = {
+      白菜: { avoidTags: [] },
+      豆腐: { avoidTags: [] },
+      小白菜: { avoidTags: [] },
+      猪肉: { avoidTags: [] },
+      青椒: { avoidTags: [] },
+      鸡蛋: { avoidTags: [] },
+      盐: { avoidTags: [] }
+    }
+    const result = buildHomePlans({
+      recipes: pool,
+      ingredientsByName: ingredients,
+      selectedNames: ['白菜', '豆腐', '小白菜', '猪肉', '青椒', '鸡蛋'],
+      scene: {
+        combo: { meat: 1, veg: 2, soup: 1 },
+        mealSlots: [{ meal: 'dinner', label: '本场' }],
+        mealType: 'family_party'
+      },
+      familyAvoids: [],
+      sessionSeed: 'req_tofu_cab'
+    })
+    assert.ok(result.plans.length >= 1)
+    for (const plan of result.plans) {
+      const names = flatNames(plan)
+      const hitA = names.includes('白菜炖豆腐')
+      const hitB = names.includes('豆腐炖白菜')
+      assert.equal(hitA && hitB, false)
+    }
+  })
+
+  it('allows two dishes that only share a C-tier main (potato)', () => {
+    // 复用既有「土豆牛肉 + 醋溜土豆丝」场景：软偏好可能压土豆丝，但硬签名不同；
+    // 本测固定：两荤主料集合不同，允许同套（若 combo 只要 1 荤则另造 1 荤 1 素都含土豆且签名不同）
+    const pool = [
+      {
+        id: 'rcp_beef_potato',
+        name: '土豆烧牛肉',
+        mainIngredients: ['牛肉', '土豆'],
+        seasonings: ['盐'],
+        meatVeg: 'meat',
+        cities: [],
+        enabled: true
+      },
+      {
+        id: 'rcp_potato_silk',
+        name: '醋溜土豆丝',
+        mainIngredients: ['土豆'],
+        seasonings: ['醋'],
+        meatVeg: 'veg',
+        cities: [],
+        enabled: true
+      },
+      {
+        id: 'rcp_egg',
+        name: '蛋花汤',
+        mainIngredients: ['鸡蛋'],
+        seasonings: ['盐'],
+        meatVeg: 'soup',
+        cities: [],
+        enabled: true
+      }
+    ]
+    const ingredients = {
+      牛肉: { avoidTags: [] },
+      土豆: { avoidTags: [] },
+      鸡蛋: { avoidTags: [] },
+      盐: { avoidTags: [] },
+      醋: { avoidTags: [] }
+    }
+    const result = buildHomePlans({
+      recipes: pool,
+      ingredientsByName: ingredients,
+      selectedNames: ['牛肉', '土豆', '鸡蛋'],
+      scene: {
+        combo: { meat: 1, veg: 1, soup: 1 },
+        mealSlots: [{ meal: 'dinner', label: '本场' }],
+        mealType: 'family_party'
+      },
+      familyAvoids: [],
+      sessionSeed: 'req_share_potato'
+    })
+    // 软偏好下可能选不出土豆丝而 empty；若有 plan，允许牛肉土豆 + 土豆丝同套（签名不同）
+    for (const plan of result.plans) {
+      const ids = new Set(
+        plan.meals[0].dishes.map((d) => d.recipeId)
+      )
+      if (ids.has('rcp_beef_potato') && ids.has('rcp_potato_silk')) {
+        assert.ok(true)
+      }
+    }
+    // 更强断言：在足够桶深度下应能填满（素桶仅土豆丝）
+    assert.ok(result.plans.length >= 1, '应能凑齐；软放宽后允许共用土豆')
+    const dishes = result.plans[0].meals[0].dishes
+    assert.ok(dishes.some((d) => d.recipeId === 'rcp_beef_potato'))
+    assert.ok(dishes.some((d) => d.recipeId === 'rcp_potato_silk'))
+  })
+})
