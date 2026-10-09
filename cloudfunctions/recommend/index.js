@@ -368,6 +368,7 @@ async function handleListAccepted(event, uid) {
     const recRes = await db.collection('recommendations')
       .where(where)
       .orderBy('acceptedAt', 'desc')
+      .orderBy('_id', 'desc') // tie-break matches applyAcceptedCursor string _id compare
       .limit(fetchLimit)
       .get()
     rows = recRes.data || []
@@ -376,6 +377,7 @@ async function handleListAccepted(event, uid) {
     const recRes = await db.collection('recommendations')
       .where({ uid, accepted: true })
       .orderBy('acceptedAt', 'desc')
+      .orderBy('_id', 'desc') // tie-break matches applyAcceptedCursor string _id compare
       .limit(fetchLimit)
       .get()
     rows = recRes.data || []

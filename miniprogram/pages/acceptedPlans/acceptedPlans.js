@@ -65,6 +65,14 @@ function dishKey(requestId, name) {
   return String(requestId || '') + '::' + String(name || '')
 }
 
+/** Off noop (confirm/manual ate, no plan_ate row) must not stay unchecked. */
+function planAteOffUiDecision(result) {
+  if (result && result.noop) {
+    return { restoreAte: true, toast: '请到已吃记录删除' }
+  }
+  return { restoreAte: false, toast: null }
+}
+
 function readTipSeen() {
   try {
     return wx.getStorageSync(TIP_SEEN_KEY)
@@ -190,7 +198,16 @@ Page({
       recommendationId,
       dishName: name
     })
-      .then(() => {
+      .then((result) => {
+        if (ate) {
+          const ui = planAteOffUiDecision(result)
+          if (ui.restoreAte) {
+            const again = this.findDish(requestId, name)
+            if (again) this.setDishAte(again.itemIndex, again.dishIndex, true)
+            wx.showToast({ title: ui.toast, icon: 'none' })
+            return
+          }
+        }
         track('plan_ate_toggle', {
           onOff: ate ? 'off' : 'on',
           requestId,

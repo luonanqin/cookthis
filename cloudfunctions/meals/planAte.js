@@ -58,4 +58,12 @@ function planAteOffDecision(input) {
   }
 }
 
-module.exports = { planAteOnDecision, planAteOffDecision }
+/** Client: Off noop (confirm/manual ate, no plan_ate row) must not stay unchecked. */
+function planAteOffUiDecision(result) {
+  if (result && result.noop) {
+    return { restoreAte: true, toast: '请到已吃记录删除' }
+  }
+  return { restoreAte: false, toast: null }
+}
+
+module.exports = { planAteOnDecision, planAteOffDecision, planAteOffUiDecision }

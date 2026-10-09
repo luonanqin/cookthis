@@ -2,7 +2,7 @@
 
 const { describe, it } = require('node:test')
 const assert = require('node:assert/strict')
-const { planAteOnDecision, planAteOffDecision } = require('./planAte.js')
+const { planAteOnDecision, planAteOffDecision, planAteOffUiDecision } = require('./planAte.js')
 
 describe('planAte decisions', () => {
   it('on is noop when plan_ate row exists', () => {
@@ -41,5 +41,17 @@ describe('planAte decisions', () => {
     })
     assert.equal(d.ok, true)
     assert.equal(d.noop, true)
+  })
+
+  it('off noop restores ate and points to meal records', () => {
+    const ui = planAteOffUiDecision({ ok: true, noop: true })
+    assert.equal(ui.restoreAte, true)
+    assert.equal(ui.toast, '请到已吃记录删除')
+  })
+
+  it('off success leaves dish unchecked', () => {
+    const ui = planAteOffUiDecision({ ok: true, noop: false, logId: 'log_1' })
+    assert.equal(ui.restoreAte, false)
+    assert.equal(ui.toast, null)
   })
 })
