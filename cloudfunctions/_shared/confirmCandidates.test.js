@@ -114,6 +114,27 @@ describe('buildConfirmCandidates', () => {
     assert.deepEqual(out.dishNames, [])
   })
 
+  it('returns show:false when plan_ate logs cover all anchor dishes since anchor', () => {
+    const acceptedAt = new Date('2026-10-03T10:00:00.000Z')
+    const out = buildConfirmCandidates({
+      recommendations: [rec({ acceptedAt, acceptedPlanIndex: 0 })],
+      mealLogs: [
+        {
+          source: 'plan_ate',
+          dishNames: ['红烧茄子'],
+          createdAt: new Date('2026-10-03T11:00:00.000Z')
+        },
+        {
+          source: 'plan_ate',
+          dishNames: ['紫菜蛋花汤'],
+          createdAt: new Date('2026-10-03T12:00:00.000Z')
+        }
+      ]
+    })
+    assert.equal(out.show, false)
+    assert.deepEqual(out.dishNames, [])
+  })
+
   it('prefers acceptedPlanIndex when same-doc acceptedAt >= engagedAt', () => {
     const t = new Date('2026-10-03T10:00:00.000Z')
     const out = buildConfirmCandidates({
@@ -128,5 +149,72 @@ describe('buildConfirmCandidates', () => {
       mealLogs: []
     })
     assert.deepEqual(out.dishNames, ['红烧茄子', '紫菜蛋花汤'])
+  })
+
+  it('skips entryConfirmHandled anchors and does not show again', () => {
+    const out = buildConfirmCandidates({
+      recommendations: [
+        rec({
+          acceptedAt: new Date('2026-10-05T10:00:00.000Z'),
+          acceptedPlanIndex: 0,
+          entryConfirmHandled: true
+        })
+      ],
+      mealLogs: []
+    })
+    assert.equal(out.show, false)
+    assert.deepEqual(out.dishNames, [])
+  })
+
+  it('does not fall back to older anchors when newest is already handled', () => {
+    const out = buildConfirmCandidates({
+      recommendations: [
+        rec({
+          _id: 'old',
+          requestId: 'req_old',
+          acceptedAt: new Date('2026-10-01T10:00:00.000Z'),
+          acceptedPlanIndex: 0
+        }),
+        rec({
+          _id: 'new',
+          requestId: 'req_new',
+          engagedAt: new Date('2026-10-05T10:00:00.000Z'),
+          engagedPlanIndex: 1,
+          entryConfirmHandled: true
+        })
+      ],
+      mealLogs: []
+    })
+    assert.equal(out.show, false)
+    assert.deepEqual(out.dishNames, [])
+    assert.equal(out.requestId, 'req_new')
+  })
+
+  it('does not fall back when newest anchor has no remaining dishes', () => {
+    const out = buildConfirmCandidates({
+      recommendations: [
+        rec({
+          _id: 'old',
+          requestId: 'req_old',
+          acceptedAt: new Date('2026-10-01T10:00:00.000Z'),
+          acceptedPlanIndex: 0
+        }),
+        rec({
+          _id: 'new',
+          requestId: 'req_new',
+          engagedAt: new Date('2026-10-05T10:00:00.000Z'),
+          engagedPlanIndex: 1
+        })
+      ],
+      mealLogs: [
+        {
+          dishNames: ['土豆烧肉'],
+          createdAt: new Date('2026-10-05T11:00:00.000Z')
+        }
+      ]
+    })
+    assert.equal(out.show, false)
+    assert.deepEqual(out.dishNames, [])
+    assert.equal(out.requestId, 'req_new')
   })
 })
