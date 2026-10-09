@@ -1,5 +1,10 @@
 'use strict'
 
+const {
+  normalizeIngredientName,
+  computeFreshPenalty
+} = require('./freshness.js')
+
 function lookupIngredient(ingredientsByName, name) {
   if (!ingredientsByName) return undefined
   if (typeof ingredientsByName.get === 'function') {
@@ -29,8 +34,20 @@ function intersects(a, b) {
   return false
 }
 
+/** 非常规菜式不进家常荤素汤搭配（面/饺/火锅由 unconventional 单独出） */
+function isUnconventionalRecipe(recipe) {
+  if (!recipe) return false
+  if (recipe.meatVeg === 'staple') return true
+  const forms = [
+    ...(recipe.dishForms || []),
+    ...(recipe.stapleForms || [])
+  ]
+  return forms.some((t) => t === 'hotpot' || t === 'noodle' || t === 'dumpling')
+}
+
 function isCandidate(recipe, selectedNames) {
   if (recipe.enabled === false) return false
+  if (isUnconventionalRecipe(recipe)) return false
   const mains = recipe.mainIngredients || []
   if (mains.length === 0) return false
   const selected = new Set(selectedNames)
@@ -47,28 +64,58 @@ function toDish(recipe) {
   }
 }
 
-function pickFromBucket(bucket, count, usedIds, startOffset) {
-  if (count <= 0) return []
-  if (bucket.length < count) return null
-  const picked = []
-  const n = bucket.length
-  for (let i = 0; i < n && picked.length < count; i++) {
-    const r = bucket[(startOffset + i) % n]
-    if (usedIds.has(r.id)) continue
-    picked.push(r)
+function recipeMainKeys(recipe) {
+  const keys = []
+  const seen = new Set()
+  for (const raw of (recipe && recipe.mainIngredients) || []) {
+    const key = normalizeIngredientName(raw)
+    if (!key || seen.has(key)) continue
+    seen.add(key)
+    keys.push(key)
   }
-  if (picked.length < count) {
+  return keys
+}
+
+function overlapsUsedMains(recipe, usedMains) {
+  if (!usedMains || usedMains.size === 0) return false
+  for (const key of recipeMainKeys(recipe)) {
+    if (usedMains.has(key)) return true
+  }
+  return false
+}
+
+/**
+ * 从桶中取 count 道菜：优先避开本方案已用主料与跨方案已用菜，不够再放宽。
+ */
+function pickFromBucket(bucket, count, usedIds, usedMains, startOffset, preferAvoidIds) {
+  if (count <= 0) return []
+  if (!bucket || bucket.length < count) return null
+  const picked = []
+  const localIds = new Set()
+  const n = bucket.length
+  const avoid = preferAvoidIds || null
+
+  function tryPick(preferDiverse, preferCross) {
     for (let i = 0; i < n && picked.length < count; i++) {
       const r = bucket[(startOffset + i) % n]
-      if (picked.find((p) => p.id === r.id)) continue
+      if (!r || usedIds.has(r.id) || localIds.has(r.id)) continue
+      if (preferCross && avoid && avoid.has(r.id)) continue
+      if (preferDiverse && overlapsUsedMains(r, usedMains)) continue
       picked.push(r)
+      localIds.add(r.id)
     }
   }
+
+  tryPick(true, true)
+  if (picked.length < count) tryPick(false, true)
+  if (picked.length < count) tryPick(true, false)
+  if (picked.length < count) tryPick(false, false)
   return picked.length === count ? picked : null
 }
 
-function fillMeals(buckets, combo, mealSlots, planOffset) {
+function fillMeals(buckets, combo, mealSlots, planOffset, preferAvoidIds) {
   const usedIds = new Set()
+  const usedMains = new Set()
   const meals = []
   for (let s = 0; s < mealSlots.length; s++) {
     const slot = mealSlots[s]
@@ -80,16 +127,144 @@ function fillMeals(buckets, combo, mealSlots, planOffset) {
     ]
     for (const [type, count] of types) {
       const offset = planOffset + s
-      const picked = pickFromBucket(buckets[type] || [], count, usedIds, offset)
+      const picked = pickFromBucket(
+        buckets[type] || [],
+        count,
+        usedIds,
+        usedMains,
+        offset,
+        preferAvoidIds
+      )
       if (!picked) return null
       for (const r of picked) {
         usedIds.add(r.id)
+        for (const key of recipeMainKeys(r)) usedMains.add(key)
         dishes.push(toDish(r))
       }
     }
     meals.push({ slot, dishes })
   }
   return meals
+}
+
+/** recipeId 优先；无 id 时用去空白菜名 */
+function dishKey(dish) {
+  if (!dish) return ''
+  const id = dish.recipeId != null ? String(dish.recipeId).trim() : ''
+  if (id) return 'id:' + id
+  const name = String(dish.name || '').replace(/\s+/g, '').trim()
+  return name ? 'name:' + name : ''
+}
+
+function collectDishKeys(meals) {
+  const keys = []
+  for (const m of meals || []) {
+    for (const d of (m && m.dishes) || []) {
+      const k = dishKey(d)
+      if (k) keys.push(k)
+    }
+  }
+  return keys
+}
+
+function planDishCount(meals) {
+  return collectDishKeys(meals).length
+}
+
+/**
+ * 两套 home 方案允许的相同菜上限（§3.0.6）。
+ * 以两套中较大菜道数查表：少于 5 → 0；5～7 → 1；≥8 → 2。
+ */
+function overlapLimit(countA, countB) {
+  const n = Math.max(Number(countA) || 0, Number(countB) || 0)
+  if (n < 5) return 0
+  if (n < 8) return 1
+  return 2
+}
+
+function flattenDishes(meals) {
+  const out = []
+  for (const m of meals || []) {
+    for (const d of (m && m.dishes) || []) {
+      if (d) out.push(d)
+    }
+  }
+  return out
+}
+
+function normalizeDishName(name) {
+  return String(name || '').replace(/\s+/g, '').trim()
+}
+
+function recipeMainSignature(recipe) {
+  const keys = recipeMainKeys(recipe).slice().sort()
+  return keys.join('\0')
+}
+
+const COOK_VERBS = ['红烧', '烧', '炖', '炒', '爆', '焖', '煮', '蒸', '拌', '煎', '烤']
+
+function nearDishNameKey(name) {
+  let s = normalizeDishName(name)
+  if (!s) return ''
+  for (const v of COOK_VERBS) {
+    if (!v) continue
+    s = s.split(v).join('')
+  }
+  return s
+}
+
+/**
+ * 相同：同 recipeId，或去空白菜名相同（一边无 id 仍可按菜名撞上）。
+ */
+function countSharedDishes(mealsA, mealsB) {
+  const idsA = new Set()
+  const namesA = new Set()
+  for (const d of flattenDishes(mealsA)) {
+    const id = d.recipeId != null ? String(d.recipeId).trim() : ''
+    if (id) idsA.add(id)
+    const name = normalizeDishName(d.name)
+    if (name) namesA.add(name)
+  }
+  let n = 0
+  const counted = new Set()
+  for (const d of flattenDishes(mealsB)) {
+    const id = d.recipeId != null ? String(d.recipeId).trim() : ''
+    const name = normalizeDishName(d.name)
+    const token = id ? 'id:' + id : name ? 'name:' + name : ''
+    if (!token || counted.has(token)) continue
+    const hit = (id && idsA.has(id)) || (name && namesA.has(name))
+    if (!hit) continue
+    counted.add(token)
+    if (name) counted.add('name:' + name)
+    if (id) counted.add('id:' + id)
+    n++
+  }
+  return n
+}
+
+/** 候选套与已收录各套两两满足 §3.0.6 上限 */
+function withinHomeOverlapCaps(candidateMeals, existingPlans) {
+  const candCount = planDishCount(candidateMeals)
+  for (const p of existingPlans || []) {
+    const other = p && p.meals
+    const limit = overlapLimit(candCount, planDishCount(other))
+    if (countSharedDishes(candidateMeals, other) > limit) return false
+  }
+  return true
+}
+
+function collectRecipeIdsFromPlans(plans) {
+  const ids = new Set()
+  for (const p of plans || []) {
+    for (const m of (p && p.meals) || []) {
+      for (const d of (m && m.dishes) || []) {
+        if (d && d.recipeId != null && String(d.recipeId)) {
+          ids.add(d.recipeId)
+        }
+      }
+    }
+  }
+  return ids
 }
 
 function planFingerprint(meals) {
@@ -103,12 +278,70 @@ function softPenalty(recipe, ctx) {
   if (ctx.downranked.has(recipe.id)) score += 100
   const tags = recipeAvoidTags(recipe, ctx.ingredientsByName)
   if (intersects(tags, ctx.memberAvoids)) score += 40
-  let overlap = 0
-  for (const name of recipe.mainIngredients || []) {
-    if (ctx.recentIngredients.has(name)) overlap += 1
-  }
-  score += overlap * 10
+  score += computeFreshPenalty(recipe.mainIngredients || [], ctx.recentIngredientDays)
   return score
+}
+
+/** @returns {Record<string, number>} */
+function resolveRecentIngredientDays(input) {
+  const map = {}
+  const daysObj = input && input.recentIngredientDays
+  if (daysObj && typeof daysObj === 'object' && !Array.isArray(daysObj)) {
+    for (const [k, v] of Object.entries(daysObj)) {
+      const name = normalizeIngredientName(k)
+      if (!name) continue
+      const days = Number(v)
+      if (!Number.isFinite(days) || days < 0) continue
+      if (map[name] == null || days < map[name]) map[name] = days
+    }
+  }
+  // 兼容旧入参：仅有名字时视为「今天刚吃」(系数 1.0)
+  for (const n of (input && input.recentIngredientNames) || []) {
+    const name = normalizeIngredientName(n)
+    if (!name) continue
+    if (map[name] == null) map[name] = 0
+  }
+  return map
+}
+
+/** FNV-1a 32-bit；同 seed 可复现 */
+function hashSessionSeed(seed) {
+  const s = String(seed == null ? '' : seed)
+  let h = 2166136261
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  return h >>> 0
+}
+
+function rotateArray(arr, n) {
+  const list = Array.isArray(arr) ? arr : []
+  if (list.length <= 1) return list.slice()
+  const k = ((n % list.length) + list.length) % list.length
+  if (k === 0) return list.slice()
+  return list.slice(k).concat(list.slice(0, k))
+}
+
+/**
+ * 软惩罚升序后，对「同分」连续带分别旋转，避免高惩罚菜被整桶旋到前面。
+ */
+function rotateEqualPenaltyBands(bucket, penaltyFn, seed) {
+  const list = Array.isArray(bucket) ? bucket : []
+  if (list.length <= 1) return list.slice()
+  const out = []
+  let i = 0
+  let bandIdx = 0
+  while (i < list.length) {
+    const p = penaltyFn(list[i])
+    let j = i + 1
+    while (j < list.length && penaltyFn(list[j]) === p) j++
+    const band = list.slice(i, j)
+    out.push(...rotateArray(band, seed + bandIdx * 17))
+    bandIdx++
+    i = j
+  }
+  return out
 }
 
 function buildHomePlans(input) {
@@ -123,7 +356,9 @@ function buildHomePlans(input) {
     recentDishNames = [],
     memberAvoids = [],
     recentIngredientNames = [],
-    maxPlans = 3
+    recentIngredientDays = null,
+    maxPlans = 3,
+    sessionSeed = ''
   } = input || {}
 
   const combo = (scene && scene.combo) || { meat: 0, veg: 0, soup: 0 }
@@ -137,7 +372,10 @@ function buildHomePlans(input) {
     (recentDishNames || []).map((n) => String(n || '').replace(/\s+/g, '').trim()).filter(Boolean)
   )
   const memberAvoidSet = new Set(memberAvoids || [])
-  const recentIngredients = new Set((recentIngredientNames || []).filter(Boolean))
+  const recentDays = resolveRecentIngredientDays({
+    recentIngredientDays,
+    recentIngredientNames
+  })
 
   const candidates = []
   for (const recipe of recipes) {
@@ -158,25 +396,36 @@ function buildHomePlans(input) {
   const ctx = {
     downranked,
     memberAvoids: memberAvoidSet,
-    recentIngredients,
+    recentIngredientDays: recentDays,
     ingredientsByName
   }
+  const seedBase = hashSessionSeed(sessionSeed)
   for (const key of Object.keys(buckets)) {
     buckets[key].sort((a, b) => softPenalty(a, ctx) - softPenalty(b, ctx))
+    const bucketSeed = seedBase ^ hashSessionSeed(key)
+    buckets[key] = rotateEqualPenaltyBands(
+      buckets[key],
+      (r) => softPenalty(r, ctx),
+      bucketSeed
+    )
   }
 
   const plans = []
   const seen = new Set()
   const limit = Math.max(1, Number(maxPlans) || 3)
-  const maxAttempts = Math.max(limit * 3, 6)
+  // 多套差异化可能要跳过若干 offset；放宽尝试次数
+  const maxAttempts = Math.max(limit * 12, 24)
   for (let offset = 0; offset < maxAttempts && plans.length < limit; offset++) {
-    const meals = fillMeals(buckets, combo, mealSlots, offset)
+    const preferAvoidIds = plans.length ? collectRecipeIdsFromPlans(plans) : null
+    const meals = fillMeals(buckets, combo, mealSlots, offset, preferAvoidIds)
     if (!meals) {
       if (plans.length === 0) break
       continue
     }
     const fp = planFingerprint(meals)
     if (seen.has(fp)) continue
+    // §3.0.6：与已收录 home 方案两两重复不得超过上限；凑不出则少出套数
+    if (plans.length > 0 && !withinHomeOverlapCaps(meals, plans)) continue
     seen.add(fp)
     plans.push({
       planIndex: plans.length,
@@ -191,4 +440,20 @@ function buildHomePlans(input) {
   return { plans }
 }
 
-module.exports = { buildHomePlans }
+module.exports = {
+  buildHomePlans,
+  isUnconventionalRecipe,
+  softPenalty,
+  hashSessionSeed,
+  rotateArray,
+  rotateEqualPenaltyBands,
+  resolveRecentIngredientDays,
+  dishKey,
+  planDishCount,
+  overlapLimit,
+  countSharedDishes,
+  withinHomeOverlapCaps,
+  normalizeDishName,
+  recipeMainSignature,
+  nearDishNameKey
+}
