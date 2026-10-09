@@ -1,0 +1,104 @@
+.page {
+  padding: 24rpx 28rpx 80rpx;
+  box-sizing: border-box;
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+.hint {
+  color: var(--color-text-secondary);
+  font-size: 24rpx;
+  margin-bottom: 16rpx;
+}
+
+.tip-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 20;
+  background: transparent;
+}
+
+.tip-bubble {
+  margin: 88rpx 28rpx 0;
+  padding: 20rpx 24rpx;
+  background: var(--color-surface);
+  border: 1rpx solid var(--color-primary);
+  border-radius: var(--radius-card);
+  color: var(--color-text);
+  font-size: 26rpx;
+  line-height: 1.5;
+  box-shadow: 0 8rpx 24rpx rgba(26, 26, 26, 0.12);
+}
+
+.empty,
+.more {
+  padding: 80rpx 24rpx;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 28rpx;
+}
+
+.more {
+  padding: 24rpx;
+  font-size: 24rpx;
+}
+
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  border: 1rpx solid var(--color-border);
+}
+
+.meta {
+  font-size: 24rpx;
+  color: var(--color-text-secondary);
+  margin-bottom: 16rpx;
+  line-height: 1.4;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+/* Copied from index sheet-chip (entry confirm), scoped to this page */
+.sheet-chip {
+  width: calc(50% - 6rpx);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  min-height: 76rpx;
+  padding: 16rpx 12rpx;
+  border: 1rpx solid var(--color-border);
+  border-radius: 12rpx;
+  font-size: 26rpx;
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+.sheet-chip.on {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.sheet-chip .check {
+  width: 28rpx;
+  margin-right: 6rpx;
+  flex-shrink: 0;
+  color: var(--color-primary);
+  font-size: 24rpx;
+}
+
+.sheet-chip-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

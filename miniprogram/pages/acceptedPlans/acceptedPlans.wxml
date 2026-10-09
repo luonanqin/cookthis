@@ -1,0 +1,32 @@
+<view class="page">
+  <view class="hint">{{hint}}</view>
+  <view wx:if="{{showTip}}" class="tip-mask" bindtap="onDismissTip">
+    <view class="tip-bubble" catchtap="onDismissTip">点选菜名即可记为已吃，再点取消</view>
+  </view>
+
+  <view wx:if="{{loading && !items.length}}" class="empty">加载中…</view>
+  <view wx:elif="{{!items.length}}" class="empty">还没有采纳过方案</view>
+
+  <block wx:for="{{items}}" wx:key="requestId">
+    <view class="card">
+      <view class="meta">{{item.timeText}} · {{item.sceneSummary}}</view>
+      <view class="chips">
+        <view
+          class="sheet-chip {{d.ate ? 'on' : ''}}"
+          wx:for="{{item.dishes}}"
+          wx:for-item="d"
+          wx:key="name"
+          data-request-id="{{item.requestId}}"
+          data-recommendation-id="{{item.recommendationId}}"
+          data-name="{{d.name}}"
+          data-ate="{{d.ate}}"
+          bindtap="onToggleDish"
+        >
+          <text class="check">{{d.ate ? '✓' : ''}}</text>
+          <text class="sheet-chip-text">{{d.name}}</text>
+        </view>
+      </view>
+    </view>
+  </block>
+  <view wx:if="{{loadingMore}}" class="more">加载中…</view>
+</view>

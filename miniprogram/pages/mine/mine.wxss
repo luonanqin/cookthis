@@ -5,20 +5,22 @@
   align-items: stretch;
   gap: 24rpx;
   box-sizing: border-box;
+  background: var(--color-bg);
+  min-height: 100vh;
 }
 
 .avatar {
   width: 144rpx;
   height: 144rpx;
   border-radius: 50%;
-  background: #e8e8e8;
+  background: var(--color-primary-soft);
   align-self: center;
 }
 
 .nickname {
   font-size: 36rpx;
   font-weight: 500;
-  color: #111;
+  color: var(--color-text);
   text-align: center;
 }
 
@@ -30,6 +32,7 @@
   font-size: 28rpx;
   font-weight: 600;
   margin-bottom: 12rpx;
+  color: var(--color-text);
 }
 
 .chips {
@@ -40,17 +43,17 @@
 
 .chip {
   padding: 12rpx 20rpx;
-  background: #fff;
-  border: 1rpx solid #ddd;
-  border-radius: 8rpx;
+  background: var(--color-surface);
+  border: 1rpx solid var(--color-border);
+  border-radius: 12rpx;
   font-size: 24rpx;
-  color: #333;
+  color: var(--color-text);
 }
 
 .chip.on {
-  border-color: #2e7d32;
-  color: #2e7d32;
-  background: #e8f5e9;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
 }
 
 .form-row {
@@ -60,12 +63,26 @@
 .form-label {
   display: block;
   font-size: 26rpx;
-  color: #666;
+  color: var(--color-text-secondary);
   margin-bottom: 8rpx;
 }
 
-.people {
-  background: #fff;
+.picker-row {
+  background: var(--color-surface);
   padding: 16rpx 20rpx;
-  border-radius: 8rpx;
+  border-radius: 12rpx;
+  border: 1rpx solid var(--color-border);
+  color: var(--color-text);
+  font-size: 28rpx;
+}
+
+.link {
+  margin-top: 32rpx;
+  text-align: center;
+  color: var(--color-text-secondary, #576b95);
+  font-size: 26rpx;
+}
+
+.link + .link {
+  margin-top: 16rpx;
 }

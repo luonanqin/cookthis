@@ -1,7 +1,13 @@
 const { callCloud } = require('../../services/cloud.js')
 const { track } = require('../../utils/track.js')
+const { buildPlanIngredientSummary } = require('../../utils/planIngredientSummary.js')
+const { clearChecksForRequest } = require('../../utils/shoppingChecks.js')
+const { tapFeedback } = require('../../utils/haptic.js')
+const { formatSceneSummary } = require('../../utils/sceneSummary.js')
 
 const RECOMMEND_KEY = 'cookthis_last_recommend'
+const SELECTED_KEY = 'cookthis_last_selected'
+const CHECKS_KEY = 'cookthis_shopping_checks'
 
 const EMPTY_REASONS = {
   cannot_fill_combo: '当前食材凑不出完整搭配，可返回改场景或换食材',
@@ -34,22 +40,83 @@ function writeSnap(snap) {
   } catch (e) {}
 }
 
+function selectedNamesFromSnap(snap) {
+  const fromRec = (snap && snap.selectedIngredients) || []
+  if (fromRec.length) {
+    return fromRec.map((x) => x && x.name).filter(Boolean)
+  }
+  try {
+    const sel = wx.getStorageSync(SELECTED_KEY) || null
+    const selected = (sel && sel.selected) || []
+    return selected.map((x) => x && x.name).filter(Boolean)
+  } catch (e) {
+    return []
+  }
+}
+
+const MEAT_VEG_ORDER = ['meat', 'veg', 'soup']
+const MEAT_VEG_LABELS = { meat: '荤', veg: '素', soup: '汤' }
+
+/** 顿内按荤素汤分组，供两列展示 */
+function groupDishesByMeatVeg(dishes) {
+  const buckets = { meat: [], veg: [], soup: [], other: [] }
+  for (const d of dishes || []) {
+    const k = d && d.meatVeg
+    if (k === 'meat' || k === 'veg' || k === 'soup') buckets[k].push(d)
+    else if (d) buckets.other.push(d)
+  }
+  const groups = []
+  for (const k of MEAT_VEG_ORDER) {
+    if (buckets[k].length) {
+      groups.push({ type: k, label: MEAT_VEG_LABELS[k], dishes: buckets[k] })
+    }
+  }
+  if (buckets.other.length) {
+    groups.push({ type: 'other', label: '其他', dishes: buckets.other })
+  }
+  return groups
+}
+
+function decoratePlans(plans, selectedNames) {
+  return plans.map((p) => {
+    const summary = buildPlanIngredientSummary({
+      plan: p,
+      selectedNames
+    })
+    const meals = (p.meals || []).map((m) =>
+      Object.assign({}, m, {
+        dishGroups: groupDishesByMeatVeg(m.dishes)
+      })
+    )
+    return Object.assign({}, p, {
+      meals,
+      ingredientTipText: summary.tipText || '',
+      ingredientTipNames: summary.tipNames || []
+    })
+  })
+}
+
 Page({
   data: {
     plans: [],
     empty: true,
     emptyText: '暂无推荐方案，可返回改场景或换食材',
     requestId: '',
+    sceneSummary: '',
     busy: false,
+    busyAction: '',
+    busyPlanIndex: -1,
     showReject: false,
     rejectReasons: REJECT_REASONS,
-    hint: '换一批随便看看；不行会长期少推这些菜'
+    fabDimmed: false,
+    hint: '点方案右侧「就他了」进购买清单；换一批随便看看；不行会长期少推这些菜'
   },
 
   _visibleMs: 0,
   _visibleSince: 0,
   _engagedSent: false,
   _tickTimer: null,
+  _fabScrollTimer: null,
 
   onLoad() {
     this.applySnap(readSnap())
@@ -66,6 +133,8 @@ Page({
       clearInterval(this._tickTimer)
       this._tickTimer = null
     }
+    this._clearFabScrollTimer()
+    if (this.data.fabDimmed) this.setData({ fabDimmed: false })
   },
 
   onUnload() {
@@ -73,6 +142,23 @@ Page({
     if (this._tickTimer) {
       clearInterval(this._tickTimer)
       this._tickTimer = null
+    }
+    this._clearFabScrollTimer()
+  },
+
+  onPageScroll() {
+    if (!this.data.fabDimmed) this.setData({ fabDimmed: true })
+    this._clearFabScrollTimer()
+    this._fabScrollTimer = setTimeout(() => {
+      this._fabScrollTimer = null
+      if (this.data.fabDimmed) this.setData({ fabDimmed: false })
+    }, 180)
+  },
+
+  _clearFabScrollTimer() {
+    if (this._fabScrollTimer) {
+      clearTimeout(this._fabScrollTimer)
+      this._fabScrollTimer = null
     }
   },
 
@@ -106,13 +192,23 @@ Page({
   },
 
   applySnap(snap) {
-    const plans = (snap && Array.isArray(snap.plans) ? snap.plans : []).slice(0, 3)
+    const raw = (snap && Array.isArray(snap.plans) ? snap.plans : []).slice(0, 3)
+    const selectedNames = selectedNamesFromSnap(snap)
+    const plans = decoratePlans(raw, selectedNames)
     const empty = plans.length === 0
+    let scene = (snap && snap.scene) || null
+    if (!scene) {
+      try {
+        const sel = wx.getStorageSync(SELECTED_KEY) || null
+        scene = (sel && sel.scene) || null
+      } catch (e) {}
+    }
     this.setData({
       plans,
       empty,
       emptyText: emptyMessage(snap && snap.emptyReason),
-      requestId: (snap && snap.requestId) || ''
+      requestId: (snap && snap.requestId) || '',
+      sceneSummary: formatSceneSummary(scene)
     })
     if (empty) {
       track('empty_recommend', { reasonCode: (snap && snap.emptyReason) || null })
@@ -124,36 +220,43 @@ Page({
       plans.forEach((p) => {
         track('recommend_plan_impression', {
           planIndex: p.planIndex,
-          planKind: p.planKind || 'home'
+          planKind: p.planKind || 'home',
+          ingredientTipText: p.ingredientTipText || ''
         })
       })
     }
   },
 
   onBack() {
+    tapFeedback()
     wx.navigateBack({ delta: 1 })
   },
 
   onSwap() {
+    tapFeedback()
     track('recommend_swap', { swapIndex: 1 })
     this._rerun('swap')
   },
 
   onRejectOpen() {
+    tapFeedback()
     this.setData({ showReject: true })
   },
 
   onRejectClose() {
+    tapFeedback()
     this.setData({ showReject: false })
   },
 
   onRejectSkip() {
+    tapFeedback()
     this.setData({ showReject: false })
     track('recommend_reject', { skippedReason: true })
     this._rerun('reject', {})
   },
 
   onRejectReason(e) {
+    tapFeedback()
     const reason = e.currentTarget.dataset.id
     this.setData({ showReject: false })
     track('recommend_reject', { reason, skippedReason: false })
@@ -162,14 +265,20 @@ Page({
 
   _rerun(action, extra) {
     if (this.data.busy || !this.data.requestId) return
-    this.setData({ busy: true })
+    this.setData({ busy: true, busyAction: action })
     callCloud('recommend', Object.assign({
       action,
       requestId: this.data.requestId
     }, extra || {}))
       .then((result) => {
+        const requestId = result.requestId || this.data.requestId
+        // 换一批 / 不行后方案变了，清掉本会话清单勾选
+        try {
+          const prev = wx.getStorageSync(CHECKS_KEY) || {}
+          wx.setStorageSync(CHECKS_KEY, clearChecksForRequest(prev, requestId))
+        } catch (e) {}
         const snap = Object.assign({}, readSnap() || {}, {
-          requestId: result.requestId || this.data.requestId,
+          requestId,
           plans: result.plans || [],
           emptyReason: result.emptyReason || null,
           swapCount: result.swapCount
@@ -186,21 +295,35 @@ Page({
           icon: 'none'
         })
       })
-      .then(() => this.setData({ busy: false }))
+      .then(() => this.setData({ busy: false, busyAction: '' }))
   },
 
-  onAccept() {
+  onAccept(e) {
     if (this.data.busy || this.data.empty || !this.data.requestId) return
-    this.setData({ busy: true })
-    track('recommend_accept', { planIndex: 0 })
+    tapFeedback('heavy')
+    const planIndex = Number(e.currentTarget.dataset.planIndex)
+    const idx = Number.isFinite(planIndex) ? planIndex : 0
+    this.setData({ busy: true, busyAction: 'accept', busyPlanIndex: idx })
+    track('recommend_accept', { planIndex: idx })
+    track('recommend_plan_click', { planIndex: idx })
     callCloud('recommend', {
       action: 'accept',
       requestId: this.data.requestId,
-      planIndex: 0
+      planIndex: idx
     })
-      .then(() => {
+      .then((result) => {
+        if (result && Array.isArray(result.plans) && result.plans.length) {
+          const prev = readSnap() || {}
+          writeSnap(
+            Object.assign({}, prev, {
+              requestId: result.requestId || this.data.requestId,
+              plans: result.plans,
+              scene: result.scene || prev.scene
+            })
+          )
+        }
         wx.navigateTo({
-          url: '/pages/shopping/shopping?accepted=true&planIndex=0'
+          url: '/pages/shopping/shopping?accepted=true&planIndex=' + idx
         })
       })
       .catch((err) => {
@@ -209,14 +332,8 @@ Page({
           icon: 'none'
         })
       })
-      .then(() => this.setData({ busy: false }))
+      .then(() => this.setData({ busy: false, busyAction: '', busyPlanIndex: -1 }))
   },
 
-  onViewList() {
-    if (this.data.empty) return
-    wx.navigateTo({
-      url: '/pages/shopping/shopping?accepted=false&planIndex=0'
-    })
-  }
 })
 

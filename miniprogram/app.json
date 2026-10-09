@@ -6,26 +6,15 @@
     "pages/confirm/confirm",
     "pages/recommend/recommend",
     "pages/shopping/shopping",
-    "pages/record/record"
+    "pages/record/record",
+    "pages/acceptedPlans/acceptedPlans"
   ],
   "window": {
-    "navigationBarTitleText": "做什么菜",
-    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTitleText": "买菜做什么",
+    "navigationBarBackgroundColor": "#f6f9f7",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#f7f7f7"
+    "backgroundColor": "#f6f9f7"
   },
   "style": "v2",
-  "sitemapLocation": "sitemap.json",
-  "lazyCodeLoading": "requiredComponents",
-  "permission": {
-    "scope.record": {
-      "desc": "用于语音补菜和语音记饮食"
-    }
-  },
-  "plugins": {
-    "WechatSI": {
-      "version": "0.3.5",
-      "provider": "wx069ba97219f66d99"
-    }
-  }
+  "sitemapLocation": "sitemap.json"
 }

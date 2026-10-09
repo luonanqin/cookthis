@@ -6,7 +6,7 @@
     <view class="section-title">家庭忌口</view>
     <view class="chips">
       <view
-        class="chip {{familyAvoids.indexOf(item.id) >= 0 ? 'on' : ''}}"
+        class="chip {{familyAvoidChecked[item.id] ? 'on' : ''}}"
         wx:for="{{avoidOptions}}"
         wx:key="id"
         data-id="{{item.id}}"
@@ -35,8 +35,20 @@
 
   <view class="section">
     <view class="section-title">日常默认人数</view>
-    <input class="people" type="number" value="{{defaultPeopleCount}}" bindinput="onPeopleInput" />
+    <picker mode="selector" range="{{peopleRange}}" value="{{peopleIndex}}" bindchange="onPeoplePick">
+      <view class="picker-row">{{defaultPeopleCount}} 人</view>
+    </picker>
   </view>
 
-  <button type="primary" loading="{{busy}}" disabled="{{busy}}" bindtap="onSave">保存</button>
+  <view class="section">
+    <view class="section-title">城市（选到市）</view>
+    <picker mode="region" level="city" value="{{region}}" bindchange="onRegionChange">
+      <view class="picker-row">{{city || '点此选择省市'}}</view>
+    </picker>
+  </view>
+
+  <view class="link" bindtap="goAcceptedPlans">已选方案</view>
+  <view class="link" bindtap="goRecord">已吃记录</view>
+  <button type="primary" disabled="{{busy}}" bindtap="onSave">保存</button>
+  <view class="link" bindtap="goOnboarding">重新走一遍家庭引导</view>
 </view>
