@@ -6,6 +6,13 @@ const {
   buildUnconventionalPlan,
   mergePlansWithUnconventional
 } = require('./unconventionalPlans.js')
+// Vendored: keep in sync with cloudfunctions/_shared/listAccepted.js
+const {
+  PAGE_SIZE,
+  collectAteNamesByRequestId,
+  shapeAcceptedItem,
+  applyAcceptedCursor
+} = require('./listAccepted.js')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
@@ -328,6 +335,104 @@ async function handleAccept(event, uid, user) {
   }
 }
 
+function listAcceptedQueryDate(value) {
+  if (value == null || value === '') return null
+  if (value instanceof Date) return value
+  if (typeof value === 'number' && Number.isFinite(value)) return new Date(value)
+  if (typeof value === 'string') {
+    const t = Date.parse(value)
+    return Number.isFinite(t) ? new Date(t) : null
+  }
+  if (typeof value === 'object') {
+    if (typeof value.$date === 'number') return new Date(value.$date)
+    if (typeof value.valueOf === 'function') {
+      const n = Number(value.valueOf())
+      if (Number.isFinite(n)) return new Date(n)
+    }
+  }
+  return null
+}
+
+async function handleListAccepted(event, uid) {
+  const cursor = (event && event.cursor) || null
+  const fetchLimit = Math.min(20, Number(event && event.limit) || PAGE_SIZE) + 5
+
+  const where = { uid, accepted: true }
+  if (cursor && cursor.acceptedAt != null && cursor.acceptedAt !== '') {
+    const cursorAt = listAcceptedQueryDate(cursor.acceptedAt)
+    where.acceptedAt = _.lte(cursorAt || cursor.acceptedAt)
+  }
+
+  let rows = []
+  try {
+    const recRes = await db.collection('recommendations')
+      .where(where)
+      .orderBy('acceptedAt', 'desc')
+      .limit(fetchLimit)
+      .get()
+    rows = recRes.data || []
+  } catch (e) {
+    if (!where.acceptedAt) throw e
+    const recRes = await db.collection('recommendations')
+      .where({ uid, accepted: true })
+      .orderBy('acceptedAt', 'desc')
+      .limit(fetchLimit)
+      .get()
+    rows = recRes.data || []
+  }
+
+  const pageDocs = applyAcceptedCursor(rows, cursor)
+
+  const requestIds = []
+  const seenReq = new Set()
+  for (const doc of pageDocs) {
+    if (!doc || !doc.requestId || seenReq.has(doc.requestId)) continue
+    seenReq.add(doc.requestId)
+    requestIds.push(doc.requestId)
+  }
+
+  let mealLogs = []
+  if (requestIds.length) {
+    try {
+      const logRes = await db.collection('meal_logs')
+        .where({
+          uid,
+          requestId: _.in(requestIds.slice(0, 10))
+        })
+        .limit(MAX)
+        .get()
+      mealLogs = logRes.data || []
+    } catch (e) {
+      mealLogs = []
+    }
+  }
+
+  const ateMap = collectAteNamesByRequestId(mealLogs)
+  const items = []
+  for (const doc of pageDocs) {
+    const item = shapeAcceptedItem(doc, ateMap.get(doc.requestId))
+    if (item) items.push(item)
+  }
+
+  let nextCursor = null
+  if (pageDocs.length === PAGE_SIZE) {
+    const lastDoc = pageDocs[pageDocs.length - 1]
+    const rest = applyAcceptedCursor(rows, {
+      acceptedAt: lastDoc.acceptedAt,
+      recommendationId: lastDoc._id
+    })
+    if (rest.length > 0 || rows.length >= fetchLimit) {
+      const lastItem = items[items.length - 1]
+      nextCursor = {
+        acceptedAt: (lastItem && lastItem.acceptedAt) || lastDoc.acceptedAt,
+        recommendationId: (lastItem && lastItem.recommendationId) || lastDoc._id
+      }
+    }
+  }
+
+  return { ok: true, items, nextCursor }
+}
+
 async function handleEngage(event, uid) {
   const requestId = event && event.requestId
   if (!requestId) return { ok: false, error: 'REQUEST_ID_REQUIRED' }
@@ -371,6 +476,7 @@ exports.main = async (event) => {
   if (action === 'swap') return handleSwapOrReject(event, uid, user, 'swap')
   if (action === 'reject') return handleSwapOrReject(event, uid, user, 'reject')
   if (action === 'accept') return handleAccept(event, uid, user)
+  if (action === 'listAccepted') return handleListAccepted(event, uid)
   if (action === 'engage') return handleEngage(event, uid)
   return { ok: false, error: 'UNSUPPORTED_ACTION' }
 }
