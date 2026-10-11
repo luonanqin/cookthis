@@ -183,6 +183,11 @@ async function handleCreate(event, uid, user) {
   if (!Array.isArray(scene.mealSlots) || scene.mealSlots.length < 1) {
     return { ok: false, error: 'MEAL_SLOTS_REQUIRED' }
   }
+  const slotLen = scene.mealSlots.length
+  const maxSlots = scene.mealType === 'daily' ? 14 : 7
+  if (slotLen > maxSlots) {
+    return { ok: false, error: '顿数过多', code: 'MEAL_SLOTS_TOO_MANY' }
+  }
   if (scene.mealType !== 'daily' && typeof scene.peopleCount !== 'number') {
     return { ok: false, error: 'PEOPLE_COUNT_REQUIRED' }
   }
