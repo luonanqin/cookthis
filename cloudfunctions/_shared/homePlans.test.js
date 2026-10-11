@@ -2,6 +2,7 @@ const { describe, it } = require('node:test')
 const assert = require('node:assert/strict')
 const {
   buildHomePlans,
+  softPenalty,
   dishKey,
   planDishCount,
   overlapLimit,
@@ -1035,5 +1036,110 @@ describe('within-plan dedupe (3.0.7)', () => {
     const dishes = result.plans[0].meals[0].dishes
     assert.ok(dishes.some((d) => d.recipeId === 'rcp_beef_potato'))
     assert.ok(dishes.some((d) => d.recipeId === 'rcp_potato_silk'))
+  })
+})
+
+describe('cuisinePrefs in buildHomePlans', () => {
+  it('hard-excludes avoid cuisine from candidates', () => {
+    const recipes = [
+      {
+        id: 'rcp_mapo',
+        name: '麻婆豆腐',
+        mainIngredients: ['豆腐', '猪肉'],
+        seasonings: ['盐'],
+        meatVeg: 'meat',
+        cuisineTags: ['sichuan'],
+        enabled: true
+      },
+      {
+        id: 'rcp_tomato_egg',
+        name: '番茄炒蛋',
+        mainIngredients: ['番茄', '鸡蛋'],
+        seasonings: ['盐'],
+        meatVeg: 'veg',
+        cuisineTags: ['home_style'],
+        enabled: true
+      }
+    ]
+    const built = buildHomePlans({
+      recipes,
+      selectedNames: ['豆腐', '猪肉', '番茄', '鸡蛋'],
+      scene: {
+        mealType: 'daily',
+        combo: { meat: 1, veg: 1, soup: 0 },
+        mealSlots: [{ meal: 'dinner', label: '晚饭①' }]
+      },
+      familyAvoids: [],
+      cuisinePrefs: { sichuan: 'avoid' },
+      maxPlans: 1
+    })
+    const ids = []
+    for (const p of built.plans || []) {
+      for (const m of p.meals || []) {
+        for (const d of m.dishes || []) ids.push(d.recipeId)
+      }
+    }
+    assert.ok(!ids.includes('rcp_mapo'))
+  })
+
+  it('prefer cuisine sorts ahead of neutral when both fit', () => {
+    // 两道 meat，combo 只要 1 meat：prefer 的应被优先挑中
+    const recipes = [
+      {
+        id: 'rcp_neutral_meat',
+        name: '青椒炒肉',
+        mainIngredients: ['猪肉', '青椒'],
+        seasonings: ['盐'],
+        meatVeg: 'meat',
+        cuisineTags: ['home_style'],
+        enabled: true
+      },
+      {
+        id: 'rcp_hunan_meat',
+        name: '农家小炒肉',
+        mainIngredients: ['猪肉', '青椒'],
+        seasonings: ['盐'],
+        meatVeg: 'meat',
+        cuisineTags: ['hunan'],
+        enabled: true
+      },
+      {
+        id: 'rcp_veg',
+        name: '蒜蓉小白菜',
+        mainIngredients: ['小白菜'],
+        seasonings: ['盐'],
+        meatVeg: 'veg',
+        cuisineTags: ['home_style'],
+        enabled: true
+      }
+    ]
+    const built = buildHomePlans({
+      recipes,
+      selectedNames: ['猪肉', '青椒', '小白菜'],
+      scene: {
+        mealType: 'daily',
+        combo: { meat: 1, veg: 1, soup: 0 },
+        mealSlots: [{ meal: 'dinner', label: '晚饭①' }]
+      },
+      cuisinePrefs: { hunan: 'prefer' },
+      maxPlans: 1,
+      // seed 'a' picks neutral when soft scores tie — prefer delta must break the tie
+      sessionSeed: 'a'
+    })
+    const preferCtx = {
+      downranked: new Set(),
+      memberAvoids: new Set(),
+      recentIngredientDays: {},
+      ingredientsByName: undefined,
+      cuisinePrefs: { hunan: 'prefer' }
+    }
+    assert.ok(
+      softPenalty(recipes[1], preferCtx) < softPenalty(recipes[0], preferCtx),
+      'prefer cuisine must lower softPenalty'
+    )
+    const meatId = built.plans[0].meals[0].dishes.find((d) =>
+      ['rcp_neutral_meat', 'rcp_hunan_meat'].includes(d.recipeId)
+    ).recipeId
+    assert.equal(meatId, 'rcp_hunan_meat')
   })
 })

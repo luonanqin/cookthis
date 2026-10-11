@@ -1,5 +1,7 @@
 'use strict'
 
+const { recipeBlockedByCuisine } = require('./cuisinePrefs.js')
+
 const KIND_TAGS = ['hotpot', 'noodle', 'dumpling']
 
 function hasForm(recipe, tag) {
@@ -54,12 +56,14 @@ function pickKind(dishFormPrefs) {
   return candidates
 }
 
-function buildForTag(tag, recipes, selectedNames, mealSlots, familyAvoids) {
+function buildForTag(tag, recipes, selectedNames, mealSlots, familyAvoids, cuisinePrefs) {
+  void familyAvoids
   const selectedSet = new Set(selectedNames || [])
   const pool = (recipes || []).filter((r) => {
     if (!r || r.enabled === false) return false
     if (!hasForm(r, tag)) return false
     if (!mainsOk(r, selectedSet, tag)) return false
+    if (recipeBlockedByCuisine(r, cuisinePrefs)) return false
     return true
   })
   if (pool.length === 0) return null
@@ -108,7 +112,8 @@ function buildUnconventionalPlan(input) {
     dishFormPrefs = {},
     mealSlots = [],
     scene = null,
-    familyAvoids = []
+    familyAvoids = [],
+    cuisinePrefs = {}
   } = input || {}
 
   // familyAvoids reserved for future; home engine already hard-filters most
@@ -120,7 +125,14 @@ function buildUnconventionalPlan(input) {
   let best = null
   let bestScore = -1
   for (const tag of kinds) {
-    const plan = buildForTag(tag, recipes, selectedNames, mealSlots, familyAvoids)
+    const plan = buildForTag(
+      tag,
+      recipes,
+      selectedNames,
+      mealSlots,
+      familyAvoids,
+      cuisinePrefs
+    )
     if (!plan) continue
     const score = scoreKind(tag, scene)
     if (score > bestScore) {

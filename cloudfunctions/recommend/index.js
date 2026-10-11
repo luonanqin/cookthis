@@ -146,6 +146,7 @@ function rebuildPlans(user, doc, excludedDishIds) {
     selectedNames,
     scene: doc.scene,
     familyAvoids: user.familyAvoids || [],
+    cuisinePrefs: user.cuisinePrefs || {},
     excludedDishIds,
     downrankedIds,
     recentDishNames: doc._recentDishNames || [],
@@ -159,7 +160,8 @@ function rebuildPlans(user, doc, excludedDishIds) {
     dishFormPrefs: user.dishFormPrefs || {},
     mealSlots: (doc.scene && doc.scene.mealSlots) || [],
     scene: doc.scene,
-    familyAvoids: user.familyAvoids || []
+    familyAvoids: user.familyAvoids || [],
+    cuisinePrefs: user.cuisinePrefs || {}
   })
   const plans = mergePlansWithUnconventional(built.plans || [], unc, 3)
   const out = { plans }
@@ -206,6 +208,7 @@ async function handleCreate(event, uid, user) {
     selectedNames,
     scene,
     familyAvoids: user.familyAvoids || [],
+    cuisinePrefs: user.cuisinePrefs || {},
     excludedDishIds: [],
     downrankedIds,
     recentDishNames: recent.recentDishNames,
@@ -220,7 +223,8 @@ async function handleCreate(event, uid, user) {
     dishFormPrefs: user.dishFormPrefs || {},
     mealSlots: scene.mealSlots,
     scene,
-    familyAvoids: user.familyAvoids || []
+    familyAvoids: user.familyAvoids || [],
+    cuisinePrefs: user.cuisinePrefs || {}
   })
   const requestId = makeRequestId()
   const now = db.serverDate()

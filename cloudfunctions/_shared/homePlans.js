@@ -4,6 +4,10 @@ const {
   normalizeIngredientName,
   computeFreshPenalty
 } = require('./freshness.js')
+const {
+  recipeBlockedByCuisine,
+  cuisineSoftDelta
+} = require('./cuisinePrefs.js')
 
 function lookupIngredient(ingredientsByName, name) {
   if (!ingredientsByName) return undefined
@@ -314,6 +318,7 @@ function softPenalty(recipe, ctx) {
   const tags = recipeAvoidTags(recipe, ctx.ingredientsByName)
   if (intersects(tags, ctx.memberAvoids)) score += 40
   score += computeFreshPenalty(recipe.mainIngredients || [], ctx.recentIngredientDays)
+  score += cuisineSoftDelta(recipe, ctx.cuisinePrefs || {})
   return score
 }
 
@@ -386,6 +391,7 @@ function buildHomePlans(input) {
     selectedNames = [],
     scene,
     familyAvoids = [],
+    cuisinePrefs = {},
     excludedDishIds = [],
     downrankedIds = [],
     recentDishNames = [],
@@ -420,6 +426,7 @@ function buildHomePlans(input) {
     if (nameKey && recentDishes.has(nameKey)) continue
     const tags = recipeAvoidTags(recipe, ingredientsByName)
     if (intersects(tags, avoids)) continue
+    if (recipeBlockedByCuisine(recipe, cuisinePrefs)) continue
     candidates.push(recipe)
   }
 
@@ -432,7 +439,8 @@ function buildHomePlans(input) {
     downranked,
     memberAvoids: memberAvoidSet,
     recentIngredientDays: recentDays,
-    ingredientsByName
+    ingredientsByName,
+    cuisinePrefs
   }
   const seedBase = hashSessionSeed(sessionSeed)
   for (const key of Object.keys(buckets)) {

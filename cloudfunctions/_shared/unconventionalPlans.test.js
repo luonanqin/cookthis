@@ -97,6 +97,39 @@ describe('buildUnconventionalPlan', () => {
     assert.equal(out.planKind, 'noodle')
     assert.equal(out.meals[0].dishes[0].recipeId, 'rcp_noodle')
   })
+
+  it('hard-excludes avoid cuisine from hotpot pool', () => {
+    const sichuanOnly = [
+      {
+        id: 'rcp_hotpot_base_sc',
+        name: '麻辣锅底',
+        mainIngredients: ['白菜'],
+        seasonings: [],
+        meatVeg: 'soup',
+        dishForms: ['hotpot'],
+        cuisineTags: ['sichuan'],
+        enabled: true
+      },
+      {
+        id: 'rcp_hotpot_meat_sc',
+        name: '涮牛肉',
+        mainIngredients: ['牛肉'],
+        seasonings: [],
+        meatVeg: 'meat',
+        dishForms: ['hotpot'],
+        cuisineTags: ['sichuan'],
+        enabled: true
+      }
+    ]
+    const out = buildUnconventionalPlan({
+      recipes: sichuanOnly,
+      selectedNames: ['白菜', '牛肉'],
+      dishFormPrefs: { hotpot: 'prefer' },
+      mealSlots: slots,
+      cuisinePrefs: { sichuan: 'avoid' }
+    })
+    assert.equal(out, null)
+  })
 })
 
 describe('mergePlansWithUnconventional', () => {
