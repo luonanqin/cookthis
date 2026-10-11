@@ -14,6 +14,7 @@ function loadAndValidate() {
     throw new Error('ingredients-builtin.json must be a JSON array')
   }
 
+  const seen = new Set()
   for (const row of items) {
     for (const key of REQUIRED) {
       if (row[key] === undefined || row[key] === null || row[key] === '') {
@@ -23,6 +24,10 @@ function loadAndValidate() {
     if (!row.id || !row.name || !row.kind) {
       throw new Error('invalid row ' + JSON.stringify(row))
     }
+    if (seen.has(row.id)) {
+      throw new Error('duplicate ingredient id: ' + row.id)
+    }
+    seen.add(row.id)
     if (!Array.isArray(row.cities)) {
       throw new Error(row.id + ' cities must be array')
     }
@@ -46,12 +51,22 @@ function main() {
 
   console.log('Validated', items.length, 'rows (', mains.length, 'main,', seasoning.length, 'seasoning).')
   console.log('')
+  const importJsonPath = path.join(__dirname, '..', 'data', 'ingredients-for-import.json')
+  const lines = items.map((row) => JSON.stringify({ _id: row.id, ...row }))
+  fs.writeFileSync(importJsonPath, lines.join('\n') + '\n')
+  // 同内容另存 .jsonl，便于本地核对
+  fs.writeFileSync(
+    path.join(__dirname, '..', 'data', 'ingredients-builtin.jsonl'),
+    lines.join('\n') + '\n'
+  )
+
   console.log('Manual import (this slice):')
-  console.log('  微信开发者工具 → 云开发 → 数据库 → 集合 `ingredients` → 导入 JSON')
-  console.log('  Or set each document _id to the `id` field before batch insert.')
+  console.log('  微信开发者工具 → 云开发 → 数据库 → 集合 `ingredients` → 导入')
+  console.log('  选文件（扩展名 .json，内容是 JSON Lines 每行一条）：')
+  console.log('  ', importJsonPath)
+  console.log('  不要选 ingredients-builtin.json（那是数组，会报格式错误）')
   console.log('')
-  console.log('Import', items.length, 'ingredients into collection `ingredients`')
-  console.log('  File:', JSON_PATH)
+  console.log('Wrote', items.length, 'lines for collection `ingredients`')
 }
 
 main()
