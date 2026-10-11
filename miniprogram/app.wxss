@@ -1,3 +1,223 @@
 page {
-  background: #f7f7f7;
+  --color-primary: #3a8a5f;
+  --color-primary-pressed: #2f7350;
+  --color-primary-soft: #eaf4ee;
+  --color-bg: #f6f9f7;
+  --color-surface: #ffffff;
+  --color-text: #1a1a1a;
+  --color-text-secondary: #5f6e66;
+  --color-border: #dde8e2;
+  --color-mask: rgba(26, 26, 26, 0.4);
+  --radius-btn: 16rpx;
+  --radius-sheet: 24rpx;
+  --radius-card: 16rpx;
+
+  /* Type scale (normal) */
+  --fs-xxs: 20rpx;
+  --fs-xs: 22rpx;
+  --fs-sm: 24rpx;
+  --fs-md: 26rpx;
+  --fs-body: 28rpx;
+  --fs-btn: 30rpx;
+  --fs-title: 32rpx;
+  --fs-lead: 36rpx;
+  --fs-brand: 52rpx;
+
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: var(--fs-body);
+  line-height: 1.5;
+}
+
+/* Large type: put class on page root wrapper (inherits to descendants) */
+.large-text {
+  --fs-xxs: 24rpx;
+  --fs-xs: 28rpx;
+  --fs-sm: 30rpx;
+  --fs-md: 34rpx;
+  --fs-body: 36rpx;
+  --fs-btn: 38rpx;
+  --fs-title: 40rpx;
+  --fs-lead: 44rpx;
+  --fs-brand: 64rpx;
+  font-size: var(--fs-body);
+}
+
+.large-text button[size='mini'] {
+  padding: 0 28rpx;
+  line-height: 2.15;
+}
+
+/* Shared primary / outline buttons */
+button {
+  font-size: var(--fs-btn);
+  border-radius: var(--radius-btn) !important;
+  font-weight: 500;
+}
+
+button[type='primary'] {
+  background: var(--color-primary) !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+button[type='primary']::after {
+  border: none !important;
+}
+
+button.btn-outline {
+  background: var(--color-surface) !important;
+  color: var(--color-primary) !important;
+  border: 2rpx solid var(--color-primary) !important;
+}
+
+button.btn-outline::after {
+  border: none !important;
+}
+
+button[size='mini'] {
+  font-size: var(--fs-sm);
+  padding: 0 24rpx;
+  line-height: 2;
+}
+
+/* Press feedback: WeChat default hover-class is button-hover */
+button.button-hover {
+  background-color: #e8ebe9 !important;
+  opacity: 1 !important;
+}
+
+button[type='primary'].button-hover {
+  background: var(--color-primary-pressed) !important;
+}
+
+button.btn-outline.button-hover {
+  background: var(--color-primary-soft) !important;
+}
+
+/* view / text tap targets: set hover-class="tap-hover" */
+.tap-hover {
+  opacity: 0.72 !important;
+}
+
+/* Shared bottom sheet */
+.mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--color-mask);
+  display: flex;
+  align-items: flex-end;
+  z-index: 20;
+}
+
+/* 居中窄弹窗（如「食材不够出菜了」） */
+.mask.mask-center {
+  align-items: center;
+  justify-content: center;
+  padding: 48rpx 120rpx;
+  box-sizing: border-box;
+  z-index: 30;
+}
+
+.dialog {
+  width: 100%;
+  max-width: 400rpx;
+  background: var(--color-surface);
+  border-radius: var(--radius-sheet);
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.dialog-title {
+  text-align: center;
+  font-weight: 600;
+  font-size: var(--fs-title);
+  color: var(--color-text);
+  line-height: 1.4;
+  padding: 40rpx 28rpx 36rpx;
+}
+
+.dialog-actions {
+  margin-top: 0;
+  display: flex;
+  justify-content: stretch;
+  border-top: 1rpx solid var(--color-border);
+}
+
+.dialog-btn {
+  margin: 0 !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  height: 88rpx !important;
+  line-height: 88rpx !important;
+  font-size: var(--fs-btn) !important;
+  font-weight: 500;
+  color: var(--color-primary) !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  display: block !important;
+}
+
+.dialog-btn::after {
+  border: none !important;
+}
+
+.dialog-btn.button-hover {
+  background: var(--color-primary-soft) !important;
+}
+
+.sheet {
+  width: 100%;
+  background: var(--color-surface);
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+  padding: 32rpx 28rpx calc(28rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.sheet-title {
+  font-weight: 600;
+  font-size: var(--fs-title);
+  color: var(--color-text);
+}
+
+.sheet-hint,
+.transcript {
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+  margin: 10rpx 0 16rpx;
+}
+
+.sheet-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  justify-content: flex-end;
+  margin-top: 24rpx;
+}
+
+.sheet-row {
+  display: flex;
+  align-items: center;
+  padding: 22rpx 0;
+  border-bottom: 1rpx solid var(--color-border);
+  font-size: var(--fs-body);
+  color: var(--color-text);
+}
+
+.sheet-row.on {
+  color: var(--color-primary);
+}
+
+.sheet-row .check {
+  width: 40rpx;
+  margin-right: 12rpx;
+  color: var(--color-primary);
 }

@@ -1,6 +1,13 @@
 'use strict'
 const cloud = require('wx-server-sdk')
 const { sanitizeCuisinePrefs } = require('./cuisinePrefs.js')
+// Vendored: keep in sync with cloudfunctions/_shared/members.js
+const {
+  normalizeAgeBand,
+  AGE_BANDS,
+  TASTE_VALUES,
+  summarizeHousehold
+} = require('./members.js')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
@@ -21,6 +28,36 @@ async function resolveUid(openid) {
 async function loadUserDoc(uid) {
   const res = await db.collection('users').where({ uid }).limit(1).get()
   return res.data[0] || null
+}
+
+async function countMembers(uid) {
+  try {
+    const res = await db.collection('members').where({ uid }).limit(50).get()
+    return (res.data || []).length
+  } catch (e) {
+    return 0
+  }
+}
+
+async function syncPeopleCountCache(uid, userDoc) {
+  const n = await countMembers(uid)
+  const doc = userDoc || (await loadUserDoc(uid))
+  if (!doc) return n
+  await db.collection('users').doc(doc._id).update({
+    data: {
+      defaultPeopleCount: n,
+      updatedAt: db.serverDate()
+    }
+  })
+  return n
+}
+
+function sanitizeAgeBand(band) {
+  return normalizeAgeBand(band) || '26_40'
+}
+
+function sanitizeTaste(taste) {
+  return TASTE_VALUES.includes(taste) ? taste : 'normal'
 }
 
 function sanitizeAvoids(list) {
@@ -48,6 +85,7 @@ async function handleGet(uid) {
   } catch (e) {
     members = []
   }
+  const household = summarizeHousehold(members)
   return {
     ok: true,
     profile: {
@@ -55,16 +93,26 @@ async function handleGet(uid) {
       nickname: user.nickname,
       avatarUrl: user.avatarUrl || null,
       city: user.city || null,
-      defaultPeopleCount: user.defaultPeopleCount ?? 2,
+      // 人数以成员列表为准（缓存字段可能旧）
+      defaultPeopleCount: household.total,
       defaultCombo: user.defaultCombo || { meat: 1, veg: 1, soup: 0 },
       mealTimes: user.mealTimes || {},
       cookBudget: user.cookBudget || 'about30',
       familyAvoids: user.familyAvoids || [],
       dishFormPrefs: user.dishFormPrefs || {},
       cuisinePrefs: user.cuisinePrefs || {},
-      onboardingDone: !!user.onboardingDone
+      onboardingDone: !!user.onboardingDone,
+      profileLiteSkipped: !!user.profileLiteSkipped,
+      profileLitePromptedAt: user.profileLitePromptedAt || null,
+      householdSummary: household.label,
+      householdCounts: {
+        adult: household.adult,
+        child: household.child,
+        elder: household.elder
+      }
     },
-    members
+    members,
+    ageBands: AGE_BANDS
   }
 }
 
@@ -83,9 +131,7 @@ async function handleUpdateFamily(event, uid, user) {
   if (event.cuisinePrefs && typeof event.cuisinePrefs === 'object') {
     patch.cuisinePrefs = sanitizeCuisinePrefs(event.cuisinePrefs)
   }
-  if (typeof event.defaultPeopleCount === 'number' && event.defaultPeopleCount >= 1) {
-    patch.defaultPeopleCount = Math.floor(event.defaultPeopleCount)
-  }
+  // 人数唯一来源 = members；忽略客户端 defaultPeopleCount
   if (event.defaultCombo && typeof event.defaultCombo === 'object') {
     patch.defaultCombo = {
       meat: Number(event.defaultCombo.meat) || 0,
@@ -98,6 +144,8 @@ async function handleUpdateFamily(event, uid, user) {
   if (Object.keys(patch).length === 0) {
     return { ok: false, error: 'NO_FIELDS' }
   }
+  // 在「我的」保存过家庭设置，视为已完成引导，不再弹首页提示
+  if (!user.onboardingDone) patch.onboardingDone = true
   patch.updatedAt = db.serverDate()
   await db.collection('users').doc(user._id).update({ data: patch })
   return { ok: true, updated: Object.keys(patch).filter((k) => k !== 'updatedAt') }
@@ -124,9 +172,11 @@ function makeMemberId() {
   return `m_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`
 }
 
-async function handleAddMember(event, uid) {
+async function handleAddMember(event, uid, user) {
   const name = String((event && event.name) || '').trim()
   if (!name) return { ok: false, error: 'NAME_REQUIRED' }
+  const ageBand = sanitizeAgeBand(event && event.ageBand)
+  const taste = sanitizeTaste(event && event.taste)
   const now = db.serverDate()
   const memberId = makeMemberId()
   await db.collection('members').add({
@@ -135,8 +185,8 @@ async function handleAddMember(event, uid) {
       memberId,
       name,
       role: (event && event.role) || 'other',
-      ageBand: (event && event.ageBand) || '26_40',
-      taste: (event && event.taste) || 'normal',
+      ageBand,
+      taste,
       avoids: sanitizeAvoids((event && event.avoids) || []),
       dishFormPrefs: null,
       sort: Number(event && event.sort) || 0,
@@ -144,10 +194,11 @@ async function handleAddMember(event, uid) {
       updatedAt: now
     }
   })
-  return { ok: true, memberId }
+  const peopleCount = await syncPeopleCountCache(uid, user)
+  return { ok: true, memberId, defaultPeopleCount: peopleCount }
 }
 
-async function handleUpdateMember(event, uid) {
+async function handleUpdateMember(event, uid, user) {
   const memberId = event && event.memberId
   if (!memberId) return { ok: false, error: 'MEMBER_ID_REQUIRED' }
   const res = await db.collection('members').where({ uid, memberId }).limit(1).get()
@@ -155,30 +206,30 @@ async function handleUpdateMember(event, uid) {
   if (!row) return { ok: false, error: 'MEMBER_NOT_FOUND' }
   const patch = { updatedAt: db.serverDate() }
   if (typeof event.name === 'string' && event.name.trim()) patch.name = event.name.trim()
-  if (typeof event.ageBand === 'string') patch.ageBand = event.ageBand
-  if (typeof event.taste === 'string') patch.taste = event.taste
+  if (typeof event.ageBand === 'string') patch.ageBand = sanitizeAgeBand(event.ageBand)
+  if (typeof event.taste === 'string') patch.taste = sanitizeTaste(event.taste)
   if (Array.isArray(event.avoids)) patch.avoids = sanitizeAvoids(event.avoids)
   await db.collection('members').doc(row._id).update({ data: patch })
-  return { ok: true }
+  const peopleCount = await syncPeopleCountCache(uid, user)
+  return { ok: true, defaultPeopleCount: peopleCount }
 }
 
-async function handleRemoveMember(event, uid) {
+async function handleRemoveMember(event, uid, user) {
   const memberId = event && event.memberId
   if (!memberId) return { ok: false, error: 'MEMBER_ID_REQUIRED' }
   const res = await db.collection('members').where({ uid, memberId }).limit(1).get()
   const row = res.data[0]
   if (!row) return { ok: false, error: 'MEMBER_NOT_FOUND' }
   await db.collection('members').doc(row._id).remove()
-  return { ok: true }
+  const peopleCount = await syncPeopleCountCache(uid, user)
+  return { ok: true, defaultPeopleCount: peopleCount }
 }
 
 async function handleCompleteOnboarding(event, uid, user) {
   const familyAvoids = sanitizeAvoids((event && event.familyAvoids) || [])
   const dishFormPrefs = sanitizeDishFormPrefs((event && event.dishFormPrefs) || {})
-  const defaultPeopleCount =
-    typeof event.defaultPeopleCount === 'number' && event.defaultPeopleCount >= 1
-      ? Math.floor(event.defaultPeopleCount)
-      : user.defaultPeopleCount || 2
+  // 引导人数由随后创建的本人成员决定；此处先写 1，add 成功后再确认
+  const defaultPeopleCount = 1
   let defaultCombo = user.defaultCombo || { meat: 1, veg: 1, soup: 0 }
   if (event.defaultCombo && typeof event.defaultCombo === 'object') {
     defaultCombo = {
@@ -210,23 +261,81 @@ async function handleCompleteOnboarding(event, uid, user) {
   const self = (event && event.selfMember) || {}
   const name = String(self.name || '本人').trim() || '本人'
   const memberId = makeMemberId()
-  await db.collection('members').add({
+  try {
+    await db.collection('members').add({
+      data: {
+        uid,
+        memberId,
+        name,
+        role: 'self',
+        ageBand: sanitizeAgeBand(self.ageBand),
+        taste: sanitizeTaste(self.taste),
+        avoids: sanitizeAvoids(self.avoids || []),
+        dishFormPrefs: null,
+        sort: 0,
+        createdAt: now,
+        updatedAt: now
+      }
+    })
+    await db.collection('users').doc(user._id).update({
+      data: { defaultPeopleCount: 1, updatedAt: now }
+    })
+  } catch (e) {
+    // members 集合未建时仍算引导完成，避免卡在完成页
+    console.warn('completeOnboarding members.add failed', e)
+    return { ok: true, memberId: null, onboardingDone: true, memberSkipped: true }
+  }
+
+  return { ok: true, memberId, onboardingDone: true, defaultPeopleCount: 1 }
+}
+
+/** Mark done without collecting fields — for skip / later fill-in via「我的」. */
+async function handleSkipOnboarding(uid, user) {
+  await db.collection('users').doc(user._id).update({
     data: {
-      uid,
-      memberId,
-      name,
-      role: 'self',
-      ageBand: self.ageBand || '26_40',
-      taste: self.taste || 'normal',
-      avoids: sanitizeAvoids(self.avoids || []),
-      dishFormPrefs: null,
-      sort: 0,
-      createdAt: now,
-      updatedAt: now
+      onboardingDone: true,
+      updatedAt: db.serverDate()
     }
   })
+  return { ok: true, onboardingDone: true, skipped: true }
+}
 
-  return { ok: true, memberId, onboardingDone: true }
+/** 日常轻量补全：保存忌口 / 可选爱吃 → 标记已提示 */
+async function handleSaveProfileLite(event, uid, user) {
+  const patch = {
+    profileLitePromptedAt: db.serverDate(),
+    profileLiteSkipped: false,
+    updatedAt: db.serverDate()
+  }
+  if (Array.isArray(event.familyAvoids)) {
+    patch.familyAvoids = sanitizeAvoids(event.familyAvoids)
+  }
+  if (event.dishFormPrefs && typeof event.dishFormPrefs === 'object') {
+    patch.dishFormPrefs = Object.assign(
+      {},
+      user.dishFormPrefs || {},
+      sanitizeDishFormPrefs(event.dishFormPrefs)
+    )
+  }
+  await db.collection('users').doc(user._id).update({ data: patch })
+  return {
+    ok: true,
+    familyAvoids: patch.familyAvoids != null ? patch.familyAvoids : user.familyAvoids || [],
+    dishFormPrefs: patch.dishFormPrefs || user.dishFormPrefs || {},
+    profileLitePromptedAt: true
+  }
+}
+
+/** 日常轻量补全：跳过 → 标记已提示，不挡推荐 */
+async function handleSkipProfileLite(uid, user) {
+  await db.collection('users').doc(user._id).update({
+    data: {
+      profileLiteSkipped: true,
+      profileLitePromptedAt: db.serverDate(),
+      updatedAt: db.serverDate()
+    }
+  })
+  return { ok: true, skipped: true, profileLiteSkipped: true }
 }
 
 exports.main = async (event) => {
@@ -242,9 +351,18 @@ exports.main = async (event) => {
   if (action === 'get') return handleGet(uid)
   if (action === 'updateFamily') return handleUpdateFamily(event, uid, user)
   if (action === 'updateDisplay') return handleUpdateDisplay(event, uid, user)
-  if (action === 'addMember') return handleAddMember(event, uid)
-  if (action === 'updateMember') return handleUpdateMember(event, uid)
-  if (action === 'removeMember') return handleRemoveMember(event, uid)
+  if (action === 'addMember') return handleAddMember(event, uid, user)
+  if (action === 'updateMember') return handleUpdateMember(event, uid, user)
+  if (action === 'removeMember') return handleRemoveMember(event, uid, user)
   if (action === 'completeOnboarding') return handleCompleteOnboarding(event, uid, user)
-  return { ok: false, error: 'UNKNOWN_ACTION' }
+  if (action === 'skipOnboarding') return handleSkipOnboarding(uid, user)
+  if (action === 'saveProfileLite') return handleSaveProfileLite(event, uid, user)
+  if (action === 'skipProfileLite') return handleSkipProfileLite(uid, user)
+  console.warn('profile UNKNOWN_ACTION', action)
+  return {
+    ok: false,
+    error: 'UNKNOWN_ACTION',
+    hint: '请重新上传并部署云函数 profile（需含 saveProfileLite / skipProfileLite）',
+    action: action || null
+  }
 }

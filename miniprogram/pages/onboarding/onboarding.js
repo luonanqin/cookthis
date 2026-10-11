@@ -6,6 +6,10 @@ const {
   toggleCuisinePrefer,
   toggleCuisineAvoid
 } = require('../../utils/cuisinePrefs.js')
+const { COMBO_RANGE, indexOfValue } = require('../../utils/formRanges.js')
+const { ageBandToTier } = require('../../utils/members.js')
+const { tapFeedback } = require('../../utils/haptic.js')
+const typeScaleBehavior = require('../../behaviors/typeScale.js')
 
 const AVOID_OPTIONS = [
   { id: 'pork', label: '猪肉类' },
@@ -29,10 +33,11 @@ const FORM_VALUES = [
 ]
 
 const AGE_BANDS = [
+  { id: '5_15', label: '5–15（小）' },
   { id: '16_25', label: '16–25' },
   { id: '26_40', label: '26–40' },
-  { id: '41_60', label: '41–60' },
-  { id: '60_plus', label: '60+' }
+  { id: '41_59', label: '41–59' },
+  { id: '60_plus', label: '60+（老）' }
 ]
 
 const TASTES = [
@@ -43,6 +48,8 @@ const TASTES = [
 ]
 
 Page({
+  behaviors: [typeScaleBehavior],
+
   data: {
     step: 0,
     steps: ['家庭忌口', '菜式偏好', '菜系偏好', '本人', '日常默认'],
@@ -52,6 +59,7 @@ Page({
     ageBands: AGE_BANDS,
     tastes: TASTES,
     familyAvoids: [],
+    familyAvoidChecked: {},
     dishFormPrefs: { hotpot: 'neutral', noodle: 'neutral', dumpling: 'neutral' },
     cuisineOptions: CUISINE_OPTIONS,
     cuisinePrefs: {},
@@ -59,25 +67,38 @@ Page({
     selfAgeBand: '26_40',
     selfTaste: 'normal',
     selfAvoids: [],
-    defaultPeopleCount: 2,
+    selfAvoidChecked: {},
+    comboRange: COMBO_RANGE,
+    householdPreview: '共1人 · 1大 0小 0老',
     meat: 1,
     veg: 1,
     soup: 0,
+    meatIndex: indexOfValue(COMBO_RANGE, 1, 1),
+    vegIndex: indexOfValue(COMBO_RANGE, 1, 1),
+    soupIndex: indexOfValue(COMBO_RANGE, 0, 0),
     city: '',
+    region: [],
     busy: false
   },
 
   onLoad() {
+    this.setData({ busy: false, step: 0 })
     track('onboarding_start', {})
     track('onboarding_step', { step: 0 })
   },
 
+  onShow() {
+    this.applyTypeScale()
+    if (this.data.busy) this.setData({ busy: false })
+  },
+
   onToggleFamilyAvoid(e) {
-    const id = e.currentTarget.dataset.id
-    const set = new Set(this.data.familyAvoids)
-    if (set.has(id)) set.delete(id)
-    else set.add(id)
-    this.setData({ familyAvoids: Array.from(set) })
+    const id = e.currentTarget.dataset.avoidId || e.currentTarget.dataset.id
+    if (!id) return
+    const familyAvoidChecked = Object.assign({}, this.data.familyAvoidChecked)
+    familyAvoidChecked[id] = !familyAvoidChecked[id]
+    const familyAvoids = Object.keys(familyAvoidChecked).filter((k) => familyAvoidChecked[k])
+    this.setData({ familyAvoidChecked, familyAvoids })
   },
 
   onFormPref(e) {
@@ -100,11 +121,12 @@ Page({
   },
 
   onToggleSelfAvoid(e) {
-    const id = e.currentTarget.dataset.id
-    const set = new Set(this.data.selfAvoids)
-    if (set.has(id)) set.delete(id)
-    else set.add(id)
-    this.setData({ selfAvoids: Array.from(set) })
+    const id = e.currentTarget.dataset.avoidId || e.currentTarget.dataset.id
+    if (!id) return
+    const selfAvoidChecked = Object.assign({}, this.data.selfAvoidChecked)
+    selfAvoidChecked[id] = !selfAvoidChecked[id]
+    const selfAvoids = Object.keys(selfAvoidChecked).filter((k) => selfAvoidChecked[k])
+    this.setData({ selfAvoidChecked, selfAvoids })
   },
 
   onSelfName(e) {
@@ -113,49 +135,95 @@ Page({
 
   onPickAge(e) {
     this.setData({ selfAgeBand: e.currentTarget.dataset.id })
+    this._refreshHouseholdPreview()
   },
 
   onPickTaste(e) {
     this.setData({ selfTaste: e.currentTarget.dataset.id })
   },
 
-  onPeople(e) {
-    const n = Number(e.detail.value)
-    this.setData({ defaultPeopleCount: Number.isFinite(n) && n >= 1 ? Math.floor(n) : 2 })
+  _refreshHouseholdPreview() {
+    const tier = ageBandToTier(this.data.selfAgeBand) || 'adult'
+    const counts = { adult: 0, child: 0, elder: 0 }
+    counts[tier] = 1
+    this.setData({
+      householdPreview: `共1人 · ${counts.adult}大 ${counts.child}小 ${counts.elder}老`
+    })
   },
 
-  onMeat(e) {
-    this.setData({ meat: Number(e.detail.value) || 0 })
+  onMeatPick(e) {
+    const idx = Number(e.detail.value)
+    this.setData({ meatIndex: idx, meat: COMBO_RANGE[idx] })
   },
 
-  onVeg(e) {
-    this.setData({ veg: Number(e.detail.value) || 0 })
+  onVegPick(e) {
+    const idx = Number(e.detail.value)
+    this.setData({ vegIndex: idx, veg: COMBO_RANGE[idx] })
   },
 
-  onSoup(e) {
-    this.setData({ soup: Number(e.detail.value) || 0 })
+  onSoupPick(e) {
+    const idx = Number(e.detail.value)
+    this.setData({ soupIndex: idx, soup: COMBO_RANGE[idx] })
   },
 
-  onCity(e) {
-    this.setData({ city: e.detail.value || '' })
+  onRegionChange(e) {
+    const region = e.detail.value || []
+    // 取市级（第二级）；直辖市时第二级仍是市辖区名，第一级是市名——取「市」一级：
+    // region = [省, 市, 区]。市一级用 region[1]；若只有两级则仍取 [1]。
+    const city = region[1] || region[0] || ''
+    this.setData({ region, city })
   },
 
   onNext() {
+    tapFeedback()
     const step = this.data.step
     if (step >= 4) {
       this.finish()
       return
     }
     const next = step + 1
+    if (next === 3) this._refreshHouseholdPreview()
     this.setData({ step: next })
     track('onboarding_step', { step: next })
   },
 
   onBackStep() {
     if (this.data.step <= 0) return
+    tapFeedback()
     const next = this.data.step - 1
     this.setData({ step: next })
     track('onboarding_step', { step: next })
+  },
+
+  cloudErrorTitle(err) {
+    const code = err && err.error
+    if (code === 'UNKNOWN_ACTION') {
+      return (err && err.hint) || '请重新部署云函数 profile'
+    }
+    return code || (err && err.message) || '保存失败'
+  },
+
+  onSkip() {
+    if (this.data.busy) return
+    tapFeedback()
+    this.setData({ busy: true })
+    callCloud('profile', { action: 'skipOnboarding' })
+      .then(() => {
+        track('onboarding_done', { skipped: true })
+        return ensureLogin()
+      })
+      .then(() => {
+        const app = getApp()
+        if (app) {
+          app.globalData.onboardingTipShown = true
+          if (app.globalData.user) app.globalData.user.onboardingDone = true
+        }
+        wx.reLaunch({ url: '/pages/index/index' })
+      })
+      .catch((err) => {
+        this.setData({ busy: false })
+        wx.showToast({ title: this.cloudErrorTitle(err) || '跳过失败', icon: 'none' })
+      })
   },
 
   finish() {
@@ -166,7 +234,6 @@ Page({
       familyAvoids: this.data.familyAvoids,
       dishFormPrefs: this.data.dishFormPrefs,
       cuisinePrefs: this.data.cuisinePrefs,
-      defaultPeopleCount: this.data.defaultPeopleCount,
       defaultCombo: {
         meat: this.data.meat,
         veg: this.data.veg,
@@ -185,11 +252,16 @@ Page({
         return ensureLogin()
       })
       .then(() => {
+        const app = getApp()
+        if (app) {
+          app.globalData.onboardingTipShown = true
+          if (app.globalData.user) app.globalData.user.onboardingDone = true
+        }
         wx.reLaunch({ url: '/pages/index/index' })
       })
       .catch((err) => {
         this.setData({ busy: false })
-        wx.showToast({ title: (err && err.error) || '保存失败', icon: 'none' })
+        wx.showToast({ title: this.cloudErrorTitle(err), icon: 'none' })
       })
   }
 })

@@ -8,19 +8,22 @@ function toDateStr(fromDate) {
     throw new TypeError('fromDate must be a Date or YYYY-MM-DD string')
   }
   const y = fromDate.getFullYear()
-  const m = String(fromDate.getMonth() + 1).padStart(2, '0')
-  const d = String(fromDate.getDate()).padStart(2, '0')
-  return `${y}-${m}-${d}`
+  const m = fromDate.getMonth() + 1
+  const d = fromDate.getDate()
+  return y + '-' + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d)
 }
 
 function addDays(dateStr, delta) {
-  const [y, m, d] = dateStr.split('-').map(Number)
+  const parts = dateStr.split('-').map(Number)
+  const y = parts[0]
+  const m = parts[1]
+  const d = parts[2]
   const dt = new Date(y, m - 1, d)
   dt.setDate(dt.getDate() + delta)
   const yy = dt.getFullYear()
-  const mm = String(dt.getMonth() + 1).padStart(2, '0')
-  const dd = String(dt.getDate()).padStart(2, '0')
-  return `${yy}-${mm}-${dd}`
+  const mm = dt.getMonth() + 1
+  const dd = dt.getDate()
+  return yy + '-' + (mm < 10 ? '0' + mm : mm) + '-' + (dd < 10 ? '0' + dd : dd)
 }
 
 /**

@@ -18,7 +18,7 @@
 }
 
 .nickname {
-  font-size: 36rpx;
+  font-size: var(--fs-lead);
   font-weight: 500;
   color: var(--color-text);
   text-align: center;
@@ -29,7 +29,7 @@
 }
 
 .section-title {
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 600;
   margin-bottom: 12rpx;
   color: var(--color-text);
@@ -53,7 +53,7 @@
   background: var(--color-surface);
   border: 1rpx solid var(--color-border);
   border-radius: 12rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-sm);
   color: var(--color-text);
 }
 
@@ -69,7 +69,7 @@
 
 .form-label {
   display: block;
-  font-size: 26rpx;
+  font-size: var(--fs-md);
   color: var(--color-text-secondary);
   margin-bottom: 8rpx;
 }
@@ -80,14 +80,104 @@
   border-radius: 12rpx;
   border: 1rpx solid var(--color-border);
   color: var(--color-text);
-  font-size: 28rpx;
+  font-size: var(--fs-body);
+}
+
+.large-text .picker-row {
+  min-height: 96rpx;
+  padding: 24rpx 24rpx;
+  font-size: var(--fs-title);
+  box-sizing: border-box;
+}
+
+.household {
+  font-size: var(--fs-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: 12rpx;
+}
+
+.member-card {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid var(--color-border);
+}
+
+.member-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.member-name {
+  display: block;
+  font-size: var(--fs-body);
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.member-meta {
+  display: block;
+  margin-top: 4rpx;
+  font-size: var(--fs-sm);
+  color: var(--color-text-secondary);
+}
+
+.member-del {
+  font-size: var(--fs-sm);
+  color: var(--color-text-secondary);
+  padding: 8rpx 12rpx;
+}
+
+.link-inline {
+  margin-top: 12rpx;
+  font-size: var(--fs-body);
+  color: var(--color-primary);
+}
+
+.editor-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(26, 26, 26, 0.45);
+  z-index: 30;
+  display: flex;
+  align-items: flex-end;
+}
+
+.editor-panel {
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--color-bg);
+  border-radius: 24rpx 24rpx 0 0;
+  padding: 28rpx 28rpx calc(28rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+.editor-input {
+  background: var(--color-surface);
+  border: 1rpx solid var(--color-border);
+  border-radius: 12rpx;
+  padding: 16rpx 20rpx;
+  margin: 12rpx 0 16rpx;
+  font-size: var(--fs-body);
+}
+
+.editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16rpx;
+  margin-top: 24rpx;
 }
 
 .link {
   margin-top: 32rpx;
   text-align: center;
   color: var(--color-text-secondary, #576b95);
-  font-size: 26rpx;
+  font-size: var(--fs-md);
 }
 
 .link + .link {

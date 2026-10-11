@@ -1,7 +1,6 @@
-<view class="page">
-  <view class="hint">{{hint}}</view>
-  <view wx:if="{{showTip}}" class="tip-mask" bindtap="onDismissTip">
-    <view class="tip-bubble" catchtap="onDismissTip">点选菜名即可记为已吃，再点取消</view>
+<view class="page {{typeScaleClass}}">
+  <view class="hint-bar">
+    <view class="hint">{{hint}}</view>
   </view>
 
   <view wx:if="{{loading && !items.length}}" class="empty">加载中…</view>
@@ -12,9 +11,11 @@
       <view class="meta">{{item.timeText}} · {{item.sceneSummary}}</view>
       <view class="chips">
         <view
+          id="{{index === 0 && dishIndex === 0 ? 'tipSpotChip' : ''}}"
           class="sheet-chip {{d.ate ? 'on' : ''}}"
           wx:for="{{item.dishes}}"
           wx:for-item="d"
+          wx:for-index="dishIndex"
           wx:key="name"
           data-request-id="{{item.requestId}}"
           data-recommendation-id="{{item.recommendationId}}"
@@ -29,4 +30,30 @@
     </view>
   </block>
   <view wx:if="{{loadingMore}}" class="more">加载中…</view>
+
+  <!-- 强制点选首菜：蒙层不可点关，仅热区可点 -->
+  <view wx:if="{{showTip && items.length}}" class="tip-mask" catchtouchmove="true" catchtap="noop">
+    <view
+      wx:if="{{tipSpot}}"
+      class="tip-bubble"
+      style="top: {{tipBubbleTop}}px; left: {{tipBubbleLeft}}px;"
+      catchtap="noop"
+    >
+      <text class="tip-bubble-text">{{tipText}}</text>
+      <view class="tip-arrow"></view>
+    </view>
+    <view
+      wx:if="{{tipSpot}}"
+      class="tip-spot-hit sheet-chip {{tipSpot.ate ? 'on' : ''}}"
+      style="top: {{tipSpot.top}}px; left: {{tipSpot.left}}px; width: {{tipSpot.width}}px; height: {{tipSpot.height}}px;"
+      data-request-id="{{tipSpot.requestId}}"
+      data-recommendation-id="{{tipSpot.recommendationId}}"
+      data-name="{{tipSpot.name}}"
+      data-ate="{{tipSpot.ate}}"
+      catchtap="onToggleDish"
+    >
+      <text class="check">{{tipSpot.ate ? '✓' : ''}}</text>
+      <text class="sheet-chip-text">{{tipSpot.name}}</text>
+    </view>
+  </view>
 </view>

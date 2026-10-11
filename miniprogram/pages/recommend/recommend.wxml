@@ -1,30 +1,54 @@
-<view class="page">
+<view class="page {{typeScaleClass}}">
   <view wx:if="{{empty}}" class="empty">
     <text class="empty-text">{{emptyText}}</text>
   </view>
 
   <block wx:else>
-    <view class="hint">{{hint}}</view>
+    <view wx:if="{{sceneSummary}}" class="scene-bar">{{sceneSummary}}</view>
     <view class="plan" wx:for="{{plans}}" wx:key="planIndex">
-      <view class="plan-title">方案 {{item.planIndex + 1}}<text wx:if="{{item.planKind && item.planKind !== 'home'}}" class="kind"> · {{item.planKind}}</text></view>
+      <view class="plan-head">
+        <view class="plan-title">方案 {{item.planIndex + 1}}<text wx:if="{{item.planKind && item.planKind !== 'home'}}" class="kind"> · {{item.planKind}}</text></view>
+        <button
+          size="mini"
+          type="primary"
+          class="plan-accept"
+          disabled="{{busy}}"
+          data-plan-index="{{item.planIndex}}"
+          bindtap="onAccept"
+        >去买菜</button>
+      </view>
       <view class="meal" wx:for="{{item.meals}}" wx:for-item="meal" wx:key="slot">
         <view class="meal-label">{{meal.slot.label || meal.slot.meal}}</view>
-        <view class="dish" wx:for="{{meal.dishes}}" wx:for-item="dish" wx:key="recipeId">
-          {{dish.name}}
+        <view class="dish-group" wx:for="{{meal.dishGroups}}" wx:for-item="group" wx:key="type">
+          <view class="group-label">{{group.label}}</view>
+          <view class="dish-grid">
+            <view class="dish" wx:for="{{group.dishes}}" wx:for-item="dish" wx:key="recipeId">
+              <text class="dish-mark">·</text><text class="dish-name">{{dish.name}}</text>
+            </view>
+          </view>
         </view>
       </view>
+      <view wx:if="{{item.ingredientTipText}}" class="plan-ings">{{item.ingredientTipText}}</view>
     </view>
+    <!-- 滚到底时把末卡「去买菜 / 食材」顶到悬浮钮上方 -->
+    <view class="scroll-end-pad"></view>
   </block>
 
-  <view class="actions" wx:if="{{!empty}}">
-    <button size="mini" loading="{{busy}}" disabled="{{busy}}" bindtap="onSwap">换一批</button>
-    <button size="mini" loading="{{busy}}" disabled="{{busy}}" bindtap="onRejectOpen">不行</button>
-    <button size="mini" type="primary" loading="{{busy}}" disabled="{{busy}}" bindtap="onAccept">可以</button>
-    <button size="mini" bindtap="onViewList">查看购买清单</button>
+  <view class="fab-stack {{fabDimmed ? 'fab-dimmed' : ''}}" wx:if="{{!empty}}">
+    <button
+      class="fab fab-swap"
+      disabled="{{busy}}"
+      bindtap="onSwap"
+    >换一批</button>
+    <button
+      class="fab fab-reject"
+      disabled="{{busy}}"
+      bindtap="onRejectOpen"
+    >不行</button>
   </view>
 
   <view class="footer">
-    <button bindtap="onBack">返回改场景</button>
+    <button class="btn-outline" bindtap="onBack">返回改场景</button>
   </view>
 
   <view class="mask" wx:if="{{showReject}}" catchtouchmove="true">
@@ -37,8 +61,19 @@
         data-id="{{item.id}}"
         bindtap="onRejectReason"
       >{{item.label}}</view>
-      <button size="mini" bindtap="onRejectSkip">跳过</button>
-      <button size="mini" bindtap="onRejectClose">取消</button>
+      <view class="sheet-actions">
+        <button size="mini" class="btn-outline" bindtap="onRejectSkip">跳过</button>
+        <button size="mini" class="btn-outline" bindtap="onRejectClose">取消</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="mask mask-center" wx:if="{{showEmptyDialog}}" catchtouchmove="true">
+    <view class="dialog">
+      <view class="dialog-title">食材不够出菜了</view>
+      <view class="dialog-actions">
+        <button class="dialog-btn" hover-class="button-hover" bindtap="onEmptyDialogOk">好吧</button>
+      </view>
     </view>
   </view>
 </view>

@@ -1,13 +1,17 @@
-const { ensureLogin, getUser } = require('../../services/session.js')
+const { ensureLogin, getUser, patchUser } = require('../../services/session.js')
 const { callCloud } = require('../../services/cloud.js')
 const { track } = require('../../utils/track.js')
-const { PEOPLE_RANGE, indexOfValue } = require('../../utils/formRanges.js')
 const { tapFeedback } = require('../../utils/haptic.js')
 const {
   CUISINE_OPTIONS,
   toggleCuisinePrefer,
   toggleCuisineAvoid
 } = require('../../utils/cuisinePrefs.js')
+const {
+  AGE_BANDS,
+  summarizeHousehold,
+  normalizeAgeBand
+} = require('../../utils/members.js')
 
 function resolveAvatar(url) {
   return url ? url : '/assets/avatar-default.png'
@@ -34,6 +38,81 @@ const FORM_VALUES = [
   { id: 'avoid', label: '少来' }
 ]
 
+const AGE_BAND_OPTIONS = [
+  { id: '5_15', label: '5–15（小）' },
+  { id: '16_25', label: '16–25' },
+  { id: '26_40', label: '26–40' },
+  { id: '41_59', label: '41–59' },
+  { id: '60_plus', label: '60+（老）' }
+]
+
+const TASTE_OPTIONS = [
+  { id: 'light', label: '清淡' },
+  { id: 'normal', label: '适中' },
+  { id: 'heavy', label: '偏重' },
+  { id: 'spicy', label: '辣' }
+]
+
+const AGE_LABEL = {}
+AGE_BAND_OPTIONS.forEach((x) => {
+  AGE_LABEL[x.id] = x.label
+})
+const TASTE_LABEL = {}
+TASTE_OPTIONS.forEach((x) => {
+  TASTE_LABEL[x.id] = x.label
+})
+
+function profileViewFromUser(user) {
+  const p = user || {}
+  const prefs = Object.assign(
+    { hotpot: 'neutral', noodle: 'neutral', dumpling: 'neutral' },
+    p.dishFormPrefs || {}
+  )
+  const familyAvoids = p.familyAvoids || []
+  const familyAvoidChecked = {}
+  familyAvoids.forEach((id) => {
+    familyAvoidChecked[id] = true
+  })
+  const members = shapeMembers(p.members || [])
+  const summary = summarizeHousehold(members)
+  return {
+    familyAvoids,
+    familyAvoidChecked,
+    dishFormPrefs: prefs,
+    cuisinePrefs: p.cuisinePrefs || {},
+    city: p.city || '',
+    region: [],
+    nickname: p.nickname || '',
+    avatarSrc: resolveAvatar(p.avatarUrl),
+    members,
+    householdLabel: summary.label
+  }
+}
+
+function shapeMembers(list) {
+  return (list || []).map((m) => {
+    const ageBand = normalizeAgeBand(m.ageBand) || '26_40'
+    const avoids = m.avoids || []
+    return {
+      memberId: m.memberId,
+      name: m.name || '',
+      ageBand,
+      taste: m.taste || 'normal',
+      avoids,
+      ageLabel: AGE_LABEL[ageBand] || ageBand,
+      tasteLabel: TASTE_LABEL[m.taste] || m.taste || '适中',
+      avoidLabel: avoids.length
+        ? avoids
+            .map((id) => {
+              const hit = AVOID_OPTIONS.find((o) => o.id === id)
+              return hit ? hit.label : id
+            })
+            .join('、')
+        : '无'
+    }
+  })
+}
+
 Page({
   data: {
     nickname: '',
@@ -46,63 +125,40 @@ Page({
     dishFormPrefs: { hotpot: 'neutral', noodle: 'neutral', dumpling: 'neutral' },
     cuisineOptions: CUISINE_OPTIONS,
     cuisinePrefs: {},
-    peopleRange: PEOPLE_RANGE,
-    defaultPeopleCount: 2,
-    peopleIndex: indexOfValue(PEOPLE_RANGE, 2, 1),
     city: '',
     region: [],
-    busy: false
+    busy: false,
+    members: [],
+    householdLabel: '共0人 · 0大 0小 0老',
+    ageBandOptions: AGE_BAND_OPTIONS,
+    tasteOptions: TASTE_OPTIONS,
+    showMemberEditor: false,
+    editingMemberId: '',
+    editName: '',
+    editAgeBand: '26_40',
+    editTaste: 'normal',
+    editAvoidChecked: {}
   },
 
   onShow() {
+    // auth 已带 members：本地缓存立刻上屏，无需再打 profile.get
     const cached = getUser()
-    if (cached) {
-      this.setData({
-        nickname: cached.nickname || '',
-        avatarSrc: resolveAvatar(cached.avatarUrl)
-      })
-    }
+    if (cached) this.setData(profileViewFromUser(cached))
+
     ensureLogin()
       .then((user) => {
-        this.setData({
-          nickname: user.nickname || '',
-          avatarSrc: resolveAvatar(user.avatarUrl)
-        })
-        return this.loadProfile()
+        this.setData(profileViewFromUser(user))
       })
       .catch((err) => {
         console.error(err)
-        wx.showToast({ title: '登录失败', icon: 'none' })
+        if (!cached) wx.showToast({ title: '登录失败', icon: 'none' })
       })
   },
 
-  loadProfile() {
-    return callCloud('profile', { action: 'get' }).then((result) => {
-      const p = (result && result.profile) || {}
-      const prefs = Object.assign(
-        { hotpot: 'neutral', noodle: 'neutral', dumpling: 'neutral' },
-        p.dishFormPrefs || {}
-      )
-      const people = p.defaultPeopleCount != null ? p.defaultPeopleCount : 2
-      const city = p.city || ''
-      const familyAvoids = p.familyAvoids || []
-      const familyAvoidChecked = {}
-      familyAvoids.forEach((id) => {
-        familyAvoidChecked[id] = true
-      })
-      this.setData({
-        familyAvoids,
-        familyAvoidChecked,
-        dishFormPrefs: prefs,
-        cuisinePrefs: p.cuisinePrefs || {},
-        defaultPeopleCount: people,
-        peopleIndex: indexOfValue(PEOPLE_RANGE, people, 1),
-        city,
-        // 仅持久化市名，无法反查省；picker 初始可不预填，展示文案用 city
-        region: [],
-        nickname: p.nickname || this.data.nickname,
-        avatarSrc: resolveAvatar(p.avatarUrl)
-      })
+  /** 成员增删改后刷新：走 auth 带回最新 members */
+  refreshFromAuth() {
+    return ensureLogin().then((user) => {
+      this.setData(profileViewFromUser(user))
     })
   },
 
@@ -135,41 +191,146 @@ Page({
     this.setData({ cuisinePrefs: toggleCuisineAvoid(this.data.cuisinePrefs, id) })
   },
 
-  onPeoplePick(e) {
-    const idx = Number(e.detail.value)
-    this.setData({
-      peopleIndex: idx,
-      defaultPeopleCount: PEOPLE_RANGE[idx]
-    })
-  },
-
   onRegionChange(e) {
     const region = e.detail.value || []
     const city = region[1] || region[0] || ''
     this.setData({ region, city })
   },
 
+  openAddMember() {
+    this.setData({
+      showMemberEditor: true,
+      editingMemberId: '',
+      editName: '',
+      editAgeBand: '26_40',
+      editTaste: 'normal',
+      editAvoidChecked: {}
+    })
+  },
+
+  openEditMember(e) {
+    const id = e.currentTarget.dataset.id
+    const m = (this.data.members || []).find((x) => x.memberId === id)
+    if (!m) return
+    const editAvoidChecked = {}
+    ;(m.avoids || []).forEach((a) => {
+      editAvoidChecked[a] = true
+    })
+    this.setData({
+      showMemberEditor: true,
+      editingMemberId: m.memberId,
+      editName: m.name,
+      editAgeBand: m.ageBand,
+      editTaste: m.taste,
+      editAvoidChecked
+    })
+  },
+
+  closeMemberEditor() {
+    this.setData({ showMemberEditor: false })
+  },
+
+  onEditName(e) {
+    this.setData({ editName: (e.detail && e.detail.value) || '' })
+  },
+
+  onEditAge(e) {
+    const id = e.currentTarget.dataset.id
+    if (AGE_BANDS.includes(id)) this.setData({ editAgeBand: id })
+  },
+
+  onEditTaste(e) {
+    const id = e.currentTarget.dataset.id
+    if (id) this.setData({ editTaste: id })
+  },
+
+  onEditAvoid(e) {
+    const id = e.currentTarget.dataset.id
+    if (!id) return
+    const editAvoidChecked = Object.assign({}, this.data.editAvoidChecked)
+    editAvoidChecked[id] = !editAvoidChecked[id]
+    this.setData({ editAvoidChecked })
+  },
+
+  saveMember() {
+    const name = String(this.data.editName || '').trim()
+    if (!name) {
+      wx.showToast({ title: '请填写称呼', icon: 'none' })
+      return
+    }
+    const avoids = Object.keys(this.data.editAvoidChecked || {}).filter(
+      (k) => this.data.editAvoidChecked[k]
+    )
+    const editingMemberId = this.data.editingMemberId
+    const payload = editingMemberId
+      ? {
+          action: 'updateMember',
+          memberId: editingMemberId,
+          name,
+          ageBand: this.data.editAgeBand,
+          taste: this.data.editTaste,
+          avoids
+        }
+      : {
+          action: 'addMember',
+          name,
+          ageBand: this.data.editAgeBand,
+          taste: this.data.editTaste,
+          avoids
+        }
+    tapFeedback()
+    callCloud('profile', payload)
+      .then(() => {
+        track(editingMemberId ? 'member_update' : 'member_add', {})
+        this.setData({ showMemberEditor: false })
+        return this.refreshFromAuth()
+      })
+      .catch((err) => {
+        wx.showToast({ title: (err && err.error) || '保存失败', icon: 'none' })
+      })
+  },
+
+  removeMember(e) {
+    const id = e.currentTarget.dataset.id
+    if (!id) return
+    const self = this
+    wx.showModal({
+      title: '删除家人',
+      content: '确定删除这位家人吗？',
+      success(res) {
+        if (!res.confirm) return
+        callCloud('profile', { action: 'removeMember', memberId: id })
+          .then(() => {
+            track('member_remove', {})
+            return self.refreshFromAuth()
+          })
+          .catch((err) => {
+            wx.showToast({ title: (err && err.error) || '删除失败', icon: 'none' })
+          })
+      }
+    })
+  },
+
   onSave() {
     if (this.data.busy) return
     tapFeedback('heavy')
     this.setData({ busy: true })
-    callCloud('profile', {
-      action: 'updateFamily',
+    const patch = {
       familyAvoids: this.data.familyAvoids,
       dishFormPrefs: this.data.dishFormPrefs,
       cuisinePrefs: this.data.cuisinePrefs,
-      defaultPeopleCount: this.data.defaultPeopleCount,
       city: this.data.city || ''
-    })
+    }
+    callCloud('profile', Object.assign({ action: 'updateFamily' }, patch))
       .then(() => {
+        patchUser(patch)
         track('profile_update', {
-          fields: ['familyAvoids', 'dishFormPrefs', 'cuisinePrefs', 'defaultPeopleCount', 'city']
+          fields: ['familyAvoids', 'dishFormPrefs', 'cuisinePrefs', 'city']
         })
         wx.showToast({ title: '已保存', icon: 'success' })
         return ensureLogin()
       })
       .then(() => {
-        // 等 toast 可见后再回首页（从首页 navigateTo 进入时可 navigateBack）
         setTimeout(() => {
           const pages = getCurrentPages() || []
           if (pages.length > 1) {
@@ -190,19 +351,8 @@ Page({
       })
   },
 
-  goAcceptedPlans() {
-    tapFeedback()
-    wx.navigateTo({ url: '/pages/acceptedPlans/acceptedPlans' })
-  },
-
-  goRecord() {
-    tapFeedback()
-    wx.navigateTo({ url: '/pages/record/record' })
-  },
-
   goOnboarding() {
     tapFeedback()
-    // 引导结束会 reLaunch 首页，无需保留「我的」在栈里；也避免栈底半屏遮罩拦截点击
     try {
       const pages = getCurrentPages() || []
       for (let i = 0; i < pages.length; i++) {

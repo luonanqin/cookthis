@@ -1,28 +1,69 @@
-<view class="wrap">
-  <view class="brand">做什么菜</view>
-  <button type="primary" loading="{{busy}}" disabled="{{busy}}" bindtap="goMarket">今天菜场有什么</button>
-  <button bindtap="goRecord">记一下吃了什么</button>
-  <view class="link" bindtap="goMine">我的</view>
-</view>
-
-<view class="mask" wx:if="{{showConfirm}}" catchtouchmove="true">
-  <view class="sheet">
-    <view class="sheet-title">上次推荐吃过哪些？</view>
-    <view class="sheet-hint">默认不选；可跳过</view>
-    <view
-      class="row {{selected[item] ? 'on' : ''}}"
-      wx:for="{{candidates}}"
-      wx:key="*this"
-      data-name="{{item}}"
-      bindtap="onToggleDish"
-    >
-      <text class="check">{{selected[item] ? '✓' : ''}}</text>
-      <text>{{item}}</text>
+<view class="root {{typeScaleClass}}">
+  <view class="wrap">
+    <view class="hero">
+      <view class="pot" aria-hidden="true">
+        <view class="steam"></view>
+        <view class="steam mid"></view>
+        <view class="steam"></view>
+        <view class="pot-body"></view>
+      </view>
+      <view class="brand">买菜做什么</view>
+      <view class="rule"></view>
     </view>
-    <view class="sheet-actions">
-      <button size="mini" bindtap="onSelectAll">全选</button>
-      <button size="mini" bindtap="onConfirmSkip">跳过</button>
-      <button size="mini" type="primary" loading="{{busy}}" bindtap="onConfirmSubmit">确认</button>
+
+    <button
+      class="btn-main"
+      type="primary"
+      disabled="{{busy}}"
+      bindtap="goMarket"
+    >今天菜场有什么</button>
+    <button class="btn-outline" bindtap="goRecord">记一下吃了什么</button>
+    <button class="btn-outline btn-type-scale" bindtap="onToggleTypeScale">{{typeScaleLabel}}</button>
+    <view class="link-row">
+      <view class="link" hover-class="tap-hover" hover-stay-time="80" bindtap="goAcceptedPlans">已选菜品</view>
+      <view class="link" hover-class="tap-hover" hover-stay-time="80" bindtap="goMine">我的偏好</view>
+    </view>
+  </view>
+
+  <view class="mask" wx:if="{{showConfirm}}" catchtouchmove="true">
+    <view class="sheet-confirm">
+      <view class="sheet-confirm-hd">
+        <view class="sheet-title">上次推荐吃过哪些？</view>
+        <view class="sheet-hint">默认不选；可跳过</view>
+      </view>
+      <view class="sheet-confirm-list-wrap {{candidatesPeek ? 'peek' : ''}}">
+        <scroll-view wx:if="{{candidatesPeek}}" class="sheet-confirm-list" scroll-y>
+          <view class="sheet-confirm-grid">
+            <view
+              class="sheet-chip {{selected[item] ? 'on' : ''}}"
+              wx:for="{{candidates}}"
+              wx:key="*this"
+              data-name="{{item}}"
+              bindtap="onToggleDish"
+            >
+              <text class="check">{{selected[item] ? '✓' : ''}}</text>
+              <text class="sheet-chip-text">{{item}}</text>
+            </view>
+          </view>
+        </scroll-view>
+        <view wx:else class="sheet-confirm-grid">
+          <view
+            class="sheet-chip {{selected[item] ? 'on' : ''}}"
+            wx:for="{{candidates}}"
+            wx:key="*this"
+            data-name="{{item}}"
+            bindtap="onToggleDish"
+          >
+            <text class="check">{{selected[item] ? '✓' : ''}}</text>
+            <text class="sheet-chip-text">{{item}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="sheet-confirm-ft sheet-actions">
+        <button size="mini" class="btn-outline" bindtap="onSelectAll">{{selectAllLabel}}</button>
+        <button size="mini" type="primary" disabled="{{busy}}" bindtap="onConfirmSubmit">确认</button>
+        <button size="mini" class="btn-outline" bindtap="onConfirmSkip">跳过</button>
+      </view>
     </view>
   </view>
 </view>

@@ -1,72 +1,190 @@
 .page {
-  padding: 24rpx 24rpx 200rpx;
+  padding: 24rpx 28rpx 280rpx;
   box-sizing: border-box;
   min-height: 100vh;
-  background: #f7f7f7;
+  background: var(--color-bg);
 }
+
 .banner {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
   padding: 16rpx 20rpx;
-  border-radius: 8rpx;
+  border-radius: 12rpx;
   margin-bottom: 16rpx;
-  font-size: 26rpx;
+  font-size: var(--fs-md);
 }
+
 .empty {
   padding: 80rpx 24rpx;
   text-align: center;
-  color: #666;
+  color: var(--color-text-secondary);
 }
-.row {
-  display: flex;
-  align-items: center;
-  background: #fff;
-  border-radius: 12rpx;
-  padding: 24rpx;
+
+.group {
+  margin-bottom: 28rpx;
+}
+
+.group-label {
+  font-size: var(--fs-sm);
+  color: var(--color-text-secondary);
   margin-bottom: 12rpx;
 }
-.row.bought .name {
-  text-decoration: line-through;
-  color: #999;
-}
-.check {
-  width: 40rpx;
-  height: 40rpx;
-  border: 2rpx solid #ccc;
-  border-radius: 8rpx;
-  margin-right: 20rpx;
-  text-align: center;
-  line-height: 36rpx;
-  color: #2e7d32;
-  font-size: 24rpx;
-}
-.row.bought .check {
-  border-color: #2e7d32;
-  background: #e8f5e9;
-}
-.body {
-  flex: 1;
+
+.pair-row {
   display: flex;
-  justify-content: space-between;
+  gap: 12rpx;
+  margin-bottom: 12rpx;
+}
+
+.cell {
+  flex: 1;
+  min-width: 0;
+  display: flex;
   align-items: center;
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  padding: 20rpx 16rpx;
+  border: 1rpx solid var(--color-border);
+  box-sizing: border-box;
 }
+
+.cell.bought .name {
+  text-decoration: line-through;
+  color: var(--color-text-secondary);
+}
+
+.check {
+  width: 36rpx;
+  height: 36rpx;
+  border: 2rpx solid var(--color-border);
+  border-radius: 8rpx;
+  margin-right: 12rpx;
+  text-align: center;
+  line-height: 32rpx;
+  color: var(--color-primary);
+  font-size: var(--fs-xs);
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.cell.bought .check {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
 .name {
-  font-size: 30rpx;
+  font-size: var(--fs-body);
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.tag {
-  font-size: 22rpx;
-  color: #888;
-}
+
 .ad-slot {
   margin: 24rpx 0;
   min-height: 40rpx;
 }
+
 .footer {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 16rpx 24rpx calc(16rpx + env(safe-area-inset-bottom));
-  background: #fff;
-  box-shadow: 0 -2rpx 8rpx rgba(0, 0, 0, 0.06);
+  z-index: 110;
+  padding: 16rpx 28rpx calc(16rpx + env(safe-area-inset-bottom));
+  background: var(--color-surface);
+  border-top: 1rpx solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.recipe-entry {
+  text-align: center;
+  padding: 20rpx 16rpx;
+  border-radius: var(--radius-card);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: var(--fs-body);
+  font-weight: 600;
+}
+
+/* 全屏遮罩：拦页面滚动；点遮罩关闭；弹层本身 ≤ 半屏 */
+.mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  box-sizing: border-box;
+  /* 给底部 footer 留一点可见，弹层仍不超过半屏 */
+  padding-bottom: calc(112rpx + env(safe-area-inset-bottom));
+}
+
+.sheet {
+  width: 100%;
+  max-height: 50vh;
+  background: var(--color-surface);
+  border-radius: 24rpx 24rpx 0 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 28rpx 12rpx;
+  border-bottom: 1rpx solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.sheet-title {
+  font-size: var(--fs-btn);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.sheet-close {
+  font-size: var(--fs-md);
+  color: var(--color-text-secondary);
+  padding: 8rpx 4rpx 8rpx 24rpx;
+}
+
+/* scroll-view 需明确高度才能滚动；半屏减去标题栏 */
+.sheet-body {
+  height: calc(50vh - 96rpx);
+  max-height: calc(50vh - 96rpx);
+  padding: 8rpx 28rpx 24rpx;
+  box-sizing: border-box;
+}
+
+.dish-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 20rpx;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid var(--color-border);
+}
+
+.dish-name {
+  flex: 0 0 200rpx;
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+.dish-ings {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-md);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
 }

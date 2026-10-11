@@ -1,88 +1,233 @@
 .page {
-  padding: 24rpx 24rpx 200rpx;
+  /* 左右不给悬浮钮留白，避免方案卡被挤窄；底部留给 footer + 圆钮滚动余量 */
+  padding: 24rpx 28rpx 180rpx;
   box-sizing: border-box;
   min-height: 100vh;
-  background: #f7f7f7;
+  background: var(--color-bg);
 }
-.hint {
-  color: #888;
-  font-size: 24rpx;
-  margin-bottom: 16rpx;
+
+.scroll-end-pad {
+  height: 260rpx;
 }
+
+.scene-bar {
+  margin-bottom: 12rpx;
+  padding: 16rpx 20rpx;
+  background: rgba(46, 125, 50, 0.08);
+  border-radius: var(--radius-card);
+  color: var(--color-text);
+  font-size: var(--fs-md);
+  line-height: 1.4;
+  font-weight: 500;
+}
+
 .empty {
   padding: 80rpx 24rpx;
   text-align: center;
 }
+
 .empty-text {
-  color: #666;
-  font-size: 28rpx;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-body);
 }
+
 .plan {
-  background: #fff;
-  border-radius: 12rpx;
-  padding: 24rpx;
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  padding: 28rpx;
   margin-bottom: 20rpx;
+  border: 1rpx solid var(--color-border);
 }
-.plan-title {
-  font-weight: 600;
+
+.plan-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
   margin-bottom: 12rpx;
 }
+
+.plan-title {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.plan-accept {
+  flex-shrink: 0;
+  margin: 0;
+}
+
 .kind {
   font-weight: 400;
-  color: #666;
-  font-size: 24rpx;
+  color: var(--color-primary);
+  font-size: var(--fs-sm);
 }
+
 .meal {
+  margin-top: 18rpx;
+}
+
+.meal-label {
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+  margin-bottom: 10rpx;
+}
+
+.dish-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+}
+
+.dish-group + .dish-group {
   margin-top: 12rpx;
 }
-.meal-label {
-  color: #666;
-  font-size: 24rpx;
-  margin-bottom: 6rpx;
+
+.group-label {
+  flex-shrink: 0;
+  width: 36rpx;
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--color-primary);
+  font-weight: 600;
+  padding-top: 2rpx;
 }
+
+/* 分类名右侧两列；窄屏自动收成一列 */
+.dish-grid {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240rpx, 1fr));
+  column-gap: 8rpx;
+  row-gap: 6rpx;
+}
+
 .dish {
-  font-size: 28rpx;
-  line-height: 1.6;
-}
-.actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12rpx;
-  margin: 24rpx 0;
+  align-items: baseline;
+  min-width: 0;
+  font-size: var(--fs-body);
+  line-height: 1.55;
+  color: var(--color-text);
+  padding-right: 8rpx;
+  box-sizing: border-box;
 }
+
+.dish-mark {
+  flex-shrink: 0;
+  width: 28rpx;
+  color: var(--color-primary);
+  opacity: 0.55;
+  font-weight: 700;
+}
+
+.dish-name {
+  flex: 1;
+  min-width: 0;
+  word-break: break-all;
+}
+
+.plan-ings {
+  margin-top: 16rpx;
+  text-align: left;
+  font-size: var(--fs-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+/* 右下角悬浮圆钮：与方案卡内「去买菜」左对齐
+   卡片内容右缘 = 页边距 28 + 卡内边距 28；列宽约等于 mini「去买菜」 */
+.fab-stack {
+  position: fixed;
+  right: 56rpx;
+  bottom: calc(128rpx + env(safe-area-inset-bottom));
+  z-index: 15;
+  width: 120rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  align-items: flex-start;
+  transition: opacity 0.18s ease;
+}
+
+.fab-stack.fab-dimmed {
+  opacity: 0.32;
+  pointer-events: none;
+}
+
+.fab {
+  margin: 0 !important;
+  width: 96rpx !important;
+  height: 96rpx !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  font-size: var(--fs-xs) !important;
+  line-height: 1.15 !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  white-space: normal;
+  text-align: center;
+  box-shadow: 0 4rpx 12rpx rgba(26, 26, 26, 0.12);
+  box-sizing: border-box;
+}
+
+.fab::after {
+  border: none !important;
+}
+
+.fab-swap {
+  background: var(--color-primary) !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.fab-reject {
+  background: #fff7f0 !important;
+  color: #b35c2e !important;
+  border: 2rpx solid #d4835a !important;
+}
+
+.fab-swap.button-hover {
+  background: var(--color-primary-pressed) !important;
+}
+
+.fab-reject.button-hover {
+  background: #f0e0d4 !important;
+}
+
+.fab[disabled] {
+  opacity: 0.45;
+}
+
+.large-text .fab {
+  width: 112rpx !important;
+  height: 112rpx !important;
+  font-size: var(--fs-sm) !important;
+}
+
+.large-text .fab-stack {
+  width: 132rpx;
+}
+
 .footer {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 16rpx 24rpx calc(16rpx + env(safe-area-inset-bottom));
-  background: #fff;
-  box-shadow: 0 -2rpx 8rpx rgba(0, 0, 0, 0.06);
+  padding: 16rpx 28rpx calc(16rpx + env(safe-area-inset-bottom));
+  background: var(--color-surface);
+  border-top: 1rpx solid var(--color-border);
+  z-index: 12;
 }
-.mask {
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: flex-end;
-  z-index: 20;
-}
-.sheet {
-  width: 100%;
-  background: #fff;
-  border-radius: 24rpx 24rpx 0 0;
-  padding: 32rpx 24rpx calc(24rpx + env(safe-area-inset-bottom));
-  box-sizing: border-box;
-}
-.sheet-title {
-  font-weight: 600;
-  margin-bottom: 16rpx;
-}
+
 .reason {
   padding: 24rpx 0;
-  border-bottom: 1rpx solid #eee;
-  font-size: 28rpx;
+  border-bottom: 1rpx solid var(--color-border);
+  font-size: var(--fs-body);
+  color: var(--color-text);
 }

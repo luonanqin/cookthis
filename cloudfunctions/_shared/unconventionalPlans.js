@@ -1,6 +1,7 @@
 'use strict'
 
 const { recipeBlockedByCuisine } = require('./cuisinePrefs.js')
+const { hashSessionSeed, rotateArray } = require('./homePlans.js')
 
 const KIND_TAGS = ['hotpot', 'noodle', 'dumpling']
 
@@ -56,10 +57,10 @@ function pickKind(dishFormPrefs) {
   return candidates
 }
 
-function buildForTag(tag, recipes, selectedNames, mealSlots, familyAvoids, cuisinePrefs) {
+function buildForTag(tag, recipes, selectedNames, mealSlots, familyAvoids, cuisinePrefs, sessionSeed) {
   void familyAvoids
   const selectedSet = new Set(selectedNames || [])
-  const pool = (recipes || []).filter((r) => {
+  let pool = (recipes || []).filter((r) => {
     if (!r || r.enabled === false) return false
     if (!hasForm(r, tag)) return false
     if (!mainsOk(r, selectedSet, tag)) return false
@@ -67,6 +68,9 @@ function buildForTag(tag, recipes, selectedNames, mealSlots, familyAvoids, cuisi
     return true
   })
   if (pool.length === 0) return null
+
+  const seed = hashSessionSeed(String(sessionSeed || '') + ':' + tag)
+  pool = rotateArray(pool, seed)
 
   const dishes = []
   const used = new Set()
@@ -86,12 +90,8 @@ function buildForTag(tag, recipes, selectedNames, mealSlots, familyAvoids, cuisi
     }
     if (dishes.length < 2) return null
   } else {
-    // noodle / dumpling: take top 1–2 matching
-    for (const r of pool) {
-      dishes.push(toDish(r))
-      if (dishes.length >= 2) break
-    }
-    if (dishes.length < 1) return null
+    // noodle / dumpling: 单品一顿，不再搭炒菜/素菜
+    dishes.push(toDish(pool[0]))
   }
 
   const slots = Array.isArray(mealSlots) && mealSlots.length ? mealSlots : [{ meal: 'dinner', label: '晚饭' }]
@@ -113,7 +113,8 @@ function buildUnconventionalPlan(input) {
     mealSlots = [],
     scene = null,
     familyAvoids = [],
-    cuisinePrefs = {}
+    cuisinePrefs = {},
+    sessionSeed = ''
   } = input || {}
 
   // familyAvoids reserved for future; home engine already hard-filters most
@@ -131,7 +132,8 @@ function buildUnconventionalPlan(input) {
       selectedNames,
       mealSlots,
       familyAvoids,
-      cuisinePrefs
+      cuisinePrefs,
+      sessionSeed
     )
     if (!plan) continue
     const score = scoreKind(tag, scene)

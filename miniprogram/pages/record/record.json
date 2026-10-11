@@ -1,3 +1,4 @@
 {
-  "navigationBarTitleText": "记一下"
+  "navigationBarTitleText": "记一下",
+  "onReachBottomDistance": 80
 }

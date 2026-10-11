@@ -1,22 +1,32 @@
-<view class="page">
+<page-meta page-style="{{showRecipeSheet ? 'overflow: hidden;' : ''}}" />
+<view class="page {{typeScaleClass}}">
   <view wx:if="{{accepted}}" class="banner">已采纳，可按清单采购</view>
 
-  <view wx:if="{{empty}}" class="empty">
+  <view wx:if="{{loading}}" class="empty">
+    <text>清单加载中…</text>
+  </view>
+
+  <view wx:elif="{{empty}}" class="empty">
     <text>{{emptyText}}</text>
   </view>
 
   <block wx:else>
-    <view
-      class="row {{item.bought ? 'bought' : ''}}"
-      wx:for="{{items}}"
-      wx:key="name"
-      data-name="{{item.name}}"
-      bindtap="onToggle"
-    >
-      <view class="check">{{item.bought ? '✓' : ''}}</view>
-      <view class="body">
-        <text class="name">{{item.name}}</text>
-        <text class="tag">{{item.tag}}</text>
+    <view class="group" wx:for="{{groups}}" wx:key="category">
+      <view class="group-label">{{item.label}}</view>
+      <view class="pair-row" wx:for="{{item.rows}}" wx:for-item="row" wx:key="index">
+        <view
+          class="cell {{cell.bought ? 'bought' : ''}}"
+          wx:for="{{row}}"
+          wx:for-item="cell"
+          wx:key="name"
+          data-name="{{cell.name}}"
+          hover-class="tap-hover"
+          hover-stay-time="80"
+          bindtap="onToggle"
+        >
+          <view class="check">{{cell.bought ? '✓' : ''}}</view>
+          <text class="name">{{cell.name}}</text>
+        </view>
       </view>
     </view>
   </block>
@@ -25,7 +35,47 @@
     <ad unit-id="{{item.unitId}}"></ad>
   </view>
 
+  <view
+    class="mask"
+    wx:if="{{showRecipeSheet}}"
+    catchtouchmove="true"
+    bindtap="onRecipeSheetClose"
+  >
+    <view class="sheet" catchtap="noop">
+      <view class="sheet-head">
+        <text class="sheet-title">看菜谱</text>
+        <view class="sheet-close" catchtap="onRecipeSheetClose">关闭</view>
+      </view>
+      <scroll-view
+        class="sheet-body"
+        scroll-y
+        enhanced
+        show-scrollbar="{{false}}"
+        scroll-top="{{recipeScrollTop}}"
+        bindscroll="onRecipeSheetScroll"
+      >
+        <view
+          class="dish-row"
+          wx:for="{{recipeDishes}}"
+          wx:for-item="dish"
+          wx:for-index="dishIdx"
+          wx:key="dishIdx"
+        >
+          <view class="dish-name">{{dish.name}}</view>
+          <view class="dish-ings">{{dish.ingredientText}}</view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+
   <view class="footer">
-    <button bindtap="onBack">返回</button>
+    <view
+      wx:if="{{!loading && !empty && !showRecipeSheet}}"
+      class="recipe-entry"
+      hover-class="tap-hover"
+      hover-stay-time="80"
+      bindtap="onRecipeSheetOpen"
+    >看菜谱</view>
+    <button class="btn-outline" bindtap="onBack">返回</button>
   </view>
 </view>

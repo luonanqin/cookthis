@@ -3,6 +3,7 @@ const { track } = require('../../utils/track.js')
 const { buildPlanIngredientSummary } = require('../../utils/planIngredientSummary.js')
 const { clearChecksForRequest } = require('../../utils/shoppingChecks.js')
 const { tapFeedback } = require('../../utils/haptic.js')
+const typeScaleBehavior = require('../../behaviors/typeScale.js')
 const { formatSceneSummary } = require('../../utils/sceneSummary.js')
 
 const RECOMMEND_KEY = 'cookthis_last_recommend'
@@ -97,6 +98,8 @@ function decoratePlans(plans, selectedNames) {
 }
 
 Page({
+  behaviors: [typeScaleBehavior],
+
   data: {
     plans: [],
     empty: true,
@@ -107,14 +110,16 @@ Page({
     busyAction: '',
     busyPlanIndex: -1,
     showReject: false,
+    showEmptyDialog: false,
     rejectReasons: REJECT_REASONS,
-    fabDimmed: false,
-    hint: '点方案右侧「就他了」进购买清单；换一批随便看看；不行会长期少推这些菜'
+    fabDimmed: false
   },
 
   _visibleMs: 0,
   _visibleSince: 0,
   _engagedSent: false,
+  /** 当前这批方案的停留是否已随 swap/reject/accept/离开上报 */
+  _batchDwellReported: false,
   _tickTimer: null,
   _fabScrollTimer: null,
 
@@ -123,7 +128,11 @@ Page({
   },
 
   onShow() {
-    this._visibleSince = Date.now()
+    this.applyTypeScale()
+    // 切后台只暂停；回前台继续累计同一批方案的停留
+    if (!this._batchDwellReported) {
+      this._visibleSince = Date.now()
+    }
     this._tickTimer = setInterval(() => this._checkEngage(), 5000)
   },
 
@@ -138,7 +147,7 @@ Page({
   },
 
   onUnload() {
-    this._pauseVisible()
+    this._reportBatchDwell('leave')
     if (this._tickTimer) {
       clearInterval(this._tickTimer)
       this._tickTimer = null
@@ -175,20 +184,57 @@ Page({
     return ms
   },
 
+  /** 取出「当前这批方案」已看时长，并清零计时（换一批后重新计） */
+  _takeBatchDwellMs() {
+    this._pauseVisible()
+    const ms = this._visibleMs
+    this._visibleMs = 0
+    return ms
+  },
+
+  _syncDwellToCloud(dwellMs) {
+    if (!this.data.requestId || !(dwellMs > 0)) return
+    callCloud('recommend', {
+      action: 'engage',
+      requestId: this.data.requestId,
+      dwellMs,
+      planIndex: 0
+    }).catch(() => {})
+  },
+
+  /**
+   * 上报当前方案停留：越长越说明这批更合适。
+   * endReason: swap | reject | accept | leave
+   * @returns {number} dwellMs
+   */
+  _reportBatchDwell(endReason, trackEvent, trackProps) {
+    if (this._batchDwellReported) return 0
+    const dwellMs = this._takeBatchDwellMs()
+    this._batchDwellReported = true
+    if (trackEvent) {
+      track(trackEvent, Object.assign({ dwellMs }, trackProps || {}))
+    } else if (dwellMs > 0) {
+      track('recommend_batch_dwell', { dwellMs, endReason: endReason || 'leave' })
+    }
+    this._syncDwellToCloud(dwellMs)
+    return dwellMs
+  },
+
+  _startBatchDwellClock() {
+    this._visibleMs = 0
+    this._engagedSent = false
+    this._batchDwellReported = false
+    this._visibleSince = Date.now()
+  },
+
   _checkEngage() {
+    // 满 30s 仍记 engage（进场确认锚点）；不等同于最终认可度
     if (this._engagedSent || !this.data.requestId) return
     const ms = this._currentVisibleMs()
     if (ms < 30000) return
     this._engagedSent = true
     track('recommend_engage', { planIndex: 0, dwellMs: ms })
-    callCloud('recommend', {
-      action: 'engage',
-      requestId: this.data.requestId,
-      dwellMs: ms,
-      planIndex: 0
-    }).catch(() => {
-      this._engagedSent = false
-    })
+    this._syncDwellToCloud(ms)
   },
 
   applySnap(snap) {
@@ -232,9 +278,14 @@ Page({
     wx.navigateBack({ delta: 1 })
   },
 
+  onEmptyDialogOk() {
+    tapFeedback()
+    this.setData({ showEmptyDialog: false })
+  },
+
   onSwap() {
     tapFeedback()
-    track('recommend_swap', { swapIndex: 1 })
+    this._reportBatchDwell('swap', 'recommend_swap', { swapIndex: 1 })
     this._rerun('swap')
   },
 
@@ -251,7 +302,7 @@ Page({
   onRejectSkip() {
     tapFeedback()
     this.setData({ showReject: false })
-    track('recommend_reject', { skippedReason: true })
+    this._reportBatchDwell('reject', 'recommend_reject', { skippedReason: true })
     this._rerun('reject', {})
   },
 
@@ -259,7 +310,10 @@ Page({
     tapFeedback()
     const reason = e.currentTarget.dataset.id
     this.setData({ showReject: false })
-    track('recommend_reject', { reason, skippedReason: false })
+    this._reportBatchDwell('reject', 'recommend_reject', {
+      reason,
+      skippedReason: false
+    })
     this._rerun('reject', { reason, planIndex: 0 })
   },
 
@@ -272,6 +326,20 @@ Page({
     }, extra || {}))
       .then((result) => {
         const requestId = result.requestId || this.data.requestId
+        const newPlans = (result && result.plans) || []
+        // 凑不出新方案：保留当前方案，弹窗告知（不切到空页）
+        if (result.noNewPlans || newPlans.length === 0) {
+          track('empty_recommend', {
+            reasonCode: (result && result.emptyReason) || null,
+            action
+          })
+          if (this._batchDwellReported) {
+            this._batchDwellReported = false
+            this._visibleSince = Date.now()
+          }
+          this.setData({ showEmptyDialog: true })
+          return
+        }
         // 换一批 / 不行后方案变了，清掉本会话清单勾选
         try {
           const prev = wx.getStorageSync(CHECKS_KEY) || {}
@@ -279,17 +347,21 @@ Page({
         } catch (e) {}
         const snap = Object.assign({}, readSnap() || {}, {
           requestId,
-          plans: result.plans || [],
-          emptyReason: result.emptyReason || null,
+          plans: newPlans,
+          emptyReason: null,
           swapCount: result.swapCount
         })
         writeSnap(snap)
         this.applySnap(snap)
-        // after swap/reject, continue engage clock on new plans
-        this._pauseVisible()
-        this._visibleSince = Date.now()
+        // 新一批方案重新计停留（认可度按批）
+        this._startBatchDwellClock()
       })
       .catch((err) => {
+        // 失败则允许同一批继续累计停留
+        if (this._batchDwellReported) {
+          this._batchDwellReported = false
+          this._visibleSince = Date.now()
+        }
         wx.showToast({
           title: (err && err.error) || '操作失败',
           icon: 'none'
@@ -303,12 +375,17 @@ Page({
     tapFeedback('heavy')
     const planIndex = Number(e.currentTarget.dataset.planIndex)
     const idx = Number.isFinite(planIndex) ? planIndex : 0
+    const requestId = this.data.requestId
     this.setData({ busy: true, busyAction: 'accept', busyPlanIndex: idx })
-    track('recommend_accept', { planIndex: idx })
+    this._reportBatchDwell('accept', 'recommend_accept', { planIndex: idx })
     track('recommend_plan_click', { planIndex: idx })
+    // 清单靠本地方案聚合，先跳转；accept 只写采纳标记，后台跑不挡进页
+    wx.navigateTo({
+      url: '/pages/shopping/shopping?accepted=true&planIndex=' + idx
+    })
     callCloud('recommend', {
       action: 'accept',
-      requestId: this.data.requestId,
+      requestId,
       planIndex: idx
     })
       .then((result) => {
@@ -316,19 +393,16 @@ Page({
           const prev = readSnap() || {}
           writeSnap(
             Object.assign({}, prev, {
-              requestId: result.requestId || this.data.requestId,
+              requestId: result.requestId || requestId,
               plans: result.plans,
               scene: result.scene || prev.scene
             })
           )
         }
-        wx.navigateTo({
-          url: '/pages/shopping/shopping?accepted=true&planIndex=' + idx
-        })
       })
       .catch((err) => {
         wx.showToast({
-          title: (err && err.error) || '采纳失败',
+          title: (err && err.error) || '采纳未同步',
           icon: 'none'
         })
       })

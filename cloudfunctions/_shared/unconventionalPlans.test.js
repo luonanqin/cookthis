@@ -130,6 +130,65 @@ describe('buildUnconventionalPlan', () => {
     })
     assert.equal(out, null)
   })
+
+  it('noodle/dumpling plans have only one dish (no side stir-fry)', () => {
+    const withExtra = recipes.concat([
+      {
+        id: 'rcp_noodle_2',
+        name: '阳春面',
+        mainIngredients: ['鸡蛋'],
+        seasonings: [],
+        meatVeg: 'staple',
+        dishForms: ['noodle'],
+        enabled: true
+      }
+    ])
+    const out = buildUnconventionalPlan({
+      recipes: withExtra,
+      selectedNames: ['鸡蛋', '番茄'],
+      dishFormPrefs: { noodle: 'prefer' },
+      mealSlots: slots
+    })
+    assert.ok(out)
+    assert.equal(out.meals[0].dishes.length, 1)
+  })
+
+  it('sessionSeed rotates noodle pick among equals; same seed stable', () => {
+    const withExtra = recipes.concat([
+      {
+        id: 'rcp_noodle_2',
+        name: '阳春面',
+        mainIngredients: ['鸡蛋'],
+        seasonings: [],
+        meatVeg: 'staple',
+        dishForms: ['noodle'],
+        enabled: true
+      }
+    ])
+    const a = buildUnconventionalPlan({
+      recipes: withExtra,
+      selectedNames: ['鸡蛋', '番茄'],
+      dishFormPrefs: { noodle: 'prefer' },
+      mealSlots: slots,
+      sessionSeed: 'req_n1'
+    })
+    const a2 = buildUnconventionalPlan({
+      recipes: withExtra,
+      selectedNames: ['鸡蛋', '番茄'],
+      dishFormPrefs: { noodle: 'prefer' },
+      mealSlots: slots,
+      sessionSeed: 'req_n1'
+    })
+    const b = buildUnconventionalPlan({
+      recipes: withExtra,
+      selectedNames: ['鸡蛋', '番茄'],
+      dishFormPrefs: { noodle: 'prefer' },
+      mealSlots: slots,
+      sessionSeed: 'req_n2'
+    })
+    assert.equal(a.meals[0].dishes[0].recipeId, a2.meals[0].dishes[0].recipeId)
+    assert.notEqual(a.meals[0].dishes[0].recipeId, b.meals[0].dishes[0].recipeId)
+  })
 })
 
 describe('mergePlansWithUnconventional', () => {

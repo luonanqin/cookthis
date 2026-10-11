@@ -3,6 +3,19 @@
   <text class="nickname">{{nickname}}</text>
 
   <view class="section">
+    <view class="section-title">家人</view>
+    <view class="household">{{householdLabel}}</view>
+    <view class="member-card" wx:for="{{members}}" wx:key="memberId">
+      <view class="member-main" data-id="{{item.memberId}}" bindtap="openEditMember">
+        <text class="member-name">{{item.name}}</text>
+        <text class="member-meta">{{item.ageLabel}} · {{item.tasteLabel}} · 忌口{{item.avoidLabel}}</text>
+      </view>
+      <text class="member-del" data-id="{{item.memberId}}" catchtap="removeMember">删</text>
+    </view>
+    <view class="link-inline" bindtap="openAddMember">＋ 添加家人</view>
+  </view>
+
+  <view class="section">
     <view class="section-title">家庭忌口</view>
     <view class="chips">
       <view
@@ -59,13 +72,6 @@
   </view>
 
   <view class="section">
-    <view class="section-title">日常默认人数</view>
-    <picker mode="selector" range="{{peopleRange}}" value="{{peopleIndex}}" bindchange="onPeoplePick">
-      <view class="picker-row">{{defaultPeopleCount}} 人</view>
-    </picker>
-  </view>
-
-  <view class="section">
     <view class="section-title">城市（选到市）</view>
     <view class="hint">仅用于匹配当地常见食材</view>
     <picker mode="region" level="city" value="{{region}}" bindchange="onRegionChange">
@@ -73,8 +79,47 @@
     </picker>
   </view>
 
-  <view class="link" bindtap="goAcceptedPlans">已选方案</view>
-  <view class="link" bindtap="goRecord">已吃记录</view>
   <button type="primary" disabled="{{busy}}" bindtap="onSave">保存</button>
-  <view class="link" bindtap="goOnboarding">重新走一遍家庭引导</view>
+  <view class="link" hover-class="tap-hover" hover-stay-time="80" bindtap="goOnboarding">重新走一遍家庭引导</view>
+
+  <view wx:if="{{showMemberEditor}}" class="editor-mask" catchtouchmove="true">
+    <view class="editor-panel">
+      <view class="section-title">{{editingMemberId ? '编辑家人' : '添加家人'}}</view>
+      <input class="editor-input" placeholder="称呼" value="{{editName}}" bindinput="onEditName" />
+      <text class="form-label">年龄段</text>
+      <view class="chips">
+        <view
+          class="chip {{editAgeBand === item.id ? 'on' : ''}}"
+          wx:for="{{ageBandOptions}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onEditAge"
+        >{{item.label}}</view>
+      </view>
+      <text class="form-label">口味</text>
+      <view class="chips">
+        <view
+          class="chip {{editTaste === item.id ? 'on' : ''}}"
+          wx:for="{{tasteOptions}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onEditTaste"
+        >{{item.label}}</view>
+      </view>
+      <text class="form-label">个人忌口</text>
+      <view class="chips">
+        <view
+          class="chip {{editAvoidChecked[item.id] ? 'on' : ''}}"
+          wx:for="{{avoidOptions}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onEditAvoid"
+        >{{item.label}}</view>
+      </view>
+      <view class="editor-actions">
+        <button size="mini" bindtap="closeMemberEditor">取消</button>
+        <button size="mini" type="primary" bindtap="saveMember">确定</button>
+      </view>
+    </view>
+  </view>
 </view>

@@ -52,6 +52,7 @@ function pickAnchor(recommendations) {
   let best = null
   for (const doc of recommendations || []) {
     if (!doc) continue
+    // 只认「最新」一条采纳/停留锚点；已处理也要选中，避免往前翻旧会话
     const acceptedMs = toMs(doc.acceptedAt)
     const engagedMs = toMs(doc.engagedAt)
     if (acceptedMs == null && engagedMs == null) continue
@@ -100,6 +101,17 @@ function buildConfirmCandidates(input) {
   }
 
   const { doc, anchorMs, anchorKind } = anchor
+  // 最新锚点已确认/跳过 → 不弹，也不再往前找更旧的会话
+  if (doc.entryConfirmHandled === true) {
+    return {
+      show: false,
+      dishNames: [],
+      requestId: doc.requestId,
+      recommendationId: doc._id || doc.id,
+      anchorAt: anchorMs
+    }
+  }
+
   const plans = Array.isArray(doc.plans) ? doc.plans : []
   const planIndex = resolvePlanIndex(doc, anchorKind)
   const plan = plans[planIndex] || plans[0] || null

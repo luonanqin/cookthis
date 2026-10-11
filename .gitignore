@@ -5,3 +5,5 @@ miniprogram_npm/
 .superpowers/
 .worktrees/
 project.private.config.json
+
+.venv/

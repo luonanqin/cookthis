@@ -1,55 +1,117 @@
 const { callCloud } = require('../../services/cloud.js')
 const { track } = require('../../utils/track.js')
-const { recognizeOnce, stopRecognize } = require('../../utils/voice.js')
-const { parseFoodNames } = require('../../utils/parseFoodNames.js')
+const { tapFeedback } = require('../../utils/haptic.js')
+const typeScaleBehavior = require('../../behaviors/typeScale.js')
+
+const PAGE_SIZE = 10
+
+function mapItem(it) {
+  return {
+    logId: it.logId,
+    date: it.date,
+    source: it.source,
+    dishesText: (it.dishNames || []).join('、')
+  }
+}
 
 Page({
+  behaviors: [typeScaleBehavior],
+
   data: {
     input: '',
     items: [],
     busy: false,
     empty: true,
-    listening: false,
-    showVoiceConfirm: false,
-    voiceCandidates: [],
-    voiceSelected: {},
-    transcript: ''
+    loading: false,
+    loadingMore: false,
+    nextCursor: null
+  },
+
+  onLoad() {
+    this._loadGen = 0
   },
 
   onShow() {
-    this.loadList()
+    this.applyTypeScale()
+    this.loadFirst()
   },
 
-  onHide() {
-    if (this.data.listening) stopRecognize()
-  },
-
-  onUnload() {
-    if (this.data.listening) stopRecognize()
+  onReachBottom() {
+    this.loadMore()
   },
 
   onInput(e) {
     this.setData({ input: e.detail.value || '' })
   },
 
-  loadList() {
-    callCloud('meals', { action: 'list', limit: 20 })
+  loadFirst() {
+    this._loadGen += 1
+    const gen = this._loadGen
+    this.setData({
+      loading: true,
+      loadingMore: false,
+      nextCursor: null
+    })
+    callCloud('meals', { action: 'list', limit: PAGE_SIZE })
       .then((result) => {
-        const items = ((result && result.items) || []).map((it) => ({
-          logId: it.logId,
-          date: it.date,
-          source: it.source,
-          dishesText: (it.dishNames || []).join('、')
-        }))
-        this.setData({ items, empty: items.length === 0 })
+        if (gen !== this._loadGen) return
+        const items = ((result && result.items) || []).map(mapItem)
+        const nextCursor = (result && result.nextCursor) || null
+        this.setData({
+          items,
+          nextCursor,
+          empty: items.length === 0,
+          loading: false
+        })
       })
       .catch((err) => {
+        if (gen !== this._loadGen) return
         console.error(err)
+        this.setData({ loading: false })
+        wx.showToast({
+          title: (err && err.error) || '加载失败',
+          icon: 'none'
+        })
+      })
+  },
+
+  loadMore() {
+    const cursor = this.data.nextCursor
+    if (!cursor || this.data.loading || this.data.loadingMore) return
+    const gen = this._loadGen
+    this.setData({ loadingMore: true })
+    callCloud('meals', { action: 'list', limit: PAGE_SIZE, cursor })
+      .then((result) => {
+        if (gen !== this._loadGen) {
+          this.setData({ loadingMore: false })
+          return
+        }
+        const more = ((result && result.items) || []).map(mapItem)
+        const nextCursor = (result && result.nextCursor) || null
+        this.setData({
+          items: this.data.items.concat(more),
+          nextCursor,
+          empty: false,
+          loadingMore: false
+        })
+      })
+      .catch((err) => {
+        if (gen !== this._loadGen) {
+          this.setData({ loadingMore: false })
+          return
+        }
+        console.error(err)
+        this.setData({ loadingMore: false })
+        wx.showToast({
+          title: (err && err.error) || '加载失败',
+          icon: 'none'
+        })
       })
   },
 
   onSubmit() {
     if (this.data.busy) return
+    tapFeedback('heavy')
     const raw = (this.data.input || '').trim()
     if (!raw) {
       wx.showToast({ title: '请输入菜名', icon: 'none' })
@@ -69,7 +131,7 @@ Page({
         track('meal_log_manual', { dishCount: dishNames.length })
         this.setData({ input: '', busy: false })
         wx.showToast({ title: '已记录', icon: 'success' })
-        this.loadList()
+        this.loadFirst()
       })
       .catch((err) => {
         this.setData({ busy: false })
@@ -80,86 +142,43 @@ Page({
       })
   },
 
-  onVoiceTap() {
-    if (this.data.listening || this.data.busy) return
-    track('meal_log_voice_start', {})
-    this.setData({ listening: true })
-    wx.showToast({ title: '请说话…', icon: 'none', duration: 2000 })
-    recognizeOnce({ duration: 12000 })
-      .then((text) => {
-        const names = parseFoodNames(text)
-        track('meal_log_voice_result', {
-          success: names.length > 0,
-          count: names.length
-        })
-        if (!names.length) {
-          this.setData({ listening: false })
-          wx.showToast({ title: '没听清菜名，可手动输入', icon: 'none' })
-          return
-        }
-        const voiceSelected = {}
-        names.forEach((n) => {
-          voiceSelected[n] = true
-        })
-        this.setData({
-          listening: false,
-          showVoiceConfirm: true,
-          transcript: text,
-          voiceCandidates: names,
-          voiceSelected
-        })
-      })
-      .catch((err) => {
-        this.setData({ listening: false })
-        track('meal_log_voice_result', { success: false })
-        const code = err && err.error
-        let title = '语音失败，请手动输入'
-        if (code === 'VOICE_PLUGIN_UNAVAILABLE') title = '请先开通同声传译插件'
-        if (code === 'VOICE_EMPTY') title = '没听清，请再说一次'
-        wx.showToast({ title, icon: 'none' })
-      })
-  },
-
-  onStopVoice() {
-    stopRecognize()
-  },
-
-  onToggleVoiceName(e) {
-    const name = e.currentTarget.dataset.name
-    if (!name) return
-    const voiceSelected = Object.assign({}, this.data.voiceSelected)
-    voiceSelected[name] = !voiceSelected[name]
-    this.setData({ voiceSelected })
-  },
-
-  onVoiceCancel() {
-    this.setData({ showVoiceConfirm: false, voiceCandidates: [], transcript: '' })
-  },
-
-  onVoiceConfirm() {
+  onDelete(e) {
     if (this.data.busy) return
-    const dishNames = this.data.voiceCandidates.filter((n) => this.data.voiceSelected[n])
-    if (!dishNames.length) {
-      wx.showToast({ title: '请至少选一道菜', icon: 'none' })
-      return
-    }
-    this.setData({ busy: true, showVoiceConfirm: false })
-    callCloud('meals', { action: 'addVoice', dishNames })
+    const logId = e.currentTarget.dataset.logId
+    const source = e.currentTarget.dataset.source || null
+    if (!logId) return
+    tapFeedback()
+    wx.showModal({
+      title: '删除记录',
+      content: '删掉这条已吃记录？',
+      confirmText: '删除',
+      confirmColor: '#b35c2e',
+      success: (res) => {
+        if (!res.confirm) return
+        this._doRemove(logId, source)
+      }
+    })
+  },
+
+  _doRemove(logId, source) {
+    this.setData({ busy: true })
+    callCloud('meals', { action: 'remove', logId })
       .then(() => {
-        this.setData({ busy: false, voiceCandidates: [], transcript: '' })
-        wx.showToast({ title: '已记录', icon: 'success' })
-        this.loadList()
+        track('meal_log_delete', { logId, source })
+        wx.showToast({ title: '已删除', icon: 'success' })
+        this.loadFirst()
       })
       .catch((err) => {
-        this.setData({ busy: false })
         wx.showToast({
-          title: (err && err.error) || '记录失败',
+          title: (err && err.error) || '删除失败',
           icon: 'none'
         })
       })
+      .then(() => this.setData({ busy: false }))
   },
 
   onBack() {
+    tapFeedback()
     wx.navigateBack({ delta: 1 })
   }
 })

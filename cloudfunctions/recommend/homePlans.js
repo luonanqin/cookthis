@@ -8,6 +8,7 @@ const {
   recipeBlockedByCuisine,
   cuisineSoftDelta
 } = require('./cuisinePrefs.js')
+const { dinerSoftPenalty } = require('./members.js')
 
 function lookupIngredient(ingredientsByName, name) {
   if (!ingredientsByName) return undefined
@@ -315,8 +316,14 @@ function planFingerprint(meals) {
 function softPenalty(recipe, ctx) {
   let score = 0
   if (ctx.downranked.has(recipe.id)) score += 100
-  const tags = recipeAvoidTags(recipe, ctx.ingredientsByName)
-  if (intersects(tags, ctx.memberAvoids)) score += 40
+  if (ctx.diners && ctx.diners.length) {
+    // §3.0.8 用餐人软分（忌口/小老/口味）
+    score += dinerSoftPenalty(recipe, ctx.diners, ctx.ingredientsByName)
+  } else {
+    // 兼容旧入参：成员忌口并集
+    const tags = recipeAvoidTags(recipe, ctx.ingredientsByName)
+    if (intersects(tags, ctx.memberAvoids)) score += 40
+  }
   score += computeFreshPenalty(recipe.mainIngredients || [], ctx.recentIngredientDays)
   score += cuisineSoftDelta(recipe, ctx.cuisinePrefs || {})
   return score
@@ -396,6 +403,7 @@ function buildHomePlans(input) {
     downrankedIds = [],
     recentDishNames = [],
     memberAvoids = [],
+    diners = null,
     recentIngredientNames = [],
     recentIngredientDays = null,
     maxPlans = 3,
@@ -438,6 +446,7 @@ function buildHomePlans(input) {
   const ctx = {
     downranked,
     memberAvoids: memberAvoidSet,
+    diners: Array.isArray(diners) ? diners : null,
     recentIngredientDays: recentDays,
     ingredientsByName,
     cuisinePrefs

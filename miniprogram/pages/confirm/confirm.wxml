@@ -1,4 +1,5 @@
-<view class="page">
+<page-meta page-style="{{showCustomSlots ? 'overflow: hidden;' : ''}}" />
+<view class="page {{typeScaleClass}}">
   <view wx:if="{{loading}}" class="state">加载中…</view>
   <view wx:elif="{{error}}" class="state">{{error}}</view>
 
@@ -6,24 +7,25 @@
     <view class="toolbar">
       <text class="section-title">时令</text>
       <view class="toolbar-actions">
-        <text class="link" bindtap="selectAllSeasonal">全选</text>
+        <text class="link" bindtap="selectAllSeasonal">{{seasonalSelectAllLabel}}</text>
         <text class="link" bindtap="clearSeasonal">清空</text>
       </view>
     </view>
 
+    <view wx:if="{{listEmpty}}" class="empty-tip">暂无食材。请在云开发控制台确认已导入 ingredients，并部署云函数 ingredients。</view>
+
     <view class="groups">
       <view wx:for="{{seasonalGroups}}" wx:key="category" class="group">
         <view class="group-label">{{item.label}}</view>
-        <view
-          wx:for="{{item.list}}"
-          wx:for-item="ing"
-          wx:key="id"
-          class="row"
-          data-id="{{ing.id}}"
-          catchtap="toggleSeasonal"
-        >
-          <checkbox checked="{{seasonalChecked[ing.id]}}" color="#07c160" disabled />
-          <text class="name">{{ing.name}}</text>
+        <view class="chip-row">
+          <view
+            wx:for="{{item.list}}"
+            wx:for-item="ing"
+            wx:key="id"
+            class="chip {{seasonalChecked[ing.id] ? 'chip-on' : ''}}"
+            data-id="{{ing.id}}"
+            catchtap="toggleSeasonal"
+          >{{ing.name}}</view>
         </view>
       </view>
     </view>
@@ -34,15 +36,18 @@
         <text class="fold-icon">{{yearRoundExpanded ? '收起' : '展开'}}</text>
       </view>
       <view wx:if="{{yearRoundExpanded}}" class="fold-body">
-        <view
-          wx:for="{{yearRound}}"
-          wx:key="id"
-          class="row"
-          data-id="{{item.id}}"
-          catchtap="toggleYearRound"
-        >
-          <checkbox checked="{{yearRoundChecked[item.id]}}" color="#07c160" disabled />
-          <text class="name">{{item.name}}</text>
+        <view wx:for="{{yearRoundGroups}}" wx:key="category" class="group">
+          <view class="group-label">{{item.label}}</view>
+          <view class="chip-row">
+            <view
+              wx:for="{{item.list}}"
+              wx:for-item="ing"
+              wx:key="id"
+              class="chip {{yearRoundChecked[ing.id] ? 'chip-on' : ''}}"
+              data-id="{{ing.id}}"
+              catchtap="toggleYearRound"
+            >{{ing.name}}</view>
+          </view>
         </view>
       </view>
     </view>
@@ -59,7 +64,6 @@
           bindconfirm="addManual"
         />
         <button size="mini" type="primary" bindtap="addManual">添加</button>
-        <button size="mini" loading="{{voiceListening}}" disabled="{{voiceListening}}" bindtap="onVoiceAdd">语音</button>
       </view>
       <view
         wx:for="{{manuals}}"
@@ -85,42 +89,36 @@
       </view>
 
       <view class="field">
-        <text class="field-label">人数</text>
-        <input
-          class="field-input"
-          type="number"
-          placeholder="{{isDaily ? '人数' : '填写人数后自动推荐搭配'}}"
-          value="{{peopleCountText}}"
-          bindinput="onPeopleInput"
-        />
+        <view class="field-label-row">
+          <text class="field-label">人数</text>
+          <text class="field-label-meta">{{householdLabel}}</text>
+        </view>
+        <view class="combo-row">
+          <picker mode="selector" range="{{tierRange}}" value="{{adultIndex}}" data-tier="adult" bindchange="onTierPick">
+            <view class="picker-cell">大 {{tierDisplay.adult}}</view>
+          </picker>
+          <picker mode="selector" range="{{tierRange}}" value="{{childIndex}}" data-tier="child" bindchange="onTierPick">
+            <view class="picker-cell">小 {{tierDisplay.child}}</view>
+          </picker>
+          <picker mode="selector" range="{{tierRange}}" value="{{elderIndex}}" data-tier="elder" bindchange="onTierPick">
+            <view class="picker-cell">老 {{tierDisplay.elder}}</view>
+          </picker>
+        </view>
       </view>
 
-      <view class="field">
+      <view class="field" wx:if="{{isDaily}}">
         <text class="field-label">搭配</text>
-        <view class="combo-row" wx:if="{{combo}}">
-          <view class="combo-item">
-            <text>荤 {{combo.meat}}</text>
-            <view class="stepper">
-              <text class="step-btn" data-field="meat" data-delta="-1" bindtap="bumpCombo">−</text>
-              <text class="step-btn" data-field="meat" data-delta="1" bindtap="bumpCombo">+</text>
-            </view>
-          </view>
-          <view class="combo-item">
-            <text>素 {{combo.veg}}</text>
-            <view class="stepper">
-              <text class="step-btn" data-field="veg" data-delta="-1" bindtap="bumpCombo">−</text>
-              <text class="step-btn" data-field="veg" data-delta="1" bindtap="bumpCombo">+</text>
-            </view>
-          </view>
-          <view class="combo-item">
-            <text>汤 {{combo.soup}}</text>
-            <view class="stepper">
-              <text class="step-btn" data-field="soup" data-delta="-1" bindtap="bumpCombo">−</text>
-              <text class="step-btn" data-field="soup" data-delta="1" bindtap="bumpCombo">+</text>
-            </view>
-          </view>
+        <view class="combo-row">
+          <picker mode="selector" range="{{comboRange}}" value="{{meatIndex}}" data-field="meat" bindchange="onComboPick">
+            <view class="picker-cell">荤 {{combo.meat}}</view>
+          </picker>
+          <picker mode="selector" range="{{comboRange}}" value="{{vegIndex}}" data-field="veg" bindchange="onComboPick">
+            <view class="picker-cell">素 {{combo.veg}}</view>
+          </picker>
+          <picker mode="selector" range="{{comboRange}}" value="{{soupIndex}}" data-field="soup" bindchange="onComboPick">
+            <view class="picker-cell">汤 {{combo.soup}}</view>
+          </picker>
         </view>
-        <text wx:else class="hint">填写人数后自动推荐</text>
       </view>
 
       <view class="field" wx:if="{{isDaily}}">
@@ -162,54 +160,68 @@
         </view>
       </view>
 
-      <view class="field" wx:if="{{isHoliday}}">
-        <text class="field-label">节日</text>
-        <view wx:if="{{!upcomingHolidays.length}}" class="hint">近 30 天暂无节日</view>
-        <view
-          wx:for="{{upcomingHolidays}}"
-          wx:key="id"
-          class="holiday-row {{holidayId === item.id ? 'holiday-on' : ''}}"
-          data-id="{{item.id}}"
-          data-date="{{item.date}}"
-          bindtap="onHolidayTap"
-        >
-          <text class="name">{{item.nameZh}}</text>
-          <text class="holiday-date">{{item.date}}</text>
-        </view>
-      </view>
+      <!-- 节日选择暂时隐藏，后续有需要再做 -->
     </view>
 
     <view class="footer-spacer"></view>
   </block>
 
   <view class="footer" wx:if="{{!loading && !error}}">
-    <button type="primary" loading="{{submitting}}" disabled="{{submitting}}" bindtap="onConfirm">确认（已选 {{count}}）</button>
+    <button type="primary" disabled="{{submitting || liteBusy}}" bindtap="onConfirm">
+      <block wx:if="{{submitting}}">脑壳飞速运转中</block>
+      <block wx:else>确认（已选 {{count}}）</block>
+    </button>
   </view>
 
-  <view class="mask" wx:if="{{showVoiceConfirm}}" catchtouchmove="true">
+  <view class="mask" wx:if="{{showProfileLite}}" catchtouchmove="true">
     <view class="sheet">
-      <view class="sheet-title">确认补入的菜</view>
-      <view class="transcript" wx:if="{{voiceTranscript}}">识别：{{voiceTranscript}}</view>
-      <view
-        class="voice-row {{voiceSelected[item] ? 'on' : ''}}"
-        wx:for="{{voiceCandidates}}"
-        wx:key="*this"
-        data-name="{{item}}"
-        bindtap="onToggleVoiceCandidate"
-      >
-        <text class="check">{{voiceSelected[item] ? '✓' : ''}}</text>
-        <text>{{item}}</text>
+      <view class="sheet-title">补一句家庭忌口？</view>
+      <view class="sheet-hint">填了少推不能吃的；跳过不影响本次看方案</view>
+      <view class="chip-row">
+        <view
+          wx:for="{{liteAvoidOptions}}"
+          wx:key="id"
+          class="chip {{liteAvoidChecked[item.id] ? 'chip-on' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onLiteAvoidToggle"
+        >{{item.label}}</view>
+        <view
+          wx:if="{{liteAvoidExpanded}}"
+          wx:for="{{liteAvoidMore}}"
+          wx:key="id"
+          class="chip {{liteAvoidChecked[item.id] ? 'chip-on' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onLiteAvoidToggle"
+        >{{item.label}}</view>
       </view>
+      <view class="link lite-more" bindtap="onLiteAvoidMore">{{liteAvoidExpanded ? '收起' : '更多'}}</view>
+
+      <view class="field-label lite-love-label">爱吃什么（可选）</view>
+      <view class="chip-row">
+        <view
+          wx:for="{{liteLoveOptions}}"
+          wx:key="id"
+          class="chip {{liteLoveChecked[item.id] ? 'chip-on' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onLiteLoveToggle"
+        >{{item.label}}</view>
+      </view>
+
       <view class="sheet-actions">
-        <button size="mini" bindtap="onVoiceSheetCancel">取消</button>
-        <button size="mini" type="primary" bindtap="onVoiceSheetConfirm">加入</button>
+        <button size="mini" class="btn-outline" disabled="{{liteBusy}}" bindtap="onProfileLiteSkip">暂时跳过</button>
+        <button size="mini" type="primary" disabled="{{liteBusy}}" bindtap="onProfileLiteSave">保存并出方案</button>
       </view>
     </view>
   </view>
 
-  <view class="mask" wx:if="{{showCustomSlots}}" catchtouchmove="true">
-    <view class="sheet">
-      <view class="sheet-title">自定义几顿</view>
+  <view
+    class="mask mask-custom-slots"
+    wx:if="{{showCustomSlots}}"
+    catchtouchmove="true"
+    bindtap="onCloseCustomSlots"
+  >
+    <view class="custom-slots-panel" catchtap="noop" catchtouchmove="true">
+      <view class="custom-slots-title">自定义几顿</view>
       <view class="custom-slot-row">
         <text class="custom-slot-name">午饭</text>
         <text class="step-btn" data-which="lunch" data-delta="-1" bindtap="bumpCustomDraft">−</text>
@@ -222,9 +234,18 @@
         <text class="slot-count">{{draftDinnerCount}}</text>
         <text class="step-btn" data-which="dinner" data-delta="1" bindtap="bumpCustomDraft">+</text>
       </view>
-      <view class="sheet-actions">
-        <button size="mini" class="btn-outline" bindtap="onCloseCustomSlots">取消</button>
-        <button size="mini" type="primary" bindtap="onConfirmCustomSlots">确认</button>
+      <view class="custom-slots-actions">
+        <button size="mini" class="btn-outline custom-slots-btn" bindtap="onCloseCustomSlots">取 消</button>
+        <button size="mini" type="primary" class="custom-slots-btn" bindtap="onConfirmCustomSlots">确 认</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="mask mask-center" wx:if="{{showEmptyDialog}}" catchtouchmove="true">
+    <view class="dialog">
+      <view class="dialog-title">食材不够出菜了</view>
+      <view class="dialog-actions">
+        <button class="dialog-btn" hover-class="button-hover" bindtap="onEmptyDialogOk">好吧</button>
       </view>
     </view>
   </view>

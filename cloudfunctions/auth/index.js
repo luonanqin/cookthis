@@ -32,6 +32,20 @@ exports.main = async (event) => {
     })
     const userRes = await db.collection('users').where({ uid: row.uid }).limit(1).get()
     const user = userRes.data[0]
+    let members = []
+    try {
+      const mRes = await db.collection('members').where({ uid: row.uid }).limit(50).get()
+      members = (mRes.data || []).map((m) => ({
+        memberId: m.memberId,
+        name: m.name || '',
+        ageBand: m.ageBand || '26_40',
+        taste: m.taste || 'normal',
+        avoids: Array.isArray(m.avoids) ? m.avoids : [],
+        sort: Number(m.sort) || 0
+      }))
+    } catch (e) {
+      members = []
+    }
     return {
       ok: true,
       uid: user.uid,
@@ -44,8 +58,11 @@ exports.main = async (event) => {
       cuisinePrefs: user.cuisinePrefs || {},
       // legacy users without the field are treated as already onboarded
       onboardingDone: user.onboardingDone == null ? true : !!user.onboardingDone,
-      defaultPeopleCount: user.defaultPeopleCount ?? 2,
-      defaultCombo: user.defaultCombo || { meat: 1, veg: 1, soup: 0 }
+      profileLiteSkipped: !!user.profileLiteSkipped,
+      profileLitePromptedAt: user.profileLitePromptedAt || null,
+      defaultPeopleCount: members.length,
+      defaultCombo: user.defaultCombo || { meat: 1, veg: 1, soup: 0 },
+      members
     }
   }
 
@@ -69,6 +86,8 @@ exports.main = async (event) => {
       dishFormPrefs: {},
       cuisinePrefs: {},
       onboardingDone: false,
+      profileLiteSkipped: false,
+      profileLitePromptedAt: null,
       requirePhoneFor: [],
       createdAt: now,
       updatedAt: now
@@ -98,7 +117,10 @@ exports.main = async (event) => {
     dishFormPrefs: {},
     cuisinePrefs: {},
     onboardingDone: false,
-    defaultPeopleCount: 2,
-    defaultCombo: { meat: 1, veg: 1, soup: 0 }
+    profileLiteSkipped: false,
+    profileLitePromptedAt: null,
+    defaultPeopleCount: 0,
+    defaultCombo: { meat: 1, veg: 1, soup: 0 },
+    members: []
   }
 }

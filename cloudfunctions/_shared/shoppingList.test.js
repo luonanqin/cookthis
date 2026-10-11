@@ -1,6 +1,8 @@
+'use strict'
+
 const { describe, it } = require('node:test')
 const assert = require('node:assert/strict')
-const { buildShoppingList } = require('./shoppingList.js')
+const { buildShoppingList, pairRows } = require('./shoppingList.js')
 
 const plan = {
   planIndex: 0,
@@ -29,53 +31,50 @@ const plan = {
 }
 
 describe('buildShoppingList', () => {
-  it('dedupes, marks alreadyHave, sorts mains before seasonings', () => {
-    const list = buildShoppingList({
+  it('groups by category and pairs two per row; no alreadyHave tags', () => {
+    const { groups } = buildShoppingList({
       plan,
-      selectedNames: ['猪肉', '土豆', '小白菜']
+      categoryByName: {
+        猪肉: 'meat',
+        土豆: 'root',
+        小白菜: 'leaf'
+      }
     })
-    const names = list.map((x) => x.name)
-    assert.ok(names.includes('猪肉'))
-    assert.ok(names.includes('盐'))
-    assert.equal(names.filter((n) => n === '盐').length, 1)
 
-    const salt = list.find((x) => x.name === '盐')
-    assert.equal(salt.kind, 'seasoning')
+    const meat = groups.find((g) => g.category === 'meat')
+    const root = groups.find((g) => g.category === 'root')
+    const leaf = groups.find((g) => g.category === 'leaf')
+    const seasoning = groups.find((g) => g.category === 'seasoning')
 
-    const firstSeasoningIdx = list.findIndex((x) => x.kind === 'seasoning')
-    assert.ok(list.slice(0, firstSeasoningIdx).every((x) => x.kind === 'main'))
+    assert.ok(meat)
+    assert.equal(meat.label, '肉类')
+    assert.deepEqual(
+      meat.items.map((x) => x.name),
+      ['猪肉']
+    )
+    assert.ok(root)
+    assert.ok(leaf)
+    assert.ok(seasoning)
+    assert.equal(seasoning.items.filter((x) => x.name === '盐').length, 1)
 
-    const needBuyFirst = list.find((x) => x.name === '生抽')
-    assert.equal(needBuyFirst.alreadyHave, false)
-    const pork = list.find((x) => x.name === '猪肉')
-    assert.equal(pork.alreadyHave, true)
+    // no alreadyHave / kind tags on items
+    assert.equal(meat.items[0].alreadyHave, undefined)
+    assert.equal(meat.items[0].kind, undefined)
 
-    const mains = list.filter((x) => x.kind === 'main')
-    const needIdx = mains.findIndex((x) => !x.alreadyHave)
-    const haveIdx = mains.findIndex((x) => x.alreadyHave)
-    if (needIdx >= 0 && haveIdx >= 0) {
-      // 若存在未持有主料，应排在已持有主料前；本夹具主料全已有则跳过
+    // category order: meat before leaf before seasoning
+    const idxs = {
+      meat: groups.findIndex((g) => g.category === 'meat'),
+      leaf: groups.findIndex((g) => g.category === 'leaf'),
+      seasoning: groups.findIndex((g) => g.category === 'seasoning')
     }
+    assert.ok(idxs.meat < idxs.leaf)
+    assert.ok(idxs.leaf < idxs.seasoning)
   })
 
-  it('puts not-already-have mains before already-have mains', () => {
-    const list = buildShoppingList({
-      plan,
-      selectedNames: ['猪肉'] // 土豆、小白菜未持有
-    })
-    const mains = list.filter((x) => x.kind === 'main')
-    const firstHave = mains.findIndex((x) => x.alreadyHave)
-    const lastNeed = (() => {
-      let i = -1
-      mains.forEach((x, idx) => {
-        if (!x.alreadyHave) i = idx
-      })
-      return i
-    })()
-    if (firstHave >= 0 && lastNeed >= 0) {
-      assert.ok(lastNeed < firstHave)
-    }
-    assert.equal(mains.find((x) => x.name === '猪肉').alreadyHave, true)
-    assert.equal(mains.find((x) => x.name === '土豆').alreadyHave, false)
+  it('pairRows packs two items per row', () => {
+    assert.deepEqual(pairRows([{ name: 'a' }, { name: 'b' }, { name: 'c' }]), [
+      [{ name: 'a' }, { name: 'b' }],
+      [{ name: 'c' }]
+    ])
   })
 })

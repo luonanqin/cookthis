@@ -1,17 +1,21 @@
 const { ensureLogin } = require('./services/session.js')
 const { track } = require('./utils/track.js')
+const typeScale = require('./utils/typeScale.js')
 
 App({
   globalData: {
-    user: null
+    user: null,
+    onboardingTipShown: false,
+    largeText: false
   },
   onLaunch() {
+    this.globalData.largeText = typeScale.isLarge()
     if (!wx.cloud) {
       console.error('请使用支持云开发的基础库')
       return
     }
     wx.cloud.init({
-      // env: 'your-env-id',  // 开通云开发后填入
+      env: 'cloud1-d1g4vi08i047a43ed',
       traceUser: true
     })
     track('app_open', {})

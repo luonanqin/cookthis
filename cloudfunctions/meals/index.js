@@ -6,11 +6,24 @@ const { buildConfirmCandidates } = require('./confirmCandidates.js')
 const { planRemoveMealLog } = require('./removeMealLog.js')
 // Vendored: keep in sync with cloudfunctions/_shared/planAte.js
 const { planAteOnDecision, planAteOffDecision } = require('./planAte.js')
+// Vendored: keep in sync with cloudfunctions/_shared/mealList.js
+const {
+  PAGE_SIZE: MEAL_LIST_PAGE_SIZE,
+  toMs: mealListToMs,
+  shapeMealListItem,
+  applyMealListCursor,
+  nextMealListCursor
+} = require('./mealList.js')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 const _ = db.command
 const MAX = 100
+
+function mealListQueryDate(value) {
+  const ms = mealListToMs(value)
+  return ms != null ? new Date(ms) : null
+}
 
 function localDateYmd() {
   const d = new Date()
@@ -100,27 +113,30 @@ async function markEntryConfirmHandled(uid, event) {
 }
 
 async function handleConfirmCandidates(uid) {
-  const since = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)
-  const recRes = await db.collection('recommendations')
-    .where({
-      uid,
-      createdAt: _.gte(since)
-    })
-    .limit(MAX)
-    .get()
-
-  const recommendations = recRes.data || []
-  // Load meal logs that might sit after any possible anchor (last 14d is enough)
-  const logRes = await db.collection('meal_logs')
-    .where({
-      uid,
-      createdAt: _.gte(since)
-    })
-    .limit(MAX)
-    .get()
+  // 与推荐「近 7 日」同口径：超过 7 天仍未点进场确认的采纳/停留，视为已过期，不再弹
+  const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+  // 并行查推荐 + 饮食记录，缩短进场确认等待
+  const [recRes, logRes] = await Promise.all([
+    db
+      .collection('recommendations')
+      .where({
+        uid,
+        createdAt: _.gte(since)
+      })
+      .limit(MAX)
+      .get(),
+    db
+      .collection('meal_logs')
+      .where({
+        uid,
+        createdAt: _.gte(since)
+      })
+      .limit(MAX)
+      .get()
+  ])
 
   const built = buildConfirmCandidates({
-    recommendations,
+    recommendations: recRes.data || [],
     mealLogs: logRes.data || []
   })
 
@@ -258,21 +274,45 @@ async function handleAddVoice(event, uid) {
 }
 
 async function handleList(event, uid) {
-  const limit = Math.min(50, Math.max(1, Number(event && event.limit) || 20))
-  const res = await db.collection('meal_logs')
-    .where({ uid })
-    .orderBy('createdAt', 'desc')
-    .limit(limit)
-    .get()
-  const items = (res.data || []).map((row) => ({
-    logId: row.logId,
-    date: row.date,
-    meal: row.meal,
-    dishNames: row.dishNames || [],
-    source: row.source,
-    createdAt: row.createdAt
-  }))
-  return { ok: true, items }
+  const limit = Math.min(
+    50,
+    Math.max(1, Number(event && event.limit) || MEAL_LIST_PAGE_SIZE)
+  )
+  const cursor = (event && event.cursor) || null
+  const fetchLimit = limit + 5
+
+  const where = { uid }
+  if (cursor && cursor.createdAt != null && cursor.createdAt !== '') {
+    const cursorAt = mealListQueryDate(cursor.createdAt)
+    where.createdAt = _.lte(cursorAt || cursor.createdAt)
+  }
+
+  let rows = []
+  try {
+    const res = await db.collection('meal_logs')
+      .where(where)
+      .orderBy('createdAt', 'desc')
+      .limit(fetchLimit)
+      .get()
+    rows = res.data || []
+  } catch (e) {
+    // 缺复合索引时回退：不带游标条件再滤
+    if (!where.createdAt) throw e
+    const res = await db.collection('meal_logs')
+      .where({ uid })
+      .orderBy('createdAt', 'desc')
+      .limit(fetchLimit)
+      .get()
+    rows = res.data || []
+  }
+
+  const pageRows = applyMealListCursor(rows, cursor, limit)
+  const items = pageRows.map(shapeMealListItem).filter(Boolean)
+  let nextCursor = null
+  if (items.length >= limit) {
+    nextCursor = nextMealListCursor(items)
+  }
+  return { ok: true, items, nextCursor }
 }
 
 /** §4.2 按 logId 物理删除当前用户的一条 meal_logs */

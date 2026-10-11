@@ -1,4 +1,4 @@
-<view class="page">
+<view class="page {{typeScaleClass}}">
   <view class="progress">步骤 {{step + 1}} / 5 · {{steps[step]}}</view>
 
   <block wx:if="{{step === 0}}">
@@ -6,11 +6,12 @@
     <view class="hint">会硬排除相关菜（可跳过）</view>
     <view class="chips">
       <view
-        class="chip {{familyAvoids.indexOf(item.id) >= 0 ? 'on' : ''}}"
+        class="chip {{familyAvoidChecked[item.id] ? 'on' : ''}}"
         wx:for="{{avoidOptions}}"
         wx:key="id"
-        data-id="{{item.id}}"
-        bindtap="onToggleFamilyAvoid"
+        data-avoid-id="{{item.id}}"
+        hover-class="chip-hover"
+        catchtap="onToggleFamilyAvoid"
       >{{item.label}}</view>
     </view>
   </block>
@@ -85,34 +86,45 @@
     <view class="sub">个人忌口（只降权，不硬排除）</view>
     <view class="chips">
       <view
-        class="chip {{selfAvoids.indexOf(item.id) >= 0 ? 'on' : ''}}"
+        class="chip {{selfAvoidChecked[item.id] ? 'on' : ''}}"
         wx:for="{{avoidOptions}}"
         wx:key="id"
-        data-id="{{item.id}}"
-        bindtap="onToggleSelfAvoid"
+        data-avoid-id="{{item.id}}"
+        hover-class="chip-hover"
+        catchtap="onToggleSelfAvoid"
       >{{item.label}}</view>
     </view>
   </block>
 
   <block wx:else>
     <view class="title">日常默认</view>
-    <view class="sub">人数</view>
-    <input class="input" type="number" value="{{defaultPeopleCount}}" bindinput="onPeople" />
-    <view class="sub">荤 / 素 / 汤</view>
+    <view class="sub">人数（由家人派生，可在「我的」增减）</view>
+    <view class="picker-row">{{householdPreview}}</view>
+    <view class="sub">荤 / 素 / 汤（道数）</view>
     <view class="combo">
-      <input class="small" type="number" value="{{meat}}" bindinput="onMeat" />
-      <input class="small" type="number" value="{{veg}}" bindinput="onVeg" />
-      <input class="small" type="number" value="{{soup}}" bindinput="onSoup" />
+      <picker mode="selector" range="{{comboRange}}" value="{{meatIndex}}" bindchange="onMeatPick">
+        <view class="picker-cell">荤 {{meat}}</view>
+      </picker>
+      <picker mode="selector" range="{{comboRange}}" value="{{vegIndex}}" bindchange="onVegPick">
+        <view class="picker-cell">素 {{veg}}</view>
+      </picker>
+      <picker mode="selector" range="{{comboRange}}" value="{{soupIndex}}" bindchange="onSoupPick">
+        <view class="picker-cell">汤 {{soup}}</view>
+      </picker>
     </view>
-    <view class="sub">城市（可选）</view>
+    <view class="sub">城市（可选，选到市）</view>
     <view class="hint">仅用于匹配当地常见食材</view>
-    <input class="input" value="{{city}}" bindinput="onCity" placeholder="如：上海" />
+    <picker mode="region" level="city" value="{{region}}" bindchange="onRegionChange">
+      <view class="picker-row">{{city || '点此选择省市'}}</view>
+    </picker>
   </block>
 
   <view class="actions">
+    <button size="mini" disabled="{{busy}}" bindtap="onSkip">暂时跳过</button>
     <button size="mini" wx:if="{{step > 0}}" bindtap="onBackStep">上一步</button>
     <button type="primary" loading="{{busy}}" disabled="{{busy}}" bindtap="onNext">
       {{step >= 4 ? '完成' : '下一步'}}
     </button>
   </view>
+  <view class="skip-hint">点验 Slice 1～4 时可点「暂时跳过」，家庭设置稍后在「我的」改。</view>
 </view>
