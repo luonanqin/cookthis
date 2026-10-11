@@ -41,6 +41,7 @@ exports.main = async (event) => {
       city: user.city || null,
       familyAvoids: user.familyAvoids || [],
       dishFormPrefs: user.dishFormPrefs || {},
+      cuisinePrefs: user.cuisinePrefs || {},
       // legacy users without the field are treated as already onboarded
       onboardingDone: user.onboardingDone == null ? true : !!user.onboardingDone,
       defaultPeopleCount: user.defaultPeopleCount ?? 2,
@@ -66,6 +67,7 @@ exports.main = async (event) => {
       cookBudget: 'about30',
       familyAvoids: [],
       dishFormPrefs: {},
+      cuisinePrefs: {},
       onboardingDone: false,
       requirePhoneFor: [],
       createdAt: now,
@@ -94,6 +96,7 @@ exports.main = async (event) => {
     city: null,
     familyAvoids: [],
     dishFormPrefs: {},
+    cuisinePrefs: {},
     onboardingDone: false,
     defaultPeopleCount: 2,
     defaultCombo: { meat: 1, veg: 1, soup: 0 }

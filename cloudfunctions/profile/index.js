@@ -1,5 +1,6 @@
 'use strict'
 const cloud = require('wx-server-sdk')
+const { sanitizeCuisinePrefs } = require('./cuisinePrefs.js')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
@@ -60,6 +61,7 @@ async function handleGet(uid) {
       cookBudget: user.cookBudget || 'about30',
       familyAvoids: user.familyAvoids || [],
       dishFormPrefs: user.dishFormPrefs || {},
+      cuisinePrefs: user.cuisinePrefs || {},
       onboardingDone: !!user.onboardingDone
     },
     members
@@ -77,6 +79,9 @@ async function handleUpdateFamily(event, uid, user) {
       user.dishFormPrefs || {},
       sanitizeDishFormPrefs(event.dishFormPrefs)
     )
+  }
+  if (event.cuisinePrefs && typeof event.cuisinePrefs === 'object') {
+    patch.cuisinePrefs = sanitizeCuisinePrefs(event.cuisinePrefs)
   }
   if (typeof event.defaultPeopleCount === 'number' && event.defaultPeopleCount >= 1) {
     patch.defaultPeopleCount = Math.floor(event.defaultPeopleCount)
@@ -185,12 +190,14 @@ async function handleCompleteOnboarding(event, uid, user) {
   const city = typeof event.city === 'string' ? event.city : user.city || null
   const cookBudget =
     typeof event.cookBudget === 'string' ? event.cookBudget : user.cookBudget || 'about30'
+  const cuisinePrefs = sanitizeCuisinePrefs((event && event.cuisinePrefs) || {})
 
   const now = db.serverDate()
   await db.collection('users').doc(user._id).update({
     data: {
       familyAvoids,
       dishFormPrefs,
+      cuisinePrefs,
       defaultPeopleCount,
       defaultCombo,
       city,

@@ -18,6 +18,7 @@ function ensureLogin() {
       isNewUser: user.isNewUser,
       familyAvoids: user.familyAvoids || [],
       dishFormPrefs: user.dishFormPrefs || {},
+      cuisinePrefs: user.cuisinePrefs || {},
       onboardingDone: !!user.onboardingDone,
       defaultPeopleCount: user.defaultPeopleCount ?? 2,
       defaultCombo: user.defaultCombo || { meat: 1, veg: 1, soup: 0 }
