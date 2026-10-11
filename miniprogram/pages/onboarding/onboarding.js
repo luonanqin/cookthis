@@ -1,6 +1,11 @@
 const { callCloud } = require('../../services/cloud.js')
 const { ensureLogin } = require('../../services/session.js')
 const { track } = require('../../utils/track.js')
+const {
+  CUISINE_OPTIONS,
+  toggleCuisinePrefer,
+  toggleCuisineAvoid
+} = require('../../utils/cuisinePrefs.js')
 
 const AVOID_OPTIONS = [
   { id: 'pork', label: '猪肉类' },
@@ -40,7 +45,7 @@ const TASTES = [
 Page({
   data: {
     step: 0,
-    steps: ['家庭忌口', '菜式偏好', '本人', '日常默认'],
+    steps: ['家庭忌口', '菜式偏好', '菜系偏好', '本人', '日常默认'],
     avoidOptions: AVOID_OPTIONS,
     formOptions: FORM_OPTIONS,
     formValues: FORM_VALUES,
@@ -48,6 +53,8 @@ Page({
     tastes: TASTES,
     familyAvoids: [],
     dishFormPrefs: { hotpot: 'neutral', noodle: 'neutral', dumpling: 'neutral' },
+    cuisineOptions: CUISINE_OPTIONS,
+    cuisinePrefs: {},
     selfName: '本人',
     selfAgeBand: '26_40',
     selfTaste: 'normal',
@@ -78,6 +85,18 @@ Page({
     const value = e.currentTarget.dataset.value
     const dishFormPrefs = Object.assign({}, this.data.dishFormPrefs, { [tag]: value })
     this.setData({ dishFormPrefs })
+  },
+
+  onCuisinePrefer(e) {
+    const id = e.currentTarget.dataset.id
+    if (!id) return
+    this.setData({ cuisinePrefs: toggleCuisinePrefer(this.data.cuisinePrefs, id) })
+  },
+
+  onCuisineAvoid(e) {
+    const id = e.currentTarget.dataset.id
+    if (!id) return
+    this.setData({ cuisinePrefs: toggleCuisineAvoid(this.data.cuisinePrefs, id) })
   },
 
   onToggleSelfAvoid(e) {
@@ -123,7 +142,7 @@ Page({
 
   onNext() {
     const step = this.data.step
-    if (step >= 3) {
+    if (step >= 4) {
       this.finish()
       return
     }
@@ -146,6 +165,7 @@ Page({
       action: 'completeOnboarding',
       familyAvoids: this.data.familyAvoids,
       dishFormPrefs: this.data.dishFormPrefs,
+      cuisinePrefs: this.data.cuisinePrefs,
       defaultPeopleCount: this.data.defaultPeopleCount,
       defaultCombo: {
         meat: this.data.meat,

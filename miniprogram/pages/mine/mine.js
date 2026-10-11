@@ -3,6 +3,11 @@ const { callCloud } = require('../../services/cloud.js')
 const { track } = require('../../utils/track.js')
 const { PEOPLE_RANGE, indexOfValue } = require('../../utils/formRanges.js')
 const { tapFeedback } = require('../../utils/haptic.js')
+const {
+  CUISINE_OPTIONS,
+  toggleCuisinePrefer,
+  toggleCuisineAvoid
+} = require('../../utils/cuisinePrefs.js')
 
 function resolveAvatar(url) {
   return url ? url : '/assets/avatar-default.png'
@@ -39,6 +44,8 @@ Page({
     familyAvoids: [],
     familyAvoidChecked: {},
     dishFormPrefs: { hotpot: 'neutral', noodle: 'neutral', dumpling: 'neutral' },
+    cuisineOptions: CUISINE_OPTIONS,
+    cuisinePrefs: {},
     peopleRange: PEOPLE_RANGE,
     defaultPeopleCount: 2,
     peopleIndex: indexOfValue(PEOPLE_RANGE, 2, 1),
@@ -87,6 +94,7 @@ Page({
         familyAvoids,
         familyAvoidChecked,
         dishFormPrefs: prefs,
+        cuisinePrefs: p.cuisinePrefs || {},
         defaultPeopleCount: people,
         peopleIndex: indexOfValue(PEOPLE_RANGE, people, 1),
         city,
@@ -115,6 +123,18 @@ Page({
     this.setData({ dishFormPrefs })
   },
 
+  onCuisinePrefer(e) {
+    const id = e.currentTarget.dataset.id
+    if (!id) return
+    this.setData({ cuisinePrefs: toggleCuisinePrefer(this.data.cuisinePrefs, id) })
+  },
+
+  onCuisineAvoid(e) {
+    const id = e.currentTarget.dataset.id
+    if (!id) return
+    this.setData({ cuisinePrefs: toggleCuisineAvoid(this.data.cuisinePrefs, id) })
+  },
+
   onPeoplePick(e) {
     const idx = Number(e.detail.value)
     this.setData({
@@ -137,12 +157,13 @@ Page({
       action: 'updateFamily',
       familyAvoids: this.data.familyAvoids,
       dishFormPrefs: this.data.dishFormPrefs,
+      cuisinePrefs: this.data.cuisinePrefs,
       defaultPeopleCount: this.data.defaultPeopleCount,
       city: this.data.city || ''
     })
       .then(() => {
         track('profile_update', {
-          fields: ['familyAvoids', 'dishFormPrefs', 'defaultPeopleCount', 'city']
+          fields: ['familyAvoids', 'dishFormPrefs', 'cuisinePrefs', 'defaultPeopleCount', 'city']
         })
         wx.showToast({ title: '已保存', icon: 'success' })
         return ensureLogin()

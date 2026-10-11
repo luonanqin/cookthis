@@ -34,6 +34,31 @@
   </view>
 
   <view class="section">
+    <view class="section-title">菜系偏好</view>
+    <view class="hint">先选喜欢，再选不爱吃的（可跳过）</view>
+    <view class="sub">喜欢（出菜更偏向）</view>
+    <view class="chips">
+      <view
+        class="chip {{cuisinePrefs[item.id] === 'prefer' ? 'on' : ''}}"
+        wx:for="{{cuisineOptions}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onCuisinePrefer"
+      >{{item.label}}</view>
+    </view>
+    <view class="sub">不太想吃（相关菜不推）</view>
+    <view class="chips">
+      <view
+        class="chip {{cuisinePrefs[item.id] === 'avoid' ? 'on' : ''}}"
+        wx:for="{{cuisineOptions}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onCuisineAvoid"
+      >{{item.label}}</view>
+    </view>
+  </view>
+
+  <view class="section">
     <view class="section-title">日常默认人数</view>
     <picker mode="selector" range="{{peopleRange}}" value="{{peopleIndex}}" bindchange="onPeoplePick">
       <view class="picker-row">{{defaultPeopleCount}} 人</view>
@@ -42,6 +67,7 @@
 
   <view class="section">
     <view class="section-title">城市（选到市）</view>
+    <view class="hint">仅用于匹配当地常见食材</view>
     <picker mode="region" level="city" value="{{region}}" bindchange="onRegionChange">
       <view class="picker-row">{{city || '点此选择省市'}}</view>
     </picker>

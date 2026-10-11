@@ -35,6 +35,13 @@
   color: var(--color-text);
 }
 
+.hint,
+.sub {
+  color: var(--color-text-secondary, #888);
+  font-size: 24rpx;
+  margin: 8rpx 0 12rpx;
+}
+
 .chips {
   display: flex;
   flex-wrap: wrap;
