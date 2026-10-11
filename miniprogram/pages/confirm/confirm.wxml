@@ -129,10 +129,14 @@
           <view
             wx:for="{{dailySlotPresets}}"
             wx:key="id"
-            class="chip {{dailySlotPresetId === item.id ? 'chip-on' : ''}}"
+            class="chip {{dailySlotMode === 'preset' && dailySlotPresetId === item.id ? 'chip-on' : ''}}"
             data-id="{{item.id}}"
             bindtap="onDailySlotPreset"
           >{{item.label}}</view>
+          <view
+            class="chip {{dailySlotMode === 'custom' ? 'chip-on' : ''}}"
+            bindtap="onOpenCustomSlots"
+          >{{customChipLabel}}</view>
         </view>
       </view>
 
@@ -199,6 +203,28 @@
       <view class="sheet-actions">
         <button size="mini" bindtap="onVoiceSheetCancel">取消</button>
         <button size="mini" type="primary" bindtap="onVoiceSheetConfirm">加入</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="mask" wx:if="{{showCustomSlots}}" catchtouchmove="true">
+    <view class="sheet">
+      <view class="sheet-title">自定义几顿</view>
+      <view class="custom-slot-row">
+        <text class="custom-slot-name">午饭</text>
+        <text class="step-btn" data-which="lunch" data-delta="-1" bindtap="bumpCustomDraft">−</text>
+        <text class="slot-count">{{draftLunchCount}}</text>
+        <text class="step-btn" data-which="lunch" data-delta="1" bindtap="bumpCustomDraft">+</text>
+      </view>
+      <view class="custom-slot-row">
+        <text class="custom-slot-name">晚饭</text>
+        <text class="step-btn" data-which="dinner" data-delta="-1" bindtap="bumpCustomDraft">−</text>
+        <text class="slot-count">{{draftDinnerCount}}</text>
+        <text class="step-btn" data-which="dinner" data-delta="1" bindtap="bumpCustomDraft">+</text>
+      </view>
+      <view class="sheet-actions">
+        <button size="mini" class="btn-outline" bindtap="onCloseCustomSlots">取消</button>
+        <button size="mini" type="primary" bindtap="onConfirmCustomSlots">确认</button>
       </view>
     </view>
   </view>

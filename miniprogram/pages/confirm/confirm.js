@@ -5,6 +5,12 @@ const { filterHolidays } = require('../../utils/filterHolidays.js')
 const { track } = require('../../utils/track.js')
 const { recognizeOnce, stopRecognize } = require('../../utils/voice.js')
 const { parseFoodNames } = require('../../utils/parseFoodNames.js')
+const {
+  buildDailySlotsFromCounts,
+  formatCustomChipLabel,
+  clampMealCount,
+  canIncrement
+} = require('../../utils/dailyMealSlots.js')
 const holidaysPack = require('../../data/holidays.json')
 
 const STORAGE_KEY = 'cookthis_last_selected'
@@ -159,8 +165,15 @@ Page({
     peopleCountText: '2',
     combo: { meat: 1, veg: 1, soup: 0 },
     dailySlotPresets: DAILY_SLOT_PRESETS,
+    dailySlotMode: 'preset',
     dailySlotPresetId: 'one_dinner',
     mealSlots: DAILY_SLOT_PRESETS[0].slots,
+    customLunchCount: 0,
+    customDinnerCount: 0,
+    customChipLabel: '自定义',
+    showCustomSlots: false,
+    draftLunchCount: 0,
+    draftDinnerCount: 0,
     partySlotCount: 1,
     partyAvoidOptions: PARTY_AVOID_OPTIONS,
     partyAvoidChecked: {},
@@ -443,8 +456,12 @@ Page({
       patch.peopleCount = peopleCount
       patch.peopleCountText = String(peopleCount)
       patch.combo = cloneCombo(user.defaultCombo) || { meat: 1, veg: 1, soup: 0 }
+      patch.dailySlotMode = 'preset'
       patch.dailySlotPresetId = 'one_dinner'
       patch.mealSlots = DAILY_SLOT_PRESETS[0].slots.map(s => Object.assign({}, s))
+      // 定稿：文案恢复「自定义」；保留 customLunchCount/customDinnerCount 供再开弹窗
+      patch.customChipLabel = '自定义'
+      patch.showCustomSlots = false
       patch.partyAvoidChecked = {}
       patch.holidayId = ''
       patch.holidayDate = ''
@@ -496,8 +513,76 @@ Page({
     const preset = DAILY_SLOT_PRESETS.find(p => p.id === id)
     if (!preset) return
     this.setData({
+      dailySlotMode: 'preset',
       dailySlotPresetId: id,
-      mealSlots: preset.slots.map(s => Object.assign({}, s))
+      mealSlots: preset.slots.map(s => Object.assign({}, s)),
+      // 芯片上自定义文案仍可用上次 n/m；点回预设后 chip 显示「自定义」——见 format：
+      // 规格：点回预设后自定义芯片文案恢复「自定义」
+      customChipLabel: '自定义'
+      // 保留 customLunchCount/customDinnerCount 供再次打开弹窗
+    })
+    track('scene_meal_slots_change', {
+      meal_slots_mode: 'preset',
+      presetId: id,
+      slots: preset.slots.length
+    })
+  },
+
+  onOpenCustomSlots() {
+    // 定稿：首次进入固定 0+0；再次打开用上次确认的 n/m
+    // 「再次」= 已有确认过的计数，或已是 custom 模式
+    const useSaved =
+      this.data.dailySlotMode === 'custom' ||
+      this.data.customLunchCount > 0 ||
+      this.data.customDinnerCount > 0
+    this.setData({
+      showCustomSlots: true,
+      draftLunchCount: useSaved ? this.data.customLunchCount : 0,
+      draftDinnerCount: useSaved ? this.data.customDinnerCount : 0
+    })
+  },
+
+  onCloseCustomSlots() {
+    this.setData({ showCustomSlots: false })
+  },
+
+  bumpCustomDraft(e) {
+    const which = e.currentTarget.dataset.which // 'lunch' | 'dinner'
+    const delta = Number(e.currentTarget.dataset.delta) || 0
+    let l = this.data.draftLunchCount
+    let d = this.data.draftDinnerCount
+    if (delta > 0) {
+      if (!canIncrement(l, d, which)) return
+      if (which === 'lunch') l += 1
+      else d += 1
+    } else {
+      if (which === 'lunch') l = Math.max(0, l - 1)
+      else d = Math.max(0, d - 1)
+    }
+    this.setData({
+      draftLunchCount: clampMealCount(l),
+      draftDinnerCount: clampMealCount(d)
+    })
+  },
+
+  onConfirmCustomSlots() {
+    const l = clampMealCount(this.data.draftLunchCount)
+    const d = clampMealCount(this.data.draftDinnerCount)
+    const mealSlots = buildDailySlotsFromCounts(l, d)
+    this.setData({
+      showCustomSlots: false,
+      dailySlotMode: 'custom',
+      dailySlotPresetId: '',
+      customLunchCount: l,
+      customDinnerCount: d,
+      customChipLabel: formatCustomChipLabel(l, d),
+      mealSlots
+    })
+    track('scene_meal_slots_change', {
+      meal_slots_mode: 'custom',
+      lunchCount: l,
+      dinnerCount: d,
+      slots: mealSlots.length
     })
   },
 
