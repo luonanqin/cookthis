@@ -689,7 +689,13 @@ Page({
       return
     }
     if (!scene.mealSlots || !scene.mealSlots.length) {
-      wx.showToast({ title: '请选择几顿', icon: 'none' })
+      wx.showToast({
+        title:
+          this.data.isDaily && this.data.dailySlotMode === 'custom'
+            ? '请先选择吃几顿'
+            : '请选择几顿',
+        icon: 'none'
+      })
       return
     }
     if (scene.mealType !== 'daily' && typeof scene.peopleCount !== 'number') {
@@ -710,7 +716,13 @@ Page({
       methodsUsed,
       mealType: scene.mealType,
       people: scene.peopleCount,
-      combo: scene.combo
+      combo: scene.combo,
+      meal_slots_mode: this.data.isDaily
+        ? this.data.dailySlotMode
+        : 'party',
+      lunchCount: this.data.isDaily ? this.data.customLunchCount : undefined,
+      dinnerCount: this.data.isDaily ? this.data.customDinnerCount : undefined,
+      slotCount: (scene.mealSlots || []).length
     })
 
     this.setData({ submitting: true })
