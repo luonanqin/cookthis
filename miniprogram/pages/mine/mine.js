@@ -12,9 +12,36 @@ const {
   summarizeHousehold,
   normalizeAgeBand
 } = require('../../utils/members.js')
+const { computeProfileGaps } = require('../../utils/profileGaps.js')
 
 function resolveAvatar(url) {
   return url ? url : '/assets/avatar-default.png'
+}
+
+function buildReminderItems(gaps) {
+  const map = {
+    family_avoids: {
+      id: 'family_avoids',
+      text: '还没填家庭忌口（或确认无忌口）',
+      anchor: 'secAvoids'
+    },
+    members: {
+      id: 'members',
+      text: '添加至少一位家人（含本人）',
+      anchor: 'secMembers'
+    },
+    city: {
+      id: 'city',
+      text: '选择城市，匹配当地常见食材',
+      anchor: 'secCity'
+    },
+    cuisine: {
+      id: 'cuisine',
+      text: '选一下菜系偏好，或点暂无偏好',
+      anchor: 'secCuisine'
+    }
+  }
+  return (gaps.gaps || []).map((id) => map[id]).filter(Boolean)
 }
 
 const AVOID_OPTIONS = [
@@ -78,8 +105,11 @@ function profileViewFromUser(user) {
   return {
     familyAvoids,
     familyAvoidChecked,
+    familyAvoidsNone: !!p.familyAvoidsNone,
+    familyAvoidsConfirmedAt: p.familyAvoidsConfirmedAt || null,
     dishFormPrefs: prefs,
     cuisinePrefs: p.cuisinePrefs || {},
+    cuisinePrefsConfirmedAt: p.cuisinePrefsConfirmedAt || null,
     city: p.city || '',
     region: [],
     nickname: p.nickname || '',
@@ -122,9 +152,12 @@ Page({
     formValues: FORM_VALUES,
     familyAvoids: [],
     familyAvoidChecked: {},
+    familyAvoidsNone: false,
+    familyAvoidsConfirmedAt: null,
     dishFormPrefs: { hotpot: 'neutral', noodle: 'neutral', dumpling: 'neutral' },
     cuisineOptions: CUISINE_OPTIONS,
     cuisinePrefs: {},
+    cuisinePrefsConfirmedAt: null,
     city: '',
     region: [],
     busy: false,
@@ -137,17 +170,35 @@ Page({
     editName: '',
     editAgeBand: '26_40',
     editTaste: 'normal',
-    editAvoidChecked: {}
+    editAvoidChecked: {},
+    reminderItems: []
+  },
+
+  applyProfile(user, opts) {
+    const view = profileViewFromUser(user)
+    const gaps = computeProfileGaps({
+      familyAvoids: view.familyAvoids,
+      familyAvoidsNone: view.familyAvoidsNone,
+      membersCount: (view.members || []).length,
+      city: view.city,
+      cuisinePrefs: view.cuisinePrefs,
+      cuisinePrefsConfirmedAt: view.cuisinePrefsConfirmedAt
+    })
+    const reminderItems = buildReminderItems(gaps)
+    this.setData(Object.assign({}, view, { reminderItems }))
+    if (opts && opts.trackShow && reminderItems.length) {
+      track('profile_reminder_show', { surface: 'mine', gaps: gaps.gaps })
+    }
   },
 
   onShow() {
     // auth 已带 members：本地缓存立刻上屏，无需再打 profile.get
     const cached = getUser()
-    if (cached) this.setData(profileViewFromUser(cached))
+    if (cached) this.applyProfile(cached)
 
     ensureLogin()
       .then((user) => {
-        this.setData(profileViewFromUser(user))
+        this.applyProfile(user, { trackShow: true })
       })
       .catch((err) => {
         console.error(err)
@@ -158,8 +209,49 @@ Page({
   /** 成员增删改后刷新：走 auth 带回最新 members */
   refreshFromAuth() {
     return ensureLogin().then((user) => {
-      this.setData(profileViewFromUser(user))
+      this.applyProfile(user)
     })
+  },
+
+  onReminderTap(e) {
+    const anchor = e.currentTarget.dataset.anchor
+    if (!anchor) return
+    const query = wx.createSelectorQuery()
+    query.select('#' + anchor).boundingClientRect()
+    query.selectViewport().scrollOffset()
+    query.exec((res) => {
+      const rect = res && res[0]
+      const viewport = res && res[1]
+      if (!rect || !viewport) return
+      wx.pageScrollTo({
+        scrollTop: Math.max(0, viewport.scrollTop + rect.top - 24),
+        duration: 280
+      })
+    })
+  },
+
+  onConfirmNoAvoids() {
+    tapFeedback()
+    callCloud('profile', { action: 'confirmFamilyAvoidsNone' })
+      .then(() => {
+        track('profile_lite_quick_none', { source: 'mine' })
+        return this.refreshFromAuth()
+      })
+      .catch((err) => {
+        wx.showToast({ title: (err && err.error) || '操作失败', icon: 'none' })
+      })
+  },
+
+  onConfirmNoCuisine() {
+    tapFeedback()
+    callCloud('profile', { action: 'confirmCuisineNoPreference' })
+      .then(() => {
+        track('cuisine_prefs_no_preference', { source: 'mine' })
+        return this.refreshFromAuth()
+      })
+      .catch((err) => {
+        wx.showToast({ title: (err && err.error) || '操作失败', icon: 'none' })
+      })
   },
 
   onToggleAvoid(e) {
@@ -330,7 +422,8 @@ Page({
         wx.showToast({ title: '已保存', icon: 'success' })
         return ensureLogin()
       })
-      .then(() => {
+      .then((user) => {
+        this.applyProfile(user)
         setTimeout(() => {
           const pages = getCurrentPages() || []
           if (pages.length > 1) {

@@ -2,7 +2,18 @@
   <image class="avatar" src="{{avatarSrc}}" mode="aspectFill" />
   <text class="nickname">{{nickname}}</text>
 
-  <view class="section">
+  <view class="reminder" wx:if="{{reminderItems.length}}">
+    <view class="reminder-title">建议补全，推荐更准</view>
+    <view
+      class="reminder-row"
+      wx:for="{{reminderItems}}"
+      wx:key="id"
+      data-anchor="{{item.anchor}}"
+      bindtap="onReminderTap"
+    >{{item.text}}</view>
+  </view>
+
+  <view class="section" id="secMembers">
     <view class="section-title">家人</view>
     <view class="household">{{householdLabel}}</view>
     <view class="member-card" wx:for="{{members}}" wx:key="memberId">
@@ -15,7 +26,7 @@
     <view class="link-inline" bindtap="openAddMember">＋ 添加家人</view>
   </view>
 
-  <view class="section">
+  <view class="section" id="secAvoids">
     <view class="section-title">家庭忌口</view>
     <view class="chips">
       <view
@@ -26,6 +37,7 @@
         bindtap="onToggleAvoid"
       >{{item.label}}</view>
     </view>
+    <view class="link-inline" bindtap="onConfirmNoAvoids">我家无忌口</view>
   </view>
 
   <view class="section">
@@ -46,7 +58,7 @@
     </view>
   </view>
 
-  <view class="section">
+  <view class="section" id="secCuisine">
     <view class="section-title">菜系偏好</view>
     <view class="hint">先选喜欢，再选不爱吃的（可跳过）</view>
     <view class="sub">喜欢（出菜更偏向）</view>
@@ -69,9 +81,10 @@
         bindtap="onCuisineAvoid"
       >{{item.label}}</view>
     </view>
+    <view class="link-inline" bindtap="onConfirmNoCuisine">暂无偏好 / 全部一般</view>
   </view>
 
-  <view class="section">
+  <view class="section" id="secCity">
     <view class="section-title">城市（选到市）</view>
     <view class="hint">仅用于匹配当地常见食材</view>
     <picker mode="region" level="city" value="{{region}}" bindchange="onRegionChange">

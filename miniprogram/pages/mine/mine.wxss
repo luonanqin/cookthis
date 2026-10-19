@@ -24,6 +24,25 @@
   text-align: center;
 }
 
+.reminder {
+  background: var(--color-primary-soft, #eef5ee);
+  border-radius: 12rpx;
+  padding: 16rpx 20rpx;
+}
+
+.reminder-title {
+  font-size: var(--fs-sm);
+  color: var(--color-text-secondary, #888);
+  margin-bottom: 4rpx;
+}
+
+.reminder-row {
+  font-size: var(--fs-sm);
+  color: var(--color-text-secondary, #666);
+  padding: 6rpx 0;
+  line-height: 1.4;
+}
+
 .section {
   margin-top: 12rpx;
 }
