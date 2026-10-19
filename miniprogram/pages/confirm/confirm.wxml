@@ -175,42 +175,13 @@
 
   <view class="mask" wx:if="{{showProfileLite}}" catchtouchmove="true">
     <view class="sheet">
-      <view class="sheet-title">补一句家庭忌口？</view>
-      <view class="sheet-hint">填了少推不能吃的；跳过不影响本次看方案</view>
-      <view class="chip-row">
-        <view
-          wx:for="{{liteAvoidOptions}}"
-          wx:key="id"
-          class="chip {{liteAvoidChecked[item.id] ? 'chip-on' : ''}}"
-          data-id="{{item.id}}"
-          bindtap="onLiteAvoidToggle"
-        >{{item.label}}</view>
-        <view
-          wx:if="{{liteAvoidExpanded}}"
-          wx:for="{{liteAvoidMore}}"
-          wx:key="id"
-          class="chip {{liteAvoidChecked[item.id] ? 'chip-on' : ''}}"
-          data-id="{{item.id}}"
-          bindtap="onLiteAvoidToggle"
-        >{{item.label}}</view>
-      </view>
-      <view class="link lite-more" bindtap="onLiteAvoidMore">{{liteAvoidExpanded ? '收起' : '更多'}}</view>
-
-      <view class="field-label lite-love-label">爱吃什么（可选）</view>
-      <view class="chip-row">
-        <view
-          wx:for="{{liteLoveOptions}}"
-          wx:key="id"
-          class="chip {{liteLoveChecked[item.id] ? 'chip-on' : ''}}"
-          data-id="{{item.id}}"
-          bindtap="onLiteLoveToggle"
-        >{{item.label}}</view>
-      </view>
-
-      <view class="sheet-actions">
-        <button size="mini" class="btn-outline" disabled="{{liteBusy}}" bindtap="onProfileLiteSkip">暂时跳过</button>
-        <button size="mini" type="primary" disabled="{{liteBusy}}" bindtap="onProfileLiteSave">保存并出方案</button>
-      </view>
+      <profile-lite-form
+        show-none-avoids="{{false}}"
+        primary-text="保存并出方案"
+        secondary-text="暂时跳过"
+        bind:save="onProfileLiteSave"
+        bind:skip="onProfileLiteSkip"
+      />
     </view>
   </view>
 

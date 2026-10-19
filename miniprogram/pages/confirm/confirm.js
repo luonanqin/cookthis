@@ -51,20 +51,6 @@ const PARTY_AVOID_OPTIONS = [
   { id: 'offal', label: '内脏' }
 ]
 
-const LITE_AVOID_OPTIONS = [
-  { id: 'pork', label: '猪肉类' },
-  { id: 'seafood', label: '海鲜' },
-  { id: 'coriander', label: '香菜' },
-  { id: 'offal', label: '内脏' },
-  { id: 'peanut', label: '花生' },
-  { id: 'dairy', label: '乳制品' }
-]
-
-const LITE_LOVE_OPTIONS = [
-  { id: 'hotpot', label: '火锅' },
-  { id: 'noodle', label: '面食' }
-]
-
 const DAILY_SLOT_PRESETS = [
   {
     id: 'one_dinner',
@@ -218,12 +204,6 @@ Page({
 
     showProfileLite: false,
     showEmptyDialog: false,
-    liteAvoidOptions: LITE_AVOID_OPTIONS.slice(0, 4),
-    liteAvoidMore: LITE_AVOID_OPTIONS.slice(4),
-    liteAvoidExpanded: false,
-    liteAvoidChecked: {},
-    liteLoveOptions: LITE_LOVE_OPTIONS,
-    liteLoveChecked: {},
     liteBusy: false
   },
 
@@ -884,44 +864,19 @@ Page({
         profileLitePromptedAt: user.profileLitePromptedAt
       })
     ) {
-      track('profile_lite_show', {})
-      this.setData({
-        showProfileLite: true,
-        liteAvoidChecked: {},
-        liteLoveChecked: {},
-        liteAvoidExpanded: false
-      })
+      track('profile_lite_show', { source: 'pre_create_sheet' })
+      this.setData({ showProfileLite: true })
       return
     }
 
     this._submitRecommend(selected, scene)
   },
 
-  onLiteAvoidToggle(e) {
-    const id = e.currentTarget.dataset.id
-    if (!id) return
-    const liteAvoidChecked = Object.assign({}, this.data.liteAvoidChecked)
-    liteAvoidChecked[id] = !liteAvoidChecked[id]
-    this.setData({ liteAvoidChecked })
-  },
-
-  onLiteLoveToggle(e) {
-    const id = e.currentTarget.dataset.id
-    if (!id) return
-    const liteLoveChecked = Object.assign({}, this.data.liteLoveChecked)
-    liteLoveChecked[id] = !liteLoveChecked[id]
-    this.setData({ liteLoveChecked })
-  },
-
-  onLiteAvoidMore() {
-    this.setData({ liteAvoidExpanded: !this.data.liteAvoidExpanded })
-  },
-
   onProfileLiteSkip() {
     if (this.data.liteBusy) return
     tapFeedback()
     this.setData({ liteBusy: true, showProfileLite: false })
-    track('profile_lite_skip', {})
+    track('profile_lite_skip', { source: 'pre_create_sheet' })
     const selected = this._pendingSelected
     const scene = this._pendingScene
     callCloud('profile', { action: 'skipProfileLite' })
@@ -942,18 +897,18 @@ Page({
       })
   },
 
-  onProfileLiteSave() {
+  onProfileLiteSave(e) {
     if (this.data.liteBusy) return
     tapFeedback('heavy')
-    const familyAvoids = Object.keys(this.data.liteAvoidChecked || {}).filter(
-      (k) => this.data.liteAvoidChecked[k]
-    )
-    const love = this.data.liteLoveChecked || {}
+    const detail = (e && e.detail) || {}
+    const familyAvoids = detail.familyAvoids || []
+    const love = detail.love || {}
     const dishFormPrefs = {}
     if (love.hotpot) dishFormPrefs.hotpot = 'prefer'
     if (love.noodle) dishFormPrefs.noodle = 'prefer'
     this.setData({ liteBusy: true, showProfileLite: false })
     track('profile_lite_save', {
+      source: 'pre_create_sheet',
       avoidCount: familyAvoids.length,
       loveHotpot: !!love.hotpot,
       loveNoodle: !!love.noodle

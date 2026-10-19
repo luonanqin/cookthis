@@ -1,4 +1,6 @@
 {
   "navigationBarTitleText": "确认食材",
-  "usingComponents": {}
+  "usingComponents": {
+    "profile-lite-form": "/components/profile-lite-form/profile-lite-form"
+  }
 }

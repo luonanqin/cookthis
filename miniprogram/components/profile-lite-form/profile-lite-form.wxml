@@ -1,0 +1,39 @@
+<view class="sheet-title" wx:if="{{title}}">{{title}}</view>
+<view class="sheet-hint" wx:if="{{hint}}">{{hint}}</view>
+
+<view class="chip-row">
+  <view
+    wx:for="{{liteAvoidOptions}}"
+    wx:key="id"
+    class="chip {{liteAvoidChecked[item.id] ? 'chip-on' : ''}}"
+    data-id="{{item.id}}"
+    bindtap="onAvoidToggle"
+  >{{item.label}}</view>
+  <view
+    wx:if="{{liteAvoidExpanded}}"
+    wx:for="{{liteAvoidMore}}"
+    wx:key="id"
+    class="chip {{liteAvoidChecked[item.id] ? 'chip-on' : ''}}"
+    data-id="{{item.id}}"
+    bindtap="onAvoidToggle"
+  >{{item.label}}</view>
+</view>
+<view class="link lite-more" bindtap="onAvoidMore">{{liteAvoidExpanded ? '收起' : '更多'}}</view>
+
+<view wx:if="{{showNoneAvoids}}" class="link none-avoids" bindtap="onNoneAvoids">我家无忌口</view>
+
+<view class="field-label lite-love-label">爱吃什么（可选）</view>
+<view class="chip-row">
+  <view
+    wx:for="{{liteLoveOptions}}"
+    wx:key="id"
+    class="chip {{liteLoveChecked[item.id] ? 'chip-on' : ''}}"
+    data-id="{{item.id}}"
+    bindtap="onLoveToggle"
+  >{{item.label}}</view>
+</view>
+
+<view class="sheet-actions">
+  <button size="mini" class="btn-outline" bindtap="onSkip">{{secondaryText}}</button>
+  <button size="mini" type="primary" bindtap="onSave">{{primaryText}}</button>
+</view>
