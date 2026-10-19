@@ -32,8 +32,11 @@ function ensureLogin() {
       city: user.city,
       isNewUser: user.isNewUser,
       familyAvoids: user.familyAvoids || [],
+      familyAvoidsNone: !!user.familyAvoidsNone,
+      familyAvoidsConfirmedAt: user.familyAvoidsConfirmedAt || null,
       dishFormPrefs: user.dishFormPrefs || {},
       cuisinePrefs: user.cuisinePrefs || {},
+      cuisinePrefsConfirmedAt: user.cuisinePrefsConfirmedAt || null,
       // 与 auth 一致：缺字段按已完成；仅显式 false 才引导
       onboardingDone: user.onboardingDone == null ? true : !!user.onboardingDone,
       profileLiteSkipped: !!user.profileLiteSkipped,

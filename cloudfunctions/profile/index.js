@@ -99,8 +99,11 @@ async function handleGet(uid) {
       mealTimes: user.mealTimes || {},
       cookBudget: user.cookBudget || 'about30',
       familyAvoids: user.familyAvoids || [],
+      familyAvoidsNone: !!user.familyAvoidsNone,
+      familyAvoidsConfirmedAt: user.familyAvoidsConfirmedAt || null,
       dishFormPrefs: user.dishFormPrefs || {},
       cuisinePrefs: user.cuisinePrefs || {},
+      cuisinePrefsConfirmedAt: user.cuisinePrefsConfirmedAt || null,
       onboardingDone: !!user.onboardingDone,
       profileLiteSkipped: !!user.profileLiteSkipped,
       profileLitePromptedAt: user.profileLitePromptedAt || null,
@@ -119,7 +122,18 @@ async function handleGet(uid) {
 async function handleUpdateFamily(event, uid, user) {
   const patch = {}
   if (Array.isArray(event.familyAvoids)) {
-    patch.familyAvoids = sanitizeAvoids(event.familyAvoids)
+    const avoids = sanitizeAvoids(event.familyAvoids)
+    patch.familyAvoids = avoids
+    if (avoids.length > 0) {
+      patch.familyAvoidsNone = false
+      patch.familyAvoidsConfirmedAt = db.serverDate()
+    }
+  }
+  // Explicit none wins over concurrent non-empty familyAvoids
+  if (event.familyAvoidsNone === true) {
+    patch.familyAvoidsNone = true
+    patch.familyAvoids = []
+    patch.familyAvoidsConfirmedAt = db.serverDate()
   }
   if (event.dishFormPrefs && typeof event.dishFormPrefs === 'object') {
     patch.dishFormPrefs = Object.assign(
@@ -130,6 +144,13 @@ async function handleUpdateFamily(event, uid, user) {
   }
   if (event.cuisinePrefs && typeof event.cuisinePrefs === 'object') {
     patch.cuisinePrefs = sanitizeCuisinePrefs(event.cuisinePrefs)
+    const hasStance = Object.keys(patch.cuisinePrefs).some(
+      (k) => patch.cuisinePrefs[k] === 'prefer' || patch.cuisinePrefs[k] === 'avoid'
+    )
+    if (hasStance) patch.cuisinePrefsConfirmedAt = db.serverDate()
+  }
+  if (event.cuisinePrefsNoPreference === true) {
+    patch.cuisinePrefsConfirmedAt = db.serverDate()
   }
   // 人数唯一来源 = members；忽略客户端 defaultPeopleCount
   if (event.defaultCombo && typeof event.defaultCombo === 'object') {
@@ -308,7 +329,13 @@ async function handleSaveProfileLite(event, uid, user) {
     updatedAt: db.serverDate()
   }
   if (Array.isArray(event.familyAvoids)) {
-    patch.familyAvoids = sanitizeAvoids(event.familyAvoids)
+    const avoids = sanitizeAvoids(event.familyAvoids)
+    patch.familyAvoids = avoids
+    if (avoids.length > 0) {
+      patch.familyAvoidsNone = false
+      patch.familyAvoidsConfirmedAt = db.serverDate()
+    }
+    // empty array: do not set familyAvoidsNone / ConfirmedAt
   }
   if (event.dishFormPrefs && typeof event.dishFormPrefs === 'object') {
     patch.dishFormPrefs = Object.assign(
@@ -326,7 +353,7 @@ async function handleSaveProfileLite(event, uid, user) {
   }
 }
 
-/** 日常轻量补全：跳过 → 标记已提示，不挡推荐 */
+/** 日常轻量补全：跳过 → 标记已提示，不挡推荐；不改表态字段 */
 async function handleSkipProfileLite(uid, user) {
   await db.collection('users').doc(user._id).update({
     data: {
@@ -336,6 +363,28 @@ async function handleSkipProfileLite(uid, user) {
     }
   })
   return { ok: true, skipped: true, profileLiteSkipped: true }
+}
+
+async function handleConfirmFamilyAvoidsNone(uid, user) {
+  await db.collection('users').doc(user._id).update({
+    data: {
+      familyAvoidsNone: true,
+      familyAvoids: [],
+      familyAvoidsConfirmedAt: db.serverDate(),
+      updatedAt: db.serverDate()
+    }
+  })
+  return { ok: true, familyAvoidsNone: true, familyAvoids: [] }
+}
+
+async function handleConfirmCuisineNoPreference(uid, user) {
+  await db.collection('users').doc(user._id).update({
+    data: {
+      cuisinePrefsConfirmedAt: db.serverDate(),
+      updatedAt: db.serverDate()
+    }
+  })
+  return { ok: true, cuisinePrefsConfirmedAt: true }
 }
 
 exports.main = async (event) => {
@@ -358,11 +407,13 @@ exports.main = async (event) => {
   if (action === 'skipOnboarding') return handleSkipOnboarding(uid, user)
   if (action === 'saveProfileLite') return handleSaveProfileLite(event, uid, user)
   if (action === 'skipProfileLite') return handleSkipProfileLite(uid, user)
+  if (action === 'confirmFamilyAvoidsNone') return handleConfirmFamilyAvoidsNone(uid, user)
+  if (action === 'confirmCuisineNoPreference') return handleConfirmCuisineNoPreference(uid, user)
   console.warn('profile UNKNOWN_ACTION', action)
   return {
     ok: false,
     error: 'UNKNOWN_ACTION',
-    hint: '请重新上传并部署云函数 profile（需含 saveProfileLite / skipProfileLite）',
+    hint: '请重新上传并部署云函数 profile（需含 saveProfileLite / skipProfileLite / confirmFamilyAvoidsNone / confirmCuisineNoPreference）',
     action: action || null
   }
 }
