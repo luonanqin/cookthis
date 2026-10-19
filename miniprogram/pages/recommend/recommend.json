@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "推荐方案"
+  "navigationBarTitleText": "推荐方案",
+  "usingComponents": {
+    "profile-lite-form": "/components/profile-lite-form/profile-lite-form"
+  }
 }

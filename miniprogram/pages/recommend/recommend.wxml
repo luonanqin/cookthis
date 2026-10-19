@@ -5,6 +5,11 @@
 
   <block wx:else>
     <view wx:if="{{sceneSummary}}" class="scene-bar">{{sceneSummary}}</view>
+    <view
+      wx:if="{{showProfileBanner}}"
+      class="profile-banner"
+      bindtap="onOpenQuickLite"
+    >补一下家庭忌口，少推不能吃的</view>
     <view class="plan" wx:for="{{plans}}" wx:key="planIndex">
       <view class="plan-head">
         <view class="plan-title">方案 {{item.planIndex + 1}}<text wx:if="{{item.planKind && item.planKind !== 'home'}}" class="kind"> · {{item.planKind}}</text></view>
@@ -65,6 +70,19 @@
         <button size="mini" class="btn-outline" bindtap="onRejectSkip">跳过</button>
         <button size="mini" class="btn-outline" bindtap="onRejectClose">取消</button>
       </view>
+    </view>
+  </view>
+
+  <view class="mask" wx:if="{{showQuickLite}}" catchtouchmove="true">
+    <view class="sheet">
+      <profile-lite-form
+        show-none-avoids="{{true}}"
+        primary-text="保存并刷新方案"
+        secondary-text="取消"
+        bind:save="onQuickLiteSave"
+        bind:skip="onQuickLiteClose"
+        bind:noneavoids="onQuickLiteNone"
+      />
     </view>
   </view>
 

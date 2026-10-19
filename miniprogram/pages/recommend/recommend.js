@@ -1,10 +1,12 @@
 const { callCloud } = require('../../services/cloud.js')
+const { getUser, ensureLogin } = require('../../services/session.js')
 const { track } = require('../../utils/track.js')
 const { buildPlanIngredientSummary } = require('../../utils/planIngredientSummary.js')
 const { clearChecksForRequest } = require('../../utils/shoppingChecks.js')
 const { tapFeedback } = require('../../utils/haptic.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 const { formatSceneSummary } = require('../../utils/sceneSummary.js')
+const { computeProfileGaps } = require('../../utils/profileGaps.js')
 
 const RECOMMEND_KEY = 'cookthis_last_recommend'
 const SELECTED_KEY = 'cookthis_last_selected'
@@ -111,6 +113,8 @@ Page({
     busyPlanIndex: -1,
     showReject: false,
     showEmptyDialog: false,
+    showProfileBanner: false,
+    showQuickLite: false,
     rejectReasons: REJECT_REASONS,
     fabDimmed: false
   },
@@ -134,6 +138,10 @@ Page({
       this._visibleSince = Date.now()
     }
     this._tickTimer = setInterval(() => this._checkEngage(), 5000)
+    this.refreshProfileBanner()
+    ensureLogin()
+      .then(() => this.refreshProfileBanner())
+      .catch(() => {})
   },
 
   onHide() {
@@ -271,6 +279,123 @@ Page({
         })
       })
     }
+    this.refreshProfileBanner()
+  },
+
+  refreshProfileBanner() {
+    const u = getUser() || {}
+    const members = u.members || []
+    const gaps = computeProfileGaps({
+      familyAvoids: u.familyAvoids,
+      familyAvoidsNone: u.familyAvoidsNone,
+      membersCount: members.length,
+      city: u.city,
+      cuisinePrefs: u.cuisinePrefs,
+      cuisinePrefsConfirmedAt: u.cuisinePrefsConfirmedAt
+    })
+    if (gaps.recommendBanner) {
+      track('profile_reminder_show', {
+        surface: 'recommend_banner',
+        gaps: gaps.gaps
+      })
+    }
+    this.setData({ showProfileBanner: gaps.recommendBanner })
+  },
+
+  onOpenQuickLite() {
+    track('profile_lite_quick_open', { source: 'recommend_banner' })
+    this.setData({ showQuickLite: true })
+  },
+
+  onQuickLiteClose() {
+    this.setData({ showQuickLite: false })
+  },
+
+  onQuickLiteNone() {
+    if (this.data.busy) return
+    this.setData({ busy: true, showQuickLite: false })
+    track('profile_lite_quick_none', { source: 'recommend_banner' })
+    callCloud('profile', { action: 'confirmFamilyAvoidsNone' })
+      .then(() => ensureLogin())
+      .then(() => this._recreateRecommendAfterProfile())
+      .catch((err) => {
+        console.error(err)
+        wx.showToast({ title: '保存失败', icon: 'none' })
+        this.setData({ busy: false })
+        this.refreshProfileBanner()
+      })
+  },
+
+  onQuickLiteSave(e) {
+    if (this.data.busy) return
+    const familyAvoids = (e.detail && e.detail.familyAvoids) || []
+    const love = (e.detail && e.detail.love) || {}
+    const dishFormPrefs = {}
+    if (love.hotpot) dishFormPrefs.hotpot = 'prefer'
+    if (love.noodle) dishFormPrefs.noodle = 'prefer'
+    this.setData({ busy: true, showQuickLite: false })
+    track('profile_lite_quick_save', {
+      source: 'recommend_banner',
+      avoidCount: familyAvoids.length
+    })
+    callCloud('profile', {
+      action: 'saveProfileLite',
+      familyAvoids,
+      dishFormPrefs
+    })
+      .then(() => ensureLogin())
+      .then(() => this._recreateRecommendAfterProfile())
+      .catch((err) => {
+        console.error(err)
+        wx.showToast({ title: '保存失败', icon: 'none' })
+        this.setData({ busy: false })
+      })
+  },
+
+  _recreateRecommendAfterProfile() {
+    let selected = []
+    let scene = null
+    try {
+      const sel = wx.getStorageSync(SELECTED_KEY) || null
+      selected = (sel && sel.selected) || []
+      scene = (sel && sel.scene) || null
+      const rec = wx.getStorageSync(RECOMMEND_KEY) || null
+      if (!scene && rec) scene = rec.scene
+      if ((!selected || !selected.length) && rec && rec.selectedIngredients) {
+        selected = rec.selectedIngredients
+      }
+    } catch (e) {}
+    if (!selected.length || !scene) {
+      this.setData({ busy: false })
+      this.refreshProfileBanner()
+      wx.showToast({ title: '无法刷新，请返回重选食材', icon: 'none' })
+      return
+    }
+    return callCloud('recommend', { action: 'create', selected, scene })
+      .then((result) => {
+        const plans = (result && result.plans) || []
+        const snap = {
+          requestId: result.requestId,
+          plans,
+          scene,
+          selectedIngredients: selected,
+          emptyReason: result.emptyReason || null,
+          swapCount: 0
+        }
+        writeSnap(snap)
+        this.applySnap(snap)
+        this._startBatchDwellClock()
+        this.setData({ busy: false })
+        if (!plans.length) {
+          wx.showToast({ title: '暂无方案，可返回改食材', icon: 'none' })
+        }
+      })
+      .catch((err) => {
+        console.error(err)
+        wx.showToast({ title: '刷新失败', icon: 'none' })
+        this.setData({ busy: false })
+        this.refreshProfileBanner()
+      })
   },
 
   onBack() {
