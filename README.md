@@ -59,7 +59,7 @@
 
 1. **上传并部署**云函数：`cloudfunctions/auth`、`cloudfunctions/ingredients`（云端安装依赖）。
 2. **建集合**：`users`、`user_identities`、`ingredients`。权限建议：仅管理端可写，业务读写走云函数。`user_identities` 建议复合唯一索引：`provider` + `providerUserId`。
-3. **导入食材**：对集合 `ingredients` 导入 `data/ingredients-for-import.json`（**JSON Lines**，每行一条且带 `_id`）。**不要**导入 `ingredients-builtin.json`（数组格式会失败）。需要重生成时：`node scripts/import-ingredients.js`。若集合里已有数据（含上次导入到一半失败留下的文档），先清空集合或选冲突覆盖，否则会报 `E11000 duplicate key`。
+3. **导入食材**：对集合 `ingredients` 导入 `data/catalog/ingredients-for-import.json`（**JSON Lines**，每行一条且带 `_id`）。**不要**导入 `ingredients-builtin.json`（数组格式会失败）。需要重生成时：`node scripts/import-ingredients.js`。若集合里已有数据（含上次导入到一半失败留下的文档），先清空集合或选冲突覆盖，否则会报 `E11000 duplicate key`。
 
 做完以上即可对照下方「Slice 1 验收清单」点验。**此阶段不需要** `recommend`、`recipes`、`recommendations`。
 
@@ -71,7 +71,7 @@
 
 1. **上传并部署**云函数：`cloudfunctions/recommend`（云端安装依赖）。
 2. **再建集合**：`recipes`、`recommendations`（权限同上）。
-3. **导入菜谱**：对集合 `recipes` 导入 `data/recipes-for-import.json`（JSON Lines；含业务字段 `id`）。**不要**导入 `recipes-builtin.json`。需要重生成时：`node scripts/import-recipes.js`。若控制台要求文档 `_id`，可设为与 `id` 相同。
+3. **导入菜谱**：对集合 `recipes` 导入 `data/catalog/recipes-for-import.json`（JSON Lines；含业务字段 `id`）。**不要**导入 `recipes-builtin.json`。需要重生成时：`node scripts/import-recipes.js`。若控制台要求文档 `_id`，可设为与 `id` 相同。
 
 节日列表已打进小程序（`miniprogram/data/holidays.js`），**不必**再导入云库。
 
@@ -106,7 +106,7 @@
 
 1. **上传并部署**云函数：`profile`、`analytics`；并**重新部署** `recommend`（接入非常规方案）与 `auth`（登录返回 `dishFormPrefs`）。
 2. **再建集合**：`events`；可选 `members`（成员 CRUD 用）。
-3. **重导菜谱**（若已导入旧版）：用更新后的 `data/recipes-for-import.json`（含火锅/面/饺种子菜）。
+3. **重导菜谱**（若已导入旧版）：用更新后的 `data/catalog/recipes-for-import.json`（含火锅/面/饺种子菜）。
 
 做完即可对照下方「Slice 5 验收清单」。人工点验**暂缓**，以 `npm test` 为主。
 

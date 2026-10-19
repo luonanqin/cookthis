@@ -46,7 +46,7 @@ function isJsonl(text) {
 }
 
 function patchFile(file, jsonl) {
-  const p = path.join(__dirname, '..', 'data', file)
+  const p = path.join(__dirname, '..', 'data', 'catalog', file)
   const raw = fs.readFileSync(p, 'utf8')
   const useJsonl = jsonl !== undefined ? jsonl : isJsonl(raw)
 

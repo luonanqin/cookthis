@@ -4,9 +4,9 @@ const fs = require('fs')
 const path = require('path')
 
 const ROOT = path.join(__dirname, '..')
-const JSON_PATH = path.join(ROOT, 'data', 'recipes-builtin.json')
-const INGREDIENTS_PATH = path.join(ROOT, 'data', 'ingredients-builtin.json')
-const OUT_PATH = path.join(ROOT, 'data', 'recipes-for-import.json')
+const JSON_PATH = path.join(ROOT, 'data', 'catalog', 'recipes-builtin.json')
+const INGREDIENTS_PATH = path.join(ROOT, 'data', 'catalog', 'ingredients-builtin.json')
+const OUT_PATH = path.join(ROOT, 'data', 'catalog', 'recipes-for-import.json')
 
 const REQUIRED = [
   'id',

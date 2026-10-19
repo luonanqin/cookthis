@@ -690,12 +690,20 @@ def _accumulate(
     cat: str,
     names: list[str],
     lexicon: set[str],
+    review: ReviewLists | None = None,
 ) -> tuple[int, int]:
-    """写入 by_cat；返回 (kept_delta, split_delta)。"""
+    """写入 by_cat；返回 (kept_delta, split_delta)。
+
+    len>4 且未经 accept / segment-hints 的：整段保留进货架，供 pending 预填 s=（不自动拆）。
+    """
     kept = 0
     split_delta = 0
+    accept = review.accept if review else set()
     for cleaned in names:
-        parts = segment_name(cleaned, lexicon)
+        if len(cleaned) > 4 and cleaned not in accept:
+            parts = [cleaned]
+        else:
+            parts = segment_name(cleaned, lexicon)
         if len(parts) >= 2:
             split_delta += 1
         for part in parts:
@@ -718,7 +726,7 @@ def clean_city(
 
     for cat, parts, _ in iter_refined(city_dir, review):
         raw_n += 1
-        k, s = _accumulate(by_cat, cat, parts, lexicon)
+        k, s = _accumulate(by_cat, cat, parts, lexicon, review)
         kept_n += k
         split_n += s
 
@@ -794,16 +802,26 @@ def main() -> None:
             print(f"未找到城市或 products.jsonl：{args.city}")
             raise SystemExit(1)
 
-    # 两遍：先收集清洗名入词典，再分词（只去重，不合并别名）
+    # 词典：builtin + accept + segment 段 + 仅 ≤4 字清洗名（长名不进词典，留给 pending）
     lexicon = load_builtin_lexicon()
+    lexicon |= set(review.accept)
+    for segs in review.segments.values():
+        lexicon.update(segs)
     for city_dir in cities:
         for _, parts, _ in iter_refined(city_dir, review):
             for cleaned in parts:
-                lexicon.add(cleaned)
+                if len(cleaned) <= 4:
+                    lexicon.add(cleaned)
 
     for city_dir in cities:
         data = clean_city(city_dir, lexicon, review)
         _write_cleaned(data, city_dir / args.out_name)
+
+    # 全量清洗后刷新待审（单城时也基于 inbox 里已有 cleaned 汇总）
+    from pending_review import write_pending
+
+    n_pending = write_pending(inbox, review_dir=REVIEW_DIR)
+    print(f"review/pending.txt: {n_pending} 条待人工处理 → {REVIEW_DIR / 'pending.txt'}")
 
 
 if __name__ == "__main__":

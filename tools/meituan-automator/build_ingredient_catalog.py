@@ -144,6 +144,14 @@ def main(inbox: Path | None = None, catalog_root: Path | None = None) -> None:
         print(f"无目录：{inbox}")
         raise SystemExit(1)
     build_catalog(inbox, catalog_root)
+    from pending_review import write_pending
+
+    n_pending = write_pending(
+        inbox,
+        review_dir=catalog_root / "review",
+        catalog=catalog_root,
+    )
+    print(f"review/pending.txt: {n_pending} 条待人工处理")
 
 
 if __name__ == "__main__":

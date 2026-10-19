@@ -3,7 +3,7 @@
 const fs = require('fs')
 const path = require('path')
 
-const JSON_PATH = path.join(__dirname, '..', 'data', 'ingredients-builtin.json')
+const JSON_PATH = path.join(__dirname, '..', 'data', 'catalog', 'ingredients-builtin.json')
 
 const REQUIRED = ['id', 'name', 'category', 'cities', 'kind', 'sort', 'source', 'updatedAt']
 
@@ -51,12 +51,12 @@ function main() {
 
   console.log('Validated', items.length, 'rows (', mains.length, 'main,', seasoning.length, 'seasoning).')
   console.log('')
-  const importJsonPath = path.join(__dirname, '..', 'data', 'ingredients-for-import.json')
+  const importJsonPath = path.join(__dirname, '..', 'data', 'catalog', 'ingredients-for-import.json')
   const lines = items.map((row) => JSON.stringify({ _id: row.id, ...row }))
   fs.writeFileSync(importJsonPath, lines.join('\n') + '\n')
   // 同内容另存 .jsonl，便于本地核对
   fs.writeFileSync(
-    path.join(__dirname, '..', 'data', 'ingredients-builtin.jsonl'),
+    path.join(__dirname, '..', 'data', 'catalog', 'ingredients-builtin.jsonl'),
     lines.join('\n') + '\n'
   )
 

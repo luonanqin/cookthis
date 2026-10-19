@@ -66,7 +66,11 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # 首次
 
 ## 食材大全（城货架 / 全量 / 别名）
 
-1. 清洗：`.venv/bin/python clean_city_products.py`
-2. 导出合并：`.venv/bin/python build_ingredient_catalog.py`
-3. 人工改：`data/catalog/review/{reject,accept,segment-hints}.txt` 与 `data/catalog/aliases.json`
+1. 清洗：`.venv/bin/python clean_city_products.py`  
+   - **≤4 字**：进货架 + 分词词典  
+   - **>4 字**：整段进货架，并写入 `review/pending.txt`（能拆的预填 `s?=`，未确认）  
+2. 人工标注：`r` 不要 / `a` 整段保留 / `s=` 从原文取出食材（分词·提取·去重同一标签；`s?=` 改成 `s=` 即确认）  
+   → `.venv/bin/python apply_pending_marks.py`  
+3. 再跑步骤 1 + `.venv/bin/python build_ingredient_catalog.py`（人工结果进词典，下次不再进 pending）  
+   别名：`data/catalog/aliases.json`
 4. 匹配示例：见 `alias_match.py` 中 `expand_shelf` / `recipe_covered`
