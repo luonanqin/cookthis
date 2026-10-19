@@ -1,15 +1,16 @@
 <view class="page {{typeScaleClass}}">
+  <view
+    wx:if="{{showProfileBanner}}"
+    class="profile-banner"
+    bindtap="onOpenQuickLite"
+  >补一下家庭忌口，少推不能吃的</view>
+
   <view wx:if="{{empty}}" class="empty">
     <text class="empty-text">{{emptyText}}</text>
   </view>
 
   <block wx:else>
     <view wx:if="{{sceneSummary}}" class="scene-bar">{{sceneSummary}}</view>
-    <view
-      wx:if="{{showProfileBanner}}"
-      class="profile-banner"
-      bindtap="onOpenQuickLite"
-    >补一下家庭忌口，少推不能吃的</view>
     <view class="plan" wx:for="{{plans}}" wx:key="planIndex">
       <view class="plan-head">
         <view class="plan-title">方案 {{item.planIndex + 1}}<text wx:if="{{item.planKind && item.planKind !== 'home'}}" class="kind"> · {{item.planKind}}</text></view>
