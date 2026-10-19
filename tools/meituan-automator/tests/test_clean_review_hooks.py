@@ -7,8 +7,9 @@ def test_segment_hint_splits():
     assert refine_to_parts("洋葱炒猪肝", r) == ["洋葱", "猪肝"]
 
 def test_reject_drops():
-    r = ReviewLists(reject={"超值单品"}, accept=set(), segments={})
-    assert refine_to_parts("超值单品", r) == []
+    # 折耳根 is otherwise kept; reject must drop it (超值单品 is already _DROP_EXACT)
+    r = ReviewLists(reject={"折耳根"}, accept=set(), segments={})
+    assert refine_to_parts("折耳根", r) == []
 
 def test_accept_keeps_exact_junk_name():
     # 「食材」在 _DROP_EXACT；accept 应救回

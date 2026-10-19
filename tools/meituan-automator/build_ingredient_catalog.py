@@ -103,8 +103,12 @@ def _dump(path: Path, data: dict) -> None:
 
 
 def build_catalog(inbox: Path, catalog_root: Path) -> dict:
+    builtin_path = catalog_root / BUILTIN_JSONL
+    if not builtin_path.is_file():
+        print(f"缺少内置食材源：{builtin_path}")
+        raise SystemExit(1)
     mapping = load_mapping(catalog_root / MAPPING_NAME)
-    builtin_rows = load_jsonl(catalog_root / BUILTIN_JSONL)
+    builtin_rows = load_jsonl(builtin_path)
     shelves: list[dict] = []
     for city_dir in sorted(p for p in inbox.iterdir() if p.is_dir()):
         cleaned_path = city_dir / CLEANED_NAME

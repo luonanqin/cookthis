@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from build_ingredient_catalog import (
     city_shelf_from_cleaned,
     map_builtin_category,
@@ -87,3 +89,31 @@ def test_cli_writes_city_and_all(tmp_path: Path):
     all_ = json.loads((catalog / "ingredients-all.json").read_text(encoding="utf-8"))
     assert set(all_["categories"]["荤菜"]) == {"鸡脚", "猪肉"}
     assert set(all_["categories"]["素菜"]) == {"折耳根"}
+
+
+def test_cli_missing_builtin_jsonl_exits_nonzero(tmp_path: Path, capsys):
+    inbox = tmp_path / "inbox"
+    city_dir = inbox / "重庆"
+    city_dir.mkdir(parents=True)
+    (city_dir / "ingredients-cleaned.json").write_text(
+        json.dumps(
+            {"city": "重庆", "荤菜": ["鸡脚"], "_meta": {"kept": 1}},
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    catalog = tmp_path / "catalog"
+    catalog.mkdir()
+    (catalog / "builtin-to-meituan-category.json").write_text(
+        json.dumps({"meat": "荤菜"}),
+        encoding="utf-8",
+    )
+
+    from build_ingredient_catalog import main
+
+    with pytest.raises(SystemExit) as ei:
+        main(inbox=inbox, catalog_root=catalog)
+    assert ei.value.code not in (0, None)
+    captured = capsys.readouterr()
+    assert "ingredients-builtin.jsonl" in captured.out + captured.err
+    assert not (catalog / "ingredients-all.json").exists()
