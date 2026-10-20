@@ -136,20 +136,39 @@ def main(inbox: Path | None = None, catalog_root: Path | None = None) -> None:
         )
         ap.add_argument("--inbox", type=Path, default=INBOX)
         ap.add_argument("--catalog-root", type=Path, default=CATALOG)
+        ap.add_argument(
+            "--pending-min-len",
+            type=int,
+            default=None,
+            help="刷新 pending 最短字数（默认 pending_review.DEFAULT_MIN_LEN）",
+        )
+        ap.add_argument(
+            "--pending-max-len",
+            type=int,
+            default=None,
+            help="刷新 pending 最长字数（含）",
+        )
         args = ap.parse_args()
         inbox = inbox or args.inbox
         catalog_root = catalog_root or args.catalog_root
+        pending_min_len = args.pending_min_len
+        pending_max_len = args.pending_max_len
+    else:
+        pending_min_len = None
+        pending_max_len = None
     assert inbox is not None and catalog_root is not None
     if not inbox.is_dir():
         print(f"无目录：{inbox}")
         raise SystemExit(1)
     build_catalog(inbox, catalog_root)
-    from pending_review import write_pending
+    from pending_review import DEFAULT_MIN_LEN, write_pending
 
     n_pending = write_pending(
         inbox,
         review_dir=catalog_root / "review",
         catalog=catalog_root,
+        min_len=pending_min_len if pending_min_len is not None else DEFAULT_MIN_LEN,
+        max_len=pending_max_len,
     )
     print(f"review/pending.txt: {n_pending} 条待人工处理")
 

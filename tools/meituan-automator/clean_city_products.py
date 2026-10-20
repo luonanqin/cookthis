@@ -401,6 +401,12 @@ _DROP_CONTAINS = (
     "以实物为准",
     "随季节",
     "泡发以免",
+    "参加",
+    "耐心",
+    "催",
+    "染",
+    "浪费",
+    "承诺",
     # B 类品牌速食/调味成品（虾滑/牛肉丸 在 _apply_place_variety 先行保留）
     "安井",
     "海底捞",
@@ -590,20 +596,39 @@ def refine_name(raw: str, review: ReviewLists | None = None) -> str | None:
     return t
 
 
+def _expand_segment_hint(
+    key: str, review: ReviewLists
+) -> list[str] | None:
+    """若 key 在 segment-hints 中，返回各段 refine 后的名；否则 None。"""
+    hinted = review.segments.get(key)
+    if not hinted:
+        return None
+    out: list[str] = []
+    for part in hinted:
+        name = refine_name(part, review)
+        if name:
+            out.append(name)
+    return out or None
+
+
 def refine_to_parts(raw: str, review: ReviewLists | None = None) -> list[str]:
-    """有 segment hint 则拆成 parts；否则 refine_name 成功为 [name]，失败 []。"""
+    """有 segment hint 则拆成 parts；否则 refine_name 成功为 [name]，失败 []。
+
+    hint 在 clean_product_name 与 refine_name 两档都查（避免「鸡中翅-鸡翅」
+    归一成「鸡中翅鸡翅」后匹配不到、整段仍进货架）。
+    """
     if review and review.segments:
-        key = clean_product_name(raw or "")
-        hinted = review.segments.get(key)
-        if hinted:
-            out: list[str] = []
-            for part in hinted:
-                name = refine_name(part, review)
-                if name:
-                    out.append(name)
-            return out
+        expanded = _expand_segment_hint(clean_product_name(raw or ""), review)
+        if expanded is not None:
+            return expanded
     name = refine_name(raw, review)
-    return [name] if name else []
+    if not name:
+        return []
+    if review and review.segments:
+        expanded = _expand_segment_hint(name, review)
+        if expanded is not None:
+            return expanded
+    return [name]
 
 
 def load_builtin_lexicon(path: Path = _BUILTIN_JSONL) -> set[str]:
@@ -694,13 +719,13 @@ def _accumulate(
 ) -> tuple[int, int]:
     """写入 by_cat；返回 (kept_delta, split_delta)。
 
-    len>4 且未经 accept / segment-hints 的：整段保留进货架，供 pending 预填 s=（不自动拆）。
+    len≥4 且未经 accept 的：整段保留进货架，供 pending（不自动拆）。
     """
     kept = 0
     split_delta = 0
     accept = review.accept if review else set()
     for cleaned in names:
-        if len(cleaned) > 4 and cleaned not in accept:
+        if len(cleaned) >= 4 and cleaned not in accept:
             parts = [cleaned]
         else:
             parts = segment_name(cleaned, lexicon)
@@ -775,6 +800,18 @@ def main() -> None:
         default=OUT_NAME,
         help="输出文件名（写在城市目录下）",
     )
+    ap.add_argument(
+        "--pending-min-len",
+        type=int,
+        default=None,
+        help="刷新 pending 的最短字数（默认用 pending_review.DEFAULT_MIN_LEN）",
+    )
+    ap.add_argument(
+        "--pending-max-len",
+        type=int,
+        default=None,
+        help="刷新 pending 的最长字数（含）；省略不限制",
+    )
     args = ap.parse_args()
 
     inbox: Path = args.inbox
@@ -802,7 +839,7 @@ def main() -> None:
             print(f"未找到城市或 products.jsonl：{args.city}")
             raise SystemExit(1)
 
-    # 词典：builtin + accept + segment 段 + 仅 ≤4 字清洗名（长名不进词典，留给 pending）
+    # 词典：builtin + accept + segment 段 + 仅 ≤3 字清洗名（≥4 留给 pending）
     lexicon = load_builtin_lexicon()
     lexicon |= set(review.accept)
     for segs in review.segments.values():
@@ -810,7 +847,7 @@ def main() -> None:
     for city_dir in cities:
         for _, parts, _ in iter_refined(city_dir, review):
             for cleaned in parts:
-                if len(cleaned) <= 4:
+                if len(cleaned) <= 3:
                     lexicon.add(cleaned)
 
     for city_dir in cities:
@@ -818,9 +855,16 @@ def main() -> None:
         _write_cleaned(data, city_dir / args.out_name)
 
     # 全量清洗后刷新待审（单城时也基于 inbox 里已有 cleaned 汇总）
-    from pending_review import write_pending
+    from pending_review import DEFAULT_MIN_LEN, write_pending
 
-    n_pending = write_pending(inbox, review_dir=REVIEW_DIR)
+    pend_kw: dict = {"review_dir": REVIEW_DIR}
+    if args.pending_min_len is not None:
+        pend_kw["min_len"] = args.pending_min_len
+    else:
+        pend_kw["min_len"] = DEFAULT_MIN_LEN
+    if args.pending_max_len is not None:
+        pend_kw["max_len"] = args.pending_max_len
+    n_pending = write_pending(inbox, **pend_kw)
     print(f"review/pending.txt: {n_pending} 条待人工处理 → {REVIEW_DIR / 'pending.txt'}")
 
 

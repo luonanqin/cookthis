@@ -42,14 +42,26 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # 首次
 .venv/bin/python run_screenshot_pipeline.py
 ```
 
-启动后选城市、再选类别（荤菜/素菜/汤羹/主食/火锅食材/豆制品/海鲜水产）。监听中可输入：
+启动后选城市、再选类别（荤菜/素菜/汤羹/主食/火锅食材/豆制品/海鲜水产）。手机滑到合适位置后，在终端按**回车**抓当前屏（也可继续用手机截屏键）。监听中可输入：
 
 | 命令 | 作用 |
 |------|------|
+| 回车（空行） | `adb screencap` 抓当前屏 → 裁剪 OCR |
 | `t` | 切换类别 |
 | `c` | 切换城市 |
 | `s` | 看当前状态 |
 | `q` | 退出 |
+
+OCR 默认 **RapidOCR**（中文更准）。对比或回退旧引擎：
+
+```bash
+.venv/bin/python run_screenshot_pipeline.py --ocr tesseract
+MEITUAN_OCR_ENGINE=tesseract .venv/bin/python run_screenshot_pipeline.py
+.venv/bin/python ocr_products.py --ocr rapid path/to/crop.png
+.venv/bin/python ocr_products.py --ocr tesseract path/to/crop.png
+```
+
+说明：Python 3.14 上常用 `openvino` 作 Rapid 推理后端（`onnxruntime` 暂无轮子）；装好 `requirements.txt` 即可。
 
 目录与结果：
 
@@ -61,16 +73,24 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # 首次
 
 ```bash
 .venv/bin/python run_screenshot_pipeline.py --city 上海 --category 素菜
-.venv/bin/python run_screenshot_pipeline.py --local   # 遍历已有城市/类别补跑 OCR
+# 重跑已有截图 OCR（会先清掉该范围内 products.jsonl 旧行再写入）
+.venv/bin/python run_screenshot_pipeline.py --local --city 武汉 --category 素菜
+.venv/bin/python run_screenshot_pipeline.py --local --city 武汉          # 该城全部类别
+.venv/bin/python run_screenshot_pipeline.py --local                      # inbox 全部
 ```
 
 ## 食材大全（城货架 / 全量 / 别名）
 
 1. 清洗：`.venv/bin/python clean_city_products.py`  
-   - **≤4 字**：进货架 + 分词词典  
-   - **>4 字**：整段进货架，并写入 `review/pending.txt`（能拆的预填 `s?=`，未确认）  
-2. 人工标注：`r` 不要 / `a` 整段保留 / `s=` 从原文取出食材（分词·提取·去重同一标签；`s?=` 改成 `s=` 即确认）  
-   → `.venv/bin/python apply_pending_marks.py`  
-3. 再跑步骤 1 + `.venv/bin/python build_ingredient_catalog.py`（人工结果进词典，下次不再进 pending）  
+   - 短名进货架 + 词典；达到字数门槛的进 `review/pending.txt`（已标记过的除外）  
+2. **只刷新 pending（不定时查看）**：  
+   ```bash
+   .venv/bin/python pending_review.py --min-len 3              # len≥3
+   .venv/bin/python pending_review.py --min-len 3 --max-len 3  # 只看三字
+   .venv/bin/python pending_review.py --min-len 4 --max-len 4  # 只看四字
+   ```  
+3. 人工标注：`r` / `a` / `s?=`→`s=`  
+4. 一次写回并更新货架：`.venv/bin/python finish_review.py`  
+   （内部依次：`apply_pending_marks.py` → `clean_city_products.py` → `build_ingredient_catalog.py`；这三个仍可单独跑）  
    别名：`data/catalog/aliases.json`
 4. 匹配示例：见 `alias_match.py` 中 `expand_shelf` / `recipe_covered`
