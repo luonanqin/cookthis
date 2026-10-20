@@ -2,6 +2,7 @@
 
 const { recipeBlockedByCuisine } = require('./cuisinePrefs.js')
 const { hashSessionSeed, rotateArray } = require('./homePlans.js')
+const { expandNames } = require('./aliasMatch.js')
 
 const KIND_TAGS = ['hotpot', 'noodle', 'dumpling']
 
@@ -23,7 +24,7 @@ function toDish(recipe) {
  * Carrier recipes (soup base / noodle / wrapper) may omit selected mains.
  * For MVP: if tag is hotpot and meatVeg===soup → carrier; noodle/dumpling any matching form is ok with partial mains.
  */
-function mainsOk(recipe, selectedSet, tag) {
+function mainsOk(recipe, selectedExpanded, tag) {
   const mains = recipe.mainIngredients || []
   if (mains.length === 0) return false
   const isCarrier =
@@ -31,10 +32,11 @@ function mainsOk(recipe, selectedSet, tag) {
     tag === 'noodle' ||
     tag === 'dumpling'
   if (isCarrier) {
-    // at least one main in selected OR allow carrier with empty overlap for soup base named
-    return mains.some((n) => selectedSet.has(n)) || recipe.meatVeg === 'soup'
+    return (
+      mains.some((n) => selectedExpanded.has(n)) || recipe.meatVeg === 'soup'
+    )
   }
-  return mains.every((n) => selectedSet.has(n))
+  return mains.every((n) => selectedExpanded.has(n))
 }
 
 function scoreKind(tag, scene) {
@@ -57,13 +59,20 @@ function pickKind(dishFormPrefs) {
   return candidates
 }
 
-function buildForTag(tag, recipes, selectedNames, mealSlots, familyAvoids, cuisinePrefs, sessionSeed) {
+function buildForTag(
+  tag,
+  recipes,
+  selectedExpanded,
+  mealSlots,
+  familyAvoids,
+  cuisinePrefs,
+  sessionSeed
+) {
   void familyAvoids
-  const selectedSet = new Set(selectedNames || [])
   let pool = (recipes || []).filter((r) => {
     if (!r || r.enabled === false) return false
     if (!hasForm(r, tag)) return false
-    if (!mainsOk(r, selectedSet, tag)) return false
+    if (!mainsOk(r, selectedExpanded, tag)) return false
     if (recipeBlockedByCuisine(r, cuisinePrefs)) return false
     return true
   })
@@ -114,11 +123,16 @@ function buildUnconventionalPlan(input) {
     scene = null,
     familyAvoids = [],
     cuisinePrefs = {},
-    sessionSeed = ''
+    sessionSeed = '',
+    aliasIndex = null
   } = input || {}
 
   // familyAvoids reserved for future; home engine already hard-filters most
   void familyAvoids
+
+  const selectedExpanded = aliasIndex
+    ? expandNames(selectedNames, aliasIndex)
+    : new Set(selectedNames || [])
 
   const kinds = pickKind(dishFormPrefs)
   if (!kinds.length) return null
@@ -129,7 +143,7 @@ function buildUnconventionalPlan(input) {
     const plan = buildForTag(
       tag,
       recipes,
-      selectedNames,
+      selectedExpanded,
       mealSlots,
       familyAvoids,
       cuisinePrefs,

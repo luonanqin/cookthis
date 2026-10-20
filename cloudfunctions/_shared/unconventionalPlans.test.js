@@ -153,6 +153,32 @@ describe('buildUnconventionalPlan', () => {
     assert.equal(out.meals[0].dishes.length, 1)
   })
 
+  it('unconventional mainsOk uses expanded selected set', () => {
+    const { buildAliasIndex } = require('./aliasMatch.js')
+    const aliasIndex = buildAliasIndex({ 鸡爪: ['鸡脚'] })
+    const clawRecipes = [
+      {
+        id: 'n1',
+        name: '鸡爪面',
+        enabled: true,
+        meatVeg: 'staple',
+        dishForms: ['noodle'],
+        mainIngredients: ['鸡爪'],
+        seasonings: []
+      }
+    ]
+    const plan = buildUnconventionalPlan({
+      recipes: clawRecipes,
+      selectedNames: ['鸡脚'],
+      aliasIndex,
+      dishFormPrefs: { noodle: 'prefer' },
+      mealSlots: slots,
+      sessionSeed: 'u1'
+    })
+    assert.ok(plan)
+    assert.equal(plan.meals[0].dishes[0].name, '鸡爪面')
+  })
+
   it('sessionSeed rotates noodle pick among equals; same seed stable', () => {
     const withExtra = recipes.concat([
       {

@@ -364,6 +364,7 @@ function rebuildPlans(user, doc, excludedDishIds) {
   const unc = buildUnconventionalPlan({
     recipes: doc._recipes,
     selectedNames,
+    aliasIndex: getAliasIndex(),
     dishFormPrefs: user.dishFormPrefs || {},
     mealSlots: (doc.scene && doc.scene.mealSlots) || [],
     scene: doc.scene,
@@ -454,6 +455,7 @@ async function handleCreate(event, uid, user) {
     const unc = buildUnconventionalPlan({
       recipes,
       selectedNames,
+      aliasIndex: getAliasIndex(),
       dishFormPrefs: user.dishFormPrefs || {},
       mealSlots: scene.mealSlots,
       scene,
