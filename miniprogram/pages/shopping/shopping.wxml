@@ -25,7 +25,10 @@
           bindtap="onToggle"
         >
           <view class="check">{{cell.bought ? '✓' : ''}}</view>
-          <text class="name">{{cell.name}}</text>
+          <view class="name-line">
+            <text class="name">{{cell.displayName || cell.name}}</text>
+            <text wx:if="{{cell.secondaryName}}" class="secondary"> {{cell.secondaryName}}</text>
+          </view>
         </view>
       </view>
     </view>

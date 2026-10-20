@@ -7,15 +7,53 @@ const {
   shoppingCheckKey,
   checkedNamesFromMap
 } = require('../../utils/shoppingChecks.js')
+const {
+  loadAliases,
+  buildAliasIndex,
+  normalizeCityKey,
+  applyShoppingDisplay
+} = require('../../utils/aliasMatch.js')
 const { shoppingAdSlots } = require('../../utils/ads.js')
 const { track } = require('../../utils/track.js')
 const { callCloud } = require('../../services/cloud.js')
+const { getUser } = require('../../services/session.js')
 const { tapFeedback } = require('../../utils/haptic.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 
 const RECOMMEND_KEY = 'cookthis_last_recommend'
 const SELECTED_KEY = 'cookthis_last_selected'
 const CHECKS_KEY = 'cookthis_shopping_checks'
+
+let _aliasIndex = null
+function getAliasIndex() {
+  if (_aliasIndex) return _aliasIndex
+  const raw = require('../../data/aliases.json')
+  _aliasIndex = buildAliasIndex(loadAliases(raw))
+  return _aliasIndex
+}
+
+function loadShelfOrder(city) {
+  const key = normalizeCityKey(city)
+  if (!key) return []
+  try {
+    const shelves = {
+      北京: () => require('../../data/city-shelves/北京.json'),
+      天津: () => require('../../data/city-shelves/天津.json'),
+      广州: () => require('../../data/city-shelves/广州.json'),
+      成都: () => require('../../data/city-shelves/成都.json'),
+      拉萨: () => require('../../data/city-shelves/拉萨.json'),
+      武汉: () => require('../../data/city-shelves/武汉.json'),
+      西宁: () => require('../../data/city-shelves/西宁.json'),
+      西安: () => require('../../data/city-shelves/西安.json'),
+      重庆: () => require('../../data/city-shelves/重庆.json'),
+      银川: () => require('../../data/city-shelves/银川.json')
+    }
+    const loader = shelves[key]
+    return loader ? loader() : []
+  } catch (e) {
+    return []
+  }
+}
 
 function readJson(key) {
   try {
@@ -131,7 +169,15 @@ Page({
       const built = finalPlan
         ? buildShoppingList({ plan: finalPlan, categoryByName })
         : { groups: [] }
-      const flatNames = flattenShoppingList(built).map((x) => x.name)
+      const user = getUser() || {}
+      const index = getAliasIndex()
+      const shelfOrder = loadShelfOrder(user.city)
+      const labeled = applyShoppingDisplay(built.groups || [], {
+        city: user.city,
+        shelfOrder,
+        index
+      })
+      const flatNames = flattenShoppingList({ groups: labeled }).map((x) => x.name)
       const checksMap = readJson(CHECKS_KEY) || {}
       const key = shoppingCheckKey(this._requestId, idx, this._swapCount)
       const restored = checkedNamesFromMap(checksMap, key, flatNames)
@@ -140,7 +186,7 @@ Page({
         checkedNames[n] = true
       })
 
-      const groups = withBought(built.groups || [], checkedNames)
+      const groups = withBought(labeled, checkedNames)
       const flat = flattenShoppingList({ groups })
       const recipeDishes = finalPlan
         ? decorateRecipeSheet(buildRecipeSheet({ plan: finalPlan, categoryByName }))

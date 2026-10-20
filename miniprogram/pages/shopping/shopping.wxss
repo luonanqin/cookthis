@@ -48,11 +48,6 @@
   box-sizing: border-box;
 }
 
-.cell.bought .name {
-  text-decoration: line-through;
-  color: var(--color-text-secondary);
-}
-
 .check {
   width: 36rpx;
   height: 36rpx;
@@ -72,12 +67,37 @@
   background: var(--color-primary-soft);
 }
 
+.name-line {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 .name {
   font-size: var(--fs-body);
   color: var(--color-text);
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.secondary {
+  font-size: var(--fs-xs);
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cell.bought .name,
+.cell.bought .secondary {
+  text-decoration: line-through;
+  color: var(--color-text-secondary);
 }
 
 .ad-slot {
