@@ -9,23 +9,31 @@ const {
   cuisineSoftDelta
 } = require('./cuisinePrefs.js')
 const { dinerSoftPenalty } = require('./members.js')
+const { expandNames } = require('./aliasMatch.js')
 
-function lookupIngredient(ingredientsByName, name) {
+function lookupIngredient(ingredientsByName, name, aliasIndex) {
   if (!ingredientsByName) return undefined
-  if (typeof ingredientsByName.get === 'function') {
-    return ingredientsByName.get(name)
+  const get = (n) =>
+    typeof ingredientsByName.get === 'function'
+      ? ingredientsByName.get(n)
+      : ingredientsByName[n]
+  let meta = get(name)
+  if (meta) return meta
+  if (aliasIndex && typeof aliasIndex.canonicalOf === 'function') {
+    const c = aliasIndex.canonicalOf(name)
+    if (c && c !== name) return get(c)
   }
-  return ingredientsByName[name]
+  return undefined
 }
 
-function recipeAvoidTags(recipe, ingredientsByName) {
+function recipeAvoidTags(recipe, ingredientsByName, aliasIndex) {
   const names = [
     ...(recipe.mainIngredients || []),
     ...(recipe.seasonings || [])
   ]
   const tags = new Set()
   for (const name of names) {
-    const meta = lookupIngredient(ingredientsByName, name)
+    const meta = lookupIngredient(ingredientsByName, name, aliasIndex)
     for (const t of (meta && meta.avoidTags) || []) tags.add(t)
   }
   return tags
@@ -50,12 +58,15 @@ function isUnconventionalRecipe(recipe) {
   return forms.some((t) => t === 'hotpot' || t === 'noodle' || t === 'dumpling')
 }
 
-function isCandidate(recipe, selectedNames) {
+function isCandidate(recipe, selectedExpanded) {
   if (recipe.enabled === false) return false
   if (isUnconventionalRecipe(recipe)) return false
   const mains = recipe.mainIngredients || []
   if (mains.length === 0) return false
-  const selected = new Set(selectedNames)
+  const selected =
+    selectedExpanded instanceof Set
+      ? selectedExpanded
+      : new Set(selectedExpanded || [])
   return mains.every((name) => selected.has(name))
 }
 
@@ -69,11 +80,15 @@ function toDish(recipe) {
   }
 }
 
-function recipeMainKeys(recipe) {
+function recipeMainKeys(recipe, aliasIndex) {
   const keys = []
   const seen = new Set()
   for (const raw of (recipe && recipe.mainIngredients) || []) {
-    const key = normalizeIngredientName(raw)
+    let n = raw
+    if (aliasIndex && typeof aliasIndex.canonicalOf === 'function') {
+      n = aliasIndex.canonicalOf(raw)
+    }
+    const key = normalizeIngredientName(n)
     if (!key || seen.has(key)) continue
     seen.add(key)
     keys.push(key)
@@ -81,9 +96,9 @@ function recipeMainKeys(recipe) {
   return keys
 }
 
-function overlapsUsedMains(recipe, usedMains) {
+function overlapsUsedMains(recipe, usedMains, aliasIndex) {
   if (!usedMains || usedMains.size === 0) return false
-  for (const key of recipeMainKeys(recipe)) {
+  for (const key of recipeMainKeys(recipe, aliasIndex)) {
     if (usedMains.has(key)) return true
   }
   return false
@@ -101,7 +116,8 @@ function pickFromBucket(
   usedNearKeys,
   usedMains,
   startOffset,
-  preferAvoidIds
+  preferAvoidIds,
+  aliasIndex
 ) {
   if (count <= 0) return []
   if (!bucket || bucket.length < count) return null
@@ -120,7 +136,7 @@ function pickFromBucket(
     if (sig) usedSignatures.add(sig)
     const near = nearDishNameKey(r.name)
     if (near) usedNearKeys.add(near)
-    for (const key of recipeMainKeys(r)) usedMains.add(key)
+    for (const key of recipeMainKeys(r, aliasIndex)) usedMains.add(key)
   }
 
   function blockedHard(r) {
@@ -139,7 +155,7 @@ function pickFromBucket(
       const r = bucket[(startOffset + i) % n]
       if (blockedHard(r)) continue
       if (preferCross && avoid && avoid.has(r.id)) continue
-      if (preferDiverse && overlapsUsedMains(r, usedMains)) continue
+      if (preferDiverse && overlapsUsedMains(r, usedMains, aliasIndex)) continue
       commit(r)
     }
   }
@@ -151,7 +167,7 @@ function pickFromBucket(
   return picked.length === count ? picked : null
 }
 
-function fillMeals(buckets, combo, mealSlots, planOffset, preferAvoidIds) {
+function fillMeals(buckets, combo, mealSlots, planOffset, preferAvoidIds, aliasIndex) {
   const usedIds = new Set()
   const usedNames = new Set()
   const usedSignatures = new Set()
@@ -177,7 +193,8 @@ function fillMeals(buckets, combo, mealSlots, planOffset, preferAvoidIds) {
         usedNearKeys,
         usedMains,
         offset,
-        preferAvoidIds
+        preferAvoidIds,
+        aliasIndex
       )
       if (!picked) return null
       for (const r of picked) dishes.push(toDish(r))
@@ -321,7 +338,11 @@ function softPenalty(recipe, ctx) {
     score += dinerSoftPenalty(recipe, ctx.diners, ctx.ingredientsByName)
   } else {
     // 兼容旧入参：成员忌口并集
-    const tags = recipeAvoidTags(recipe, ctx.ingredientsByName)
+    const tags = recipeAvoidTags(
+      recipe,
+      ctx.ingredientsByName,
+      ctx.aliasIndex
+    )
     if (intersects(tags, ctx.memberAvoids)) score += 40
   }
   score += computeFreshPenalty(recipe.mainIngredients || [], ctx.recentIngredientDays)
@@ -425,14 +446,18 @@ function buildHomePlans(input) {
     recentIngredientDays,
     recentIngredientNames
   })
+  const aliasIndex = input && input.aliasIndex
+  const selectedExpanded = aliasIndex
+    ? expandNames(selectedNames, aliasIndex)
+    : new Set(selectedNames)
 
   const candidates = []
   for (const recipe of recipes) {
-    if (!isCandidate(recipe, selectedNames)) continue
+    if (!isCandidate(recipe, selectedExpanded)) continue
     if (excluded.has(recipe.id)) continue
     const nameKey = String(recipe.name || '').replace(/\s+/g, '').trim()
     if (nameKey && recentDishes.has(nameKey)) continue
-    const tags = recipeAvoidTags(recipe, ingredientsByName)
+    const tags = recipeAvoidTags(recipe, ingredientsByName, aliasIndex)
     if (intersects(tags, avoids)) continue
     if (recipeBlockedByCuisine(recipe, cuisinePrefs)) continue
     candidates.push(recipe)
@@ -449,7 +474,8 @@ function buildHomePlans(input) {
     diners: Array.isArray(diners) ? diners : null,
     recentIngredientDays: recentDays,
     ingredientsByName,
-    cuisinePrefs
+    cuisinePrefs,
+    aliasIndex
   }
   const seedBase = hashSessionSeed(sessionSeed)
   for (const key of Object.keys(buckets)) {
@@ -469,7 +495,14 @@ function buildHomePlans(input) {
   const maxAttempts = Math.max(limit * 12, 24)
   for (let offset = 0; offset < maxAttempts && plans.length < limit; offset++) {
     const preferAvoidIds = plans.length ? collectRecipeIdsFromPlans(plans) : null
-    const meals = fillMeals(buckets, combo, mealSlots, offset, preferAvoidIds)
+    const meals = fillMeals(
+      buckets,
+      combo,
+      mealSlots,
+      offset,
+      preferAvoidIds,
+      aliasIndex
+    )
     if (!meals) {
       if (plans.length === 0) break
       continue

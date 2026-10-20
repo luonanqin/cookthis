@@ -18,6 +18,7 @@ function buildAliasIndex(aliases) {
   const aliasLists = new Map()
   const table = aliases || {}
   for (const canonical of Object.keys(table)) {
+    if (!canonical || canonical.charAt(0) === '_') continue
     const list = table[canonical] || []
     aliasLists.set(canonical, list.slice())
     const group = new Set([canonical].concat(list))

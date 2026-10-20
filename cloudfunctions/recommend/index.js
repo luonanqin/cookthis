@@ -1,7 +1,13 @@
 'use strict'
+const fs = require('fs')
+const path = require('path')
 const cloud = require('wx-server-sdk')
 // Vendored: keep in sync with cloudfunctions/_shared/homePlans.js
 const { buildHomePlans } = require('./homePlans.js')
+const {
+  loadAliases,
+  buildAliasIndex
+} = require('./aliasMatch.js')
 const { expandMealDiners } = require('./members.js')
 const {
   buildUnconventionalPlan,
@@ -38,6 +44,16 @@ const IN_QUERY_CHUNK = 10
 let _ingredientsCache = null
 /** @type {Promise<Map>|null} */
 let _ingredientsLoading = null
+
+/** @type {ReturnType<buildAliasIndex>|null} */
+let _aliasIndex = null
+function getAliasIndex() {
+  if (_aliasIndex) return _aliasIndex
+  const p = path.join(__dirname, 'data', 'aliases.json')
+  const raw = JSON.parse(fs.readFileSync(p, 'utf8'))
+  _aliasIndex = buildAliasIndex(loadAliases(raw))
+  return _aliasIndex
+}
 
 function isComboPresent(combo) {
   if (!combo || typeof combo !== 'object') return false
@@ -333,6 +349,7 @@ function rebuildPlans(user, doc, excludedDishIds) {
     recipes: doc._recipes,
     ingredientsByName: doc._ingredientsByName,
     selectedNames,
+    aliasIndex: getAliasIndex(),
     scene: doc.scene,
     familyAvoids: user.familyAvoids || [],
     cuisinePrefs: user.cuisinePrefs || {},
@@ -422,6 +439,7 @@ async function handleCreate(event, uid, user) {
       recipes,
       ingredientsByName,
       selectedNames,
+      aliasIndex: getAliasIndex(),
       scene,
       familyAvoids: user.familyAvoids || [],
       cuisinePrefs: user.cuisinePrefs || {},

@@ -1182,3 +1182,52 @@ describe('cuisinePrefs in buildHomePlans', () => {
     assert.equal(meatId, 'rcp_hunan_meat')
   })
 })
+
+const { buildAliasIndex } = require('./aliasMatch.js')
+
+describe('buildHomePlans alias matching', () => {
+  it('selecting 鸡脚 matches recipe mains 鸡爪 via aliasIndex', () => {
+    const aliasIndex = buildAliasIndex({ 鸡爪: ['鸡脚', '凤爪'] })
+    const recipes = [
+      {
+        id: 'rcp_claw',
+        name: '红烧鸡爪',
+        enabled: true,
+        meatVeg: 'meat',
+        mainIngredients: ['鸡爪'],
+        seasonings: [],
+        dishForms: []
+      },
+      {
+        id: 'rcp_egg',
+        name: '炒鸡蛋',
+        enabled: true,
+        meatVeg: 'veg',
+        mainIngredients: ['鸡蛋'],
+        seasonings: [],
+        dishForms: []
+      }
+    ]
+    const ingredientsByName = {
+      鸡爪: { name: '鸡爪', avoidTags: [] },
+      鸡蛋: { name: '鸡蛋', avoidTags: [] }
+    }
+    const result = buildHomePlans({
+      recipes,
+      ingredientsByName,
+      selectedNames: ['鸡脚', '鸡蛋'],
+      aliasIndex,
+      scene: {
+        mealType: 'daily',
+        combo: { meat: 1, veg: 1, soup: 0 },
+        mealSlots: [{ meal: 'dinner', label: '晚饭' }]
+      },
+      maxPlans: 1,
+      sessionSeed: 'alias-test'
+    })
+    const names = ((result.plans[0] || {}).meals || [])
+      .flatMap((m) => m.dishes || [])
+      .map((d) => d.name)
+    assert.ok(names.includes('红烧鸡爪'))
+  })
+})
