@@ -18,6 +18,7 @@
 | 8 | Slice 8 | 已选方案历史 + 点选已吃（`plan_ate`）+ 进场确认排除 |
 | 9 | Slice 9 | 成员 CRUD + 大/小/老 + 当次访客 + 用餐人软分（§3.0.8） |
 | 10 | Slice 10 | **跳过引导后的画像常驻提醒**（推荐顶栏 / 「我的」缺口 / 无忌口·暂无偏好） |
+| 11 | Slice 11 | **购物清单别名展示 + 推荐别名匹配**（当地主名/副名；确认别名能命中通用名主料） |
 | — | 语音 | 前端已下线，暂不点验 |
 
 新用户进首页只会**弹一次**「去设置 / 先逛逛」；选「先逛逛」或引导页「暂时跳过」即可继续测 Slice 1～4。完整引导放到 **Slice 6** 再验。跳过/轻量跳过后的**弱提醒与快捷补全**放到 **Slice 10** 再验。
@@ -179,6 +180,21 @@
 
 计划：[`docs/superpowers/plans/2026-10-19-跳过引导与画像提醒.md`](docs/superpowers/plans/2026-10-19-跳过引导与画像提醒.md)。  
 设计：[`docs/superpowers/specs/2026-10-19-跳过引导与画像提醒-design.md`](docs/superpowers/specs/2026-10-19-跳过引导与画像提醒-design.md)。
+
+---
+
+## Slice 11 准备（购物清单别名展示与推荐别名匹配）
+
+假定 **Slice 2～3 准备已完成**（能出推荐、「去买菜」进清单；小程序已编译）。再补：
+
+1. **重新部署**云函数 `recommend`（须含 `data/aliases.json`、`aliasMatch.js`、已 vendored 的 `homePlans.js` / `unconventionalPlans.js`）。改 `_shared/aliasMatch.js` 或 plans 后记得同步到 `cloudfunctions/recommend/` 与小程序 `miniprogram/utils/aliasMatch.js`。
+2. 若改了 `data/catalog/aliases.json` 或城货架：重跑 `node scripts/sync-alias-runtime-data.js`，再部署 / 重编译。
+3. 本地：`npm test`（含 `aliasMatch` / `homePlans` / `unconventionalPlans`）。
+
+无新集合。做完即可对照下方「Slice 11 验收清单」。
+
+计划：[`docs/superpowers/plans/2026-10-20-购物清单别名展示与推荐别名匹配.md`](docs/superpowers/plans/2026-10-20-购物清单别名展示与推荐别名匹配.md)。  
+设计：[`docs/superpowers/specs/2026-10-20-购物清单别名展示与推荐别名匹配-design.md`](docs/superpowers/specs/2026-10-20-购物清单别名展示与推荐别名匹配-design.md)。
 
 ---
 
@@ -390,6 +406,28 @@
 7. [ ] **确认页轻量回归**：抽组件后，日常空忌口仍可弹层；保存写出方案；跳过写出方案且**不算**忌口已表态（再进推荐仍见顶栏）。
 
 **本切片不验：** 完整 onboarding 四步文案微调、广告、语音、可关闭「N 天后再提醒」。
+
+---
+
+## 本切片验收清单（Slice 11）
+
+**状态：待点验**（需重新部署云函数 `recommend` + 小程序编译）
+
+**自动化：**
+
+- [ ] `npm test` PASS（含 `aliasMatch` / `homePlans` / `unconventionalPlans`）。
+
+**需人工：** Slice 11 准备后：
+
+1. [ ] **推荐别名匹配**：确认页选「鸡脚」（或其它已入表别名）→ 能出主料为「鸡爪」的菜（如红烧鸡爪）；未部署最新 `recommend` 则本项无效。
+2. [ ] **清单有城**：「我的」城市设为重庆（或其它有货架数据的城）→ 去买菜后勾选格主名为当地叫法、同行灰色副名至多 1 个。
+3. [ ] **清单无城**：清空城市 → 主名=通用名、副名=别名表该组首项（无别名则无灰字）。
+4. [ ] **勾选键**：勾选若干项 → 「我的」换城再进同一方案清单 → 勾选仍在（文案可变）。
+5. [ ] **范围不变**：「看菜谱」弹层 / 方案卡食材 tip **仍为通用名**，不做别名重映射。
+
+**本切片不验：** 确认页搜索别名 UI、看菜谱弹层别名展示、广告、语音。
+
+**部署提醒：** 手测推荐匹配前务必上传云函数 `recommend`（含 `data/aliases.json`、`aliasMatch.js`、vendored plans）。
 
 ---
 
