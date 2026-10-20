@@ -10,7 +10,11 @@ from pathlib import Path
 def load_aliases(path: Path) -> dict[str, list[str]]:
     with path.open(encoding="utf-8") as f:
         data = json.load(f)
-    return {str(k): list(v) for k, v in data.items()}
+    return {
+        str(k): list(v)
+        for k, v in data.items()
+        if not str(k).startswith("_") and isinstance(v, list)
+    }
 
 
 def build_equivalence(aliases: dict[str, list[str]]) -> dict[str, frozenset[str]]:
