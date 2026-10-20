@@ -134,7 +134,6 @@
       "洋姜",
       "洋葱",
       "浦瓜",
-      "爆浆西幻",
       "牛杆菌",
       "牛肝菌",
       "独蒜",
@@ -453,8 +452,8 @@
   "_meta": {
     "source": "products.jsonl",
     "raw_after": 1424,
-    "kept": 802,
+    "kept": 800,
     "split_glued": 4,
-    "unique": 440
+    "unique": 439
   }
 }
