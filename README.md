@@ -17,9 +17,10 @@
 | 7 | Slice 7 | 同方案内去重（§3.0.7）+ 多方案重复上限（§3.0.6）+ 方案卡食材摘要最多 5 名 |
 | 8 | Slice 8 | 已选方案历史 + 点选已吃（`plan_ate`）+ 进场确认排除 |
 | 9 | Slice 9 | 成员 CRUD + 大/小/老 + 当次访客 + 用餐人软分（§3.0.8） |
+| 10 | Slice 10 | **跳过引导后的画像常驻提醒**（推荐顶栏 / 「我的」缺口 / 无忌口·暂无偏好） |
 | — | 语音 | 前端已下线，暂不点验 |
 
-新用户进首页只会**弹一次**「去设置 / 先逛逛」；选「先逛逛」或引导页「暂时跳过」即可继续测 Slice 1～4。完整引导放到 **Slice 6** 再验。
+新用户进首页只会**弹一次**「去设置 / 先逛逛」；选「先逛逛」或引导页「暂时跳过」即可继续测 Slice 1～4。完整引导放到 **Slice 6** 再验。跳过/轻量跳过后的**弱提醒与快捷补全**放到 **Slice 10** 再验。
 
 ---
 
@@ -39,6 +40,7 @@
 | `members.js` | `recommend/members.js`、`profile/members.js`；小程序 `miniprogram/utils/members.js`（大/小/老、访客展开、§3.0.8） |
 | `freshness.js` | `recommend/freshness.js`（主料新鲜度分档，供 homePlans 引用） |
 | `profileLite.js` | 小程序 `miniprogram/utils/profileLite.js`（日常轻量补全是否弹） |
+| `profileGaps.js` | 小程序 `miniprogram/utils/profileGaps.js`（忌口/成员/城市/菜系缺口；推荐顶栏只盯忌口） |
 | `shoppingList.js` | 小程序 `miniprogram/utils/shoppingList.js`（清单页本地聚合，非云函数） |
 | `planIngredientSummary.js` | 小程序 `miniprogram/utils/planIngredientSummary.js`（方案卡食材摘要） |
 | `recipeSheet.js` | 小程序 `miniprogram/utils/recipeSheet.js`（清单页菜谱弹层） |
@@ -161,6 +163,22 @@
 无新集合（沿用 `members`）。做完即可对照下方「Slice 9 验收清单」。
 
 计划：[`docs/superpowers/plans/2026-10-10-成员大中小老与用餐人软分.md`](docs/superpowers/plans/2026-10-10-成员大中小老与用餐人软分.md)。
+
+---
+
+## Slice 10 准备（跳过引导与画像提醒）
+
+假定 **Slice 5～6 准备已完成**（有 `profile` / `auth`；能出推荐；「我的」可改忌口）。再补：
+
+1. **同步** `_shared/profileGaps.js` → `miniprogram/utils/profileGaps.js`（改源后两边保持一致）。
+2. **重新部署**云函数：`profile`（`confirmFamilyAvoidsNone` / `confirmCuisineNoPreference`；`saveProfileLite` 空忌口不写表态）、`auth`（登录带回 `familyAvoidsNone` / `*ConfirmedAt`）。
+3. 小程序重新编译（`profile-lite-form` 组件；推荐顶栏；「我的」提醒块）。
+4. 本地：`npm test`（含 `computeProfileGaps`）。
+
+无新集合。用户文档新增字段由云函数读写即可。做完即可对照下方「Slice 10 验收清单」。
+
+计划：[`docs/superpowers/plans/2026-10-19-跳过引导与画像提醒.md`](docs/superpowers/plans/2026-10-19-跳过引导与画像提醒.md)。  
+设计：[`docs/superpowers/specs/2026-10-19-跳过引导与画像提醒-design.md`](docs/superpowers/specs/2026-10-19-跳过引导与画像提醒-design.md)。
 
 ---
 
@@ -350,6 +368,28 @@
 7. [x] **采纳写回**：日常「去买菜」可写回搭配；**不会**把访客 / `partyCounts` 写入成员表。
 
 **本切片不验：** 学龄前推荐、成员忌口占比配额、广告、语音。
+
+---
+
+## 本切片验收清单（Slice 10）
+
+**状态：待点验**（需重新部署 `profile` / `auth` + 小程序编译）
+
+**自动化：**
+
+- [ ] `npm test` PASS（含 `computeProfileGaps`：跳过轻量仍开忌口缺口；`familyAvoidsNone` / 菜系 ConfirmedAt 关闭对应缺口；`recommendBanner === familyAvoidsOpen`）。
+
+**需人工：** Slice 10 准备后：
+
+1. [ ] **先逛逛 + 跳过轻量**：忌口空 → 日常确认弹轻量层 → 跳过 → 仍能出方案；进推荐页见顶栏「补一下家庭忌口…」；**无关闭按钮**。
+2. [ ] **顶栏保存忌口**：点顶栏 → 勾忌口（如猪肉）→「保存并刷新方案」→ `recommend.create` 刷新列表；顶栏消失。
+3. [ ] **顶栏「我家无忌口」**：另起未表态账号/清忌口字段后 → 顶栏点无忌口 → 顶栏消失；`familyAvoids` 可仍为空且能出方案。
+4. [ ] **仅缺城市**：忌口已表态、城市空 → 推荐**无**顶栏；「我的」顶部仍有城市提醒项。
+5. [ ] **「我的」常驻提醒**：缺口列表不可关；点进对应编辑；「无忌口」「暂无偏好」能消对应项；取消 sheet **不**消提醒。
+6. [ ] **空方案仍见顶栏**：忌口未表态且推荐空态时，顶栏仍在，可点开快捷补全。
+7. [ ] **确认页轻量回归**：抽组件后，日常空忌口仍可弹层；保存写出方案；跳过写出方案且**不算**忌口已表态（再进推荐仍见顶栏）。
+
+**本切片不验：** 完整 onboarding 四步文案微调、广告、语音、可关闭「N 天后再提醒」。
 
 ---
 
