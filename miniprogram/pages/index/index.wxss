@@ -122,7 +122,8 @@
   font-size: var(--fs-body);
 }
 
-.link-mine {
+.link-mine,
+.link-feedback {
   position: relative;
   padding-right: 8rpx;
 }
@@ -142,6 +143,16 @@
   line-height: 28rpx;
   text-align: center;
   font-weight: 600;
+}
+
+.link-dot {
+  position: absolute;
+  top: -4rpx;
+  right: -12rpx;
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: #e54d42;
 }
 
 .link-dev {
