@@ -22,6 +22,14 @@
   line-height: 1.5;
 }
 
+.market-scale-entry {
+  margin-bottom: 12rpx;
+}
+
+.market-scale-entry-link {
+  font-size: var(--fs-sm);
+}
+
 .toolbar {
   display: flex;
   align-items: center;
@@ -414,4 +422,89 @@
   margin-bottom: 8rpx;
   font-size: var(--fs-md);
   color: var(--color-text-secondary);
+}
+
+/* 菜场规模：同款贴底半屏（自包含，对齐首页 sheet-confirm） */
+.sheet-confirm {
+  width: 100%;
+  max-height: 60vh;
+  background: var(--color-surface);
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sheet-confirm-hd {
+  flex-shrink: 0;
+  padding: 32rpx 28rpx 0;
+}
+
+.sheet-confirm-hd .sheet-hint {
+  margin-bottom: 8rpx;
+}
+
+.sheet-market-scale {
+  max-height: 70vh;
+}
+
+.scale-cards {
+  padding: 8rpx 28rpx 8rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.scale-card {
+  min-height: 96rpx;
+  box-sizing: border-box;
+  padding: 20rpx 24rpx;
+  border: 1rpx solid var(--color-border);
+  border-radius: 12rpx;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6rpx;
+}
+
+.scale-card.on {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.scale-card-title {
+  font-size: var(--fs-md);
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.3;
+}
+
+.scale-card.on .scale-card-title {
+  color: var(--color-primary);
+}
+
+.scale-card-desc {
+  font-size: var(--fs-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.35;
+}
+
+.scale-default-wrap {
+  flex-shrink: 0;
+  padding: 16rpx 28rpx calc(20rpx + env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.scale-default-wrap .scale-default-btn {
+  margin: 0;
+  min-width: 240rpx;
+}
+
+.scale-default-wrap .scale-default-btn.on {
+  background: var(--color-primary-soft) !important;
 }
