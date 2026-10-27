@@ -56,6 +56,11 @@ function ensureLogin(opts) {
       profileLitePromptedAt: user.profileLitePromptedAt || null,
       defaultPeopleCount: members.length,
       defaultCombo: user.defaultCombo || { meat: 1, veg: 1, soup: 0 },
+      // confirm / scale sheet：档位、冷淡期与锚点
+      marketScaleChoice: user.marketScaleChoice || null,
+      marketScaleEffective: user.marketScaleEffective || null,
+      marketScaleChosenAt: user.marketScaleChosenAt || null,
+      marketScaleAnchor: user.marketScaleAnchor || null,
       members
     }
     if (preferLocalStance && prev) {

@@ -1,9 +1,18 @@
-<page-meta page-style="{{showCustomSlots || showProfileLite ? 'overflow: hidden;' : ''}}" />
+<page-meta page-style="{{showCustomSlots || showProfileLite || showMarketScale ? 'overflow: hidden;' : ''}}" />
 <view class="page {{typeScaleClass}}">
   <view wx:if="{{loading}}" class="state">加载中…</view>
   <view wx:elif="{{error}}" class="state">{{error}}</view>
 
   <block wx:else>
+    <view
+      class="market-scale-entry"
+      hover-class="tap-hover"
+      hover-stay-time="80"
+      bindtap="onOpenMarketScaleSheet"
+    >
+      <text class="link market-scale-entry-link">{{marketScaleEntryLabel}} · 切换</text>
+    </view>
+
     <view class="toolbar">
       <text class="section-title">时令</text>
       <view class="toolbar-actions">
@@ -25,7 +34,7 @@
             class="chip {{seasonalChecked[ing.id] ? 'chip-on' : ''}}"
             data-id="{{ing.id}}"
             catchtap="toggleSeasonal"
-          >{{ing.name}}</view>
+          >{{ing.displayName || ing.name}}</view>
         </view>
       </view>
     </view>
@@ -46,7 +55,7 @@
               class="chip {{yearRoundChecked[ing.id] ? 'chip-on' : ''}}"
               data-id="{{ing.id}}"
               catchtap="toggleYearRound"
-            >{{ing.name}}</view>
+            >{{ing.displayName || ing.name}}</view>
           </view>
         </view>
       </view>
@@ -224,6 +233,62 @@
       <view class="dialog-title">食材不够出菜了</view>
       <view class="dialog-actions">
         <button class="dialog-btn" hover-class="button-hover" bindtap="onEmptyDialogOk">好吧</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 菜场规模半屏（页内切换）：遮罩不关；同款三卡 + 默认中菜场 -->
+  <view
+    class="mask"
+    wx:if="{{showMarketScale}}"
+    catchtouchmove="true"
+    catchtap="noop"
+  >
+    <view class="sheet-confirm sheet-market-scale">
+      <view class="sheet-confirm-hd">
+        <view class="sheet-title">{{marketScaleTitle}}</view>
+        <view class="sheet-hint">{{marketScaleHint}}</view>
+      </view>
+      <view class="scale-cards">
+        <view
+          class="scale-card {{marketScaleHighlight === 'small' ? 'on' : ''}}"
+          hover-class="tap-hover"
+          hover-stay-time="80"
+          data-choice="small"
+          bindtap="onMarketScaleSelect"
+        >
+          <view class="scale-card-title">小菜场</view>
+          <view class="scale-card-desc">小门面、路边摊位</view>
+        </view>
+        <view
+          class="scale-card {{marketScaleHighlight === 'medium' ? 'on' : ''}}"
+          hover-class="tap-hover"
+          hover-stay-time="80"
+          data-choice="medium"
+          bindtap="onMarketScaleSelect"
+        >
+          <view class="scale-card-title">中菜场</view>
+          <view class="scale-card-desc">小超市、连着几个门面</view>
+        </view>
+        <view
+          class="scale-card {{marketScaleHighlight === 'large' ? 'on' : ''}}"
+          hover-class="tap-hover"
+          hover-stay-time="80"
+          data-choice="large"
+          bindtap="onMarketScaleSelect"
+        >
+          <view class="scale-card-title">大菜场</view>
+          <view class="scale-card-desc">集贸市场、大超市、很多摊位</view>
+        </view>
+      </view>
+      <view class="scale-default-wrap">
+        <button
+          size="mini"
+          class="btn-outline scale-default-btn {{marketScaleDefaultOn ? 'on' : ''}}"
+          data-choice="default_medium"
+          disabled="{{marketScaleBusy}}"
+          bindtap="onMarketScaleSelect"
+        >默认中菜场</button>
       </view>
     </view>
   </view>

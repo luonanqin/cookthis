@@ -17,5 +17,11 @@
     "backgroundColor": "#f6f9f7"
   },
   "style": "v2",
-  "sitemapLocation": "sitemap.json"
+  "sitemapLocation": "sitemap.json",
+  "requiredPrivateInfos": ["getLocation"],
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于判断是否靠近此前菜场，以便询问菜场规模"
+    }
+  }
 }

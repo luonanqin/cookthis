@@ -16,8 +16,17 @@ const {
   clampMealCount,
   canIncrement
 } = require('../../utils/dailyMealSlots.js')
+const {
+  effectiveFromChoice,
+  labelForChoice
+} = require('../../utils/marketScale.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 const holidaysPack = require('../../data/holidays.js')
+
+const MARKET_SCALE_PAGE_COPY = {
+  title: '你常去的菜场大概多大？',
+  hint: '用来决定今天展示多少常见菜，可随时改'
+}
 
 const STORAGE_KEY = 'cookthis_last_selected'
 const RECOMMEND_KEY = 'cookthis_last_recommend'
@@ -79,6 +88,40 @@ function defaultYearRoundChecked(items, familyAvoids) {
     const tags = it.avoidTags || []
     const hit = tags.some(t => avoids.has(t))
     checked[it.id] = !hit
+  })
+  return checked
+}
+
+/** 旧列表中按 id 或 name 命中的勾选态；未命中返回 null（表示新进项） */
+function prevCheckedState(oldItems, oldChecked, item) {
+  const id = item && item.id
+  const name = item && item.name
+  const list = oldItems || []
+  for (let i = 0; i < list.length; i++) {
+    const it = list[i]
+    if (!it) continue
+    if ((id && it.id === id) || (name && it.name === name)) {
+      return !!(oldChecked && oldChecked[it.id])
+    }
+  }
+  return null
+}
+
+function mergeSeasonalChecked(oldItems, oldChecked, newItems) {
+  const checked = {}
+  ;(newItems || []).forEach((it) => {
+    const prev = prevCheckedState(oldItems, oldChecked, it)
+    checked[it.id] = prev == null ? true : prev
+  })
+  return checked
+}
+
+function mergeYearRoundChecked(oldItems, oldChecked, newItems, familyAvoids) {
+  const defaults = defaultYearRoundChecked(newItems, familyAvoids)
+  const checked = {}
+  ;(newItems || []).forEach((it) => {
+    const prev = prevCheckedState(oldItems, oldChecked, it)
+    checked[it.id] = prev == null ? !!defaults[it.id] : prev
   })
   return checked
 }
@@ -205,7 +248,15 @@ Page({
     showProfileLite: false,
     profileLiteNeedCity: false,
     showEmptyDialog: false,
-    liteBusy: false
+    liteBusy: false,
+
+    marketScaleEntryLabel: labelForChoice('default_medium'),
+    showMarketScale: false,
+    marketScaleBusy: false,
+    marketScaleTitle: MARKET_SCALE_PAGE_COPY.title,
+    marketScaleHint: MARKET_SCALE_PAGE_COPY.hint,
+    marketScaleHighlight: 'medium',
+    marketScaleDefaultOn: true
   },
 
   _pendingSelected: null,
@@ -220,7 +271,16 @@ Page({
       return
     }
     this.loadHousehold()
-    this.loadList()
+    this._ensureSystemDefaultMarketScale()
+      .then(() => {
+        this._syncMarketScaleEntry()
+        this.loadList()
+      })
+      .catch((err) => {
+        console.warn('market scale init failed', err)
+        this._syncMarketScaleEntry()
+        this.loadList()
+      })
   },
 
   onShow() {
@@ -391,20 +451,99 @@ Page({
     )
   },
 
-  loadList() {
+  _applyMarketScaleSnapshot(res) {
+    if (!res || !res.ok) return
+    patchUser({
+      marketScaleChoice: res.marketScaleChoice || null,
+      marketScaleEffective: res.marketScaleEffective || null,
+      marketScaleChosenAt: res.marketScaleChosenAt || null,
+      marketScaleAnchor: res.marketScaleAnchor || null
+    })
+  },
+
+  _setMarketScale(payload) {
+    return callCloud('profile', Object.assign({ action: 'setMarketScale' }, payload || {})).then(
+      (res) => {
+        this._applyMarketScaleSnapshot(res)
+        return res
+      }
+    )
+  },
+
+  _syncMarketScaleEntry() {
+    const user = getUser() || {}
+    const choice = user.marketScaleChoice || 'default_medium'
+    const effective =
+      user.marketScaleEffective || effectiveFromChoice(choice) || 'medium'
+    this.setData({
+      marketScaleEntryLabel: labelForChoice(choice),
+      marketScaleHighlight: effective,
+      marketScaleDefaultOn: choice === 'default_medium'
+    })
+  },
+
+  /** 无 choice 时写一次 system_default，避免每次进首页写（Task 4） */
+  _ensureSystemDefaultMarketScale() {
+    const user = getUser() || {}
+    if (user.marketScaleChoice) {
+      return Promise.resolve()
+    }
+    return this._setMarketScale({
+      choice: 'default_medium',
+      source: 'system_default'
+    }).catch((err) => {
+      console.warn('setMarketScale system_default failed', err)
+      patchUser({
+        marketScaleChoice: 'default_medium',
+        marketScaleEffective: 'medium'
+      })
+    })
+  },
+
+  /**
+   * @param {{ preserveSelection?: boolean }} [opts]
+   */
+  loadList(opts) {
+    const preserveSelection = !!(opts && opts.preserveSelection)
+    const prevSeasonal = preserveSelection ? this.data.seasonal || [] : []
+    const prevYearRound = preserveSelection ? this.data.yearRound || [] : []
+    const prevSeasonalChecked = preserveSelection
+      ? Object.assign({}, this.data.seasonalChecked || {})
+      : {}
+    const prevYearRoundChecked = preserveSelection
+      ? Object.assign({}, this.data.yearRoundChecked || {})
+      : {}
+    const manuals = preserveSelection ? this.data.manuals || [] : []
+
     this.setData({ loading: true, error: '', listEmpty: false })
     const user = getUser() || {}
     const familyAvoids = user.familyAvoids || []
-    callCloud('ingredients', {})
-      .then(res => {
+    const scale = user.marketScaleEffective || 'medium'
+    callCloud('ingredients', { scale })
+      .then((res) => {
         const seasonal = (res && res.seasonal) || []
         const yearRound = (res && res.yearRound) || []
-        const seasonalChecked = {}
-        seasonal.forEach(it => {
-          seasonalChecked[it.id] = true
-        })
-        const yearRoundChecked = defaultYearRoundChecked(yearRound, familyAvoids)
-        const manuals = []
+        let seasonalChecked
+        let yearRoundChecked
+        if (preserveSelection) {
+          seasonalChecked = mergeSeasonalChecked(
+            prevSeasonal,
+            prevSeasonalChecked,
+            seasonal
+          )
+          yearRoundChecked = mergeYearRoundChecked(
+            prevYearRound,
+            prevYearRoundChecked,
+            yearRound,
+            familyAvoids
+          )
+        } else {
+          seasonalChecked = {}
+          seasonal.forEach((it) => {
+            seasonalChecked[it.id] = true
+          })
+          yearRoundChecked = defaultYearRoundChecked(yearRound, familyAvoids)
+        }
         this.setData({
           loading: false,
           error: '',
@@ -415,18 +554,70 @@ Page({
           seasonalChecked,
           seasonalSelectAllLabel: this._seasonalSelectAllLabel(seasonal, seasonalChecked),
           yearRoundChecked,
-          yearRoundExpanded: false,
+          yearRoundExpanded: preserveSelection
+            ? this.data.yearRoundExpanded
+            : false,
           manuals,
           listEmpty: seasonal.length === 0 && yearRound.length === 0,
           ...this._counts(seasonalChecked, yearRoundChecked, manuals)
         })
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err)
         const msg =
           (err && (err.errMsg || err.message || err.error)) || '加载失败'
         this.setData({ loading: false, error: String(msg), listEmpty: false })
         wx.showToast({ title: '食材加载失败', icon: 'none' })
+      })
+  },
+
+  onOpenMarketScaleSheet() {
+    if (this.data.marketScaleBusy || this.data.submitting || this.data.liteBusy) {
+      return
+    }
+    tapFeedback()
+    const user = getUser() || {}
+    const choice = user.marketScaleChoice || 'default_medium'
+    const effective =
+      user.marketScaleEffective || effectiveFromChoice(choice) || 'medium'
+    track('market_scale_sheet_show', { reason: 'page_switch' })
+    this.setData({
+      showMarketScale: true,
+      marketScaleTitle: MARKET_SCALE_PAGE_COPY.title,
+      marketScaleHint: MARKET_SCALE_PAGE_COPY.hint,
+      marketScaleHighlight: effective,
+      marketScaleDefaultOn: choice === 'default_medium'
+    })
+  },
+
+  onMarketScaleSelect(e) {
+    if (this.data.marketScaleBusy || !this.data.showMarketScale) return
+    const choice =
+      e && e.currentTarget && e.currentTarget.dataset
+        ? e.currentTarget.dataset.choice
+        : null
+    if (!choice) return
+    const user = getUser() || {}
+    const current = user.marketScaleChoice || null
+    // 点当前已选档：关层不写库，避免重复 history
+    if (choice === current) {
+      this.setData({ showMarketScale: false })
+      return
+    }
+    tapFeedback()
+    this.setData({ marketScaleBusy: true })
+    track('market_scale_sheet_select', { choice, source: 'page_switch' })
+    // 勿 ensureLogin()：auth 可能仍是旧档，会盖掉刚 patch 的 marketScale*
+    this._setMarketScale({ choice, source: 'page_switch' })
+      .then(() => {
+        this._syncMarketScaleEntry()
+        this.setData({ showMarketScale: false, marketScaleBusy: false })
+        this.loadList({ preserveSelection: true })
+      })
+      .catch((err) => {
+        console.error(err)
+        this.setData({ marketScaleBusy: false })
+        wx.showToast({ title: '切换失败，请重试', icon: 'none' })
       })
   },
 
