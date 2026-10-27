@@ -607,8 +607,8 @@ Page({
     tapFeedback()
     this.setData({ marketScaleBusy: true })
     track('market_scale_sheet_select', { choice, source: 'page_switch' })
+    // 勿 ensureLogin()：auth 可能仍是旧档，会盖掉刚 patch 的 marketScale*
     this._setMarketScale({ choice, source: 'page_switch' })
-      .then(() => ensureLogin().catch(() => null))
       .then(() => {
         this._syncMarketScaleEntry()
         this.setData({ showMarketScale: false, marketScaleBusy: false })
