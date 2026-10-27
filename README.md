@@ -20,6 +20,7 @@
 | 10 | Slice 10 | **跳过引导后的画像常驻提醒**（推荐顶栏 / 「我的」缺口 / 无忌口·暂无偏好） |
 | 11 | Slice 11 | **购物清单别名展示 + 推荐别名匹配**（当地主名/副名；确认别名能命中通用名主料） |
 | 12 | Slice 12 | **用户建议反馈**（首页入口 / 无数字红点 / 列表顶提交 / 运营回复 / 订阅落地） |
+| 13 | Slice 13 | **菜场规模与食材列表档位**（预生成分档名单 / 首页半屏 / 确认页切换刷新） |
 | — | 语音 | 前端已下线，暂不点验 |
 
 新用户进首页只会**弹一次**「去设置 / 先逛逛」；选「先逛逛」或引导页「暂时跳过」即可继续测 Slice 1～4。完整引导放到 **Slice 6** 再验。跳过/轻量跳过后的**弱提醒与快捷补全**放到 **Slice 10** 再验。
@@ -54,6 +55,8 @@
 | `planAte.js` | `meals/planAte.js` |
 | `unconventionalPlans.js` | `recommend/unconventionalPlans.js` |
 | `feedbackLogic.js` | `feedback/feedbackLogic.js`（校验 / sortKey / shapeFeedback） |
+| `marketScale.js` | `profile/marketScale.js`；小程序 `miniprogram/utils/marketScale.js`（档位文案 / 半屏门禁 / 历史截断） |
+| `confirmListFromScale.js` | `ingredients/confirmListFromScale.js`（预生成 by-scale → seasonal/yearRound） |
 
 部署 `recommend`（含 `listAccepted`）前，请在云开发控制台为集合 `recommendations` 创建复合索引：`uid`、`accepted`、`acceptedAt`（与 `orderBy acceptedAt desc` 分页查询一致）。
 
@@ -218,6 +221,26 @@
 计划：[`docs/superpowers/plans/2026-10-27-用户建议反馈.md`](docs/superpowers/plans/2026-10-27-用户建议反馈.md)。  
 设计：[`docs/superpowers/specs/2026-10-27-用户建议反馈-design.md`](docs/superpowers/specs/2026-10-27-用户建议反馈-design.md)。  
 技术方案：[`docs/superpowers/specs/2026-10-27-用户建议反馈-技术方案.md`](docs/superpowers/specs/2026-10-27-用户建议反馈-技术方案.md)。
+
+---
+
+## Slice 13 准备（菜场规模与食材列表档位）
+
+假定 **Slice 1～2 准备已完成**（能登录、能进确认页出名单；建议「我的」已设城市，否则无城文件会退回旧 confirmList）。再补：
+
+1. **构建产物**（改货架/热度后重跑）：  
+   - `python3 scripts/build-ingredient-popularity.py` → `data/catalog/ingredient-popularity.json`  
+   - `python3 scripts/build-city-ingredients-by-scale.py` → 各城 `data/catalog/cities/*/ingredients-by-scale.json`  
+   - `node scripts/sync-city-scale-to-cloud.js` → 拷入 `cloudfunctions/ingredients/data/cities/` 并 vendor `confirmListFromScale.js`  
+   说明见 [`scripts/README.md`](scripts/README.md)。
+2. **上传并部署**云函数：`ingredients`（须含各城 by-scale）、`profile`（`setMarketScale`）、`auth`（login 回包 marketScale*）。改 `_shared/marketScale.js` / `confirmListFromScale.js` 后记得同步到函数目录与小程序 utils。
+3. **小程序**：`app.json` 已声明 `getLocation`；公众平台开通定位与隐私协议文案后，**真机**才能测首页首次半屏 / 1km 重定位。开发者工具可 mock `getLocation`。
+4. 本地：`npm test`（含 `marketScale` / `confirmListFromScale`）；可选 `pytest scripts/tests/test_ingredient_popularity.py scripts/tests/test_city_ingredients_by_scale.py`。
+
+无新集合（字段写在 `users`）。做完即可对照下方「Slice 13 验收清单」。
+
+计划：[`docs/superpowers/plans/2026-10-14-菜场规模与食材列表档位.md`](docs/superpowers/plans/2026-10-14-菜场规模与食材列表档位.md)。  
+设计：[`docs/superpowers/specs/2026-10-14-菜场规模与食材列表档位-design.md`](docs/superpowers/specs/2026-10-14-菜场规模与食材列表档位-design.md)。
 
 ---
 
@@ -474,6 +497,30 @@
 **本切片不验：** 独立写作页 / 详情页、「我的」入口、推荐「不行」链路、广告、语音。
 
 **部署提醒：** 手测前务必上传 `feedback`；reply 推送前对齐 `FEEDBACK_SUBSCRIBE_TMPL_ID` 与模板关键词字段名。
+
+---
+
+## 本切片验收清单（Slice 13）
+
+**状态：待点验**（需部署 `ingredients` + `profile` + `auth`；首页半屏需真机定位权限）
+
+**自动化：**
+
+- [ ] `npm test` PASS（含 `marketScale` / `confirmListFromScale`）。
+- [ ] （可选）`pytest` 热度 / 分城分档脚本单测 PASS；抽查某城 `small ⊆ medium ⊆ large`（按通用名集合）。
+
+**需人工：** Slice 13 准备后（城市建议设为已有 by-scale 的城，如北京）：
+
+1. [ ] **无定位 / 拒权**：不弹规模半屏；进确认页按**中档**名单；入口文案为「默认中菜场 · 切换」（从未选手动档时）。
+2. [ ] **有定位 · 首次**：进场确认（若有）关闭后**再**出规模半屏（不叠弹）；遮罩点不关；选小/中/大或「默认中菜场」→ 进确认页，名单长度随档变化。
+3. [ ] **确认页切换**：点「… · 切换」→ 半屏高亮当前 effective；`default_medium` 时中档卡 + 底栏默认态；改档后时令+四季立刻刷新；新旧交集勾选保留，新进时令默认勾、新进四季按忌口默认逻辑。
+4. [ ] **chip 展示**：有当地名时显示 `displayName`，勾选/推荐仍用通用名。
+5. [ ] **会话一次**：同会话再次「今天菜场」不重复弹首页半屏；中途切走未选完再回，应能再弹（不因 `onHide` 误锁）。
+6. [ ] **文案区分**：从未点过「中菜场」的系统默认 →「默认中菜场」；用户点过「中菜场」→「中菜场」。
+
+**本切片不验：** 「我的」内改规模、implies 小类包、无 by-scale 城的旧名单细节、广告、语音。
+
+**部署提醒：** 三者同发；`ingredients` 包内须含同步后的 `data/cities/*/ingredients-by-scale.json`。定位半屏须真机 + 隐私协议。
 
 ---
 
