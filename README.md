@@ -19,6 +19,7 @@
 | 9 | Slice 9 | 成员 CRUD + 大/小/老 + 当次访客 + 用餐人软分（§3.0.8） |
 | 10 | Slice 10 | **跳过引导后的画像常驻提醒**（推荐顶栏 / 「我的」缺口 / 无忌口·暂无偏好） |
 | 11 | Slice 11 | **购物清单别名展示 + 推荐别名匹配**（当地主名/副名；确认别名能命中通用名主料） |
+| 12 | Slice 12 | **用户建议反馈**（首页入口 / 无数字红点 / 列表顶提交 / 运营回复 / 订阅落地） |
 | — | 语音 | 前端已下线，暂不点验 |
 
 新用户进首页只会**弹一次**「去设置 / 先逛逛」；选「先逛逛」或引导页「暂时跳过」即可继续测 Slice 1～4。完整引导放到 **Slice 6** 再验。跳过/轻量跳过后的**弱提醒与快捷补全**放到 **Slice 10** 再验。
@@ -30,6 +31,7 @@
 1. 用**微信开发者工具**打开本仓库**根目录**（含 `project.config.json` 的目录）。
 2. **开通云开发**并创建环境；在 `project.config.json` 填真实小程序 `appid`；在 `miniprogram/app.js` 的 `wx.cloud.init` 里填 `env`（取消注释并换成你的环境 ID）。
 3. 本地单测（可选随时跑）：仓库根目录 `npm test`。
+4. 仓库脚本（别名同步、云库导入、下厨房清洗等）说明见 **[`scripts/README.md`](scripts/README.md)**。
 
 云函数若内置了 `_shared` 副本，上传时只打包**各自函数目录**即可。改纯逻辑后请同步：
 
@@ -51,6 +53,7 @@
 | `listAccepted.js` | `recommend/listAccepted.js` |
 | `planAte.js` | `meals/planAte.js` |
 | `unconventionalPlans.js` | `recommend/unconventionalPlans.js` |
+| `feedbackLogic.js` | `feedback/feedbackLogic.js`（校验 / sortKey / shapeFeedback） |
 
 部署 `recommend`（含 `listAccepted`）前，请在云开发控制台为集合 `recommendations` 创建复合索引：`uid`、`accepted`、`acceptedAt`（与 `orderBy acceptedAt desc` 分页查询一致）。
 
@@ -188,13 +191,33 @@
 假定 **Slice 2～3 准备已完成**（能出推荐、「去买菜」进清单；小程序已编译）。再补：
 
 1. **重新部署**云函数 `recommend`（须含 `data/aliases.json`、`aliasMatch.js`、已 vendored 的 `homePlans.js` / `unconventionalPlans.js`）。改 `_shared/aliasMatch.js` 或 plans 后记得同步到 `cloudfunctions/recommend/` 与小程序 `miniprogram/utils/aliasMatch.js`。
-2. 若改了 `data/catalog/aliases.json` 或城货架：重跑 `node scripts/sync-alias-runtime-data.js`，再部署 / 重编译。
+2. 若改了别名编辑稿或城货架：见 [`scripts/README.md`](scripts/README.md)（`export-aliases-from-editor.py` → `sync-alias-runtime-data.js`），再部署 / 重编译。
 3. 本地：`npm test`（含 `aliasMatch` / `homePlans` / `unconventionalPlans`）。
 
 无新集合。做完即可对照下方「Slice 11 验收清单」。
 
 计划：[`docs/superpowers/plans/2026-10-20-购物清单别名展示与推荐别名匹配.md`](docs/superpowers/plans/2026-10-20-购物清单别名展示与推荐别名匹配.md)。  
 设计：[`docs/superpowers/specs/2026-10-20-购物清单别名展示与推荐别名匹配-design.md`](docs/superpowers/specs/2026-10-20-购物清单别名展示与推荐别名匹配-design.md)。
+
+---
+
+## Slice 12 准备（用户建议反馈）
+
+假定 **公共准备已完成**（能登录进首页即可；不依赖推荐链路）。再补：
+
+1. **上传并部署**云函数：`cloudfunctions/feedback`（云端安装依赖；含 vendored `feedbackLogic.js`）。改 `_shared/feedbackLogic.js` 后记得同步到 `cloudfunctions/feedback/`。
+2. **再建集合**：`feedbacks`（权限同上，业务读写走云函数）。
+3. **复合索引**（控制台按报错补齐亦可）：`uid ASC + sortKey DESC`；频控辅助 `uid ASC + createdAt DESC`。
+4. **环境变量**（云函数 `feedback`）：`FEEDBACK_ADMIN_KEY`（运营 reply 鉴权）；`FEEDBACK_SUBSCRIBE_TMPL_ID`（与小程序 `miniprogram/utils/subscribe.js` 内模板 ID **相同**）。未配模板时站内提交/列表/回复仍可用，仅订阅推送不发。
+5. **订阅消息**（可选手测推送时）：公众平台申请模板；开通云调用 `subscribeMessage.send`；模板 `page` 固定为 `pages/index/index?openFeedback=1`；云函数 `reply` 里 `thing1` / `thing2` 等字段名与控制台模板关键词对齐。
+6. 运营回复：云开发控制台调用 `feedback`（`action: reply`，带 `adminKey` / `feedbackId` / `reply`），或参考 `scripts/reply-feedback.js` 打印的入参。
+7. 本地：`npm test`（含 `feedbackLogic`）。
+
+做完即可对照下方「Slice 12 验收清单」。
+
+计划：[`docs/superpowers/plans/2026-10-27-用户建议反馈.md`](docs/superpowers/plans/2026-10-27-用户建议反馈.md)。  
+设计：[`docs/superpowers/specs/2026-10-27-用户建议反馈-design.md`](docs/superpowers/specs/2026-10-27-用户建议反馈-design.md)。  
+技术方案：[`docs/superpowers/specs/2026-10-27-用户建议反馈-技术方案.md`](docs/superpowers/specs/2026-10-27-用户建议反馈-技术方案.md)。
 
 ---
 
@@ -428,6 +451,29 @@
 **本切片不验：** 确认页搜索别名 UI、看菜谱弹层别名展示、广告、语音。
 
 **部署提醒：** 手测推荐匹配前务必上传云函数 `recommend`（含 `data/aliases.json`、`aliasMatch.js`、vendored plans）。
+
+---
+
+## 本切片验收清单（Slice 12）
+
+**状态：待点验**（需部署云函数 `feedback` + 建 `feedbacks` 索引；订阅推送另需模板 ID）
+
+**自动化：**
+
+- [ ] `npm test` PASS（含 `feedbackLogic`）。
+
+**需人工：** Slice 12 准备后：
+
+1. [ ] **入口**：首页 `link-row` 第三项「建议反馈」；无未读时**无红点**；与「我的偏好」上的**缺口数字角标**并存、互不干扰。
+2. [ ] **提交**：进列表 → 顶部矮输入区选类型 + 正文 ≤100 字 →（可授权订阅）→「感谢您的反馈」弹窗 → 新卡片置顶。
+3. [ ] **运营回复 + 订阅落地**（配好模板后）：控制台 `reply` → 授权过则收到订阅消息 → 点击进**首页**再自动进列表（`?openFeedback=1`）。未授权/未配模板时站内仍可见回复。
+4. [ ] **未读红点**：有未读回复时首页「建议反馈」旁**小圆点、无数字**；列表未读优先（重拉后）；点卡片 / 展开 → 该条红点灭、**列表不立刻重排**。
+5. [ ] **分页与缓存**：滚动加载更多；7 天内再进用本地缓存；运营 reply 后 `feedbackListEpoch` 失效须重拉。
+6. [ ] **频控与拒订**：60s 内连提两条 → 第二条被拒；拒绝订阅授权仍可成功提交。
+
+**本切片不验：** 独立写作页 / 详情页、「我的」入口、推荐「不行」链路、广告、语音。
+
+**部署提醒：** 手测前务必上传 `feedback`；reply 推送前对齐 `FEEDBACK_SUBSCRIBE_TMPL_ID` 与模板关键词字段名。
 
 ---
 
