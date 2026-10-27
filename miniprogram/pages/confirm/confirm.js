@@ -395,7 +395,8 @@ Page({
     this.setData({ loading: true, error: '', listEmpty: false })
     const user = getUser() || {}
     const familyAvoids = user.familyAvoids || []
-    callCloud('ingredients', {})
+    const scale = user.marketScaleEffective || 'medium'
+    callCloud('ingredients', { scale })
       .then(res => {
         const seasonal = (res && res.seasonal) || []
         const yearRound = (res && res.yearRound) || []
