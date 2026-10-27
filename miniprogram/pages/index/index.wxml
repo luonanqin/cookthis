@@ -22,6 +22,10 @@
     <view class="link-row">
       <view class="link" hover-class="tap-hover" hover-stay-time="80" bindtap="goAcceptedPlans">已选菜品</view>
       <view class="link" hover-class="tap-hover" hover-stay-time="80" bindtap="goMine">我的偏好</view>
+      <view class="link link-feedback" hover-class="tap-hover" hover-stay-time="80" bindtap="goFeedback">
+        <text>建议反馈</text>
+        <view wx:if="{{feedbackHasUnread}}" class="link-dot"></view>
+      </view>
     </view>
   </view>
 

@@ -15,7 +15,12 @@ Page({
     selectAllLabel: '全选',
     busy: false,
     requestId: null,
-    recommendationId: null
+    recommendationId: null,
+    feedbackHasUnread: false
+  },
+
+  onLoad(query) {
+    this._maybeOpenFeedback(query)
   },
 
   onShow() {
@@ -48,6 +53,30 @@ Page({
         })
       })
       .catch(() => {})
+    this.refreshFeedbackDot()
+    // 冷启动有时 query 只在 onLoad；热启动可从 launch options 再读一次
+    try {
+      const enter = wx.getEnterOptionsSync && wx.getEnterOptionsSync()
+      if (enter && enter.query) this._maybeOpenFeedback(enter.query)
+    } catch (e) {}
+  },
+
+  refreshFeedbackDot() {
+    callCloud('feedback', { action: 'hasUnread' })
+      .then((res) => {
+        this.setData({ feedbackHasUnread: !!(res && res.hasUnread) })
+      })
+      .catch(() => {})
+  },
+
+  _maybeOpenFeedback(query) {
+    if (!query || String(query.openFeedback) !== '1') return
+    if (this._openedFeedbackOnce) return
+    this._openedFeedbackOnce = true
+    track('feedback_open_from_subscribe', {})
+    setTimeout(() => {
+      wx.navigateTo({ url: '/pages/feedback/list' })
+    }, 0)
   },
 
   _prefetchConfirmCandidates() {
@@ -240,5 +269,11 @@ Page({
   goMine() {
     tapFeedback()
     wx.navigateTo({ url: '/pages/mine/mine' })
+  },
+
+  goFeedback() {
+    tapFeedback()
+    track('feedback_entry_tap', { hasUnread: !!this.data.feedbackHasUnread })
+    wx.navigateTo({ url: '/pages/feedback/list' })
   }
 })

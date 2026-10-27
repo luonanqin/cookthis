@@ -122,6 +122,21 @@
   font-size: var(--fs-body);
 }
 
+.link-feedback {
+  position: relative;
+  padding-right: 8rpx;
+}
+
+.link-dot {
+  position: absolute;
+  top: -4rpx;
+  right: -12rpx;
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: #e54d42;
+}
+
 /* 进场确认：独立半屏弹层（不套 .sheet，避免 overflow 把按钮顶飞） */
 .sheet-confirm {
   width: 100%;
