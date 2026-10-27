@@ -1,15 +1,34 @@
 const { callCloud } = require('../../services/cloud.js')
-const { ensureLogin, getUser } = require('../../services/session.js')
+const { ensureLogin, getUser, patchUser } = require('../../services/session.js')
 const { track } = require('../../utils/track.js')
 const { tapFeedback } = require('../../utils/haptic.js')
 const { computeProfileGaps } = require('../../utils/profileGaps.js')
+const { shouldShowMarketScaleSheet } = require('../../utils/marketScale.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
+
+/** 同一小程序会话内规模半屏最多一次（模块级，随 App 进程存活） */
+let marketScaleSessionShown = false
+
+const MARKET_SCALE_LOCATION_TIMEOUT_MS = 5000
+const MARKET_SCALE_COPY = {
+  first: {
+    title: '你常去的菜场大概多大？',
+    hint: '用来决定今天展示多少常见菜，可随时改'
+  },
+  relocate: {
+    title: '换地方了？再确认一下菜场规模',
+    hint: '用来决定今天展示多少常见菜，可随时改'
+  }
+}
 
 Page({
   behaviors: [typeScaleBehavior],
 
   data: {
     showConfirm: false,
+    showMarketScale: false,
+    marketScaleTitle: '',
+    marketScaleHint: '',
     candidates: [],
     candidatesPeek: false,
     selected: {},
@@ -142,13 +161,16 @@ Page({
 
   onHide() {
     // 半屏 catchtouchmove 留在栈底时，上层页会出现「什么都点不动」
-    if (this.data.showConfirm || this.data.busy) {
-      this.setData({ showConfirm: false, busy: false })
+    if (this.data.showConfirm || this.data.showMarketScale || this.data.busy) {
+      this.setData({ showConfirm: false, showMarketScale: false, busy: false })
     }
+    this._disableMarketScaleBackGuard()
   },
 
+  noop() {},
+
   goMarket() {
-    if (this.data.busy) return
+    if (this.data.busy || this.data.showConfirm || this.data.showMarketScale) return
     tapFeedback()
     track('market_entry', {})
     this.setData({ busy: true })
@@ -282,7 +304,177 @@ Page({
   },
 
   _goConfirm() {
+    this._afterEntryConfirm()
+  },
+
+  _navigateConfirm() {
+    this._disableMarketScaleBackGuard()
     wx.navigateTo({ url: '/pages/confirm/confirm' })
+  },
+
+  _afterEntryConfirm() {
+    // 定位判定期间挡住再次点「今天菜场」；弹层展示或进确认页时再放行
+    this.setData({ busy: true })
+    this._maybeShowMarketScaleSheet()
+      .then((shown) => {
+        if (!shown) {
+          this.setData({ busy: false })
+          this._navigateConfirm()
+        }
+      })
+      .catch((err) => {
+        console.warn('market scale sheet gate failed', err)
+        this.setData({ busy: false })
+        this._navigateConfirm()
+      })
+  },
+
+  _getLocationGcJ02() {
+    return new Promise((resolve) => {
+      let settled = false
+      const finish = (fix) => {
+        if (settled) return
+        settled = true
+        clearTimeout(timer)
+        resolve(fix)
+      }
+      const timer = setTimeout(() => finish(null), MARKET_SCALE_LOCATION_TIMEOUT_MS)
+      try {
+        wx.getLocation({
+          type: 'gcj02',
+          success: (res) => {
+            const lat = res && res.latitude
+            const lng = res && res.longitude
+            if (typeof lat === 'number' && typeof lng === 'number') {
+              finish({ lat, lng })
+              return
+            }
+            finish(null)
+          },
+          fail: () => finish(null)
+        })
+      } catch (e) {
+        finish(null)
+      }
+    })
+  },
+
+  _applyMarketScaleSnapshot(res) {
+    if (!res || !res.ok) return
+    patchUser({
+      marketScaleChoice: res.marketScaleChoice || null,
+      marketScaleEffective: res.marketScaleEffective || null,
+      marketScaleChosenAt: res.marketScaleChosenAt || null,
+      marketScaleAnchor: res.marketScaleAnchor || null
+    })
+  },
+
+  _setMarketScale(payload) {
+    return callCloud('profile', Object.assign({ action: 'setMarketScale' }, payload || {}))
+      .then((res) => {
+        this._applyMarketScaleSnapshot(res)
+        return res
+      })
+  },
+
+  _enableMarketScaleBackGuard() {
+    // 物理返回 / 右滑：尽量拦截；部分基础库与开发者工具无法真正挡住退出
+    if (typeof wx.enableAlertBeforeUnload !== 'function') return
+    try {
+      wx.enableAlertBeforeUnload({
+        message: '请先选择菜场规模'
+      })
+      this._marketScaleBackGuardOn = true
+    } catch (e) {}
+  },
+
+  _disableMarketScaleBackGuard() {
+    if (!this._marketScaleBackGuardOn) return
+    this._marketScaleBackGuardOn = false
+    if (typeof wx.disableAlertBeforeUnload !== 'function') return
+    try {
+      wx.disableAlertBeforeUnload()
+    } catch (e) {}
+  },
+
+  _maybeShowMarketScaleSheet() {
+    if (marketScaleSessionShown) {
+      return Promise.resolve(false)
+    }
+
+    return this._getLocationGcJ02().then((fix) => {
+      if (!fix) {
+        const user = getUser() || {}
+        if (!user.marketScaleChoice) {
+          return this._setMarketScale({
+            choice: 'default_medium',
+            source: 'system_default'
+          })
+            .catch((err) => {
+              console.warn('setMarketScale system_default failed', err)
+            })
+            .then(() => false)
+        }
+        return false
+      }
+
+      this._marketScaleFix = fix
+      const user = getUser() || {}
+      const decision = shouldShowMarketScaleSheet({
+        hasFix: true,
+        fix,
+        anchor: user.marketScaleAnchor || null,
+        chosenAt: user.marketScaleChosenAt || null,
+        sessionShown: marketScaleSessionShown
+      })
+
+      if (!decision.show) {
+        return false
+      }
+
+      marketScaleSessionShown = true
+      const copy = MARKET_SCALE_COPY[decision.reason] || MARKET_SCALE_COPY.first
+      track('market_scale_sheet_show', { reason: decision.reason || 'first' })
+      this._enableMarketScaleBackGuard()
+      this.setData({
+        showConfirm: false,
+        showMarketScale: true,
+        marketScaleTitle: copy.title,
+        marketScaleHint: copy.hint,
+        busy: false
+      })
+      return true
+    })
+  },
+
+  onMarketScaleSelect(e) {
+    if (this.data.busy || !this.data.showMarketScale) return
+    const choice = e && e.currentTarget && e.currentTarget.dataset
+      ? e.currentTarget.dataset.choice
+      : null
+    if (!choice) return
+    tapFeedback()
+    const fix = this._marketScaleFix || null
+    const payload = {
+      choice,
+      source: 'sheet'
+    }
+    if (fix) {
+      payload.lat = fix.lat
+      payload.lng = fix.lng
+    }
+    this.setData({ busy: true })
+    track('market_scale_sheet_select', { choice, source: 'sheet' })
+    this._setMarketScale(payload)
+      .catch((err) => {
+        console.error(err)
+        wx.showToast({ title: '保存失败，已按中档继续', icon: 'none' })
+      })
+      .then(() => {
+        this._disableMarketScaleBackGuard()
+        this.setData({ showMarketScale: false, busy: false })
+        this._navigateConfirm()
+      })
   },
 
   goRecord() {

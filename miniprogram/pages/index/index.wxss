@@ -287,3 +287,55 @@
   background: #eef1ef !important;
   opacity: 1 !important;
 }
+
+/* 菜场规模：同款贴底半屏 + 三卡 + 底栏弱按钮 */
+.sheet-market-scale {
+  max-height: 70vh;
+}
+
+.scale-cards {
+  padding: 8rpx 28rpx 8rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.scale-card {
+  min-height: 96rpx;
+  box-sizing: border-box;
+  padding: 20rpx 24rpx;
+  border: 1rpx solid var(--color-border);
+  border-radius: 12rpx;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6rpx;
+}
+
+.scale-card-title {
+  font-size: var(--fs-md);
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.3;
+}
+
+.scale-card-desc {
+  font-size: var(--fs-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.35;
+}
+
+.scale-default-wrap {
+  flex-shrink: 0;
+  padding: 16rpx 28rpx calc(20rpx + env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.scale-default-wrap .scale-default-btn {
+  margin: 0;
+  min-width: 240rpx;
+}
