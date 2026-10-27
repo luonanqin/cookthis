@@ -1,0 +1,5561 @@
+{
+  "_meta": {
+    "builtAt": "2026-10-27T14:33:05.549162Z",
+    "popularitySource": [
+      "xiachufang-category-results.cleaned.json",
+      "xiachufang-search-results.cleaned.json"
+    ],
+    "categorySource": "ingredients-all-by-category.json",
+    "categoryRule": "first category in JSON key order when name appears in multiple"
+  },
+  "items": {
+    "三层肉": {
+      "score": 15717,
+      "category": null
+    },
+    "三文鱼": {
+      "score": 12044,
+      "category": "鱼"
+    },
+    "三月茄": {
+      "score": 2177,
+      "category": "瓜果"
+    },
+    "三线肉": {
+      "score": 15717,
+      "category": "肉类"
+    },
+    "三黄鸡": {
+      "score": 1677,
+      "category": "肉类"
+    },
+    "上海青": {
+      "score": 3817,
+      "category": "菜叶"
+    },
+    "上肩肉": {
+      "score": 1,
+      "category": null
+    },
+    "东北酸菜丝": {
+      "score": 144,
+      "category": "菜叶"
+    },
+    "东风螺": {
+      "score": 1,
+      "category": null
+    },
+    "丝瓜": {
+      "score": 21414,
+      "category": "瓜果"
+    },
+    "丸子": {
+      "score": 43373,
+      "category": "火锅"
+    },
+    "乌干菜": {
+      "score": 1,
+      "category": null
+    },
+    "乌棒": {
+      "score": 33,
+      "category": null
+    },
+    "乌贼干": {
+      "score": 490,
+      "category": null
+    },
+    "乌骨鸡": {
+      "score": 5962,
+      "category": "肉类"
+    },
+    "乌鱼": {
+      "score": 33,
+      "category": "鱼"
+    },
+    "乌鸡": {
+      "score": 5962,
+      "category": "肉类"
+    },
+    "乌鸡卷": {
+      "score": 4,
+      "category": "火锅"
+    },
+    "乌鸡蛋": {
+      "score": 1,
+      "category": "蛋奶"
+    },
+    "九层塔": {
+      "score": 82,
+      "category": "调味"
+    },
+    "九节虾": {
+      "score": 290,
+      "category": "海鲜"
+    },
+    "乳鸽": {
+      "score": 4331,
+      "category": "肉类"
+    },
+    "二刀肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "二荆条": {
+      "score": 34,
+      "category": "瓜果"
+    },
+    "云丝": {
+      "score": 212,
+      "category": "主食"
+    },
+    "云南小瓜": {
+      "score": 352,
+      "category": "瓜果"
+    },
+    "五花肉": {
+      "score": 15717,
+      "category": "肉类"
+    },
+    "五道黑": {
+      "score": 1,
+      "category": null
+    },
+    "五香干": {
+      "score": 586,
+      "category": "豆制品"
+    },
+    "五香豆干": {
+      "score": 701,
+      "category": "豆制品"
+    },
+    "五香豆皮": {
+      "score": 1877,
+      "category": "豆制品"
+    },
+    "亲亲肠": {
+      "score": 6,
+      "category": "肉类"
+    },
+    "仔姜": {
+      "score": 2078,
+      "category": "调味"
+    },
+    "仔鸡": {
+      "score": 470,
+      "category": "肉类"
+    },
+    "仔鸭肉": {
+      "score": 97,
+      "category": "肉类"
+    },
+    "付子瓜": {
+      "score": 47,
+      "category": "瓜果"
+    },
+    "仿蟹柳": {
+      "score": 2890,
+      "category": "海鲜"
+    },
+    "佛手瓜": {
+      "score": 537,
+      "category": "瓜果"
+    },
+    "佛豆": {
+      "score": 1,
+      "category": null
+    },
+    "侧耳根": {
+      "score": 1,
+      "category": null
+    },
+    "偏口鱼": {
+      "score": 1,
+      "category": null
+    },
+    "儿菜": {
+      "score": 1179,
+      "category": "菜叶"
+    },
+    "兔子": {
+      "score": 384,
+      "category": "肉类"
+    },
+    "兔子肉": {
+      "score": 384,
+      "category": "肉类"
+    },
+    "兔肉": {
+      "score": 384,
+      "category": "肉类"
+    },
+    "八爪鱼": {
+      "score": 1990,
+      "category": "海鲜"
+    },
+    "公鸡": {
+      "score": 470,
+      "category": "肉类"
+    },
+    "内酯豆腐": {
+      "score": 10802,
+      "category": "豆制品"
+    },
+    "冬枣": {
+      "score": 112,
+      "category": "水果"
+    },
+    "冬瓜": {
+      "score": 21281,
+      "category": "瓜果"
+    },
+    "冬笋": {
+      "score": 3418,
+      "category": "根茎"
+    },
+    "冬菇": {
+      "score": 315,
+      "category": null
+    },
+    "冬菜": {
+      "score": 113,
+      "category": "菜叶"
+    },
+    "凉皮": {
+      "score": 2850,
+      "category": "主食"
+    },
+    "凉粉": {
+      "score": 5089,
+      "category": "主食"
+    },
+    "凉薯": {
+      "score": 113,
+      "category": "根茎"
+    },
+    "凤爪": {
+      "score": 35131,
+      "category": "肉类"
+    },
+    "刀削面": {
+      "score": 1805,
+      "category": "主食"
+    },
+    "刀豆": {
+      "score": 763,
+      "category": "豆类"
+    },
+    "刀鱼": {
+      "score": 1248,
+      "category": "鱼"
+    },
+    "刀鲚": {
+      "score": 1248,
+      "category": null
+    },
+    "列巴": {
+      "score": 7309,
+      "category": "主食"
+    },
+    "刺参": {
+      "score": 1,
+      "category": null
+    },
+    "剁椒": {
+      "score": 24589,
+      "category": "调味"
+    },
+    "剁椒酱": {
+      "score": 24589,
+      "category": "调味"
+    },
+    "前夹肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "前腿肉": {
+      "score": 53,
+      "category": "肉类"
+    },
+    "剥皮鱼": {
+      "score": 413,
+      "category": "鱼"
+    },
+    "包心鱼丸": {
+      "score": 23,
+      "category": "火锅"
+    },
+    "包心鱼卷": {
+      "score": 153,
+      "category": "火锅"
+    },
+    "包菜": {
+      "score": 28182,
+      "category": "菜叶"
+    },
+    "北极虾": {
+      "score": 5320,
+      "category": "海鲜"
+    },
+    "北豆腐": {
+      "score": 10802,
+      "category": "豆制品"
+    },
+    "千叶豆腐": {
+      "score": 2773,
+      "category": "豆制品"
+    },
+    "千层肚": {
+      "score": 62,
+      "category": "内脏"
+    },
+    "千张": {
+      "score": 2510,
+      "category": "豆制品"
+    },
+    "千张丝": {
+      "score": 2892,
+      "category": "豆制品"
+    },
+    "千张结": {
+      "score": 262,
+      "category": "豆制品"
+    },
+    "千页豆腐": {
+      "score": 2773,
+      "category": "豆制品"
+    },
+    "午餐肉": {
+      "score": 6286,
+      "category": "火锅"
+    },
+    "南充菜": {
+      "score": 1179,
+      "category": null
+    },
+    "南瓜": {
+      "score": 52383,
+      "category": "瓜果"
+    },
+    "南瓜尖": {
+      "score": 35,
+      "category": "菜叶"
+    },
+    "卤水豆腐": {
+      "score": 10802,
+      "category": "豆制品"
+    },
+    "卷心菜": {
+      "score": 28182,
+      "category": "菜叶"
+    },
+    "卷窝菜": {
+      "score": 28182,
+      "category": "菜叶"
+    },
+    "厚千张": {
+      "score": 2510,
+      "category": "豆制品"
+    },
+    "厚豆干": {
+      "score": 701,
+      "category": "豆制品"
+    },
+    "厚豆皮": {
+      "score": 1877,
+      "category": "豆制品"
+    },
+    "厚豆腐皮": {
+      "score": 1877,
+      "category": "豆制品"
+    },
+    "发鱿鱼": {
+      "score": 93,
+      "category": "海鲜"
+    },
+    "口条": {
+      "score": 1,
+      "category": null
+    },
+    "口蘑": {
+      "score": 12233,
+      "category": "菌菇"
+    },
+    "叫头": {
+      "score": 327,
+      "category": "根茎"
+    },
+    "叶生菜": {
+      "score": 99,
+      "category": "菜叶"
+    },
+    "吊龙": {
+      "score": 4299,
+      "category": "肉类"
+    },
+    "后腿肉": {
+      "score": 53,
+      "category": "肉类"
+    },
+    "吐铁": {
+      "score": 1,
+      "category": null
+    },
+    "和尚头": {
+      "score": 1,
+      "category": null
+    },
+    "咸蛋": {
+      "score": 12447,
+      "category": "蛋奶"
+    },
+    "咸蛋黄": {
+      "score": 12447,
+      "category": "蛋奶"
+    },
+    "咸鸭蛋": {
+      "score": 12447,
+      "category": "蛋奶"
+    },
+    "响铃卷": {
+      "score": 320,
+      "category": "豆制品"
+    },
+    "嘎鱼": {
+      "score": 173,
+      "category": "鱼"
+    },
+    "四季豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "团鱼": {
+      "score": 1,
+      "category": null
+    },
+    "圆包菜": {
+      "score": 28182,
+      "category": "菜叶"
+    },
+    "圆嫩南瓜": {
+      "score": 272,
+      "category": "瓜果"
+    },
+    "圆彩椒": {
+      "score": 493,
+      "category": "瓜果"
+    },
+    "圆枣": {
+      "score": 191,
+      "category": "水果"
+    },
+    "圆椒": {
+      "score": 493,
+      "category": "瓜果"
+    },
+    "圆白菜": {
+      "score": 28182,
+      "category": "菜叶"
+    },
+    "圆细面": {
+      "score": 444,
+      "category": "主食"
+    },
+    "圆茄子": {
+      "score": 5214,
+      "category": "瓜果"
+    },
+    "圆青椒": {
+      "score": 493,
+      "category": "瓜果"
+    },
+    "土丝瓜": {
+      "score": 21414,
+      "category": "瓜果"
+    },
+    "土笋": {
+      "score": 1,
+      "category": "河鲜"
+    },
+    "土豆": {
+      "score": 131119,
+      "category": "根茎"
+    },
+    "土韭菜": {
+      "score": 986,
+      "category": "菜叶"
+    },
+    "土鲮": {
+      "score": 1,
+      "category": null
+    },
+    "土鸡": {
+      "score": 1677,
+      "category": "肉类"
+    },
+    "土鸡母": {
+      "score": 662,
+      "category": null
+    },
+    "土鸭": {
+      "score": 97,
+      "category": "肉类"
+    },
+    "圣女果": {
+      "score": 1,
+      "category": "水果"
+    },
+    "地栗": {
+      "score": 1,
+      "category": null
+    },
+    "地椒": {
+      "score": 54,
+      "category": "调味"
+    },
+    "地瓜": {
+      "score": 12871,
+      "category": "根茎"
+    },
+    "地菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "坐臀肉": {
+      "score": 1,
+      "category": null
+    },
+    "基围虾": {
+      "score": 5320,
+      "category": "海鲜"
+    },
+    "墨鱼丸": {
+      "score": 213,
+      "category": "火锅"
+    },
+    "墨鱼仔": {
+      "score": 901,
+      "category": "海鲜"
+    },
+    "墨鱼干": {
+      "score": 490,
+      "category": "海鲜"
+    },
+    "墨鱼花": {
+      "score": 1,
+      "category": null
+    },
+    "外脊": {
+      "score": 1,
+      "category": null
+    },
+    "多宝鱼": {
+      "score": 5033,
+      "category": "鱼"
+    },
+    "大刀豆": {
+      "score": 763,
+      "category": null
+    },
+    "大列巴": {
+      "score": 7309,
+      "category": null
+    },
+    "大头蒜": {
+      "score": 52,
+      "category": "调味"
+    },
+    "大头虾": {
+      "score": 538,
+      "category": "河鲜"
+    },
+    "大头鱼": {
+      "score": 1,
+      "category": null
+    },
+    "大头鳕": {
+      "score": 1,
+      "category": null
+    },
+    "大宽面": {
+      "score": 236,
+      "category": "主食"
+    },
+    "大带子": {
+      "score": 489,
+      "category": "海鲜"
+    },
+    "大枣": {
+      "score": 2020,
+      "category": "水果"
+    },
+    "大白菜": {
+      "score": 35418,
+      "category": "菜叶"
+    },
+    "大米": {
+      "score": 2898,
+      "category": "主食"
+    },
+    "大肠": {
+      "score": 1,
+      "category": null
+    },
+    "大芥蓝": {
+      "score": 22,
+      "category": "菜叶"
+    },
+    "大葱": {
+      "score": 9278,
+      "category": "调味"
+    },
+    "大蒜": {
+      "score": 5593,
+      "category": "调味"
+    },
+    "大蒜叶": {
+      "score": 452,
+      "category": "菜叶"
+    },
+    "大蒜瓣": {
+      "score": 31,
+      "category": "调味"
+    },
+    "大蒜粒": {
+      "score": 5593,
+      "category": "调味"
+    },
+    "大蛤蛎": {
+      "score": 27,
+      "category": "海鲜"
+    },
+    "大豆泡": {
+      "score": 275,
+      "category": "豆制品"
+    },
+    "大闸蟹": {
+      "score": 7360,
+      "category": "河鲜"
+    },
+    "大马哈鱼": {
+      "score": 12044,
+      "category": null
+    },
+    "大鸡腿": {
+      "score": 4362,
+      "category": "肉类"
+    },
+    "大鹅": {
+      "score": 449,
+      "category": "肉类"
+    },
+    "大黄鱼": {
+      "score": 1693,
+      "category": "鱼"
+    },
+    "大龙虾": {
+      "score": 1,
+      "category": null
+    },
+    "太子蟹": {
+      "score": 51201,
+      "category": "海鲜"
+    },
+    "奶白菜": {
+      "score": 35418,
+      "category": "菜叶"
+    },
+    "奶豆腐": {
+      "score": 329,
+      "category": "豆制品"
+    },
+    "姜": {
+      "score": 31,
+      "category": "调味"
+    },
+    "娃儿菜": {
+      "score": 1179,
+      "category": null
+    },
+    "娃娃菜": {
+      "score": 31111,
+      "category": "菜叶"
+    },
+    "嫩仔姜": {
+      "score": 2078,
+      "category": "调味"
+    },
+    "嫩南瓜": {
+      "score": 272,
+      "category": "瓜果"
+    },
+    "嫩姜": {
+      "score": 2078,
+      "category": "调味"
+    },
+    "嫩子姜": {
+      "score": 2078,
+      "category": "调味"
+    },
+    "嫩蒜苗": {
+      "score": 452,
+      "category": "菜叶"
+    },
+    "嫩豆干": {
+      "score": 701,
+      "category": "豆制品"
+    },
+    "嫩豆腐": {
+      "score": 10802,
+      "category": "豆制品"
+    },
+    "子姜": {
+      "score": 2078,
+      "category": "调味"
+    },
+    "季花鱼": {
+      "score": 1,
+      "category": null
+    },
+    "宽扁豆": {
+      "score": 1005,
+      "category": "豆类"
+    },
+    "宽粉": {
+      "score": 3227,
+      "category": "主食"
+    },
+    "宽面": {
+      "score": 1,
+      "category": null
+    },
+    "宽面条": {
+      "score": 21,
+      "category": "主食"
+    },
+    "寨花": {
+      "score": 1,
+      "category": null
+    },
+    "对虾": {
+      "score": 5320,
+      "category": "海鲜"
+    },
+    "小乳瓜": {
+      "score": 15,
+      "category": "瓜果"
+    },
+    "小娃娃菜": {
+      "score": 31111,
+      "category": "菜叶"
+    },
+    "小平菇": {
+      "score": 1,
+      "category": null
+    },
+    "小棠菜": {
+      "score": 36,
+      "category": "菜叶"
+    },
+    "小油菜": {
+      "score": 6833,
+      "category": "菜叶"
+    },
+    "小白菜": {
+      "score": 5611,
+      "category": "菜叶"
+    },
+    "小章鱼": {
+      "score": 588,
+      "category": "海鲜"
+    },
+    "小米": {
+      "score": 4757,
+      "category": "主食"
+    },
+    "小米椒": {
+      "score": 3347,
+      "category": "瓜果"
+    },
+    "小米辣": {
+      "score": 4757,
+      "category": "主食"
+    },
+    "小米饼": {
+      "score": 78,
+      "category": "主食"
+    },
+    "小芥蓝": {
+      "score": 22,
+      "category": "菜叶"
+    },
+    "小茴香菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "小葱": {
+      "score": 1889,
+      "category": "调味"
+    },
+    "小里脊": {
+      "score": 1113,
+      "category": "肉类"
+    },
+    "小银鲳鱼": {
+      "score": 13,
+      "category": "鱼"
+    },
+    "小青菜": {
+      "score": 2098,
+      "category": "菜叶"
+    },
+    "小青龙": {
+      "score": 135,
+      "category": "海鲜"
+    },
+    "小香肠": {
+      "score": 6,
+      "category": null
+    },
+    "小鸡腿": {
+      "score": 4362,
+      "category": "肉类"
+    },
+    "小麦粉": {
+      "score": 141,
+      "category": "主食"
+    },
+    "小麦芹": {
+      "score": 402,
+      "category": "菜叶"
+    },
+    "小黄鱼": {
+      "score": 11191,
+      "category": "鱼"
+    },
+    "小龙虾": {
+      "score": 18135,
+      "category": "河鲜"
+    },
+    "小龙虾尾": {
+      "score": 2223,
+      "category": "河鲜"
+    },
+    "山奈": {
+      "score": 1,
+      "category": null
+    },
+    "山楂": {
+      "score": 2917,
+      "category": "水果"
+    },
+    "山药": {
+      "score": 24694,
+      "category": "根茎"
+    },
+    "巴丁鱼": {
+      "score": 6736,
+      "category": null
+    },
+    "巴旦木": {
+      "score": 19,
+      "category": "水果"
+    },
+    "巴沙鱼": {
+      "score": 6736,
+      "category": "鱼"
+    },
+    "帝王蟹": {
+      "score": 393,
+      "category": "海鲜"
+    },
+    "带鱼": {
+      "score": 19767,
+      "category": "鱼"
+    },
+    "干冬菇": {
+      "score": 315,
+      "category": "菌菇"
+    },
+    "干姬松茸": {
+      "score": 213,
+      "category": "菌菇"
+    },
+    "干油豆皮": {
+      "score": 62,
+      "category": "豆制品"
+    },
+    "干海带丝": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "干腐竹": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "干花生": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "干茶树菇": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "干葱仔": {
+      "score": 1,
+      "category": "调味"
+    },
+    "干葱头": {
+      "score": 1,
+      "category": "调味"
+    },
+    "干虾仁": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "干虾皮": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "干豆棍": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "干豆皮": {
+      "score": 1877,
+      "category": "豆制品"
+    },
+    "干豆皮丝": {
+      "score": 2892,
+      "category": "豆制品"
+    },
+    "干豆筋棍": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "干豆腐": {
+      "score": 10802,
+      "category": "豆制品"
+    },
+    "干豆腐丝": {
+      "score": 2892,
+      "category": "豆制品"
+    },
+    "干豆腐结": {
+      "score": 262,
+      "category": "豆制品"
+    },
+    "干贝": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "干贝柱": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "干贡菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "干辣椒": {
+      "score": 1,
+      "category": "调味"
+    },
+    "干香菇": {
+      "score": 315,
+      "category": "菌菇"
+    },
+    "干鱿鱼": {
+      "score": 93,
+      "category": "海鲜"
+    },
+    "干黄花菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "平包菜": {
+      "score": 28182,
+      "category": "菜叶"
+    },
+    "平菇": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "年糕": {
+      "score": 1,
+      "category": "主食"
+    },
+    "广味腊肠": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "心管": {
+      "score": 1,
+      "category": null
+    },
+    "扁豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "扇贝": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "扇骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "手擀粉": {
+      "score": 1,
+      "category": "主食"
+    },
+    "手擀面": {
+      "score": 1,
+      "category": "主食"
+    },
+    "扒皮鱼": {
+      "score": 413,
+      "category": "鱼"
+    },
+    "抄手皮": {
+      "score": 1,
+      "category": "主食"
+    },
+    "折耳根": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "折耳根叶": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "抱子芥": {
+      "score": 1179,
+      "category": null
+    },
+    "拉皮": {
+      "score": 1,
+      "category": "主食"
+    },
+    "拉面": {
+      "score": 1,
+      "category": "主食"
+    },
+    "挂面": {
+      "score": 1,
+      "category": "主食"
+    },
+    "掌中宝": {
+      "score": 1,
+      "category": null
+    },
+    "排骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "撒尿丸子": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "撒尿牛丸": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "支竹": {
+      "score": 1,
+      "category": null
+    },
+    "散花菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "整鸭": {
+      "score": 97,
+      "category": "肉类"
+    },
+    "文哈": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "文昌鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "文昌鸡": {
+      "score": 1677,
+      "category": "肉类"
+    },
+    "文蛤": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "斑节虾": {
+      "score": 290,
+      "category": "海鲜"
+    },
+    "料酒": {
+      "score": 1,
+      "category": "调味"
+    },
+    "方竹笋": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "无筋豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "无筋豆角": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "无骨鸡爪": {
+      "score": 35131,
+      "category": "肉类"
+    },
+    "无骨鸭掌": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "日本豆腐": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "旱芹": {
+      "score": 1,
+      "category": null
+    },
+    "旱黄瓜": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "昂刺鱼": {
+      "score": 173,
+      "category": null
+    },
+    "昆布": {
+      "score": 1,
+      "category": null
+    },
+    "明虾": {
+      "score": 5320,
+      "category": "海鲜"
+    },
+    "春不老": {
+      "score": 1,
+      "category": null
+    },
+    "春笋": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "春菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "月牙骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "月鲫": {
+      "score": 1,
+      "category": null
+    },
+    "朝天椒": {
+      "score": 1,
+      "category": "调味"
+    },
+    "木耳": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "木耳菜": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "朴菇": {
+      "score": 1,
+      "category": null
+    },
+    "杏鲍菇": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "杨梅": {
+      "score": 1,
+      "category": "水果"
+    },
+    "杭椒": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "杭白菜": {
+      "score": 5611,
+      "category": "菜叶"
+    },
+    "松仁": {
+      "score": 1,
+      "category": "水果"
+    },
+    "松花皮蛋": {
+      "score": 1,
+      "category": "蛋奶"
+    },
+    "松花菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "松花蛋": {
+      "score": 1,
+      "category": "蛋奶"
+    },
+    "松茸菌": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "板栗": {
+      "score": 1,
+      "category": "水果"
+    },
+    "板栗仁": {
+      "score": 1,
+      "category": "水果"
+    },
+    "板栗肉": {
+      "score": 1,
+      "category": "水果"
+    },
+    "板蟹": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "板鸭": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "枣构杞": {
+      "score": 1,
+      "category": "水果"
+    },
+    "枪蟹": {
+      "score": 1,
+      "category": null
+    },
+    "枸杞": {
+      "score": 1,
+      "category": "水果"
+    },
+    "枸杞叶": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "柔鱼": {
+      "score": 93,
+      "category": null
+    },
+    "柚子": {
+      "score": 1,
+      "category": "水果"
+    },
+    "柠檬叶": {
+      "score": 1,
+      "category": "调味"
+    },
+    "柿子": {
+      "score": 1,
+      "category": "水果"
+    },
+    "柿子椒": {
+      "score": 1,
+      "category": "水果"
+    },
+    "柿饼": {
+      "score": 1,
+      "category": "水果"
+    },
+    "格子豆腐": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "桂皮": {
+      "score": 1,
+      "category": "调味"
+    },
+    "桂花肠": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "桂花鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "桂鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "桃": {
+      "score": 1,
+      "category": "水果"
+    },
+    "梅头肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "梅干菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "梅条肉": {
+      "score": 1113,
+      "category": "肉类"
+    },
+    "梅花肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "梨": {
+      "score": 1,
+      "category": "水果"
+    },
+    "梭子蟹": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "梭边鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "棒菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "棒骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "椰子": {
+      "score": 1,
+      "category": "水果"
+    },
+    "榛蘑": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "榴莲蜜薯": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "槟榔芋": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "樱桃": {
+      "score": 1,
+      "category": "水果"
+    },
+    "樱桃萝卜": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "橄榄豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "欧芹": {
+      "score": 1,
+      "category": "调味"
+    },
+    "武昌鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "母鸡": {
+      "score": 1677,
+      "category": "肉类"
+    },
+    "比目鱼": {
+      "score": 1,
+      "category": null
+    },
+    "毛刀鱼": {
+      "score": 1248,
+      "category": null
+    },
+    "毛子": {
+      "score": 1,
+      "category": null
+    },
+    "毛山药": {
+      "score": 24694,
+      "category": "根茎"
+    },
+    "毛肚": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "毛葱头": {
+      "score": 1,
+      "category": "调味"
+    },
+    "毛虾干": {
+      "score": 1,
+      "category": null
+    },
+    "毛蛤蜊": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "毛蟹": {
+      "score": 7360,
+      "category": null
+    },
+    "毛豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "毛豆米": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "毛豆粒": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "毛豆角": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "气泡鱼": {
+      "score": 1,
+      "category": null
+    },
+    "水发海带": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "水发牛筋": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "水发牛蹄筋": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "水发羊筋": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "水晶包": {
+      "score": 1,
+      "category": "主食"
+    },
+    "水果玉米": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "水果萝卜": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "水果黄瓜": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "水瓜": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "水笋": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "水芹菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "水蜜桃": {
+      "score": 1,
+      "category": "水果"
+    },
+    "水豆腐": {
+      "score": 10802,
+      "category": "豆制品"
+    },
+    "汉菜": {
+      "score": 1,
+      "category": null
+    },
+    "江团": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "江团鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "江白菜": {
+      "score": 1,
+      "category": null
+    },
+    "沙姜": {
+      "score": 1,
+      "category": "调味"
+    },
+    "沙拉菜": {
+      "score": 99,
+      "category": "菜叶"
+    },
+    "沙棘": {
+      "score": 1,
+      "category": "水果"
+    },
+    "沙甲": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "沙茶酱": {
+      "score": 1,
+      "category": "调味"
+    },
+    "沙葛": {
+      "score": 113,
+      "category": null
+    },
+    "沙葱": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "河虾": {
+      "score": 1,
+      "category": "河鲜"
+    },
+    "河蟹": {
+      "score": 7360,
+      "category": null
+    },
+    "河豚": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "河鲀": {
+      "score": 1,
+      "category": null
+    },
+    "河鲈鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "油炸干子": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "油菜": {
+      "score": 6833,
+      "category": "菜叶"
+    },
+    "油菜心": {
+      "score": 6833,
+      "category": "菜叶"
+    },
+    "油菜苔": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "油豆泡": {
+      "score": 275,
+      "category": "豆制品"
+    },
+    "油豆皮": {
+      "score": 62,
+      "category": "豆制品"
+    },
+    "油豆腐": {
+      "score": 275,
+      "category": "豆制品"
+    },
+    "油豆腐泡": {
+      "score": 275,
+      "category": "豆制品"
+    },
+    "油豆角": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "油辣椒": {
+      "score": 1,
+      "category": "调味"
+    },
+    "油面筋": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "油麦菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "泡小米辣": {
+      "score": 1,
+      "category": "调味"
+    },
+    "泡泡豆干": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "泡灯笼椒": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "波士顿龙虾": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "泥螺": {
+      "score": 1,
+      "category": "河鲜"
+    },
+    "泥鳅": {
+      "score": 1,
+      "category": "河鲜"
+    },
+    "洋姜": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "洋白菜": {
+      "score": 28182,
+      "category": null
+    },
+    "洋芋": {
+      "score": 131119,
+      "category": null
+    },
+    "洋芹": {
+      "score": 1,
+      "category": null
+    },
+    "洋葱": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "海参": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "海带": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "海带丝": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "海带头": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "海带结": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "海带芽": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "海带苗": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "海扇": {
+      "score": 1,
+      "category": null
+    },
+    "海毛虾": {
+      "score": 1,
+      "category": null
+    },
+    "海猪螺": {
+      "score": 1,
+      "category": null
+    },
+    "海白菜": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "海白虾": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "海米": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "海胆": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "海芥菜": {
+      "score": 1,
+      "category": null
+    },
+    "海虹": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "海虾": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "海虾仁": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "海蛎子": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "海螺": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "海鲈鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "海鲜菇": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "海鸭蛋": {
+      "score": 1,
+      "category": "蛋奶"
+    },
+    "淀粉": {
+      "score": 1,
+      "category": "调味"
+    },
+    "淮山药": {
+      "score": 24694,
+      "category": "根茎"
+    },
+    "混子": {
+      "score": 1,
+      "category": null
+    },
+    "清水笋": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "清江鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "清瓜": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "湿花生": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "湿豆皮": {
+      "score": 1877,
+      "category": "豆制品"
+    },
+    "潺菜": {
+      "score": 1,
+      "category": null
+    },
+    "澳洲龙虾": {
+      "score": 1,
+      "category": null
+    },
+    "澳龙": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "濑尿牛肉丸": {
+      "score": 1,
+      "category": null
+    },
+    "濑尿虾": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "火箭鱿": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "火箭鱿鱼": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "火腿": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "火锅丸子": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "火锅刀削面": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "火锅年糕": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "火锅笋尖": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "火锅裙带菜": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "火锅豆皮": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "火锅豆腐": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "火锅香油": {
+      "score": 1,
+      "category": "调味"
+    },
+    "火锅魔芋": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "火锅鸭血": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "炸响铃": {
+      "score": 320,
+      "category": "豆制品"
+    },
+    "烟熏肉": {
+      "score": 1,
+      "category": null
+    },
+    "烟熏豆干": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "烟熏豆腐干": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "烟薯": {
+      "score": 12871,
+      "category": "根茎"
+    },
+    "烤馕": {
+      "score": 1,
+      "category": null
+    },
+    "烤麸": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "烧饼": {
+      "score": 1,
+      "category": "主食"
+    },
+    "烩面": {
+      "score": 1,
+      "category": "主食"
+    },
+    "熏猪蹄": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "熏肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "熏蹄": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "熟棱角": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "熟芝麻": {
+      "score": 1,
+      "category": "调味"
+    },
+    "燕饺": {
+      "score": 1,
+      "category": "主食"
+    },
+    "燕鱼": {
+      "score": 1,
+      "category": null
+    },
+    "牛上肩": {
+      "score": 1,
+      "category": null
+    },
+    "牛上脑": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛丸": {
+      "score": 1,
+      "category": null
+    },
+    "牛前腿肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛吊龙": {
+      "score": 4299,
+      "category": "肉类"
+    },
+    "牛大骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛奶": {
+      "score": 1,
+      "category": "蛋奶"
+    },
+    "牛嫩肩": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛尾": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛尾骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛心菜": {
+      "score": 28182,
+      "category": "菜叶"
+    },
+    "牛排": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛排骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛杆菌": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "牛板腱": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛柳": {
+      "score": 4299,
+      "category": "肉类"
+    },
+    "牛棒骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛百叶": {
+      "score": 62,
+      "category": "内脏"
+    },
+    "牛皮豆干": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "牛眼肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛窝骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛筋": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛筋面": {
+      "score": 1,
+      "category": "主食"
+    },
+    "牛筒骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛肉丸": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "牛肉卷": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "牛肉干": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛肉肠": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "牛肋排": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛肋条": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛肚": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "牛肝菌": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "牛胸油": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛胸肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛胸脯": {
+      "score": 1,
+      "category": null
+    },
+    "牛脊骨": {
+      "score": 1,
+      "category": null
+    },
+    "牛脑": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "牛腩": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛腰": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "牛腱子": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛腱肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛腹肉": {
+      "score": 1,
+      "category": null
+    },
+    "牛腿肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛臀肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛蛙": {
+      "score": 1,
+      "category": "河鲜"
+    },
+    "牛蝎子": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛蹄筋": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛里脊": {
+      "score": 4299,
+      "category": "肉类"
+    },
+    "牛霖肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛骨髓": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牛黄喉": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "牡蛎": {
+      "score": 1,
+      "category": null
+    },
+    "牡蛎肉": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "牦牛牛肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "牦牛肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "独头蒜": {
+      "score": 52,
+      "category": "调味"
+    },
+    "独蒜": {
+      "score": 52,
+      "category": "调味"
+    },
+    "猕猴桃": {
+      "score": 1,
+      "category": "水果"
+    },
+    "猪上颚": {
+      "score": 1,
+      "category": null
+    },
+    "猪二刀": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪利": {
+      "score": 1,
+      "category": null
+    },
+    "猪前夹肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪前小排": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪前排": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪前肘": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪前肘子": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪前腿肉": {
+      "score": 53,
+      "category": "肉类"
+    },
+    "猪前膈肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪后肘子": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪后腿": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪后膈肉": {
+      "score": 53,
+      "category": null
+    },
+    "猪后蹄": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪大排": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪大肠": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "猪大骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪天梯": {
+      "score": 1,
+      "category": null
+    },
+    "猪小排": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪小肚": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "猪尾巴": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪尾骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪展肉": {
+      "score": 53,
+      "category": "肉类"
+    },
+    "猪心": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "猪心管": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "猪扇骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪手": {
+      "score": 1,
+      "category": null
+    },
+    "猪排骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪梅花": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪棒子骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪棒骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪爪": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪牙梗": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪牙龈": {
+      "score": 1,
+      "category": null
+    },
+    "猪瘦肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪皮": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪筒": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪筒骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪红": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "猪耳": {
+      "score": 1,
+      "category": null
+    },
+    "猪耳朵": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "猪肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪肉卷": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "猪肉肠": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "猪肋排": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪肘": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪肘子": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪肚": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "猪肚子": {
+      "score": 1,
+      "category": null
+    },
+    "猪肝": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "猪肠": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "猪肺": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "猪脊骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪脑": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "猪脑花": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "猪脚": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪腰": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "猪腰子": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "猪腱子肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪腿肉": {
+      "score": 53,
+      "category": "肉类"
+    },
+    "猪舌": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "猪舌头": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "猪血": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "猪蹄": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪软骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪通脊": {
+      "score": 1,
+      "category": null
+    },
+    "猪里脊": {
+      "score": 1113,
+      "category": "肉类"
+    },
+    "猪里脊肉": {
+      "score": 1113,
+      "category": "肉类"
+    },
+    "猪颈肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪颈骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猪黄喉": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "猪龙骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "猫耳朵面": {
+      "score": 1,
+      "category": "主食"
+    },
+    "猫耳面": {
+      "score": 1,
+      "category": "主食"
+    },
+    "玉兰片": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "玉子豆腐": {
+      "score": 1,
+      "category": null
+    },
+    "玉米": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "玉米笋": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "玉米饼": {
+      "score": 1,
+      "category": "主食"
+    },
+    "王八": {
+      "score": 1,
+      "category": null
+    },
+    "珍宝蟹": {
+      "score": 51201,
+      "category": "海鲜"
+    },
+    "球生菜": {
+      "score": 99,
+      "category": "菜叶"
+    },
+    "琵琶腿": {
+      "score": 4362,
+      "category": "肉类"
+    },
+    "瑶柱": {
+      "score": 1,
+      "category": null
+    },
+    "瓠子瓜": {
+      "score": 47,
+      "category": "瓜果"
+    },
+    "瓠瓜": {
+      "score": 47,
+      "category": "瓜果"
+    },
+    "甜南瓜": {
+      "score": 52383,
+      "category": "瓜果"
+    },
+    "甜椒": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "甜玉米": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "甜瓜": {
+      "score": 1,
+      "category": "水果"
+    },
+    "甜菜叶": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "甜蒜头": {
+      "score": 1,
+      "category": "调味"
+    },
+    "甜虾": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "甜豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "甜豆粒": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "甜面酱": {
+      "score": 1,
+      "category": "调味"
+    },
+    "生姜": {
+      "score": 31,
+      "category": "调味"
+    },
+    "生板栗": {
+      "score": 1,
+      "category": "水果"
+    },
+    "生盐蛋": {
+      "score": 12447,
+      "category": "蛋奶"
+    },
+    "生花生": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "生菜": {
+      "score": 99,
+      "category": "菜叶"
+    },
+    "生蚝": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "生鸡爪": {
+      "score": 35131,
+      "category": "肉类"
+    },
+    "生鸭蛋": {
+      "score": 1,
+      "category": "蛋奶"
+    },
+    "生鹅蛋": {
+      "score": 1,
+      "category": "蛋奶"
+    },
+    "田螺": {
+      "score": 1,
+      "category": "河鲜"
+    },
+    "甲鱼": {
+      "score": 1,
+      "category": "河鲜"
+    },
+    "番茄": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "番薯": {
+      "score": 12871,
+      "category": "根茎"
+    },
+    "白凉粉": {
+      "score": 5089,
+      "category": "主食"
+    },
+    "白千层": {
+      "score": 62,
+      "category": "内脏"
+    },
+    "白吉饼": {
+      "score": 1,
+      "category": null
+    },
+    "白吉馍": {
+      "score": 1,
+      "category": "主食"
+    },
+    "白木耳": {
+      "score": 1,
+      "category": null
+    },
+    "白条鸭": {
+      "score": 97,
+      "category": "肉类"
+    },
+    "白毛肚": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "白洋葱": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "白玉菇": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "白花菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "白苋菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "白茄子": {
+      "score": 5214,
+      "category": "瓜果"
+    },
+    "白菜": {
+      "score": 35418,
+      "category": "菜叶"
+    },
+    "白菜心": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "白菜花": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "白菜苔": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "白萝卜": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "白蘑菇": {
+      "score": 12233,
+      "category": "菌菇"
+    },
+    "白虾": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "白蟹": {
+      "score": 1,
+      "category": null
+    },
+    "白豆干": {
+      "score": 701,
+      "category": "豆制品"
+    },
+    "白豆腐": {
+      "score": 10802,
+      "category": "豆制品"
+    },
+    "白豆角": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "白豇豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "白长豆角": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "白馒头": {
+      "score": 1,
+      "category": "主食"
+    },
+    "白鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "白鲢鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "白鳗": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "白鳝": {
+      "score": 1,
+      "category": null
+    },
+    "白鸭": {
+      "score": 97,
+      "category": "肉类"
+    },
+    "百叶": {
+      "score": 2510,
+      "category": null
+    },
+    "百合": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "皇帝菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "皮皮虾": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "皮蛋": {
+      "score": 1,
+      "category": "蛋奶"
+    },
+    "皱皮椒": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "皱皮青椒": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "盐": {
+      "score": 1,
+      "category": "调味"
+    },
+    "盐水鸭": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "盖菜": {
+      "score": 22,
+      "category": null
+    },
+    "目鱼干": {
+      "score": 490,
+      "category": null
+    },
+    "目鱼花": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "眉毛肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "真姬菇": {
+      "score": 1,
+      "category": null
+    },
+    "睡莲": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "石斑鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "石榴": {
+      "score": 1,
+      "category": "水果"
+    },
+    "石耳": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "石螺": {
+      "score": 1,
+      "category": null
+    },
+    "秀珍菇": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "秋葵": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "空心菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "章鱼": {
+      "score": 1990,
+      "category": null
+    },
+    "章鱼足": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "章鱼须": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "竹丝鸡": {
+      "score": 5962,
+      "category": null
+    },
+    "竹笋": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "竹笙": {
+      "score": 1,
+      "category": null
+    },
+    "竹筒笋": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "竹荪": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "笋子": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "笋尖": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "笋干": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "笋条": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "筒子骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "筒蒿": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "筒骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "米粉": {
+      "score": 1,
+      "category": "主食"
+    },
+    "米线": {
+      "score": 1,
+      "category": "主食"
+    },
+    "米豆腐": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "粉丝": {
+      "score": 1,
+      "category": "主食"
+    },
+    "粉条": {
+      "score": 3227,
+      "category": null
+    },
+    "粉皮": {
+      "score": 3227,
+      "category": "主食"
+    },
+    "粉葛": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "粉藕": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "粗棒棒面": {
+      "score": 1,
+      "category": "主食"
+    },
+    "粗茄子": {
+      "score": 5214,
+      "category": "瓜果"
+    },
+    "精瘦肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "糖": {
+      "score": 1,
+      "category": "调味"
+    },
+    "糖蒜": {
+      "score": 1,
+      "category": "调味"
+    },
+    "糜米": {
+      "score": 1,
+      "category": "主食"
+    },
+    "糟蛋": {
+      "score": 1,
+      "category": "蛋奶"
+    },
+    "糯玉米": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "糯白玉米": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "糯米": {
+      "score": 1,
+      "category": "主食"
+    },
+    "素鲍鱼": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "素鸡": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "紫包菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "紫洋葱": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "紫甘蓝": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "紫皮蒜": {
+      "score": 5593,
+      "category": "调味"
+    },
+    "紫苏": {
+      "score": 1,
+      "category": "调味"
+    },
+    "紫苏叶": {
+      "score": 1,
+      "category": "调味"
+    },
+    "紫茄子": {
+      "score": 5214,
+      "category": "瓜果"
+    },
+    "紫菜": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "紫薯": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "紫薯糯米丸子": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "红小扁豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "红尖椒": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "红彩椒": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "红杭椒": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "红枣": {
+      "score": 1,
+      "category": "水果"
+    },
+    "红椒": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "红汉菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "红油": {
+      "score": 1,
+      "category": "调味"
+    },
+    "红油菜苔": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "红洋葱": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "红皮萝卜": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "红线椒": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "红美人椒": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "红肠": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "红苋菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "红苕": {
+      "score": 12871,
+      "category": "根茎"
+    },
+    "红菜苔": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "红萝卜": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "红葱头": {
+      "score": 1,
+      "category": "调味"
+    },
+    "红薯": {
+      "score": 12871,
+      "category": "根茎"
+    },
+    "红薯叶": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "红薯尖": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "红薯粉条": {
+      "score": 3227,
+      "category": "主食"
+    },
+    "红虾": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "红虾仁": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "红虾皮": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "红豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "纯瘦肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "线椒": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "线茄子": {
+      "score": 2177,
+      "category": "瓜果"
+    },
+    "细米线": {
+      "score": 1,
+      "category": "主食"
+    },
+    "细茄子": {
+      "score": 2177,
+      "category": "瓜果"
+    },
+    "绣球菌": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "绿花菜": {
+      "score": 1,
+      "category": null
+    },
+    "绿茄子": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "绿豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "绿豆芽": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "罗勒": {
+      "score": 82,
+      "category": "调味"
+    },
+    "罗勒叶": {
+      "score": 82,
+      "category": "调味"
+    },
+    "罗氏虾": {
+      "score": 538,
+      "category": "河鲜"
+    },
+    "罗汉果": {
+      "score": 1,
+      "category": "水果"
+    },
+    "罗汉笋": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "罗非鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "罗马生菜": {
+      "score": 99,
+      "category": "菜叶"
+    },
+    "羊五花": {
+      "score": 1,
+      "category": null
+    },
+    "羊前腿": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "羊后腿": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "羊排": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "羊杂": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "羊肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "羊肉串": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "羊肉卷": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "羊脊骨": {
+      "score": 1,
+      "category": null
+    },
+    "羊脖子肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "羊腩": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "羊腰子": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "羊腿": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "羊腿肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "羊蝎子": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "羊角豆": {
+      "score": 1,
+      "category": null
+    },
+    "美人椒": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "翘嘴鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "老南瓜": {
+      "score": 52383,
+      "category": "瓜果"
+    },
+    "老姜": {
+      "score": 31,
+      "category": "调味"
+    },
+    "老棱角": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "老母鸡": {
+      "score": 1677,
+      "category": "肉类"
+    },
+    "老虎斑": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "老豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "老豆腐": {
+      "score": 10802,
+      "category": "豆制品"
+    },
+    "老鸭": {
+      "score": 97,
+      "category": "肉类"
+    },
+    "老鸭子": {
+      "score": 97,
+      "category": "肉类"
+    },
+    "老麻鸭": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "耗儿鱼": {
+      "score": 413,
+      "category": "鱼"
+    },
+    "耙胡豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "耙豌豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "肋排": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "肋排骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "肋条肉": {
+      "score": 15717,
+      "category": null
+    },
+    "肋眼": {
+      "score": 1,
+      "category": null
+    },
+    "肘子": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "肥沱": {
+      "score": 1,
+      "category": null
+    },
+    "肥牛卷": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "肥肠": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "肩胛软骨": {
+      "score": 1,
+      "category": null
+    },
+    "胆水豆腐": {
+      "score": 10802,
+      "category": "豆制品"
+    },
+    "背柳肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "胖头鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "胖白豇豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "胖豆角": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "胡椒": {
+      "score": 1,
+      "category": "调味"
+    },
+    "胡荽": {
+      "score": 1,
+      "category": null
+    },
+    "胡萝卜": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "胡豆": {
+      "score": 1,
+      "category": null
+    },
+    "胭脂萝卜": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "脆皮豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "脆皮豆腐": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "脆豆腐": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "脆骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "脊骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "脐橙": {
+      "score": 1,
+      "category": "水果"
+    },
+    "脑花": {
+      "score": 1,
+      "category": null
+    },
+    "腊排骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "腊猪脚": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "腊猪蹄膀": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "腊肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "腊肠": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "腊草鱼干": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "腊鸡腿": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "腊鸭": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "腊鸭腿": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "腐乳": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "腐皮": {
+      "score": 1,
+      "category": null
+    },
+    "腐竹": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "臭干子": {
+      "score": 1,
+      "category": null
+    },
+    "臭豆腐": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "艇巴": {
+      "score": 1,
+      "category": null
+    },
+    "芋丝": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "芋仔": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "芋儿": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "芋头": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "芋艿": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "芒果": {
+      "score": 1,
+      "category": "水果"
+    },
+    "芝麻菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "芝麻酱": {
+      "score": 1,
+      "category": "调味"
+    },
+    "芥兰苗": {
+      "score": 22,
+      "category": "菜叶"
+    },
+    "芥菜": {
+      "score": 22,
+      "category": "菜叶"
+    },
+    "芦柑": {
+      "score": 1,
+      "category": "水果"
+    },
+    "芦笋": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "芦蒿": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "芫荽": {
+      "score": 1,
+      "category": null
+    },
+    "花卷": {
+      "score": 1,
+      "category": "主食"
+    },
+    "花椒": {
+      "score": 1,
+      "category": "调味"
+    },
+    "花椰菜": {
+      "score": 1,
+      "category": null
+    },
+    "花生": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "花生碎": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "花生芽": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "花甲": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "花胶": {
+      "score": 1,
+      "category": null
+    },
+    "花菇": {
+      "score": 315,
+      "category": "菌菇"
+    },
+    "花菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "花蛤": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "花螺": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "花蟹": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "花鲈": {
+      "score": 1,
+      "category": null
+    },
+    "花鲢": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "花鲢鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "花鲢鱼头": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "花鲢鱼尾": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "花龙": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "芹菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "芽菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "苋菜": {
+      "score": 1,
+      "category": null
+    },
+    "苕尖": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "苕皮": {
+      "score": 1,
+      "category": "主食"
+    },
+    "苜蓿": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "苦瓜": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "苦苣": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "苦菊": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "苦菜": {
+      "score": 1,
+      "category": null
+    },
+    "苦藠头": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "苹果": {
+      "score": 1,
+      "category": "水果"
+    },
+    "茄子": {
+      "score": 5214,
+      "category": "瓜果"
+    },
+    "茅根": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "茅草根": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "茭白": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "茴香": {
+      "score": 1,
+      "category": "调味"
+    },
+    "茶叶": {
+      "score": 1,
+      "category": "调味"
+    },
+    "茶树菇": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "茼蒿": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "茼蒿菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "草头": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "草莓": {
+      "score": 1,
+      "category": "水果"
+    },
+    "草虾": {
+      "score": 1,
+      "category": null
+    },
+    "草鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "草鲩": {
+      "score": 1,
+      "category": null
+    },
+    "草鸡": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "荔枝": {
+      "score": 1,
+      "category": "水果"
+    },
+    "荞麦面": {
+      "score": 1,
+      "category": "主食"
+    },
+    "荠菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "荷兰芹": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "荷兰豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "荷叶饼": {
+      "score": 1,
+      "category": "主食"
+    },
+    "荸荠": {
+      "score": 1,
+      "category": null
+    },
+    "莜面": {
+      "score": 1,
+      "category": "主食"
+    },
+    "莜麦菜": {
+      "score": 1,
+      "category": null
+    },
+    "莲子": {
+      "score": 1,
+      "category": "水果"
+    },
+    "莲白": {
+      "score": 28182,
+      "category": "菜叶"
+    },
+    "莲花白": {
+      "score": 28182,
+      "category": "菜叶"
+    },
+    "莲藕": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "莴笋": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "莴笋头": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "莴笋尖": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "莴笋杆": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "莴苣": {
+      "score": 1,
+      "category": null
+    },
+    "莼菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "菊芋": {
+      "score": 1,
+      "category": null
+    },
+    "菜南瓜": {
+      "score": 272,
+      "category": "瓜果"
+    },
+    "菜心": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "菜心苗": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "菜椒": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "菜瓜": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "菜花": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "菜苔": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "菜薹": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "菠菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "菠菜苗": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "菠萝": {
+      "score": 1,
+      "category": "水果"
+    },
+    "菱角": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "菲力": {
+      "score": 4299,
+      "category": null
+    },
+    "萝卜": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "萝卜干": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "落葵": {
+      "score": 1,
+      "category": null
+    },
+    "葡萄": {
+      "score": 1,
+      "category": "水果"
+    },
+    "葡萄干": {
+      "score": 1,
+      "category": "水果"
+    },
+    "葱": {
+      "score": 1889,
+      "category": "调味"
+    },
+    "葱花": {
+      "score": 1889,
+      "category": "调味"
+    },
+    "蒜": {
+      "score": 5593,
+      "category": "调味"
+    },
+    "蒜头": {
+      "score": 5593,
+      "category": "调味"
+    },
+    "蒜末": {
+      "score": 1,
+      "category": "调味"
+    },
+    "蒜泥": {
+      "score": 1,
+      "category": "调味"
+    },
+    "蒜米": {
+      "score": 1,
+      "category": "调味"
+    },
+    "蒜苔": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "蒜苗": {
+      "score": 452,
+      "category": "菜叶"
+    },
+    "蒜薹": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "蒟蒻": {
+      "score": 1,
+      "category": null
+    },
+    "蒲瓜": {
+      "score": 47,
+      "category": "瓜果"
+    },
+    "蒿子秆": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "蓬蒿": {
+      "score": 1,
+      "category": null
+    },
+    "蕹菜": {
+      "score": 1,
+      "category": null
+    },
+    "薄千张": {
+      "score": 2510,
+      "category": "豆制品"
+    },
+    "薄皮鱼": {
+      "score": 413,
+      "category": "鱼"
+    },
+    "薄荷": {
+      "score": 1,
+      "category": "调味"
+    },
+    "薄豆干": {
+      "score": 701,
+      "category": "豆制品"
+    },
+    "薄豆皮": {
+      "score": 1877,
+      "category": "豆制品"
+    },
+    "薄豆腐干": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "薄香干": {
+      "score": 586,
+      "category": "豆制品"
+    },
+    "薯仔": {
+      "score": 131119,
+      "category": null
+    },
+    "藕": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "藕尖": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "藕粉": {
+      "score": 1,
+      "category": "主食"
+    },
+    "藜蒿": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "藠头": {
+      "score": 327,
+      "category": "根茎"
+    },
+    "藤藤菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "蘑菇": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "虫草花": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "虫草菇": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "虹鳟鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "虾": {
+      "score": 5320,
+      "category": "海鲜"
+    },
+    "虾仁": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "虾泥": {
+      "score": 1,
+      "category": null
+    },
+    "虾滑": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "虾皮": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "虾米": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "虾籽": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "虾胶": {
+      "score": 1,
+      "category": null
+    },
+    "虾饺": {
+      "score": 1,
+      "category": "主食"
+    },
+    "蚕蛹": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "蚕豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "蚕豆米": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "蚝油": {
+      "score": 1,
+      "category": "调味"
+    },
+    "蚝菇": {
+      "score": 1,
+      "category": null
+    },
+    "蚬子": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "蛏子": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "蛤蜊": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "蜜桔": {
+      "score": 1,
+      "category": "水果"
+    },
+    "蜜瓜": {
+      "score": 1,
+      "category": "水果"
+    },
+    "蜜薯": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "螃蟹": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "螺丝椒": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "螺蛳": {
+      "score": 1,
+      "category": "河鲜"
+    },
+    "蟹味棒": {
+      "score": 2890,
+      "category": null
+    },
+    "蟹味菇": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "蟹柳": {
+      "score": 2890,
+      "category": null
+    },
+    "蟹肉棒": {
+      "score": 2890,
+      "category": "海鲜"
+    },
+    "蟹黄": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "血哈": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "血旺": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "血鸽": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "裙带菜": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "裙带鱼": {
+      "score": 19767,
+      "category": null
+    },
+    "裤带面": {
+      "score": 1,
+      "category": "主食"
+    },
+    "西兰花": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "西兰苔": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "西洋菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "西瓜": {
+      "score": 1,
+      "category": "水果"
+    },
+    "西生菜": {
+      "score": 99,
+      "category": "菜叶"
+    },
+    "西红柿": {
+      "score": 1,
+      "category": null
+    },
+    "西芹": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "西葫芦": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "西蓝花": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "豆干": {
+      "score": 701,
+      "category": "豆制品"
+    },
+    "豆干丝": {
+      "score": 2892,
+      "category": "豆制品"
+    },
+    "豆油皮": {
+      "score": 62,
+      "category": "豆制品"
+    },
+    "豆泡": {
+      "score": 275,
+      "category": null
+    },
+    "豆皮": {
+      "score": 1877,
+      "category": "豆制品"
+    },
+    "豆筋棍": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "豆腐": {
+      "score": 10802,
+      "category": "豆制品"
+    },
+    "豆腐圆": {
+      "score": 275,
+      "category": "豆制品"
+    },
+    "豆腐干": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "豆腐泡": {
+      "score": 275,
+      "category": "豆制品"
+    },
+    "豆腐皮": {
+      "score": 1877,
+      "category": "豆制品"
+    },
+    "豆花": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "豆芽": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "豆薯": {
+      "score": 113,
+      "category": null
+    },
+    "豆角": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "豆香干": {
+      "score": 701,
+      "category": "豆制品"
+    },
+    "豇豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "豌豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "豌豆尖": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "豌豆米": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "豌豆粒": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "豌豆苗": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "豌豆荚": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "象拔蚌": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "贝贝南瓜": {
+      "score": 52383,
+      "category": "瓜果"
+    },
+    "贡丸": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "贡菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "财鱼": {
+      "score": 33,
+      "category": "鱼"
+    },
+    "赤小豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "起泡豆干": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "蹄膀": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "蹄花": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "软浆叶": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "软骨": {
+      "score": 1,
+      "category": null
+    },
+    "辣椒面": {
+      "score": 1,
+      "category": "调味"
+    },
+    "辽参": {
+      "score": 1,
+      "category": null
+    },
+    "过鱼": {
+      "score": 1,
+      "category": null
+    },
+    "迷迭香": {
+      "score": 1,
+      "category": "调味"
+    },
+    "通菜": {
+      "score": 1,
+      "category": null
+    },
+    "郡把": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "郫县豆瓣": {
+      "score": 1,
+      "category": "调味"
+    },
+    "酥油": {
+      "score": 1,
+      "category": "调味"
+    },
+    "酱油": {
+      "score": 1,
+      "category": "调味"
+    },
+    "酱肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "酱鸭": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "酸嘢": {
+      "score": 1,
+      "category": "水果"
+    },
+    "酸奶": {
+      "score": 1,
+      "category": "蛋奶"
+    },
+    "酸汤": {
+      "score": 1,
+      "category": "调味"
+    },
+    "酸笋": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "酸菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "酿皮": {
+      "score": 1,
+      "category": "主食"
+    },
+    "醋": {
+      "score": 1,
+      "category": "调味"
+    },
+    "里脊肉": {
+      "score": 1113,
+      "category": "肉类"
+    },
+    "野山椒": {
+      "score": 1,
+      "category": "调味"
+    },
+    "金不换": {
+      "score": 82,
+      "category": "调味"
+    },
+    "金华火腿": {
+      "score": 1,
+      "category": null
+    },
+    "金昌鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "金桔": {
+      "score": 1,
+      "category": "水果"
+    },
+    "金菇": {
+      "score": 1,
+      "category": null
+    },
+    "金针菇": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "金钩": {
+      "score": 1,
+      "category": null
+    },
+    "金钱腱": {
+      "score": 1,
+      "category": null
+    },
+    "金鲳鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "钉螺": {
+      "score": 1,
+      "category": "河鲜"
+    },
+    "钳鱼": {
+      "score": 1,
+      "category": null
+    },
+    "铁棍山药": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "银昌": {
+      "score": 13,
+      "category": "鱼"
+    },
+    "银耳": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "银鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "银鳕鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "长丝瓜": {
+      "score": 21414,
+      "category": "瓜果"
+    },
+    "长白萝卜": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "长茄子": {
+      "score": 2177,
+      "category": "瓜果"
+    },
+    "长豆角": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "长豇豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "长黄瓜": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "阿根廷红虾": {
+      "score": 1,
+      "category": null
+    },
+    "陈村粉": {
+      "score": 1,
+      "category": "主食"
+    },
+    "陈醋": {
+      "score": 1,
+      "category": "调味"
+    },
+    "雪耳": {
+      "score": 1,
+      "category": null
+    },
+    "雪花梨": {
+      "score": 1,
+      "category": "水果"
+    },
+    "雪花猪肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "雪菜": {
+      "score": 1,
+      "category": null
+    },
+    "雪里红": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "雪里蕻": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "霉千张": {
+      "score": 2510,
+      "category": "豆制品"
+    },
+    "霉干菜": {
+      "score": 1,
+      "category": null
+    },
+    "青丝瓜": {
+      "score": 21414,
+      "category": "瓜果"
+    },
+    "青南瓜": {
+      "score": 272,
+      "category": "瓜果"
+    },
+    "青团粉": {
+      "score": 1,
+      "category": "主食"
+    },
+    "青小米椒": {
+      "score": 3347,
+      "category": "瓜果"
+    },
+    "青小米辣": {
+      "score": 4757,
+      "category": "主食"
+    },
+    "青尖椒": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "青彩椒": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "青杭椒": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "青柠檬": {
+      "score": 1,
+      "category": "水果"
+    },
+    "青椒": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "青瓜": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "青稞": {
+      "score": 1,
+      "category": "主食"
+    },
+    "青稞面": {
+      "score": 1,
+      "category": "主食"
+    },
+    "青笋": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "青笋头": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "青笋杆": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "青线椒": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "青花椒": {
+      "score": 1,
+      "category": "调味"
+    },
+    "青花菜": {
+      "score": 1,
+      "category": null
+    },
+    "青茄子": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "青菜": {
+      "score": 2098,
+      "category": "菜叶"
+    },
+    "青萝卜": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "青蒜苗": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "青虾": {
+      "score": 5320,
+      "category": "海鲜"
+    },
+    "青虾仁": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "青蛙": {
+      "score": 1,
+      "category": "河鲜"
+    },
+    "青豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "青豆角": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "青豇豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "青豌豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "青黄瓜": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "青龙仔": {
+      "score": 135,
+      "category": "海鲜"
+    },
+    "面丈鱼": {
+      "score": 1,
+      "category": null
+    },
+    "面包糠": {
+      "score": 1,
+      "category": "调味"
+    },
+    "面包蟹": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "面疙瘩": {
+      "score": 1,
+      "category": "主食"
+    },
+    "面皮": {
+      "score": 2850,
+      "category": null
+    },
+    "面筋": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "面筋串": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "面筋球": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "面粉": {
+      "score": 1,
+      "category": "主食"
+    },
+    "面线": {
+      "score": 1,
+      "category": "主食"
+    },
+    "面藕": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "面鱼鱼": {
+      "score": 1,
+      "category": "主食"
+    },
+    "鞋底鱼": {
+      "score": 1,
+      "category": null
+    },
+    "鞭炮笋": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "韭叶面": {
+      "score": 1,
+      "category": "主食"
+    },
+    "韭菜": {
+      "score": 986,
+      "category": "菜叶"
+    },
+    "韭菜花": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "韭面": {
+      "score": 1,
+      "category": "主食"
+    },
+    "韭黄": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "饵丝": {
+      "score": 1,
+      "category": "主食"
+    },
+    "饺子皮": {
+      "score": 1,
+      "category": "主食"
+    },
+    "馄饨皮": {
+      "score": 1,
+      "category": "主食"
+    },
+    "馍": {
+      "score": 1,
+      "category": "主食"
+    },
+    "馍馍": {
+      "score": 1,
+      "category": "主食"
+    },
+    "馒头": {
+      "score": 1,
+      "category": "主食"
+    },
+    "馒头蟹": {
+      "score": 1,
+      "category": null
+    },
+    "馓子": {
+      "score": 1,
+      "category": "主食"
+    },
+    "馕": {
+      "score": 1,
+      "category": "主食"
+    },
+    "香干": {
+      "score": 586,
+      "category": "豆制品"
+    },
+    "香油": {
+      "score": 1,
+      "category": "调味"
+    },
+    "香笋": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "香肠": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "香芋": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "香芹": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "香茅": {
+      "score": 1,
+      "category": "调味"
+    },
+    "香茅草": {
+      "score": 1,
+      "category": "调味"
+    },
+    "香菇": {
+      "score": 315,
+      "category": "菌菇"
+    },
+    "香菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "香葱": {
+      "score": 1889,
+      "category": "调味"
+    },
+    "香蕈": {
+      "score": 315,
+      "category": null
+    },
+    "香蕉": {
+      "score": 1,
+      "category": "水果"
+    },
+    "香豆腐": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "马蹄": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "马铃薯": {
+      "score": 131119,
+      "category": null
+    },
+    "马面鱼": {
+      "score": 413,
+      "category": "鱼"
+    },
+    "马鲛鱼": {
+      "score": 1,
+      "category": null
+    },
+    "马齿苋": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "高丽菜": {
+      "score": 28182,
+      "category": null
+    },
+    "高笋": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "魔芋": {
+      "score": 1,
+      "category": "主食"
+    },
+    "魔芋丝": {
+      "score": 1,
+      "category": "主食"
+    },
+    "魔芋结": {
+      "score": 1,
+      "category": "主食"
+    },
+    "魔芋豆腐": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "鮰鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "鱼丸": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "鱼卷": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "鱼头": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "鱼杂": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鱼泡": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鱼籽福袋": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "鱼糕": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "鱼腥草": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "鱼腥草叶": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "鱼蛋": {
+      "score": 1,
+      "category": null
+    },
+    "鱼豆腐": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "鱼鳔": {
+      "score": 1,
+      "category": null
+    },
+    "鱿鱼": {
+      "score": 93,
+      "category": "海鲜"
+    },
+    "鱿鱼圈": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "鱿鱼干": {
+      "score": 93,
+      "category": "海鲜"
+    },
+    "鱿鱼板": {
+      "score": 93,
+      "category": "海鲜"
+    },
+    "鱿鱼花": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "鱿鱼须": {
+      "score": 93,
+      "category": "海鲜"
+    },
+    "鲅鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "鲇鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "鲈鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "鲍鱼": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "鲑鱼": {
+      "score": 12044,
+      "category": "鱼"
+    },
+    "鲙鱼": {
+      "score": 1,
+      "category": null
+    },
+    "鲟鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "鲟龙鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "鲤拐子": {
+      "score": 1,
+      "category": null
+    },
+    "鲤鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "鲩鱼": {
+      "score": 1,
+      "category": null
+    },
+    "鲫瓜子": {
+      "score": 1,
+      "category": null
+    },
+    "鲫鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "鲮公": {
+      "score": 1,
+      "category": null
+    },
+    "鲮鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "鲶鱼": {
+      "score": 1,
+      "category": null
+    },
+    "鲽鱼": {
+      "score": 1,
+      "category": null
+    },
+    "鳕鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "鳖": {
+      "score": 1,
+      "category": null
+    },
+    "鳗鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "鳙鱼": {
+      "score": 1,
+      "category": null
+    },
+    "鳜鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "鳝鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "鸡中翅": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸡全翅": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸡全腿": {
+      "score": 4362,
+      "category": "肉类"
+    },
+    "鸡大胸": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸡大腿": {
+      "score": 4362,
+      "category": "肉类"
+    },
+    "鸡小胸": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸡小腿": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸡尖翅": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸡尾": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸡心": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸡掌中宝": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸡杂": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸡枞": {
+      "score": 1,
+      "category": null
+    },
+    "鸡架": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸡毛菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "鸡爪": {
+      "score": 35131,
+      "category": "肉类"
+    },
+    "鸡爪子": {
+      "score": 35131,
+      "category": "肉类"
+    },
+    "鸡睾丸": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸡翅": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸡翅中": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸡翅尖": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸡翅根": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸡肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸡肉肠": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸡肝": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸡肠": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸡肫": {
+      "score": 1,
+      "category": null
+    },
+    "鸡肾": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸡胗": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸡胸": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸡胸肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸡脖": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸡脚": {
+      "score": 35131,
+      "category": "肉类"
+    },
+    "鸡脯肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸡腰子": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸡腿": {
+      "score": 4362,
+      "category": "肉类"
+    },
+    "鸡腿肉": {
+      "score": 4362,
+      "category": "肉类"
+    },
+    "鸡腿菇": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "鸡膝软骨": {
+      "score": 1,
+      "category": null
+    },
+    "鸡菌": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸡蛋": {
+      "score": 1,
+      "category": "蛋奶"
+    },
+    "鸡蛋肠": {
+      "score": 1,
+      "category": "火锅"
+    },
+    "鸡蛋豆腐": {
+      "score": 1,
+      "category": null
+    },
+    "鸡蛋面": {
+      "score": 1,
+      "category": "主食"
+    },
+    "鸡血": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸡边腿": {
+      "score": 4362,
+      "category": "肉类"
+    },
+    "鸡郡肝": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸡骨架": {
+      "score": 1,
+      "category": null
+    },
+    "鸭君": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸭头": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸭子": {
+      "score": 97,
+      "category": "肉类"
+    },
+    "鸭心": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸭掌": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸭爪": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸭翅": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸭翅中": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸭肉": {
+      "score": 97,
+      "category": "肉类"
+    },
+    "鸭肝": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸭肠": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸭肫": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸭胗": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸭胸肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸭胸脯肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸭脖": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸭脖子": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸭脚": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸭脚板": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸭舌": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸭菌子": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸭蛋": {
+      "score": 1,
+      "category": "蛋奶"
+    },
+    "鸭血": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸭边腿": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸭郡": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸭郡把": {
+      "score": 1,
+      "category": null
+    },
+    "鸭郡肝": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸭锁骨": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鸭食管": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "鸽子": {
+      "score": 4331,
+      "category": "肉类"
+    },
+    "鸽子蛋": {
+      "score": 1,
+      "category": "蛋奶"
+    },
+    "鸿喜菇": {
+      "score": 1,
+      "category": null
+    },
+    "鹅掌": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鹅蛋": {
+      "score": 1,
+      "category": "蛋奶"
+    },
+    "鹌鹑": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "鹌鹑蛋": {
+      "score": 1,
+      "category": "蛋奶"
+    },
+    "鹿茸菇": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "鹿茸菌": {
+      "score": 1,
+      "category": null
+    },
+    "麦螺": {
+      "score": 1,
+      "category": null
+    },
+    "麻糖": {
+      "score": 1,
+      "category": "主食"
+    },
+    "麻虾": {
+      "score": 5320,
+      "category": null
+    },
+    "麻辣烫底料": {
+      "score": 1,
+      "category": "调味"
+    },
+    "麻鸭": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "黄凉粉": {
+      "score": 1,
+      "category": "豆制品"
+    },
+    "黄喉": {
+      "score": 1,
+      "category": null
+    },
+    "黄姜": {
+      "score": 31,
+      "category": "调味"
+    },
+    "黄彩椒": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "黄心菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "黄柠檬": {
+      "score": 1,
+      "category": "水果"
+    },
+    "黄桃": {
+      "score": 1,
+      "category": "水果"
+    },
+    "黄洋葱": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "黄牛肉": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "黄牛腩": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "黄牛腿": {
+      "score": 1,
+      "category": "肉类"
+    },
+    "黄玉米": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "黄瓜": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "黄瓜花": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "黄瓜苗": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "黄白菜": {
+      "score": 35418,
+      "category": "菜叶"
+    },
+    "黄皮椒": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "黄皮辣椒": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "黄芪菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "黄花菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "黄花鱼": {
+      "score": 1693,
+      "category": null
+    },
+    "黄芽菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "黄萝卜": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "黄豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "黄豆芽": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "黄辣丁": {
+      "score": 173,
+      "category": "鱼"
+    },
+    "黄道蟹": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "黄金针菇": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "黄颡鱼": {
+      "score": 173,
+      "category": null
+    },
+    "黄骨鱼": {
+      "score": 173,
+      "category": "鱼"
+    },
+    "黄鱼": {
+      "score": 1693,
+      "category": "鱼"
+    },
+    "黄鲢": {
+      "score": 1,
+      "category": null
+    },
+    "黄鳝": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "黄鳝鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "黑平菇": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "黑木耳": {
+      "score": 1,
+      "category": null
+    },
+    "黑毛肚": {
+      "score": 1,
+      "category": "内脏"
+    },
+    "黑洋姜": {
+      "score": 1,
+      "category": "根茎"
+    },
+    "黑牛肝菌": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "黑玉米": {
+      "score": 1,
+      "category": "瓜果"
+    },
+    "黑芝麻": {
+      "score": 1,
+      "category": "调味"
+    },
+    "黑虎虾": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "黑豆": {
+      "score": 1,
+      "category": "豆类"
+    },
+    "黑豆腐": {
+      "score": 10802,
+      "category": "豆制品"
+    },
+    "黑香干": {
+      "score": 586,
+      "category": "豆制品"
+    },
+    "黑鱼": {
+      "score": 33,
+      "category": "鱼"
+    },
+    "黑鲢": {
+      "score": 1,
+      "category": null
+    },
+    "黑鸡枞菌": {
+      "score": 1,
+      "category": "菌菇"
+    },
+    "黔鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "龙利鱼": {
+      "score": 1,
+      "category": "鱼"
+    },
+    "龙眼": {
+      "score": 1,
+      "category": "水果"
+    },
+    "龙虾": {
+      "score": 1,
+      "category": "海鲜"
+    },
+    "龙须菜": {
+      "score": 1,
+      "category": "菜叶"
+    },
+    "龙骨": {
+      "score": 1,
+      "category": "肉类"
+    }
+  }
+}
