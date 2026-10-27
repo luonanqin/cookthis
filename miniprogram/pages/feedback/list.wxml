@@ -1,0 +1,79 @@
+<view class="page {{typeScaleClass}}">
+  <view class="composer">
+    <view class="chips">
+      <view
+        wx:for="{{categories}}"
+        wx:key="id"
+        class="chip {{category === item.id ? 'on' : ''}}"
+        data-id="{{item.id}}"
+        hover-class="tap-hover"
+        bindtap="onPickCategory"
+      >{{item.label}}</view>
+    </view>
+    <textarea
+      class="composer-input"
+      maxlength="100"
+      auto-height
+      value="{{draft}}"
+      placeholder="写一条建议（最多100字）"
+      bindinput="onDraftInput"
+    />
+    <view class="composer-bar">
+      <text class="count">{{draftLen}}/100</text>
+      <button size="mini" type="primary" loading="{{submitting}}" bindtap="onSubmit">提交</button>
+    </view>
+  </view>
+
+  <view wx:if="{{loading && !items.length}}" class="empty">加载中…</view>
+  <view wx:elif="{{!items.length}}" class="empty">还没有反馈，写一条试试</view>
+
+  <block wx:for="{{items}}" wx:key="id">
+    <view class="card" data-id="{{item.id}}" hover-class="tap-hover" bindtap="onCardTap">
+      <view class="card-head">
+        <view class="card-head-left">
+          <text class="cat">{{item.categoryLabel}}</text>
+          <text class="time">{{item.timeText}}</text>
+        </view>
+        <view wx:if="{{item.unread}}" class="dot"></view>
+      </view>
+
+      <view class="block user-block">
+        <view class="clip {{item.contentExpanded ? 'expanded' : ''}}">
+          <view class="clip-inner js-content-inner" data-id="{{item.id}}">{{item.content}}</view>
+          <view
+            wx:if="{{item.contentOverflow && !item.contentExpanded}}"
+            class="fade fade-user"
+          ></view>
+        </view>
+        <view
+          wx:if="{{item.contentOverflow}}"
+          class="expand-btn"
+          data-id="{{item.id}}"
+          data-which="content"
+          catchtap="onExpand"
+        >{{item.contentExpanded ? '收起' : '展开'}}</view>
+      </view>
+
+      <view wx:if="{{item.replyText}}" class="block reply-block">
+        <view class="reply-label">回复</view>
+        <view class="clip {{item.replyExpanded ? 'expanded' : ''}}">
+          <view class="clip-inner js-reply-inner" data-id="{{item.id}}">{{item.replyText}}</view>
+          <view
+            wx:if="{{item.replyOverflow && !item.replyExpanded}}"
+            class="fade fade-reply"
+          ></view>
+        </view>
+        <view
+          wx:if="{{item.replyOverflow}}"
+          class="expand-btn"
+          data-id="{{item.id}}"
+          data-which="reply"
+          catchtap="onExpand"
+        >{{item.replyExpanded ? '收起' : '展开'}}</view>
+      </view>
+    </view>
+  </block>
+
+  <view wx:if="{{loadingMore}}" class="more">加载中…</view>
+  <view wx:elif="{{items.length && !nextCursor && !loading}}" class="more muted">没有更多了</view>
+</view>
