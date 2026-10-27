@@ -10,38 +10,31 @@ const {
 const {
   AGE_BANDS,
   summarizeHousehold,
-  normalizeAgeBand
+  normalizeAgeBand,
+  sanitizeMemberName
 } = require('../../utils/members.js')
+const { COMBO_RANGE, indexOfValue } = require('../../utils/formRanges.js')
 const { computeProfileGaps } = require('../../utils/profileGaps.js')
+const typeScaleBehavior = require('../../behaviors/typeScale.js')
 
 function resolveAvatar(url) {
   return url ? url : '/assets/avatar-default.png'
 }
 
-function buildReminderItems(gaps) {
-  const map = {
-    family_avoids: {
-      id: 'family_avoids',
-      text: '还没填家庭忌口（或确认无忌口）',
-      anchor: 'secAvoids'
-    },
-    members: {
-      id: 'members',
-      text: '添加至少一位家人（含本人）',
-      anchor: 'secMembers'
-    },
-    city: {
-      id: 'city',
-      text: '选择城市，匹配当地常见食材',
-      anchor: 'secCity'
-    },
-    cuisine: {
-      id: 'cuisine',
-      text: '选一下菜系偏好，或点暂无偏好',
-      anchor: 'secCuisine'
-    }
+function normalizeDefaultCombo(combo) {
+  const c = combo || {}
+  const meat = Number(c.meat)
+  const veg = Number(c.veg)
+  const soup = Number(c.soup)
+  const out = {
+    meat: Number.isFinite(meat) ? meat : 1,
+    veg: Number.isFinite(veg) ? veg : 1,
+    soup: Number.isFinite(soup) ? soup : 0
   }
-  return (gaps.gaps || []).map((id) => map[id]).filter(Boolean)
+  if (out.meat + out.veg + out.soup <= 0) {
+    return { meat: 1, veg: 1, soup: 0 }
+  }
+  return out
 }
 
 const AVOID_OPTIONS = [
@@ -66,12 +59,20 @@ const FORM_VALUES = [
 ]
 
 const AGE_BAND_OPTIONS = [
-  { id: '5_15', label: '5–15（小）' },
+  { id: '5_15', label: '5–15' },
   { id: '16_25', label: '16–25' },
   { id: '26_40', label: '26–40' },
   { id: '41_59', label: '41–59' },
-  { id: '60_plus', label: '60+（老）' }
+  { id: '60_plus', label: '60+' }
 ]
+
+const NAME_QUICK_OPTIONS = ['我', '偶', '爸', '妈', '爷', '奶', '公', '婆', '孩']
+
+function nameQuickVisible(editName) {
+  const cur = String(editName || '').trim()
+  if (!cur) return NAME_QUICK_OPTIONS.slice()
+  return NAME_QUICK_OPTIONS.filter((n) => n !== cur)
+}
 
 const TASTE_OPTIONS = [
   { id: 'light', label: '清淡' },
@@ -89,6 +90,11 @@ TASTE_OPTIONS.forEach((x) => {
   TASTE_LABEL[x.id] = x.label
 })
 
+function hasCuisinePreferOrAvoid(prefs) {
+  const p = prefs || {}
+  return Object.keys(p).some((k) => p[k] === 'prefer' || p[k] === 'avoid')
+}
+
 function profileViewFromUser(user) {
   const p = user || {}
   const prefs = Object.assign(
@@ -100,16 +106,28 @@ function profileViewFromUser(user) {
   familyAvoids.forEach((id) => {
     familyAvoidChecked[id] = true
   })
+  const cuisinePrefs = p.cuisinePrefs || {}
+  const cuisinePrefsConfirmedAt = p.cuisinePrefsConfirmedAt || null
+  // 「都还行」= 已表态且无任何喜欢/不喜欢
+  const cuisineOkChecked =
+    !!cuisinePrefsConfirmedAt && !hasCuisinePreferOrAvoid(cuisinePrefs)
   const members = shapeMembers(p.members || [])
   const summary = summarizeHousehold(members)
+  const defaultCombo = normalizeDefaultCombo(p.defaultCombo)
   return {
     familyAvoids,
     familyAvoidChecked,
     familyAvoidsNone: !!p.familyAvoidsNone,
+    noneAvoidChecked: !!p.familyAvoidsNone,
     familyAvoidsConfirmedAt: p.familyAvoidsConfirmedAt || null,
     dishFormPrefs: prefs,
-    cuisinePrefs: p.cuisinePrefs || {},
-    cuisinePrefsConfirmedAt: p.cuisinePrefsConfirmedAt || null,
+    cuisinePrefs,
+    cuisinePrefsConfirmedAt,
+    cuisineOkChecked,
+    defaultCombo,
+    meatIndex: indexOfValue(COMBO_RANGE, defaultCombo.meat, 1),
+    vegIndex: indexOfValue(COMBO_RANGE, defaultCombo.veg, 1),
+    soupIndex: indexOfValue(COMBO_RANGE, defaultCombo.soup, 0),
     city: p.city || '',
     region: [],
     nickname: p.nickname || '',
@@ -143,7 +161,30 @@ function shapeMembers(list) {
   })
 }
 
+/** 与首页小红点同一套缺口：区块标题标红，填完即消 */
+function gapMarksFromState(state) {
+  const s = state || {}
+  const gaps = computeProfileGaps({
+    familyAvoids: s.familyAvoids || [],
+    familyAvoidsNone: !!(s.noneAvoidChecked || s.familyAvoidsNone),
+    membersCount: (s.members || []).length,
+    city: s.city || '',
+    cuisinePrefs: s.cuisinePrefs || {},
+    cuisinePrefsConfirmedAt: s.cuisineOkChecked
+      ? true
+      : s.cuisinePrefsConfirmedAt || null
+  })
+  return {
+    gapMembersOpen: !!gaps.membersOpen,
+    gapAvoidsOpen: !!gaps.familyAvoidsOpen,
+    gapCityOpen: !!gaps.cityOpen,
+    gapCuisineOpen: !!gaps.cuisineOpen
+  }
+}
+
 Page({
+  behaviors: [typeScaleBehavior],
+
   data: {
     nickname: '',
     avatarSrc: '/assets/avatar-default.png',
@@ -153,11 +194,18 @@ Page({
     familyAvoids: [],
     familyAvoidChecked: {},
     familyAvoidsNone: false,
+    noneAvoidChecked: false,
     familyAvoidsConfirmedAt: null,
     dishFormPrefs: { hotpot: 'neutral', noodle: 'neutral', dumpling: 'neutral' },
     cuisineOptions: CUISINE_OPTIONS,
     cuisinePrefs: {},
     cuisinePrefsConfirmedAt: null,
+    cuisineOkChecked: false,
+    comboRange: COMBO_RANGE,
+    defaultCombo: { meat: 1, veg: 1, soup: 0 },
+    meatIndex: indexOfValue(COMBO_RANGE, 1, 1),
+    vegIndex: indexOfValue(COMBO_RANGE, 1, 1),
+    soupIndex: indexOfValue(COMBO_RANGE, 0, 0),
     city: '',
     region: [],
     busy: false,
@@ -168,37 +216,39 @@ Page({
     showMemberEditor: false,
     editingMemberId: '',
     editName: '',
+    nameQuickOptions: NAME_QUICK_OPTIONS.slice(),
     editAgeBand: '26_40',
     editTaste: 'normal',
     editAvoidChecked: {},
-    reminderItems: []
+    editAvoidsNone: false,
+    gapMembersOpen: false,
+    gapAvoidsOpen: false,
+    gapCityOpen: false,
+    gapCuisineOpen: false
   },
 
-  applyProfile(user, opts) {
+  applyProfile(user) {
     const view = profileViewFromUser(user)
-    const gaps = computeProfileGaps({
-      familyAvoids: view.familyAvoids,
-      familyAvoidsNone: view.familyAvoidsNone,
-      membersCount: (view.members || []).length,
-      city: view.city,
-      cuisinePrefs: view.cuisinePrefs,
-      cuisinePrefsConfirmedAt: view.cuisinePrefsConfirmedAt
-    })
-    const reminderItems = buildReminderItems(gaps)
-    this.setData(Object.assign({}, view, { reminderItems }))
-    if (opts && opts.trackShow && reminderItems.length) {
-      track('profile_reminder_show', { surface: 'mine', gaps: gaps.gaps })
-    }
+    // 与 data 同步的草稿，避免 setData 未刷完就点保存读到旧值
+    this._draftFamilyAvoidsNone = !!view.familyAvoidsNone
+    this._draftFamilyAvoids = view.familyAvoids.slice()
+    this._draftCuisineOk = !!view.cuisineOkChecked
+    this.setData(Object.assign({}, view, gapMarksFromState(view)))
+  },
+
+  _syncGapMarks() {
+    this.setData(gapMarksFromState(this.data))
   },
 
   onShow() {
+    this.applyTypeScale()
     // auth 已带 members：本地缓存立刻上屏，无需再打 profile.get
     const cached = getUser()
     if (cached) this.applyProfile(cached)
 
     ensureLogin()
       .then((user) => {
-        this.applyProfile(user, { trackShow: true })
+        this.applyProfile(user)
       })
       .catch((err) => {
         console.error(err)
@@ -213,59 +263,50 @@ Page({
     })
   },
 
-  onReminderTap(e) {
-    const anchor = e.currentTarget.dataset.anchor
-    if (!anchor) return
-    const query = wx.createSelectorQuery()
-    query.select('#' + anchor).boundingClientRect()
-    query.selectViewport().scrollOffset()
-    query.exec((res) => {
-      const rect = res && res[0]
-      const viewport = res && res[1]
-      if (!rect || !viewport) return
-      wx.pageScrollTo({
-        scrollTop: Math.max(0, viewport.scrollTop + rect.top - 24),
-        duration: 280
-      })
+  onToggleCuisineOk() {
+    const on = !this.data.cuisineOkChecked
+    this._draftCuisineOk = on
+    this.setData({
+      cuisineOkChecked: on,
+      cuisinePrefs: on ? {} : this.data.cuisinePrefs,
+      cuisinePrefsConfirmedAt: on ? true : null
     })
-  },
-
-  onConfirmNoAvoids() {
-    tapFeedback()
-    callCloud('profile', { action: 'confirmFamilyAvoidsNone' })
-      .then(() => {
-        track('profile_lite_quick_none', { source: 'mine' })
-        return this.refreshFromAuth()
-      })
-      .catch((err) => {
-        wx.showToast({ title: (err && err.error) || '操作失败', icon: 'none' })
-      })
-  },
-
-  onConfirmNoCuisine() {
-    tapFeedback()
-    callCloud('profile', { action: 'confirmCuisineNoPreference' })
-      .then(() => {
-        track('cuisine_prefs_no_preference', { source: 'mine' })
-        return this.refreshFromAuth()
-      })
-      .catch((err) => {
-        wx.showToast({ title: (err && err.error) || '操作失败', icon: 'none' })
-      })
+    this._syncGapMarks()
   },
 
   onToggleAvoid(e) {
     const id = e.currentTarget.dataset.id
     if (!id) return
+    if (id === 'none') {
+      const on = !this.data.noneAvoidChecked
+      this._draftFamilyAvoidsNone = on
+      this._draftFamilyAvoids = on ? [] : this.data.familyAvoids.slice()
+      this.setData({
+        noneAvoidChecked: on,
+        familyAvoidChecked: on ? {} : this.data.familyAvoidChecked,
+        familyAvoids: on ? [] : this.data.familyAvoids,
+        familyAvoidsNone: on
+      })
+      this._syncGapMarks()
+      return
+    }
     const familyAvoidChecked = Object.assign({}, this.data.familyAvoidChecked)
     familyAvoidChecked[id] = !familyAvoidChecked[id]
     const familyAvoids = Object.keys(familyAvoidChecked).filter((k) => familyAvoidChecked[k])
-    this.setData({ familyAvoidChecked, familyAvoids })
+    this._draftFamilyAvoidsNone = false
+    this._draftFamilyAvoids = familyAvoids.slice()
+    this.setData({
+      noneAvoidChecked: false,
+      familyAvoidsNone: false,
+      familyAvoidChecked,
+      familyAvoids
+    })
+    this._syncGapMarks()
   },
 
-  onFormPref(e) {
+  onFormPrefRadio(e) {
     const tag = e.currentTarget.dataset.tag
-    const value = e.currentTarget.dataset.value
+    const value = e.detail && e.detail.value
     if (!tag || !value) return
     const dishFormPrefs = Object.assign({}, this.data.dishFormPrefs, { [tag]: value })
     this.setData({ dishFormPrefs })
@@ -274,19 +315,43 @@ Page({
   onCuisinePrefer(e) {
     const id = e.currentTarget.dataset.id
     if (!id) return
-    this.setData({ cuisinePrefs: toggleCuisinePrefer(this.data.cuisinePrefs, id) })
+    this._draftCuisineOk = false
+    this.setData({
+      cuisineOkChecked: false,
+      cuisinePrefsConfirmedAt: null,
+      cuisinePrefs: toggleCuisinePrefer(this.data.cuisinePrefs, id)
+    })
+    this._syncGapMarks()
   },
 
   onCuisineAvoid(e) {
     const id = e.currentTarget.dataset.id
     if (!id) return
-    this.setData({ cuisinePrefs: toggleCuisineAvoid(this.data.cuisinePrefs, id) })
+    this._draftCuisineOk = false
+    this.setData({
+      cuisineOkChecked: false,
+      cuisinePrefsConfirmedAt: null,
+      cuisinePrefs: toggleCuisineAvoid(this.data.cuisinePrefs, id)
+    })
+    this._syncGapMarks()
   },
 
   onRegionChange(e) {
     const region = e.detail.value || []
     const city = region[1] || region[0] || ''
     this.setData({ region, city })
+    this._syncGapMarks()
+  },
+
+  onComboPick(e) {
+    const field = e.currentTarget.dataset.field
+    const idx = Number(e.detail.value)
+    if (!field || idx < 0 || idx >= COMBO_RANGE.length) return
+    const defaultCombo = Object.assign({}, this.data.defaultCombo || {})
+    defaultCombo[field] = COMBO_RANGE[idx]
+    const indexKey =
+      field === 'meat' ? 'meatIndex' : field === 'veg' ? 'vegIndex' : 'soupIndex'
+    this.setData({ defaultCombo, [indexKey]: idx })
   },
 
   openAddMember() {
@@ -294,9 +359,11 @@ Page({
       showMemberEditor: true,
       editingMemberId: '',
       editName: '',
+      nameQuickOptions: nameQuickVisible(''),
       editAgeBand: '26_40',
       editTaste: 'normal',
-      editAvoidChecked: {}
+      editAvoidChecked: {},
+      editAvoidsNone: false
     })
   },
 
@@ -308,22 +375,40 @@ Page({
     ;(m.avoids || []).forEach((a) => {
       editAvoidChecked[a] = true
     })
+    const hasAvoid = Object.keys(editAvoidChecked).some((k) => editAvoidChecked[k])
     this.setData({
       showMemberEditor: true,
       editingMemberId: m.memberId,
       editName: m.name,
+      nameQuickOptions: nameQuickVisible(m.name),
       editAgeBand: m.ageBand,
       editTaste: m.taste,
-      editAvoidChecked
+      editAvoidChecked,
+      editAvoidsNone: !hasAvoid
     })
   },
+
+  noop() {},
 
   closeMemberEditor() {
     this.setData({ showMemberEditor: false })
   },
 
   onEditName(e) {
-    this.setData({ editName: (e.detail && e.detail.value) || '' })
+    const editName = sanitizeMemberName((e.detail && e.detail.value) || '')
+    this.setData({
+      editName,
+      nameQuickOptions: nameQuickVisible(editName)
+    })
+  },
+
+  onPickQuickName(e) {
+    const name = sanitizeMemberName(e.currentTarget.dataset.name)
+    if (!name) return
+    this.setData({
+      editName: name,
+      nameQuickOptions: nameQuickVisible(name)
+    })
   },
 
   onEditAge(e) {
@@ -339,20 +424,33 @@ Page({
   onEditAvoid(e) {
     const id = e.currentTarget.dataset.id
     if (!id) return
+    if (id === 'none') {
+      const on = !this.data.editAvoidsNone
+      this.setData({
+        editAvoidsNone: on,
+        editAvoidChecked: on ? {} : this.data.editAvoidChecked
+      })
+      return
+    }
     const editAvoidChecked = Object.assign({}, this.data.editAvoidChecked)
     editAvoidChecked[id] = !editAvoidChecked[id]
-    this.setData({ editAvoidChecked })
+    this.setData({
+      editAvoidsNone: false,
+      editAvoidChecked
+    })
   },
 
   saveMember() {
-    const name = String(this.data.editName || '').trim()
+    const name = sanitizeMemberName(this.data.editName).trim()
     if (!name) {
       wx.showToast({ title: '请填写称呼', icon: 'none' })
       return
     }
-    const avoids = Object.keys(this.data.editAvoidChecked || {}).filter(
-      (k) => this.data.editAvoidChecked[k]
-    )
+    const avoids = this.data.editAvoidsNone
+      ? []
+      : Object.keys(this.data.editAvoidChecked || {}).filter(
+          (k) => this.data.editAvoidChecked[k]
+        )
     const editingMemberId = this.data.editingMemberId
     const payload = editingMemberId
       ? {
@@ -387,8 +485,8 @@ Page({
     if (!id) return
     const self = this
     wx.showModal({
-      title: '删除家人',
-      content: '确定删除这位家人吗？',
+      title: '删除家庭成员',
+      content: '确定删除这位家庭成员吗？',
       success(res) {
         if (!res.confirm) return
         callCloud('profile', { action: 'removeMember', memberId: id })
@@ -407,23 +505,67 @@ Page({
     if (this.data.busy) return
     tapFeedback('heavy')
     this.setData({ busy: true })
+    const noneAvoid =
+      this._draftFamilyAvoidsNone != null
+        ? !!this._draftFamilyAvoidsNone
+        : !!this.data.noneAvoidChecked
+    const avoidsDraft =
+      this._draftFamilyAvoids != null ? this._draftFamilyAvoids : this.data.familyAvoids
+    const cuisineOk =
+      this._draftCuisineOk != null
+        ? !!this._draftCuisineOk
+        : !!this.data.cuisineOkChecked
+    const cuisinePrefs = cuisineOk ? {} : this.data.cuisinePrefs || {}
+    const cuisineHasStance = hasCuisinePreferOrAvoid(cuisinePrefs)
+    const defaultCombo = normalizeDefaultCombo(this.data.defaultCombo)
     const patch = {
-      familyAvoids: this.data.familyAvoids,
+      familyAvoids: noneAvoid ? [] : avoidsDraft || [],
+      familyAvoidsNone: noneAvoid,
       dishFormPrefs: this.data.dishFormPrefs,
-      cuisinePrefs: this.data.cuisinePrefs,
-      city: this.data.city || ''
+      cuisinePrefs,
+      city: this.data.city || '',
+      defaultCombo
     }
+    if (cuisineOk) patch.cuisinePrefsNoPreference = true
     callCloud('profile', Object.assign({ action: 'updateFamily' }, patch))
-      .then(() => {
-        patchUser(patch)
+      .then((res) => {
+        const savedNone =
+          res && typeof res.familyAvoidsNone === 'boolean'
+            ? res.familyAvoidsNone
+            : noneAvoid
+        const savedAvoids =
+          res && Array.isArray(res.familyAvoids) ? res.familyAvoids : patch.familyAvoids
+        // 只写本地缓存再返回；勿在此处 ensureLogin，避免旧 auth 盖掉刚保存的表态
+        const next = patchUser(
+          Object.assign({}, patch, {
+            familyAvoidsNone: savedNone,
+            familyAvoids: savedAvoids,
+            familyAvoidsConfirmedAt: savedNone
+              ? true
+              : savedAvoids && savedAvoids.length
+                ? true
+                : null,
+            city: patch.city || '',
+            cuisinePrefs,
+            cuisinePrefsConfirmedAt: cuisineOk || cuisineHasStance ? true : null,
+            defaultCombo
+          })
+        )
+        if (cuisineOk) {
+          track('cuisine_prefs_no_preference', { source: 'mine' })
+        }
         track('profile_update', {
-          fields: ['familyAvoids', 'dishFormPrefs', 'cuisinePrefs', 'city']
+          fields: [
+            'familyAvoids',
+            'familyAvoidsNone',
+            'dishFormPrefs',
+            'cuisinePrefs',
+            'city',
+            'defaultCombo'
+          ]
         })
         wx.showToast({ title: '已保存', icon: 'success' })
-        return ensureLogin()
-      })
-      .then((user) => {
-        this.applyProfile(user)
+        this.applyProfile(next)
         setTimeout(() => {
           const pages = getCurrentPages() || []
           if (pages.length > 1) {
@@ -446,15 +588,46 @@ Page({
 
   goOnboarding() {
     tapFeedback()
-    try {
-      const pages = getCurrentPages() || []
-      for (let i = 0; i < pages.length; i++) {
-        const p = pages[i]
-        if (p && p.route === 'pages/index/index' && typeof p.setData === 'function') {
-          p.setData({ showConfirm: false, busy: false })
-        }
+    // confirmText / cancelText 最多 4 个汉字，超长会导致弹窗直接失败、点击无反应
+    wx.showModal({
+      title: '重新设置偏好',
+      content: '将清空现有家庭成员与偏好（忌口、城市、菜系、菜式、日常搭配），再从头填写。确定？',
+      confirmText: '确定清空',
+      cancelText: '取消',
+      success: (res) => {
+        if (!res.confirm) return
+        wx.showLoading({ title: '清空中', mask: true })
+        callCloud('profile', { action: 'resetPreferenceTest' })
+          .then(() => ensureLogin())
+          .then(() => {
+            wx.hideLoading()
+            try {
+              const pages = getCurrentPages() || []
+              for (let i = 0; i < pages.length; i++) {
+                const p = pages[i]
+                if (p && p.route === 'pages/index/index' && typeof p.setData === 'function') {
+                  p.setData({ showConfirm: false, busy: false })
+                }
+              }
+            } catch (e) {}
+            wx.redirectTo({ url: '/pages/onboarding/onboarding?restart=1' })
+          })
+          .catch((err) => {
+            wx.hideLoading()
+            const code = err && err.error
+            wx.showToast({
+              title:
+                code === 'UNKNOWN_ACTION'
+                  ? '请重新部署云函数 profile'
+                  : code || '清空失败',
+              icon: 'none'
+            })
+          })
+      },
+      fail: (err) => {
+        console.error(err)
+        wx.showToast({ title: '无法打开确认框', icon: 'none' })
       }
-    } catch (e) {}
-    wx.redirectTo({ url: '/pages/onboarding/onboarding' })
+    })
   }
 })

@@ -91,6 +91,10 @@ MEITUAN_OCR_ENGINE=tesseract .venv/bin/python run_screenshot_pipeline.py
    ```  
 3. 人工标注：`r` / `a` / `s?=`→`s=`  
 4. 一次写回并更新货架：`.venv/bin/python finish_review.py`  
-   （内部依次：`apply_pending_marks.py` → `clean_city_products.py` → `build_ingredient_catalog.py`；这三个仍可单独跑）  
-   别名：`data/catalog/aliases.json`
+   （内部依次：`apply_pending_marks.py` → `clean_city_products.py` → `build_ingredient_catalog.py` → `build_aliases.py`；仍可单独跑）  
+   - `build_ingredient_catalog` 写出 `ingredients-all.json` 后同步刷新 `ingredients-all-by-category.json`（14 类、一项一类；已有归属优先保留）  
+   - 只重刷品类：`.venv/bin/python ingredients_by_category.py`  
+   - `build_aliases` 用 `alias-info.txt` + `ingredients-all` 类内同义 − `reject.txt` 重写 `aliases.json`（学名不进表）  
+   - 只重刷别名：`.venv/bin/python build_aliases.py`  
+   - 同步到小程序/云函数：仓库根目录 `node scripts/sync-alias-runtime-data.js`
 4. 匹配示例：见 `alias_match.py` 中 `expand_shelf` / `recipe_covered`

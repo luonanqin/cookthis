@@ -37,7 +37,10 @@
 }
 
 .cell {
-  flex: 1;
+  /* 始终半列宽：单品也不占满整行 */
+  flex: 0 0 calc((100% - 12rpx) / 2);
+  width: calc((100% - 12rpx) / 2);
+  max-width: calc((100% - 12rpx) / 2);
   min-width: 0;
   display: flex;
   align-items: center;
@@ -72,6 +75,7 @@
   min-width: 0;
   display: flex;
   align-items: baseline;
+  gap: 16rpx;
   overflow: hidden;
   white-space: nowrap;
 }
@@ -81,17 +85,18 @@
   color: var(--color-text);
   overflow: hidden;
   text-overflow: ellipsis;
-  flex-shrink: 1;
+  flex: 1 1 auto;
   min-width: 0;
 }
 
 .secondary {
   font-size: var(--fs-xs);
   color: var(--color-text-secondary);
-  flex-shrink: 0;
-  max-width: 45%;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex: 0 0 auto;
+  margin-left: auto;
+  text-align: right;
+  overflow: visible;
+  max-width: none;
 }
 
 .cell.bought .name,

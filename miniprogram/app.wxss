@@ -132,6 +132,22 @@ button.btn-outline.button-hover {
   overflow: hidden;
 }
 
+/* 居中表单浮层（忌口轻量补全等） */
+.mask.mask-lite {
+  padding: 48rpx 40rpx;
+}
+
+.lite-dialog {
+  width: 100%;
+  max-width: 640rpx;
+  background: var(--color-surface);
+  border-radius: var(--radius-sheet);
+  padding: 32rpx 28rpx 28rpx;
+  box-sizing: border-box;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
 .dialog-title {
   text-align: center;
   font-weight: 600;

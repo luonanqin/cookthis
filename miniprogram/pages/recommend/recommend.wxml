@@ -1,9 +1,15 @@
+<page-meta page-style="{{showQuickLite ? 'overflow: hidden;' : ''}}" />
 <view class="page {{typeScaleClass}}">
   <view
     wx:if="{{showProfileBanner}}"
     class="profile-banner"
+    hover-class="tap-hover"
+    hover-stay-time="80"
     bindtap="onOpenQuickLite"
-  >补一下家庭忌口，少推不能吃的</view>
+  >
+    <text>补充饮食偏好，让推荐更精准 </text>
+    <text class="profile-banner-cta">点我</text>
+  </view>
 
   <view wx:if="{{empty}}" class="empty">
     <text class="empty-text">{{emptyText}}</text>
@@ -57,8 +63,13 @@
     <button class="btn-outline" bindtap="onBack">返回改场景</button>
   </view>
 
-  <view class="mask" wx:if="{{showReject}}" catchtouchmove="true">
-    <view class="sheet">
+  <view
+    class="mask"
+    wx:if="{{showReject}}"
+    catchtouchmove="true"
+    bindtap="onRejectClose"
+  >
+    <view class="sheet" catchtap="noop">
       <view class="sheet-title">不太合适的原因（可选）</view>
       <view
         class="reason"
@@ -74,11 +85,17 @@
     </view>
   </view>
 
-  <view class="mask" wx:if="{{showQuickLite}}" catchtouchmove="true">
-    <view class="sheet">
+  <view
+    class="mask mask-center mask-lite"
+    wx:if="{{showQuickLite}}"
+    catchtouchmove="true"
+    bindtap="onQuickLiteClose"
+  >
+    <view class="lite-dialog" catchtap="noop" catchtouchmove="true">
       <profile-lite-form
         show-none-avoids="{{true}}"
-        primary-text="保存并刷新方案"
+        show-city="{{quickLiteNeedCity}}"
+        primary-text="保存"
         secondary-text="取消"
         bind:save="onQuickLiteSave"
         bind:skip="onQuickLiteClose"
@@ -87,8 +104,13 @@
     </view>
   </view>
 
-  <view class="mask mask-center" wx:if="{{showEmptyDialog}}" catchtouchmove="true">
-    <view class="dialog">
+  <view
+    class="mask mask-center"
+    wx:if="{{showEmptyDialog}}"
+    catchtouchmove="true"
+    bindtap="onEmptyDialogOk"
+  >
+    <view class="dialog" catchtap="noop">
       <view class="dialog-title">食材不够出菜了</view>
       <view class="dialog-actions">
         <button class="dialog-btn" hover-class="button-hover" bindtap="onEmptyDialogOk">好吧</button>

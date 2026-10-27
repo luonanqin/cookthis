@@ -89,6 +89,12 @@ def test_cli_writes_city_and_all(tmp_path: Path):
     all_ = json.loads((catalog / "ingredients-all.json").read_text(encoding="utf-8"))
     assert set(all_["categories"]["荤菜"]) == {"鸡脚", "猪肉"}
     assert set(all_["categories"]["素菜"]) == {"折耳根"}
+    by_cat = json.loads(
+        (catalog / "ingredients-all-by-category.json").read_text(encoding="utf-8")
+    )
+    flat = [n for arr in by_cat["categories"].values() for n in arr]
+    assert set(flat) == {"鸡脚", "猪肉", "折耳根"}
+    assert len(flat) == len(set(flat))
 
 
 def test_cli_missing_builtin_jsonl_exits_nonzero(tmp_path: Path, capsys):

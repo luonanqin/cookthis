@@ -122,6 +122,34 @@
   font-size: var(--fs-body);
 }
 
+.link-mine {
+  position: relative;
+  padding-right: 8rpx;
+}
+
+.link-badge {
+  position: absolute;
+  top: -10rpx;
+  right: -22rpx;
+  min-width: 28rpx;
+  height: 28rpx;
+  padding: 0 6rpx;
+  box-sizing: border-box;
+  border-radius: 14rpx;
+  background: #e54d42;
+  color: #fff;
+  font-size: 18rpx;
+  line-height: 28rpx;
+  text-align: center;
+  font-weight: 600;
+}
+
+.link-dev {
+  margin-top: 28rpx;
+  font-size: var(--fs-sm);
+  color: var(--color-text-secondary);
+}
+
 /* 进场确认：独立半屏弹层（不套 .sheet，避免 overflow 把按钮顶飞） */
 .sheet-confirm {
   width: 100%;
@@ -191,11 +219,23 @@
 }
 
 .sheet-chip .check {
-  width: 28rpx;
-  margin-right: 6rpx;
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 10rpx;
   flex-shrink: 0;
+  box-sizing: border-box;
+  border: 2rpx solid var(--color-border);
+  border-radius: 8rpx;
+  text-align: center;
+  line-height: 28rpx;
   color: var(--color-primary);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-xs);
+  background: var(--color-surface);
+}
+
+.sheet-chip.on .check {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
 }
 
 .sheet-chip-text {
@@ -227,4 +267,12 @@
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+}
+
+/* 未选菜时确认置灰，点击无响应、无告警 */
+.sheet-confirm-ft button.btn-confirm-disabled[disabled] {
+  color: #a8b0ab !important;
+  border-color: #d5dbd7 !important;
+  background: #eef1ef !important;
+  opacity: 1 !important;
 }

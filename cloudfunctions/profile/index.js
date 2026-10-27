@@ -11,6 +11,7 @@ const {
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
+const _ = db.command
 
 const AVOID_CODES = ['pork', 'seafood', 'offal', 'coriander', 'peanut', 'dairy', 'other']
 const FORM_TAGS = ['hotpot', 'noodle', 'dumpling']
@@ -134,6 +135,9 @@ async function handleUpdateFamily(event, uid, user) {
     patch.familyAvoidsNone = true
     patch.familyAvoids = []
     patch.familyAvoidsConfirmedAt = db.serverDate()
+  } else if (event.familyAvoidsNone === false && !(patch.familyAvoids && patch.familyAvoids.length)) {
+    // clear stance when client turns off「无」without picking other chips
+    patch.familyAvoidsNone = false
   }
   if (event.dishFormPrefs && typeof event.dishFormPrefs === 'object') {
     patch.dishFormPrefs = Object.assign(
@@ -142,15 +146,21 @@ async function handleUpdateFamily(event, uid, user) {
       sanitizeDishFormPrefs(event.dishFormPrefs)
     )
   }
-  if (event.cuisinePrefs && typeof event.cuisinePrefs === 'object') {
+  if (event.cuisinePrefsNoPreference === true) {
+    // 「都还行」：清空喜欢/不喜欢，记已表态
+    patch.cuisinePrefs = {}
+    patch.cuisinePrefsConfirmedAt = db.serverDate()
+  } else if (event.cuisinePrefs && typeof event.cuisinePrefs === 'object') {
     patch.cuisinePrefs = sanitizeCuisinePrefs(event.cuisinePrefs)
     const hasStance = Object.keys(patch.cuisinePrefs).some(
       (k) => patch.cuisinePrefs[k] === 'prefer' || patch.cuisinePrefs[k] === 'avoid'
     )
-    if (hasStance) patch.cuisinePrefsConfirmedAt = db.serverDate()
-  }
-  if (event.cuisinePrefsNoPreference === true) {
-    patch.cuisinePrefsConfirmedAt = db.serverDate()
+    if (hasStance) {
+      patch.cuisinePrefsConfirmedAt = db.serverDate()
+    } else {
+      // 显式提交空菜系且非「都还行」→ 撤回表态（与 UI 取消「都还行」一致）
+      patch.cuisinePrefsConfirmedAt = _.remove()
+    }
   }
   // 人数唯一来源 = members；忽略客户端 defaultPeopleCount
   if (event.defaultCombo && typeof event.defaultCombo === 'object') {
@@ -169,7 +179,19 @@ async function handleUpdateFamily(event, uid, user) {
   if (!user.onboardingDone) patch.onboardingDone = true
   patch.updatedAt = db.serverDate()
   await db.collection('users').doc(user._id).update({ data: patch })
-  return { ok: true, updated: Object.keys(patch).filter((k) => k !== 'updatedAt') }
+  const nextNone =
+    patch.familyAvoidsNone != null ? !!patch.familyAvoidsNone : !!user.familyAvoidsNone
+  const nextAvoids =
+    patch.familyAvoids != null ? patch.familyAvoids : user.familyAvoids || []
+  return {
+    ok: true,
+    updated: Object.keys(patch).filter((k) => k !== 'updatedAt'),
+    familyAvoidsNone: nextNone,
+    familyAvoids: nextAvoids,
+    familyAvoidsConfirmedAt: patch.familyAvoidsConfirmedAt
+      ? true
+      : !!user.familyAvoidsConfirmedAt
+  }
 }
 
 async function handleUpdateDisplay(event, uid, user) {
@@ -247,10 +269,11 @@ async function handleRemoveMember(event, uid, user) {
 }
 
 async function handleCompleteOnboarding(event, uid, user) {
-  const familyAvoids = sanitizeAvoids((event && event.familyAvoids) || [])
+  const familyAvoidsNone = event && event.familyAvoidsNone === true
+  const familyAvoids = familyAvoidsNone
+    ? []
+    : sanitizeAvoids((event && event.familyAvoids) || [])
   const dishFormPrefs = sanitizeDishFormPrefs((event && event.dishFormPrefs) || {})
-  // 引导人数由随后创建的本人成员决定；此处先写 1，add 成功后再确认
-  const defaultPeopleCount = 1
   let defaultCombo = user.defaultCombo || { meat: 1, veg: 1, soup: 0 }
   if (event.defaultCombo && typeof event.defaultCombo === 'object') {
     defaultCombo = {
@@ -262,63 +285,147 @@ async function handleCompleteOnboarding(event, uid, user) {
   const city = typeof event.city === 'string' ? event.city : user.city || null
   const cookBudget =
     typeof event.cookBudget === 'string' ? event.cookBudget : user.cookBudget || 'about30'
-  const cuisinePrefs = sanitizeCuisinePrefs((event && event.cuisinePrefs) || {})
+  const cuisineNoPref = event && event.cuisinePrefsNoPreference === true
+  const cuisinePrefs = cuisineNoPref
+    ? {}
+    : sanitizeCuisinePrefs((event && event.cuisinePrefs) || {})
+  const cuisineHasStance = Object.keys(cuisinePrefs).some(
+    (k) => cuisinePrefs[k] === 'prefer' || cuisinePrefs[k] === 'avoid'
+  )
+
+  // 优先 members[]；兼容旧客户端 selfMember
+  let memberInputs = []
+  if (Array.isArray(event && event.members) && event.members.length > 0) {
+    memberInputs = event.members
+  } else if (event && event.selfMember) {
+    memberInputs = [event.selfMember]
+  }
+  if (!memberInputs.length) {
+    memberInputs = [{ name: '我', ageBand: '26_40', taste: 'normal', avoids: [] }]
+  }
 
   const now = db.serverDate()
-  await db.collection('users').doc(user._id).update({
-    data: {
-      familyAvoids,
-      dishFormPrefs,
-      cuisinePrefs,
-      defaultPeopleCount,
-      defaultCombo,
-      city,
-      cookBudget,
-      onboardingDone: true,
-      updatedAt: now
-    }
-  })
+  const userPatch = {
+    familyAvoids,
+    familyAvoidsNone: !!familyAvoidsNone,
+    dishFormPrefs,
+    cuisinePrefs,
+    defaultPeopleCount: memberInputs.length,
+    defaultCombo,
+    city,
+    cookBudget,
+    onboardingDone: true,
+    updatedAt: now
+  }
+  if (familyAvoidsNone || familyAvoids.length > 0) {
+    userPatch.familyAvoidsConfirmedAt = now
+  } else {
+    userPatch.familyAvoidsConfirmedAt = _.remove()
+  }
+  if (cuisineNoPref || cuisineHasStance) {
+    userPatch.cuisinePrefsConfirmedAt = now
+  } else {
+    userPatch.cuisinePrefsConfirmedAt = _.remove()
+  }
+  await db.collection('users').doc(user._id).update({ data: userPatch })
 
-  const self = (event && event.selfMember) || {}
-  const name = String(self.name || '本人').trim() || '本人'
-  const memberId = makeMemberId()
   try {
-    await db.collection('members').add({
-      data: {
-        uid,
-        memberId,
-        name,
-        role: 'self',
-        ageBand: sanitizeAgeBand(self.ageBand),
-        taste: sanitizeTaste(self.taste),
-        avoids: sanitizeAvoids(self.avoids || []),
-        dishFormPrefs: null,
-        sort: 0,
-        createdAt: now,
-        updatedAt: now
-      }
-    })
+    // 完成引导以本次名单为准：先清旧成员再批量写入
+    const existing = await db.collection('members').where({ uid }).limit(50).get()
+    for (const row of existing.data || []) {
+      if (row && row._id) await db.collection('members').doc(row._id).remove()
+    }
+
+    const memberIds = []
+    for (let i = 0; i < memberInputs.length; i++) {
+      const src = memberInputs[i] || {}
+      const name =
+        String(src.name || '').trim() || (i === 0 ? '我' : `成员${i + 1}`)
+      const memberId = makeMemberId()
+      await db.collection('members').add({
+        data: {
+          uid,
+          memberId,
+          name,
+          role: i === 0 ? 'self' : 'other',
+          ageBand: sanitizeAgeBand(src.ageBand),
+          taste: sanitizeTaste(src.taste),
+          avoids: sanitizeAvoids(src.avoids || []),
+          dishFormPrefs: null,
+          sort: i,
+          createdAt: now,
+          updatedAt: now
+        }
+      })
+      memberIds.push(memberId)
+    }
+    const peopleCount = memberIds.length
     await db.collection('users').doc(user._id).update({
-      data: { defaultPeopleCount: 1, updatedAt: now }
+      data: { defaultPeopleCount: peopleCount, updatedAt: now }
     })
+    return {
+      ok: true,
+      memberId: memberIds[0] || null,
+      memberIds,
+      onboardingDone: true,
+      defaultPeopleCount: peopleCount
+    }
   } catch (e) {
     // members 集合未建时仍算引导完成，避免卡在完成页
     console.warn('completeOnboarding members.add failed', e)
     return { ok: true, memberId: null, onboardingDone: true, memberSkipped: true }
   }
-
-  return { ok: true, memberId, onboardingDone: true, defaultPeopleCount: 1 }
 }
 
-/** Mark done without collecting fields — for skip / later fill-in via「我的」. */
-async function handleSkipOnboarding(uid, user) {
+/**
+ * Mark done without collecting fields — for skip / later fill-in via「我的」.
+ * resetProfile=true：清空家庭成员与偏好（「重新走一遍」后跳过须落空态，不能留旧数据）。
+ */
+async function handleSkipOnboarding(event, uid, user) {
+  if (event && event.resetProfile === true) {
+    await clearPreferenceProfile(uid, user)
+  }
   await db.collection('users').doc(user._id).update({
     data: {
       onboardingDone: true,
       updatedAt: db.serverDate()
     }
   })
-  return { ok: true, onboardingDone: true, skipped: true }
+  return { ok: true, onboardingDone: true, skipped: true, resetProfile: !!(event && event.resetProfile) }
+}
+
+/** 清空家庭成员 + 忌口/菜系/菜式/城市/搭配/轻量表态（供重置与重新引导） */
+async function clearPreferenceProfile(uid, user) {
+  if (!user || !user._id) return { removedMembers: 0 }
+  let removedMembers = 0
+  try {
+    const mRes = await db.collection('members').where({ uid }).limit(50).get()
+    const rows = mRes.data || []
+    for (const row of rows) {
+      if (!row || !row._id) continue
+      await db.collection('members').doc(row._id).remove()
+      removedMembers += 1
+    }
+  } catch (e) {
+    console.warn('clearPreferenceProfile members.remove failed', e)
+  }
+  await db.collection('users').doc(user._id).update({
+    data: {
+      familyAvoids: [],
+      familyAvoidsNone: false,
+      familyAvoidsConfirmedAt: _.remove(),
+      cuisinePrefs: {},
+      cuisinePrefsConfirmedAt: _.remove(),
+      dishFormPrefs: {},
+      profileLiteSkipped: false,
+      profileLitePromptedAt: _.remove(),
+      city: '',
+      defaultCombo: { meat: 1, veg: 1, soup: 0 },
+      defaultPeopleCount: 0,
+      updatedAt: db.serverDate()
+    }
+  })
+  return { removedMembers }
 }
 
 /** 日常轻量补全：保存忌口 / 可选爱吃 → 标记已提示 */
@@ -344,11 +451,15 @@ async function handleSaveProfileLite(event, uid, user) {
       sanitizeDishFormPrefs(event.dishFormPrefs)
     )
   }
+  if (typeof event.city === 'string' && event.city.trim()) {
+    patch.city = event.city.trim()
+  }
   await db.collection('users').doc(user._id).update({ data: patch })
   return {
     ok: true,
     familyAvoids: patch.familyAvoids != null ? patch.familyAvoids : user.familyAvoids || [],
     dishFormPrefs: patch.dishFormPrefs || user.dishFormPrefs || {},
+    city: patch.city != null ? patch.city : user.city || null,
     profileLitePromptedAt: true
   }
 }
@@ -365,16 +476,37 @@ async function handleSkipProfileLite(uid, user) {
   return { ok: true, skipped: true, profileLiteSkipped: true }
 }
 
-async function handleConfirmFamilyAvoidsNone(uid, user) {
-  await db.collection('users').doc(user._id).update({
-    data: {
-      familyAvoidsNone: true,
-      familyAvoids: [],
-      familyAvoidsConfirmedAt: db.serverDate(),
-      updatedAt: db.serverDate()
-    }
-  })
-  return { ok: true, familyAvoidsNone: true, familyAvoids: [] }
+async function handleConfirmFamilyAvoidsNone(event, uid, user) {
+  const data = {
+    familyAvoidsNone: true,
+    familyAvoids: [],
+    familyAvoidsConfirmedAt: db.serverDate(),
+    // 轻量层点「无」也算已处理，避免确认页反复弹出
+    profileLitePromptedAt: db.serverDate(),
+    profileLiteSkipped: false,
+    updatedAt: db.serverDate()
+  }
+  if (event && typeof event.city === 'string' && event.city.trim()) {
+    data.city = event.city.trim()
+  }
+  await db.collection('users').doc(user._id).update({ data })
+  return {
+    ok: true,
+    familyAvoidsNone: true,
+    familyAvoids: [],
+    city: data.city != null ? data.city : user.city || null
+  }
+}
+
+/**
+ * 测试用：清空偏好内容（等同未填就跳过），不改 onboardingDone。
+ * 同时清轻量弹层标记，便于再测自动/顶栏补全。
+ * 注意：users 文档主键是 _id，业务 uid 只是字段。
+ */
+async function handleResetPreferenceTest(uid, user) {
+  if (!user || !user._id) return { ok: false, error: 'USER_NOT_FOUND' }
+  const { removedMembers } = await clearPreferenceProfile(uid, user)
+  return { ok: true, reset: true, removedMembers }
 }
 
 async function handleConfirmCuisineNoPreference(uid, user) {
@@ -404,11 +536,14 @@ exports.main = async (event) => {
   if (action === 'updateMember') return handleUpdateMember(event, uid, user)
   if (action === 'removeMember') return handleRemoveMember(event, uid, user)
   if (action === 'completeOnboarding') return handleCompleteOnboarding(event, uid, user)
-  if (action === 'skipOnboarding') return handleSkipOnboarding(uid, user)
+  if (action === 'skipOnboarding') return handleSkipOnboarding(event, uid, user)
   if (action === 'saveProfileLite') return handleSaveProfileLite(event, uid, user)
   if (action === 'skipProfileLite') return handleSkipProfileLite(uid, user)
-  if (action === 'confirmFamilyAvoidsNone') return handleConfirmFamilyAvoidsNone(uid, user)
+  if (action === 'confirmFamilyAvoidsNone') {
+    return handleConfirmFamilyAvoidsNone(event, uid, user)
+  }
   if (action === 'confirmCuisineNoPreference') return handleConfirmCuisineNoPreference(uid, user)
+  if (action === 'resetPreferenceTest') return handleResetPreferenceTest(uid, user)
   console.warn('profile UNKNOWN_ACTION', action)
   return {
     ok: false,

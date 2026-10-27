@@ -21,7 +21,20 @@ function patchUser(partial) {
   return next
 }
 
-function ensureLogin() {
+function hasCuisineStance(prefs) {
+  const p = prefs || {}
+  return Object.keys(p).some((k) => p[k] === 'prefer' || p[k] === 'avoid')
+}
+
+/**
+ * @param {{ preferLocalStance?: boolean }} [opts]
+ * preferLocalStance: 首页返回时用。profile 刚写入的忌口/菜系/城市，auth 偶发仍读到旧值；
+ * 若本地已填而 auth 仍空，保留本地，避免小红点回跳。
+ * 重置偏好等需要权威云端结果的路径不要开此选项。
+ */
+function ensureLogin(opts) {
+  const preferLocalStance = !!(opts && opts.preferLocalStance)
+  const prev = getUser()
   // 仍每次调 login 刷新；缓存用于页面首屏
   return callCloud('auth', { platform: 'mp' }).then((user) => {
     const members = Array.isArray(user.members) ? user.members : []
@@ -44,6 +57,32 @@ function ensureLogin() {
       defaultPeopleCount: members.length,
       defaultCombo: user.defaultCombo || { meat: 1, veg: 1, soup: 0 },
       members
+    }
+    if (preferLocalStance && prev) {
+      if (prev.familyAvoidsNone && !slim.familyAvoidsNone) {
+        slim.familyAvoidsNone = true
+        slim.familyAvoids = []
+        slim.familyAvoidsConfirmedAt =
+          slim.familyAvoidsConfirmedAt || prev.familyAvoidsConfirmedAt || true
+      }
+      const prevCity = String(prev.city || '').trim()
+      const slimCity = String(slim.city || '').trim()
+      if (prevCity && !slimCity) {
+        slim.city = prev.city
+      }
+      const prevCuisineStance = hasCuisineStance(prev.cuisinePrefs)
+      const slimCuisineStance = hasCuisineStance(slim.cuisinePrefs)
+      if (prevCuisineStance && !slimCuisineStance) {
+        slim.cuisinePrefs = prev.cuisinePrefs || {}
+      }
+      if (
+        (prev.cuisinePrefsConfirmedAt || prevCuisineStance) &&
+        !slim.cuisinePrefsConfirmedAt &&
+        !hasCuisineStance(slim.cuisinePrefs)
+      ) {
+        slim.cuisinePrefsConfirmedAt =
+          prev.cuisinePrefsConfirmedAt || true
+      }
     }
     setUser(slim)
     return slim

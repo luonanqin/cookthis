@@ -88,14 +88,54 @@ function flattenShelfNameOrder(cityDoc) {
   return out
 }
 
+/**
+ * 附名称按完整词贪心拼接（空格分隔）；放不下的整段丢弃，不截断、不加省略号。
+ * 宽度按清单半列名区估算（rpx ≈ 字号 × 字数）。
+ */
+function fitSecondaryNames(candidates, displayName, opts) {
+  const list = Array.isArray(candidates) ? candidates : []
+  if (!list.length) return null
+  const large = !!(opts && opts.largeText)
+  const secFs = large ? 28 : 22
+  const spaceFs = Math.max(8, Math.round(secFs * 0.35))
+  // 半列名区约 260rpx；为主名与间距预留，附名侧上限约一半多一点
+  const maxRpx = (opts && opts.maxRpx) || (large ? 200 : 184)
+  const picked = []
+  let used = 0
+  for (let i = 0; i < list.length; i++) {
+    const n = String(list[i] || '')
+    if (!n) continue
+    const need = n.length * secFs + (picked.length ? spaceFs : 0)
+    if (used + need > maxRpx) break
+    picked.push(n)
+    used += need
+  }
+  return picked.length ? picked.join(' ') : null
+}
+
+function collectSecondaryNames(displayName, canon, index) {
+  const seen = new Set()
+  const out = []
+  const push = (n) => {
+    const s = String(n || '')
+    if (!s || s === displayName || seen.has(s)) return
+    seen.add(s)
+    out.push(s)
+  }
+  if (displayName !== canon) push(canon)
+  const aliases = (index && index.aliasesOf(canon)) || []
+  for (let i = 0; i < aliases.length; i++) push(aliases[i])
+  return out
+}
+
 function resolveShoppingLabel(raw, opts) {
   const index = opts && opts.index
   const name = String(raw || '')
   if (!name) {
-    return { displayName: '', secondaryName: null, checkKey: '' }
+    return { displayName: '', secondaryNames: [], secondaryName: null, checkKey: '' }
   }
   if (!index || !index.has(name)) {
-    return { displayName: name, secondaryName: null, checkKey: name }
+    return { displayName: name, secondaryNames: [], secondaryName: null, checkKey: name }
   }
   const canon = index.canonicalOf(name)
   const group = index.equiv.get(name) || new Set([name])
@@ -119,19 +159,9 @@ function resolveShoppingLabel(raw, opts) {
       displayName = local || canon
     }
   }
-  let secondaryName = null
-  if (displayName !== canon) {
-    secondaryName = canon
-  } else {
-    const aliases = index.aliasesOf(canon)
-    for (let i = 0; i < aliases.length; i++) {
-      if (aliases[i] && aliases[i] !== displayName) {
-        secondaryName = aliases[i]
-        break
-      }
-    }
-  }
-  return { displayName, secondaryName, checkKey: canon }
+  const secondaryNames = collectSecondaryNames(displayName, canon, index)
+  const secondaryName = fitSecondaryNames(secondaryNames, displayName, opts)
+  return { displayName, secondaryNames, secondaryName, checkKey: canon }
 }
 
 function pairRows(items) {
@@ -157,6 +187,7 @@ function applyShoppingDisplay(groups, opts) {
           name: label.checkKey,
           checkKey: label.checkKey,
           displayName: label.displayName,
+          secondaryNames: label.secondaryNames || [],
           secondaryName: label.secondaryName || null
         })
       )
@@ -172,6 +203,8 @@ module.exports = {
   expandNames,
   normalizeCityKey,
   flattenShelfNameOrder,
+  fitSecondaryNames,
+  collectSecondaryNames,
   resolveShoppingLabel,
   applyShoppingDisplay
 }

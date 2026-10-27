@@ -254,6 +254,11 @@ function effectivePeopleCount(diners) {
   return (diners || []).length
 }
 
+/** 称呼仅允许中文、英文、数字（去标点与空白以外符号） */
+function sanitizeMemberName(raw) {
+  return String(raw == null ? '' : raw).replace(/[^\u4e00-\u9fffA-Za-z0-9]/g, '')
+}
+
 module.exports = {
   AGE_BANDS,
   TASTE_VALUES,
@@ -267,5 +272,6 @@ module.exports = {
   expandPartyDiners,
   dinerSoftPenalty,
   effectivePeopleCount,
-  recipeTasteKey
+  recipeTasteKey,
+  sanitizeMemberName
 }

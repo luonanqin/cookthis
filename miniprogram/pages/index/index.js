@@ -1,7 +1,8 @@
 const { callCloud } = require('../../services/cloud.js')
-const { ensureLogin } = require('../../services/session.js')
+const { ensureLogin, getUser } = require('../../services/session.js')
 const { track } = require('../../utils/track.js')
 const { tapFeedback } = require('../../utils/haptic.js')
+const { computeProfileGaps } = require('../../utils/profileGaps.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 
 Page({
@@ -12,19 +13,24 @@ Page({
     candidates: [],
     candidatesPeek: false,
     selected: {},
+    hasSelected: false,
     selectAllLabel: '全选',
     busy: false,
     requestId: null,
-    recommendationId: null
+    recommendationId: null,
+    profileGapCount: 0
   },
 
   onShow() {
     this.applyTypeScale()
     // 进场确认预取：点「今天菜场」时多数已有结果，少等一轮云函数
     this._prefetchConfirmCandidates()
+    // 先用本地缓存（我的页保存后已 patch），红点立刻对；再拉 auth
+    this.refreshProfileGapBadge(getUser())
     // Do not force onboarding — Slice 1-4 stay usable. Guide is Slice 5 / MVP-gap.
-    ensureLogin()
+    ensureLogin({ preferLocalStance: true })
       .then((user) => {
+        this.refreshProfileGapBadge(user)
         const app = getApp()
         // 仅显式 false 才弹；true / 缺字段都不弹
         if (!user || user.onboardingDone !== false) return
@@ -48,6 +54,21 @@ Page({
         })
       })
       .catch(() => {})
+  },
+
+  refreshProfileGapBadge(user) {
+    const u = user || {}
+    const members = u.members || []
+    const gaps = computeProfileGaps({
+      familyAvoids: u.familyAvoids,
+      familyAvoidsNone: u.familyAvoidsNone,
+      membersCount: members.length,
+      city: u.city,
+      cuisinePrefs: u.cuisinePrefs,
+      cuisinePrefsConfirmedAt: u.cuisinePrefsConfirmedAt
+    })
+    const profileGapCount = (gaps.gaps || []).length
+    this.setData({ profileGapCount })
   },
 
   _prefetchConfirmCandidates() {
@@ -78,6 +99,7 @@ Page({
         candidates: result.dishNames,
         candidatesPeek: result.dishNames.length > 6,
         selected,
+        hasSelected: false,
         selectAllLabel: '全选',
         requestId: result.requestId || null,
         recommendationId: result.recommendationId || null,
@@ -133,6 +155,11 @@ Page({
     return all ? '取消全选' : '全选'
   },
 
+  _hasSelected(candidates, selected) {
+    const list = candidates || []
+    return list.some((n) => selected && selected[n])
+  },
+
   onToggleDish(e) {
     const name = e.currentTarget.dataset.name
     if (!name) return
@@ -141,6 +168,7 @@ Page({
     selected[name] = !selected[name]
     this.setData({
       selected,
+      hasSelected: this._hasSelected(this.data.candidates, selected),
       selectAllLabel: this._selectAllLabel(this.data.candidates, selected)
     })
   },
@@ -154,6 +182,7 @@ Page({
     for (const name of candidates) selected[name] = !allSelected
     this.setData({
       selected,
+      hasSelected: this._hasSelected(candidates, selected),
       selectAllLabel: allSelected ? '全选' : '取消全选'
     })
   },
@@ -186,9 +215,10 @@ Page({
   },
 
   onConfirmSubmit() {
-    if (this.data.busy) return
+    if (this.data.busy || !this.data.hasSelected) return
     tapFeedback()
     const dishNames = this.data.candidates.filter((n) => this.data.selected[n])
+    if (!dishNames.length) return
     const candidateCount = this.data.candidates.length
     this.setData({ busy: true, showConfirm: false })
     const finish = () => {
@@ -199,7 +229,6 @@ Page({
       selectedCount: dishNames.length,
       candidateCount
     })
-    // 勾 0 道也走 confirmWrite，服务端会标 entryConfirmHandled
     callCloud('meals', {
       action: 'confirmWrite',
       dishNames,
@@ -240,5 +269,32 @@ Page({
   goMine() {
     tapFeedback()
     wx.navigateTo({ url: '/pages/mine/mine' })
+  },
+
+  onResetPreferenceTest() {
+    tapFeedback()
+    wx.showModal({
+      title: '重置偏好（测试）',
+      content:
+        '清空忌口/菜系表态、所在城市、菜式偏好，并删除全部家庭成员；不改家庭引导是否完成。重置后红点应为 4。确定？',
+      confirmText: '重置',
+      success: (res) => {
+        if (!res.confirm) return
+        callCloud('profile', { action: 'resetPreferenceTest' })
+          .then(() => ensureLogin())
+          .then((user) => {
+            this.refreshProfileGapBadge(user)
+            const n = this.data.profileGapCount
+            wx.showToast({
+              title: n ? `已重置 · 缺口 ${n}` : '已重置',
+              icon: 'none'
+            })
+          })
+          .catch((err) => {
+            console.error(err)
+            wx.showToast({ title: '重置失败，请部署 profile', icon: 'none' })
+          })
+      }
+    })
   }
 })

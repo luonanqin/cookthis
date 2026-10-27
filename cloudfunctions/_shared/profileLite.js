@@ -12,6 +12,7 @@
 function shouldShowProfileLite(input) {
   const mealType = input && input.mealType
   if (mealType !== 'daily') return false
+  if (input && input.familyAvoidsNone === true) return false
   const avoids = (input && input.familyAvoids) || []
   if (Array.isArray(avoids) && avoids.length > 0) return false
   if (input && input.profileLiteSkipped === true) return false

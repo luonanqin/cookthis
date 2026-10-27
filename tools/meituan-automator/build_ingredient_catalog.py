@@ -5,7 +5,8 @@
 读取 screenshots_inbox/{城}/ingredients-cleaned.json，
 写出 data/catalog/cities/{城}/ingredients.json，
 再与 ingredients-builtin.jsonl（经 builtin-to-meituan-category.json）
-合并为 data/catalog/ingredients-all.json。
+合并为 data/catalog/ingredients-all.json，
+并刷新 data/catalog/ingredients-all-by-category.json（14 类、一项一类）。
 
 用法：
   .venv/bin/python build_ingredient_catalog.py
@@ -17,6 +18,8 @@ import argparse
 import json
 from collections import defaultdict
 from pathlib import Path
+
+from review_lists import load_review_lists
 
 INBOX = Path(__file__).resolve().parent / "screenshots_inbox"
 CATALOG = Path(__file__).resolve().parents[2] / "data" / "catalog"
@@ -52,7 +55,9 @@ def merge_all(
     city_shelves: list[dict],
     builtin_rows: list[dict],
     mapping: dict,
+    reject: set[str] | None = None,
 ) -> dict:
+    reject = reject or set()
     by_cat: dict[str, set[str]] = defaultdict(set)
     cities: list[str] = []
     for shelf in city_shelves:
@@ -60,10 +65,10 @@ def merge_all(
         if city:
             cities.append(str(city))
         for cat, names in (shelf.get("categories") or {}).items():
-            by_cat[cat].update(names)
+            by_cat[cat].update(n for n in names if n not in reject)
     for row in builtin_rows:
         name = row.get("name")
-        if not name:
+        if not name or name in reject:
             continue
         cat = map_builtin_category(row.get("category") or "", mapping)
         by_cat[cat].add(name)
@@ -73,7 +78,7 @@ def merge_all(
         "_meta": {
             "sources": ["cities/*", "ingredients-builtin.jsonl"],
             "cities": cities,
-            "note": "按类合并去重；同一字符串可出现在多类（暂不强制一类一物）",
+            "note": "按类合并去重；同一字符串可出现在多类（暂不强制一类一物）；reject.txt 排除",
         },
     }
 
@@ -109,6 +114,7 @@ def build_catalog(inbox: Path, catalog_root: Path) -> dict:
         raise SystemExit(1)
     mapping = load_mapping(catalog_root / MAPPING_NAME)
     builtin_rows = load_jsonl(builtin_path)
+    reject = load_review_lists(catalog_root / "review").reject
     shelves: list[dict] = []
     for city_dir in sorted(p for p in inbox.iterdir() if p.is_dir()):
         cleaned_path = city_dir / CLEANED_NAME
@@ -122,10 +128,13 @@ def build_catalog(inbox: Path, catalog_root: Path) -> dict:
         counts = {k: len(v) for k, v in shelf["categories"].items()}
         print(f"{shelf['city']}: {counts}  → cities/{shelf['city']}/{SHELF_NAME}")
         shelves.append(shelf)
-    all_ = merge_all(shelves, builtin_rows, mapping)
+    all_ = merge_all(shelves, builtin_rows, mapping, reject=reject)
     _dump(catalog_root / ALL_NAME, all_)
     total = sum(len(v) for v in all_["categories"].values())
     print(f"all: { {k: len(v) for k, v in all_['categories'].items()} }  unique_sum={total}")
+    from ingredients_by_category import write_ingredients_by_category
+
+    write_ingredients_by_category(catalog_root, all_doc=all_)
     return all_
 
 

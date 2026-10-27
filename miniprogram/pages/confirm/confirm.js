@@ -203,6 +203,7 @@ Page({
     holidayDate: '',
 
     showProfileLite: false,
+    profileLiteNeedCity: false,
     showEmptyDialog: false,
     liteBusy: false
   },
@@ -860,12 +861,14 @@ Page({
       shouldShowProfileLite({
         mealType: scene.mealType,
         familyAvoids: user.familyAvoids || [],
+        familyAvoidsNone: user.familyAvoidsNone,
         profileLiteSkipped: user.profileLiteSkipped,
         profileLitePromptedAt: user.profileLitePromptedAt
       })
     ) {
       track('profile_lite_show', { source: 'pre_create_sheet' })
-      this.setData({ showProfileLite: true })
+      const needCity = !String(user.city || '').trim()
+      this.setData({ showProfileLite: true, profileLiteNeedCity: needCity })
       return
     }
 
@@ -897,29 +900,47 @@ Page({
       })
   },
 
+  onProfileLiteNone(e) {
+    if (this.data.liteBusy) return
+    tapFeedback('heavy')
+    const city = (e && e.detail && e.detail.city) || ''
+    this.setData({ liteBusy: true, showProfileLite: false })
+    track('profile_lite_none', { source: 'pre_create_sheet' })
+    const selected = this._pendingSelected
+    const scene = this._pendingScene
+    const payload = { action: 'confirmFamilyAvoidsNone' }
+    if (city) payload.city = city
+    callCloud('profile', payload)
+      .then(() => ensureLogin().catch(() => null))
+      .catch((err) => {
+        console.error(err)
+        wx.showToast({ title: '设置未保存，继续出方案', icon: 'none' })
+      })
+      .then(() => {
+        this.setData({ liteBusy: false })
+        this._submitRecommend(selected, scene)
+      })
+  },
+
   onProfileLiteSave(e) {
     if (this.data.liteBusy) return
     tapFeedback('heavy')
     const detail = (e && e.detail) || {}
     const familyAvoids = detail.familyAvoids || []
-    const love = detail.love || {}
-    const dishFormPrefs = {}
-    if (love.hotpot) dishFormPrefs.hotpot = 'prefer'
-    if (love.noodle) dishFormPrefs.noodle = 'prefer'
+    const city = detail.city || ''
     this.setData({ liteBusy: true, showProfileLite: false })
     track('profile_lite_save', {
       source: 'pre_create_sheet',
-      avoidCount: familyAvoids.length,
-      loveHotpot: !!love.hotpot,
-      loveNoodle: !!love.noodle
+      avoidCount: familyAvoids.length
     })
     const selected = this._pendingSelected
     const scene = this._pendingScene
-    callCloud('profile', {
+    const payload = {
       action: 'saveProfileLite',
-      familyAvoids,
-      dishFormPrefs
-    })
+      familyAvoids
+    }
+    if (city) payload.city = city
+    callCloud('profile', payload)
       .then(() => ensureLogin().catch(() => null))
       .catch((err) => {
         console.error(err)

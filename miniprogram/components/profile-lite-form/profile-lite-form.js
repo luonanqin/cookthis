@@ -7,14 +7,13 @@ const LITE_AVOID_OPTIONS = [
   { id: 'dairy', label: '乳制品' }
 ]
 
-const LITE_LOVE_OPTIONS = [
-  { id: 'hotpot', label: '火锅' },
-  { id: 'noodle', label: '面食' }
-]
-
 Component({
   properties: {
     showNoneAvoids: {
+      type: Boolean,
+      value: false
+    },
+    showCity: {
       type: Boolean,
       value: false
     },
@@ -28,64 +27,66 @@ Component({
     },
     title: {
       type: String,
-      value: '补一句家庭忌口？'
-    },
-    hint: {
-      type: String,
-      value: '填了少推不能吃的；跳过不影响本次看方案'
+      value: '有哪些家庭忌口？'
     }
   },
 
   data: {
-    liteAvoidOptions: LITE_AVOID_OPTIONS.slice(0, 4),
-    liteAvoidMore: LITE_AVOID_OPTIONS.slice(4),
-    liteAvoidExpanded: false,
+    liteAvoidOptions: LITE_AVOID_OPTIONS,
+    noneAvoidChecked: false,
     liteAvoidChecked: {},
-    liteLoveOptions: LITE_LOVE_OPTIONS,
-    liteLoveChecked: {}
+    city: '',
+    region: []
   },
 
   methods: {
+    onRegionChange(e) {
+      const region = (e.detail && e.detail.value) || []
+      const city = region[1] || region[0] || ''
+      this.setData({ region, city })
+    },
+
     onAvoidToggle(e) {
       const id = e.currentTarget.dataset.id
       if (!id) return
+      if (id === 'none') {
+        const on = !this.data.noneAvoidChecked
+        this.setData({
+          noneAvoidChecked: on,
+          liteAvoidChecked: on ? {} : this.data.liteAvoidChecked
+        })
+        return
+      }
       const liteAvoidChecked = Object.assign({}, this.data.liteAvoidChecked)
       liteAvoidChecked[id] = !liteAvoidChecked[id]
-      this.setData({ liteAvoidChecked })
+      this.setData({
+        noneAvoidChecked: false,
+        liteAvoidChecked
+      })
     },
 
-    onLoveToggle(e) {
-      const id = e.currentTarget.dataset.id
-      if (!id) return
-      const liteLoveChecked = Object.assign({}, this.data.liteLoveChecked)
-      liteLoveChecked[id] = !liteLoveChecked[id]
-      this.setData({ liteLoveChecked })
-    },
-
-    onAvoidMore() {
-      this.setData({ liteAvoidExpanded: !this.data.liteAvoidExpanded })
+    _pickedCity() {
+      return String(this.data.city || '').trim()
     },
 
     onSave() {
+      const city = this._pickedCity()
+      if (this.properties.showCity && !city) {
+        wx.showToast({ title: '请先选择所在城市', icon: 'none' })
+        return
+      }
+      if (this.data.noneAvoidChecked) {
+        this.triggerEvent('noneavoids', { city })
+        return
+      }
       const familyAvoids = Object.keys(this.data.liteAvoidChecked || {}).filter(
         (k) => this.data.liteAvoidChecked[k]
       )
-      const checked = this.data.liteLoveChecked || {}
-      this.triggerEvent('save', {
-        familyAvoids,
-        love: {
-          hotpot: !!checked.hotpot,
-          noodle: !!checked.noodle
-        }
-      })
+      this.triggerEvent('save', { familyAvoids, city })
     },
 
     onSkip() {
       this.triggerEvent('skip')
-    },
-
-    onNoneAvoids() {
-      this.triggerEvent('noneavoids')
     }
   }
 })

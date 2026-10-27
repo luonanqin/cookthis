@@ -1,20 +1,9 @@
-<view class="wrap">
+  <view class="wrap {{typeScaleClass}}">
   <image class="avatar" src="{{avatarSrc}}" mode="aspectFill" />
   <text class="nickname">{{nickname}}</text>
 
-  <view class="reminder" wx:if="{{reminderItems.length}}">
-    <view class="reminder-title">建议补全，推荐更准</view>
-    <view
-      class="reminder-row"
-      wx:for="{{reminderItems}}"
-      wx:key="id"
-      data-anchor="{{item.anchor}}"
-      bindtap="onReminderTap"
-    >{{item.text}}</view>
-  </view>
-
   <view class="section" id="secMembers">
-    <view class="section-title">家人</view>
+    <view class="section-title {{gapMembersOpen ? 'section-title-gap' : ''}}">家庭成员</view>
     <view class="household">{{householdLabel}}</view>
     <view class="member-card" wx:for="{{members}}" wx:key="memberId">
       <view class="member-main" data-id="{{item.memberId}}" bindtap="openEditMember">
@@ -23,12 +12,32 @@
       </view>
       <text class="member-del" data-id="{{item.memberId}}" catchtap="removeMember">删</text>
     </view>
-    <view class="link-inline" bindtap="openAddMember">＋ 添加家人</view>
+    <view class="link-inline" bindtap="openAddMember">＋ 添加家庭成员</view>
+  </view>
+
+  <view class="section" id="secCombo">
+    <view class="section-title">日常搭配</view>
+    <view class="combo-row">
+      <picker mode="selector" range="{{comboRange}}" value="{{meatIndex}}" data-field="meat" bindchange="onComboPick">
+        <view class="picker-cell">荤 {{defaultCombo.meat}}</view>
+      </picker>
+      <picker mode="selector" range="{{comboRange}}" value="{{vegIndex}}" data-field="veg" bindchange="onComboPick">
+        <view class="picker-cell">素 {{defaultCombo.veg}}</view>
+      </picker>
+      <picker mode="selector" range="{{comboRange}}" value="{{soupIndex}}" data-field="soup" bindchange="onComboPick">
+        <view class="picker-cell">汤 {{defaultCombo.soup}}</view>
+      </picker>
+    </view>
   </view>
 
   <view class="section" id="secAvoids">
-    <view class="section-title">家庭忌口</view>
+    <view class="section-title {{gapAvoidsOpen ? 'section-title-gap' : ''}}">家庭忌口</view>
     <view class="chips">
+      <view
+        class="chip {{noneAvoidChecked ? 'on' : ''}}"
+        data-id="none"
+        bindtap="onToggleAvoid"
+      >无</view>
       <view
         class="chip {{familyAvoidChecked[item.id] ? 'on' : ''}}"
         wx:for="{{avoidOptions}}"
@@ -37,31 +46,25 @@
         bindtap="onToggleAvoid"
       >{{item.label}}</view>
     </view>
-    <view class="link-inline" bindtap="onConfirmNoAvoids">我家无忌口</view>
   </view>
 
-  <view class="section">
-    <view class="section-title">菜式偏好（喜欢时可能出非常规方案）</view>
-    <view class="form-row" wx:for="{{formOptions}}" wx:key="id">
-      <text class="form-label">{{item.label}}</text>
-      <view class="chips">
-        <view
-          class="chip {{dishFormPrefs[item.id] === v.id ? 'on' : ''}}"
-          wx:for="{{formValues}}"
-          wx:for-item="v"
-          wx:key="id"
-          data-tag="{{item.id}}"
-          data-value="{{v.id}}"
-          bindtap="onFormPref"
-        >{{v.label}}</view>
-      </view>
-    </view>
+  <view class="section" id="secCity">
+    <view class="section-title {{gapCityOpen ? 'section-title-gap' : ''}}">所在城市</view>
+    <view class="hint">仅用于匹配当地常见食材</view>
+    <picker mode="region" level="city" value="{{region}}" bindchange="onRegionChange">
+      <view class="picker-row">{{city || '点此选择省市'}}</view>
+    </picker>
   </view>
 
   <view class="section" id="secCuisine">
-    <view class="section-title">菜系偏好</view>
-    <view class="hint">先选喜欢，再选不爱吃的（可跳过）</view>
-    <view class="sub">喜欢（出菜更偏向）</view>
+    <view class="section-title {{gapCuisineOpen ? 'section-title-gap' : ''}}">菜系偏好</view>
+    <view class="chips">
+      <view
+        class="chip {{cuisineOkChecked ? 'on' : ''}}"
+        bindtap="onToggleCuisineOk"
+      >都还行</view>
+    </view>
+    <view class="sub">喜欢</view>
     <view class="chips">
       <view
         class="chip {{cuisinePrefs[item.id] === 'prefer' ? 'on' : ''}}"
@@ -71,34 +74,78 @@
         bindtap="onCuisinePrefer"
       >{{item.label}}</view>
     </view>
-    <view class="sub">不太想吃（相关菜不推）</view>
+    <view class="sub">不喜欢</view>
     <view class="chips">
       <view
-        class="chip {{cuisinePrefs[item.id] === 'avoid' ? 'on' : ''}}"
+        class="chip {{cuisinePrefs[item.id] === 'avoid' ? 'on-avoid' : ''}}"
         wx:for="{{cuisineOptions}}"
         wx:key="id"
         data-id="{{item.id}}"
         bindtap="onCuisineAvoid"
       >{{item.label}}</view>
     </view>
-    <view class="link-inline" bindtap="onConfirmNoCuisine">暂无偏好 / 全部一般</view>
   </view>
 
-  <view class="section" id="secCity">
-    <view class="section-title">城市（选到市）</view>
-    <view class="hint">仅用于匹配当地常见食材</view>
-    <picker mode="region" level="city" value="{{region}}" bindchange="onRegionChange">
-      <view class="picker-row">{{city || '点此选择省市'}}</view>
-    </picker>
+  <view class="section">
+    <view class="section-title">菜式偏好</view>
+    <view class="form-row" wx:for="{{formOptions}}" wx:key="id">
+      <text class="form-name">{{item.label}}</text>
+      <radio-group
+        class="form-radios"
+        data-tag="{{item.id}}"
+        bindchange="onFormPrefRadio"
+      >
+        <label
+          class="form-radio"
+          wx:for="{{formValues}}"
+          wx:for-item="v"
+          wx:key="id"
+        >
+          <radio
+            value="{{v.id}}"
+            checked="{{dishFormPrefs[item.id] === v.id}}"
+            color="#3a8a5f"
+          />
+          <text>{{v.label}}</text>
+        </label>
+      </radio-group>
+    </view>
   </view>
 
-  <button type="primary" disabled="{{busy}}" bindtap="onSave">保存</button>
-  <view class="link" hover-class="tap-hover" hover-stay-time="80" bindtap="goOnboarding">重新走一遍家庭引导</view>
+  <view class="link reset-link" hover-class="tap-hover" hover-stay-time="80" bindtap="goOnboarding">重新设置偏好</view>
 
-  <view wx:if="{{showMemberEditor}}" class="editor-mask" catchtouchmove="true">
-    <view class="editor-panel">
-      <view class="section-title">{{editingMemberId ? '编辑家人' : '添加家人'}}</view>
-      <input class="editor-input" placeholder="称呼" value="{{editName}}" bindinput="onEditName" />
+  <view class="footer">
+    <button type="primary" disabled="{{busy}}" bindtap="onSave">保存</button>
+  </view>
+
+  <view
+    wx:if="{{showMemberEditor}}"
+    class="editor-mask"
+    catchtouchmove="true"
+    bindtap="closeMemberEditor"
+  >
+    <view class="editor-panel" catchtap="noop">
+      <view class="section-title">{{editingMemberId ? '编辑家庭成员' : '添加家庭成员'}}</view>
+      <view class="editor-input-box">
+        <view class="editor-input-field">
+          <input
+            class="editor-input-inner"
+            style="width: 72rpx;"
+            placeholder="称呼"
+            value="{{editName}}"
+            bindinput="onEditName"
+          />
+        </view>
+        <view class="editor-input-quicks">
+          <view
+            class="chip chip-mini"
+            wx:for="{{nameQuickOptions}}"
+            wx:key="*this"
+            data-name="{{item}}"
+            bindtap="onPickQuickName"
+          >{{item}}</view>
+        </view>
+      </view>
       <text class="form-label">年龄段</text>
       <view class="chips">
         <view
@@ -122,6 +169,11 @@
       <text class="form-label">个人忌口</text>
       <view class="chips">
         <view
+          class="chip {{editAvoidsNone ? 'on' : ''}}"
+          data-id="none"
+          bindtap="onEditAvoid"
+        >无</view>
+        <view
           class="chip {{editAvoidChecked[item.id] ? 'on' : ''}}"
           wx:for="{{avoidOptions}}"
           wx:key="id"
@@ -130,7 +182,7 @@
         >{{item.label}}</view>
       </view>
       <view class="editor-actions">
-        <button size="mini" bindtap="closeMemberEditor">取消</button>
+        <button size="mini" class="btn-outline" bindtap="closeMemberEditor">取消</button>
         <button size="mini" type="primary" bindtap="saveMember">确定</button>
       </view>
     </view>

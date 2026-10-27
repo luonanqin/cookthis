@@ -115,6 +115,7 @@ Page({
     showEmptyDialog: false,
     showProfileBanner: false,
     showQuickLite: false,
+    quickLiteNeedCity: false,
     rejectReasons: REJECT_REASONS,
     fabDimmed: false
   },
@@ -304,18 +305,23 @@ Page({
 
   onOpenQuickLite() {
     track('profile_lite_quick_open', { source: 'recommend_banner' })
-    this.setData({ showQuickLite: true })
+    const u = getUser() || {}
+    const needCity = !String(u.city || '').trim()
+    this.setData({ showQuickLite: true, quickLiteNeedCity: needCity })
   },
 
   onQuickLiteClose() {
     this.setData({ showQuickLite: false })
   },
 
-  onQuickLiteNone() {
+  onQuickLiteNone(e) {
     if (this.data.busy) return
+    const city = (e && e.detail && e.detail.city) || ''
     this.setData({ busy: true, showQuickLite: false })
     track('profile_lite_quick_none', { source: 'recommend_banner' })
-    callCloud('profile', { action: 'confirmFamilyAvoidsNone' })
+    const payload = { action: 'confirmFamilyAvoidsNone' }
+    if (city) payload.city = city
+    callCloud('profile', payload)
       .then(() => ensureLogin())
       .then(() => this._recreateRecommendAfterProfile())
       .catch((err) => {
@@ -329,20 +335,18 @@ Page({
   onQuickLiteSave(e) {
     if (this.data.busy) return
     const familyAvoids = (e.detail && e.detail.familyAvoids) || []
-    const love = (e.detail && e.detail.love) || {}
-    const dishFormPrefs = {}
-    if (love.hotpot) dishFormPrefs.hotpot = 'prefer'
-    if (love.noodle) dishFormPrefs.noodle = 'prefer'
+    const city = (e.detail && e.detail.city) || ''
     this.setData({ busy: true, showQuickLite: false })
     track('profile_lite_quick_save', {
       source: 'recommend_banner',
       avoidCount: familyAvoids.length
     })
-    callCloud('profile', {
+    const payload = {
       action: 'saveProfileLite',
-      familyAvoids,
-      dishFormPrefs
-    })
+      familyAvoids
+    }
+    if (city) payload.city = city
+    callCloud('profile', payload)
       .then(() => ensureLogin())
       .then(() => this._recreateRecommendAfterProfile())
       .catch((err) => {
@@ -534,5 +538,6 @@ Page({
       .then(() => this.setData({ busy: false, busyAction: '', busyPlanIndex: -1 }))
   },
 
+  noop() {}
 })
 

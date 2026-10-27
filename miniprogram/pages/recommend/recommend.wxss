@@ -27,6 +27,12 @@
   color: var(--color-text-secondary, #888);
   font-size: var(--fs-sm);
   line-height: 1.4;
+  text-align: center;
+}
+
+.profile-banner-cta {
+  color: #e54d42;
+  text-decoration: underline;
 }
 
 .empty {

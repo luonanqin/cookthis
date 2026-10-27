@@ -27,7 +27,7 @@
           <view class="check">{{cell.bought ? '✓' : ''}}</view>
           <view class="name-line">
             <text class="name">{{cell.displayName || cell.name}}</text>
-            <text wx:if="{{cell.secondaryName}}" class="secondary"> {{cell.secondaryName}}</text>
+            <text wx:if="{{cell.secondaryName}}" class="secondary">{{cell.secondaryName}}</text>
           </view>
         </view>
       </view>

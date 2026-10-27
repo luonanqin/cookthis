@@ -1,4 +1,4 @@
-<page-meta page-style="{{showCustomSlots ? 'overflow: hidden;' : ''}}" />
+<page-meta page-style="{{showCustomSlots || showProfileLite ? 'overflow: hidden;' : ''}}" />
 <view class="page {{typeScaleClass}}">
   <view wx:if="{{loading}}" class="state">加载中…</view>
   <view wx:elif="{{error}}" class="state">{{error}}</view>
@@ -173,14 +173,16 @@
     </button>
   </view>
 
-  <view class="mask" wx:if="{{showProfileLite}}" catchtouchmove="true">
-    <view class="sheet">
+  <view class="mask mask-center mask-lite" wx:if="{{showProfileLite}}" catchtouchmove="true">
+    <view class="lite-dialog" catchtap="noop" catchtouchmove="true">
       <profile-lite-form
-        show-none-avoids="{{false}}"
-        primary-text="保存并出方案"
-        secondary-text="暂时跳过"
+        show-none-avoids="{{true}}"
+        show-city="{{profileLiteNeedCity}}"
+        primary-text="保存"
+        secondary-text="跳过"
         bind:save="onProfileLiteSave"
         bind:skip="onProfileLiteSkip"
+        bind:noneavoids="onProfileLiteNone"
       />
     </view>
   </view>
@@ -212,8 +214,13 @@
     </view>
   </view>
 
-  <view class="mask mask-center" wx:if="{{showEmptyDialog}}" catchtouchmove="true">
-    <view class="dialog">
+  <view
+    class="mask mask-center"
+    wx:if="{{showEmptyDialog}}"
+    catchtouchmove="true"
+    bindtap="onEmptyDialogOk"
+  >
+    <view class="dialog" catchtap="noop">
       <view class="dialog-title">食材不够出菜了</view>
       <view class="dialog-actions">
         <button class="dialog-btn" hover-class="button-hover" bindtap="onEmptyDialogOk">好吧</button>

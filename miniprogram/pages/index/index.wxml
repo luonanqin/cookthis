@@ -21,15 +21,23 @@
     <button class="btn-outline btn-type-scale" bindtap="onToggleTypeScale">{{typeScaleLabel}}</button>
     <view class="link-row">
       <view class="link" hover-class="tap-hover" hover-stay-time="80" bindtap="goAcceptedPlans">已选菜品</view>
-      <view class="link" hover-class="tap-hover" hover-stay-time="80" bindtap="goMine">我的偏好</view>
+      <view class="link link-mine" hover-class="tap-hover" hover-stay-time="80" bindtap="goMine">
+        <text>我的偏好</text>
+        <view wx:if="{{profileGapCount > 0}}" class="link-badge">{{profileGapCount}}</view>
+      </view>
     </view>
+    <view
+      class="link link-dev"
+      hover-class="tap-hover"
+      hover-stay-time="80"
+      bindtap="onResetPreferenceTest"
+    >重置偏好（测试）</view>
   </view>
 
   <view class="mask" wx:if="{{showConfirm}}" catchtouchmove="true">
     <view class="sheet-confirm">
       <view class="sheet-confirm-hd">
-        <view class="sheet-title">上次推荐吃过哪些？</view>
-        <view class="sheet-hint">默认不选；可跳过</view>
+        <view class="sheet-title">最近有吃过这些吗？</view>
       </view>
       <view class="sheet-confirm-list-wrap {{candidatesPeek ? 'peek' : ''}}">
         <scroll-view wx:if="{{candidatesPeek}}" class="sheet-confirm-list" scroll-y>
@@ -41,7 +49,7 @@
               data-name="{{item}}"
               bindtap="onToggleDish"
             >
-              <text class="check">{{selected[item] ? '✓' : ''}}</text>
+              <view class="check">{{selected[item] ? '✓' : ''}}</view>
               <text class="sheet-chip-text">{{item}}</text>
             </view>
           </view>
@@ -54,14 +62,20 @@
             data-name="{{item}}"
             bindtap="onToggleDish"
           >
-            <text class="check">{{selected[item] ? '✓' : ''}}</text>
+            <view class="check">{{selected[item] ? '✓' : ''}}</view>
             <text class="sheet-chip-text">{{item}}</text>
           </view>
         </view>
       </view>
       <view class="sheet-confirm-ft sheet-actions">
         <button size="mini" class="btn-outline" bindtap="onSelectAll">{{selectAllLabel}}</button>
-        <button size="mini" type="primary" disabled="{{busy}}" bindtap="onConfirmSubmit">确认</button>
+        <button
+          size="mini"
+          class="{{hasSelected ? '' : 'btn-outline btn-confirm-disabled'}}"
+          type="{{hasSelected ? 'primary' : 'default'}}"
+          disabled="{{busy || !hasSelected}}"
+          bindtap="onConfirmSubmit"
+        >确认</button>
         <button size="mini" class="btn-outline" bindtap="onConfirmSkip">跳过</button>
       </view>
     </view>

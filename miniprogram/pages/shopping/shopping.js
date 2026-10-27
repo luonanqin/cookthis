@@ -11,8 +11,10 @@ const {
   loadAliases,
   buildAliasIndex,
   normalizeCityKey,
-  applyShoppingDisplay
+  applyShoppingDisplay,
+  fitSecondaryNames
 } = require('../../utils/aliasMatch.js')
+const typeScale = require('../../utils/typeScale.js')
 const { shoppingAdSlots } = require('../../utils/ads.js')
 const { track } = require('../../utils/track.js')
 const { callCloud } = require('../../services/cloud.js')
@@ -27,29 +29,22 @@ const CHECKS_KEY = 'cookthis_shopping_checks'
 let _aliasIndex = null
 function getAliasIndex() {
   if (_aliasIndex) return _aliasIndex
-  const raw = require('../../data/aliases.json')
+  // 用 .js 而非 .json：开发者工具对 require JSON 常报 module not defined
+  const raw = require('../../data/aliases.js')
   _aliasIndex = buildAliasIndex(loadAliases(raw))
   return _aliasIndex
 }
 
+let _cityShelves = null
 function loadShelfOrder(city) {
   const key = normalizeCityKey(city)
   if (!key) return []
   try {
-    const shelves = {
-      北京: () => require('../../data/city-shelves/北京.json'),
-      天津: () => require('../../data/city-shelves/天津.json'),
-      广州: () => require('../../data/city-shelves/广州.json'),
-      成都: () => require('../../data/city-shelves/成都.json'),
-      拉萨: () => require('../../data/city-shelves/拉萨.json'),
-      武汉: () => require('../../data/city-shelves/武汉.json'),
-      西宁: () => require('../../data/city-shelves/西宁.json'),
-      西安: () => require('../../data/city-shelves/西安.json'),
-      重庆: () => require('../../data/city-shelves/重庆.json'),
-      银川: () => require('../../data/city-shelves/银川.json')
+    if (!_cityShelves) {
+      _cityShelves = require('../../data/city-shelves.js')
     }
-    const loader = shelves[key]
-    return loader ? loader() : []
+    const order = _cityShelves[key]
+    return Array.isArray(order) ? order : []
   } catch (e) {
     return []
   }
@@ -147,6 +142,34 @@ Page({
   _recipeSheetOpenedAt: 0,
   _recipeSheetScrolled: false,
 
+  onShow() {
+    this.applyTypeScale()
+    this.refitSecondaryNames()
+  },
+
+  refitSecondaryNames() {
+    const groups = this.data.groups
+    if (!groups || !groups.length) return
+    const largeText = typeScale.isLarge()
+    let changed = false
+    const next = groups.map((g) => {
+      const mapCell = (it) => {
+        const secondaryName = fitSecondaryNames(
+          it.secondaryNames || [],
+          it.displayName || it.name,
+          { largeText }
+        )
+        if ((it.secondaryName || null) !== secondaryName) changed = true
+        return Object.assign({}, it, { secondaryName })
+      }
+      return Object.assign({}, g, {
+        items: (g.items || []).map(mapCell),
+        rows: (g.rows || []).map((row) => row.map(mapCell))
+      })
+    })
+    if (changed) this.setData({ groups: next })
+  },
+
   onLoad(query) {
     const accepted = String(query.accepted || '') === 'true'
     const planIndex = Number(query.planIndex)
@@ -166,44 +189,54 @@ Page({
     let plan = pickPlan(recommend.plans, idx)
 
     const finish = (finalPlan, sourceMealType) => {
-      const built = finalPlan
-        ? buildShoppingList({ plan: finalPlan, categoryByName })
-        : { groups: [] }
-      const user = getUser() || {}
-      const index = getAliasIndex()
-      const shelfOrder = loadShelfOrder(user.city)
-      const labeled = applyShoppingDisplay(built.groups || [], {
-        city: user.city,
-        shelfOrder,
-        index
-      })
-      const flatNames = flattenShoppingList({ groups: labeled }).map((x) => x.name)
-      const checksMap = readJson(CHECKS_KEY) || {}
-      const key = shoppingCheckKey(this._requestId, idx, this._swapCount)
-      const restored = checkedNamesFromMap(checksMap, key, flatNames)
-      const checkedNames = {}
-      restored.forEach((n) => {
-        checkedNames[n] = true
-      })
+      try {
+        const built = finalPlan
+          ? buildShoppingList({ plan: finalPlan, categoryByName })
+          : { groups: [] }
+        const user = getUser() || {}
+        const index = getAliasIndex()
+        const shelfOrder = loadShelfOrder(user.city)
+        const labeled = applyShoppingDisplay(built.groups || [], {
+          city: user.city,
+          shelfOrder,
+          index,
+          largeText: typeScale.isLarge()
+        })
+        const flatNames = flattenShoppingList({ groups: labeled }).map((x) => x.name)
+        const checksMap = readJson(CHECKS_KEY) || {}
+        const key = shoppingCheckKey(this._requestId, idx, this._swapCount)
+        const restored = checkedNamesFromMap(checksMap, key, flatNames)
+        const checkedNames = {}
+        restored.forEach((n) => {
+          checkedNames[n] = true
+        })
 
-      const groups = withBought(labeled, checkedNames)
-      const flat = flattenShoppingList({ groups })
-      const recipeDishes = finalPlan
-        ? decorateRecipeSheet(buildRecipeSheet({ plan: finalPlan, categoryByName }))
-        : []
+        const groups = withBought(labeled, checkedNames)
+        const flat = flattenShoppingList({ groups })
+        const recipeDishes = finalPlan
+          ? decorateRecipeSheet(buildRecipeSheet({ plan: finalPlan, categoryByName }))
+          : []
 
-      track('shopping_list_open', { accepted })
-      this.setData({
-        groups,
-        recipeDishes,
-        accepted,
-        loading: false,
-        empty: flat.length === 0,
-        emptyText: flat.length === 0
-          ? '暂无清单食材。请确认云函数 recommend 已重新部署，并返回推荐页重试「去买菜」。'
-          : '',
-        adSlots: shoppingAdSlots(sourceMealType || mealType)
-      })
+        track('shopping_list_open', { accepted })
+        this.setData({
+          groups,
+          recipeDishes,
+          accepted,
+          loading: false,
+          empty: flat.length === 0,
+          emptyText: flat.length === 0
+            ? '暂无清单食材。请确认云函数 recommend 已重新部署，并返回推荐页重试「去买菜」。'
+            : '',
+          adSlots: shoppingAdSlots(sourceMealType || mealType)
+        })
+      } catch (err) {
+        console.error(err)
+        this.setData({
+          loading: false,
+          empty: true,
+          emptyText: '清单加载失败，请返回重试'
+        })
+      }
     }
 
     if (plan && planHasIngredients(plan)) {

@@ -41,6 +41,19 @@ describe('shouldShowProfileLite', () => {
     )
   })
 
+  it('hides when familyAvoidsNone', () => {
+    assert.equal(
+      shouldShowProfileLite({
+        mealType: 'daily',
+        familyAvoids: [],
+        familyAvoidsNone: true,
+        profileLiteSkipped: false,
+        profileLitePromptedAt: null
+      }),
+      false
+    )
+  })
+
   it('hides after skip or prompted', () => {
     assert.equal(
       shouldShowProfileLite({
