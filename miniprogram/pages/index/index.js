@@ -162,6 +162,9 @@ Page({
   onHide() {
     // 半屏 catchtouchmove 留在栈底时，上层页会出现「什么都点不动」
     if (this.data.showConfirm || this.data.showMarketScale || this.data.busy) {
+      if (this.data.showMarketScale) {
+        marketScaleSessionShown = false
+      }
       this.setData({ showConfirm: false, showMarketScale: false, busy: false })
     }
     this._disableMarketScaleBackGuard()
