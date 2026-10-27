@@ -8,6 +8,8 @@ const {
   TASTE_VALUES,
   summarizeHousehold
 } = require('./members.js')
+// Vendored: keep in sync with cloudfunctions/_shared/marketScale.js
+const { effectiveFromChoice, appendHistory } = require('./marketScale.js')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
@@ -16,6 +18,19 @@ const _ = db.command
 const AVOID_CODES = ['pork', 'seafood', 'offal', 'coriander', 'peanut', 'dairy', 'other']
 const FORM_TAGS = ['hotpot', 'noodle', 'dumpling']
 const FORM_VALUES = ['prefer', 'neutral', 'avoid']
+const MARKET_SCALE_CHOICES = ['small', 'medium', 'large', 'default_medium']
+const MARKET_SCALE_SOURCES = ['sheet', 'page_switch', 'system_default']
+
+function marketScaleSnapshot(user) {
+  const u = user || {}
+  return {
+    marketScaleChoice: u.marketScaleChoice || null,
+    marketScaleEffective: u.marketScaleEffective || null,
+    marketScaleChosenAt: u.marketScaleChosenAt || null,
+    marketScaleAnchor: u.marketScaleAnchor || null,
+    marketScaleHistory: Array.isArray(u.marketScaleHistory) ? u.marketScaleHistory : []
+  }
+}
 
 async function resolveUid(openid) {
   const idRes = await db.collection('user_identities')
@@ -113,10 +128,64 @@ async function handleGet(uid) {
         adult: household.adult,
         child: household.child,
         elder: household.elder
-      }
+      },
+      ...marketScaleSnapshot(user)
     },
     members,
     ageBands: AGE_BANDS
+  }
+}
+
+async function handleSetMarketScale(event, uid, user) {
+  const choice = event && event.choice
+  const source = event && event.source
+  if (!MARKET_SCALE_CHOICES.includes(choice)) {
+    return { ok: false, error: 'INVALID_CHOICE' }
+  }
+  if (!MARKET_SCALE_SOURCES.includes(source)) {
+    return { ok: false, error: 'INVALID_SOURCE' }
+  }
+
+  const effective = effectiveFromChoice(choice)
+  const at = new Date().toISOString()
+  const lat = event && event.lat
+  const lng = event && event.lng
+  const hasFix =
+    typeof lat === 'number' &&
+    Number.isFinite(lat) &&
+    typeof lng === 'number' &&
+    Number.isFinite(lng)
+
+  const historyItem = {
+    choice,
+    effective,
+    source,
+    at
+  }
+  if (hasFix) {
+    historyItem.lat = lat
+    historyItem.lng = lng
+  }
+
+  const patch = {
+    marketScaleChoice: choice,
+    marketScaleEffective: effective,
+    marketScaleChosenAt: at,
+    marketScaleHistory: appendHistory(user.marketScaleHistory, historyItem),
+    updatedAt: db.serverDate()
+  }
+  if (hasFix) {
+    patch.marketScaleAnchor = { lat, lng }
+  }
+
+  await db.collection('users').doc(user._id).update({ data: patch })
+
+  return {
+    ok: true,
+    ...marketScaleSnapshot({
+      ...user,
+      ...patch
+    })
   }
 }
 
@@ -544,11 +613,12 @@ exports.main = async (event) => {
   }
   if (action === 'confirmCuisineNoPreference') return handleConfirmCuisineNoPreference(uid, user)
   if (action === 'resetPreferenceTest') return handleResetPreferenceTest(uid, user)
+  if (action === 'setMarketScale') return handleSetMarketScale(event, uid, user)
   console.warn('profile UNKNOWN_ACTION', action)
   return {
     ok: false,
     error: 'UNKNOWN_ACTION',
-    hint: '请重新上传并部署云函数 profile（需含 saveProfileLite / skipProfileLite / confirmFamilyAvoidsNone / confirmCuisineNoPreference）',
+    hint: '请重新上传并部署云函数 profile（需含 saveProfileLite / skipProfileLite / confirmFamilyAvoidsNone / confirmCuisineNoPreference / setMarketScale）',
     action: action || null
   }
 }

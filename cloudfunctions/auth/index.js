@@ -65,6 +65,13 @@ exports.main = async (event) => {
       profileLitePromptedAt: user.profileLitePromptedAt || null,
       defaultPeopleCount: members.length,
       defaultCombo: user.defaultCombo || { meat: 1, veg: 1, soup: 0 },
+      marketScaleChoice: user.marketScaleChoice || null,
+      marketScaleEffective: user.marketScaleEffective || null,
+      marketScaleChosenAt: user.marketScaleChosenAt || null,
+      marketScaleAnchor: user.marketScaleAnchor || null,
+      marketScaleHistory: Array.isArray(user.marketScaleHistory)
+        ? user.marketScaleHistory
+        : [],
       members
     }
   }
@@ -127,6 +134,11 @@ exports.main = async (event) => {
     profileLitePromptedAt: null,
     defaultPeopleCount: 0,
     defaultCombo: { meat: 1, veg: 1, soup: 0 },
+    marketScaleChoice: null,
+    marketScaleEffective: null,
+    marketScaleChosenAt: null,
+    marketScaleAnchor: null,
+    marketScaleHistory: [],
     members: []
   }
 }
