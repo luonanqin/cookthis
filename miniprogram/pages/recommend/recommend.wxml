@@ -20,14 +20,24 @@
     <view class="plan" wx:for="{{plans}}" wx:key="planIndex">
       <view class="plan-head">
         <view class="plan-title">方案 {{item.planIndex + 1}}<text wx:if="{{item.planKind && item.planKind !== 'home'}}" class="kind"> · {{item.planKind}}</text></view>
-        <button
-          size="mini"
-          type="primary"
-          class="plan-accept"
-          disabled="{{busy}}"
-          data-plan-index="{{item.planIndex}}"
-          bindtap="onAccept"
-        >去买菜</button>
+        <view class="plan-actions">
+          <button
+            class="plan-share btn-outline"
+            size="mini"
+            open-type="share"
+            data-plan-index="{{item.planIndex}}"
+            data-entry="recommend"
+            hover-class="tap-hover"
+          >分享</button>
+          <button
+            size="mini"
+            type="primary"
+            class="plan-accept"
+            disabled="{{busy}}"
+            data-plan-index="{{item.planIndex}}"
+            bindtap="onAccept"
+          >去买菜</button>
+        </view>
       </view>
       <view class="meal" wx:for="{{item.meals}}" wx:for-item="meal" wx:key="slot">
         <view class="meal-label">{{meal.slot.label || meal.slot.meal}}</view>

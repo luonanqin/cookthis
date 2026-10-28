@@ -134,6 +134,12 @@
   font-weight: 600;
 }
 
+.shopping-share {
+  margin: 0 !important;
+  width: 100%;
+  font-weight: 400 !important;
+}
+
 /* 全屏遮罩：拦页面滚动；点遮罩关闭；弹层本身 ≤ 半屏 */
 .mask {
   position: fixed;

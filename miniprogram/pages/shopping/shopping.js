@@ -20,6 +20,7 @@ const { track } = require('../../utils/track.js')
 const { callCloud } = require('../../services/cloud.js')
 const { getUser } = require('../../services/session.js')
 const { tapFeedback } = require('../../utils/haptic.js')
+const { shareCardTitle } = require('../../utils/planShare.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 
 const RECOMMEND_KEY = 'cookthis_last_recommend'
@@ -359,5 +360,37 @@ Page({
     })
     track('shopping_list_done', { checkedCount })
     wx.navigateBack({ delta: 1 })
+  },
+
+  onShareAppMessage(res) {
+    const entry =
+      (res.target && res.target.dataset && res.target.dataset.entry) ||
+      'shopping'
+    const requestId = this._requestId
+    const planIndex = this._planIndex
+    track('plan_share_create', { entry })
+    // Snapshot is rebuilt server-side from recommendation.plans; ignore local checks.
+    return callCloud('share', {
+      action: 'create',
+      requestId,
+      planIndex,
+      entry
+    })
+      .then((r) => {
+        const shareId = r && r.shareId
+        const dishes = (this.data.recipeDishes || []).map((d) => ({
+          name: d && d.name
+        }))
+        return {
+          title: shareCardTitle(dishes) || '买菜做什么 · 方案',
+          path:
+            '/pages/sharedPlan/sharedPlan?shareId=' +
+            encodeURIComponent(shareId || '')
+        }
+      })
+      .catch(() => ({
+        title: '买菜做什么',
+        path: '/pages/index/index'
+      }))
   }
 })

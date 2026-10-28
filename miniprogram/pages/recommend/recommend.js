@@ -4,6 +4,7 @@ const { track } = require('../../utils/track.js')
 const { buildPlanIngredientSummary } = require('../../utils/planIngredientSummary.js')
 const { clearChecksForRequest } = require('../../utils/shoppingChecks.js')
 const { tapFeedback } = require('../../utils/haptic.js')
+const { shareCardTitle } = require('../../utils/planShare.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 const { formatSceneSummary } = require('../../utils/sceneSummary.js')
 const { computeProfileGaps } = require('../../utils/profileGaps.js')
@@ -536,6 +537,41 @@ Page({
         })
       })
       .then(() => this.setData({ busy: false, busyAction: '', busyPlanIndex: -1 }))
+  },
+
+  onShareAppMessage(res) {
+    const entry = (res.target && res.target.dataset.entry) || 'recommend'
+    const planIndex = Number(
+      (res.target && res.target.dataset.planIndex) != null
+        ? res.target.dataset.planIndex
+        : 0
+    )
+    const requestId = this._requestId || (this.data && this.data.requestId)
+    track('plan_share_create', { entry })
+    return callCloud('share', {
+      action: 'create',
+      requestId,
+      planIndex,
+      entry
+    })
+      .then((r) => {
+        const shareId = r && r.shareId
+        const plan = (this.data.plans || [])[planIndex]
+        const dishes = []
+        ;((plan && plan.meals) || []).forEach((m) => {
+          ;(m.dishes || []).forEach((d) => dishes.push({ name: d.name }))
+        })
+        return {
+          title: shareCardTitle(dishes) || '买菜做什么 · 方案',
+          path:
+            '/pages/sharedPlan/sharedPlan?shareId=' +
+            encodeURIComponent(shareId || '')
+        }
+      })
+      .catch(() => ({
+        title: '买菜做什么',
+        path: '/pages/index/index'
+      }))
   },
 
   noop() {}

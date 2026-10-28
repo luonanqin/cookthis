@@ -6,12 +6,44 @@
   <view wx:if="{{loading && !items.length}}" class="empty">加载中…</view>
   <view wx:elif="{{!items.length}}" class="empty">还没有采纳过方案</view>
 
-  <block wx:for="{{items}}" wx:key="requestId">
-    <view class="card">
-      <view class="meta">{{item.timeText}} · {{item.sceneSummary}}</view>
+  <block wx:for="{{items}}" wx:key="listKey">
+    <!-- 收到的：整卡进只读页；无已吃 chip、无分享 -->
+    <view
+      wx:if="{{item.source === 'shared'}}"
+      class="card card-shared"
+      hover-class="tap-hover"
+      hover-stay-time="80"
+      data-share-id="{{item.shareId}}"
+      bindtap="onOpenShared"
+    >
+      <view class="meta meta-shared">
+        <text class="meta-text">{{item.timeText}} · {{item.sceneSummary}}</text>
+        <text class="badge">{{item.badge || '分享'}}</text>
+      </view>
+      <view class="dish-names">
+        <block wx:for="{{item.dishes}}" wx:for-item="d" wx:for-index="dishIdx" wx:key="name">
+          <text wx:if="{{dishIdx > 0}}" class="dish-sep"> · </text>
+          <text class="dish-name-plain">{{d.name}}</text>
+        </block>
+      </view>
+    </view>
+
+    <!-- 自产：已吃 chip + 分享 -->
+    <view wx:else class="card">
+      <view class="meta meta-own">
+        <text class="meta-text">{{item.timeText}} · {{item.sceneSummary}}</text>
+        <button
+          class="card-share btn-outline"
+          size="mini"
+          open-type="share"
+          data-recommendation-id="{{item.recommendationId}}"
+          data-entry="accepted"
+          hover-class="tap-hover"
+        >分享</button>
+      </view>
       <view class="chips">
         <view
-          id="{{index === 0 && dishIndex === 0 ? 'tipSpotChip' : ''}}"
+          id="{{item.listKey === tipOwnListKey && dishIndex === 0 ? 'tipSpotChip' : ''}}"
           class="sheet-chip {{d.ate ? 'on' : ''}}"
           wx:for="{{item.dishes}}"
           wx:for-item="d"
@@ -32,9 +64,8 @@
   <view wx:if="{{loadingMore}}" class="more">加载中…</view>
 
   <!-- 强制点选首菜：蒙层不可点关，仅热区可点 -->
-  <view wx:if="{{showTip && items.length}}" class="tip-mask" catchtouchmove="true" catchtap="noop">
+  <view wx:if="{{showTip && tipSpot}}" class="tip-mask" catchtouchmove="true" catchtap="noop">
     <view
-      wx:if="{{tipSpot}}"
       class="tip-bubble"
       style="top: {{tipBubbleTop}}px; left: {{tipBubbleLeft}}px;"
       catchtap="noop"
@@ -43,7 +74,6 @@
       <view class="tip-arrow"></view>
     </view>
     <view
-      wx:if="{{tipSpot}}"
       class="tip-spot-hit sheet-chip {{tipSpot.ate ? 'on' : ''}}"
       style="top: {{tipSpot.top}}px; left: {{tipSpot.left}}px; width: {{tipSpot.width}}px; height: {{tipSpot.height}}px;"
       data-request-id="{{tipSpot.requestId}}"
