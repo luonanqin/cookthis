@@ -59,6 +59,7 @@ function buildIngredientsFromPlan(plan, categoryByName) {
  *   uid: string,
  *   requestId: string,
  *   planIndex: number,
+ *   swapCount?: number,
  *   categoryByName?: Record<string, string>,
  *   sharerNickname?: string
  * }} input
@@ -69,6 +70,10 @@ function buildSnapshotPayload(input) {
   const uid = input && input.uid
   const requestId = input && input.requestId
   const planIndex = input && input.planIndex
+  const swapCount =
+    typeof (input && input.swapCount) === 'number' && Number.isFinite(input.swapCount)
+      ? input.swapCount
+      : 0
   const categoryByName = (input && input.categoryByName) || {}
   const sharerNickname = input && input.sharerNickname
 
@@ -78,6 +83,7 @@ function buildSnapshotPayload(input) {
     createdBy: uid,
     sourceRequestId: requestId,
     sourcePlanIndex: planIndex,
+    sourceSwapCount: swapCount,
     dishes: buildDishesFromPlan(plan),
     ingredients: buildIngredientsFromPlan(plan, categoryByName)
   }

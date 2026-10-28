@@ -69,13 +69,15 @@ function resolvePlanIndex(event, doc) {
   return null
 }
 
-async function findShareBySource(uid, requestId, planIndex) {
+// Composite index (manual): createdBy + sourceRequestId + sourcePlanIndex + sourceSwapCount
+async function findShareBySource(uid, requestId, planIndex, swapCount) {
   const res = await db
     .collection('plan_shares')
     .where({
       createdBy: uid,
       sourceRequestId: requestId,
-      sourcePlanIndex: planIndex
+      sourcePlanIndex: planIndex,
+      sourceSwapCount: swapCount
     })
     .limit(1)
     .get()
@@ -114,7 +116,10 @@ async function handleCreate(event, uid) {
   const requestId = doc.requestId
   if (!requestId) return { ok: false, error: 'REQUEST_ID_REQUIRED' }
 
-  const existing = await findShareBySource(uid, requestId, planIndex)
+  const swapCount =
+    typeof doc.swapCount === 'number' && Number.isFinite(doc.swapCount) ? doc.swapCount : 0
+
+  const existing = await findShareBySource(uid, requestId, planIndex, swapCount)
   if (existing && existing.shareId) {
     return { ok: true, shareId: existing.shareId }
   }
@@ -132,6 +137,7 @@ async function handleCreate(event, uid) {
     uid,
     requestId,
     planIndex,
+    swapCount,
     categoryByName: categoryByNameFromSelected(doc.selectedIngredients),
     sharerNickname
   })

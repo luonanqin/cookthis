@@ -4,6 +4,7 @@ const assert = require('node:assert/strict')
 const {
   buildDishesFromPlan,
   buildIngredientsFromPlan,
+  buildSnapshotPayload,
   shareCardTitle,
   makeShareId
 } = require('./planShare.js')
@@ -47,5 +48,21 @@ describe('planShare', () => {
     const t = shareCardTitle([{ name: '一' }, { name: '二' }, { name: '三' }])
     assert.ok(t.includes('一'))
     assert.ok(makeShareId().startsWith('sh_'))
+  })
+
+  it('buildSnapshotPayload stores sourceSwapCount (default 0)', () => {
+    const base = {
+      plan,
+      uid: 'u1',
+      requestId: 'req_1',
+      planIndex: 0
+    }
+    const missing = buildSnapshotPayload(base)
+    assert.equal(missing.sourceSwapCount, 0)
+    assert.equal(missing.sourceRequestId, 'req_1')
+    assert.equal(missing.sourcePlanIndex, 0)
+
+    const withSwap = buildSnapshotPayload(Object.assign({}, base, { swapCount: 3 }))
+    assert.equal(withSwap.sourceSwapCount, 3)
   })
 })
