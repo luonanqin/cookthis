@@ -1,0 +1,51 @@
+<view class="page {{typeScaleClass}}">
+  <view wx:if="{{loading}}" class="empty">加载中…</view>
+
+  <view wx:elif="{{invalid}}" class="empty">
+    <text class="empty-text">分享已失效或不存在</text>
+  </view>
+
+  <block wx:else>
+    <view class="hero">{{titleText}}</view>
+
+    <view class="section" wx:if="{{mealGroups.length}}">
+      <view class="section-title">菜品</view>
+      <view class="card">
+        <view class="meal" wx:for="{{mealGroups}}" wx:key="mealLabel">
+          <view wx:if="{{item.mealLabel}}" class="meal-label">{{item.mealLabel}}</view>
+          <view class="dish-grid">
+            <view class="dish" wx:for="{{item.dishes}}" wx:for-item="dish" wx:key="name">
+              <text class="dish-mark">·</text>
+              <text class="dish-name">{{dish.name}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="section" wx:if="{{ingredientGroups.length}}">
+      <view class="section-title">用料</view>
+      <view class="group" wx:for="{{ingredientGroups}}" wx:key="category">
+        <view class="group-label">{{item.category}}</view>
+        <view class="pair-row" wx:for="{{item.rows}}" wx:for-item="row" wx:key="index">
+          <view class="cell" wx:for="{{row}}" wx:for-item="cell" wx:key="name">
+            <text class="name">{{cell.displayName}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <view class="footer" wx:if="{{!loading && !invalid}}">
+    <button
+      wx:if="{{!saved}}"
+      type="primary"
+      class="save-btn"
+      loading="{{saving}}"
+      disabled="{{saving}}"
+      hover-class="button-hover"
+      bindtap="onSave"
+    >保存到我的</button>
+    <view wx:else class="saved-hint">已保存到已选方案</view>
+  </view>
+</view>

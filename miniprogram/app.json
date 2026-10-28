@@ -1,6 +1,7 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/sharedPlan/sharedPlan",
     "pages/onboarding/onboarding",
     "pages/mine/mine",
     "pages/confirm/confirm",
