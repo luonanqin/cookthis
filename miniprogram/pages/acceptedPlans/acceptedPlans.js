@@ -1,6 +1,7 @@
 const { callCloud } = require('../../services/cloud.js')
 const { track } = require('../../utils/track.js')
 const { tapFeedback } = require('../../utils/haptic.js')
+const { shareCardTitle } = require('../../utils/planShare.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 const { formatSceneSummary } = require('../../utils/sceneSummary.js')
 
@@ -46,24 +47,52 @@ function formatTimeText(value) {
 }
 
 function mapItem(raw) {
+  const source = raw && raw.source === 'shared' ? 'shared' : 'own'
   const dishes = (raw && raw.dishes) || []
+  const shareId = (raw && raw.shareId) || ''
+  const recommendationId = (raw && raw.recommendationId) || null
+  const requestId = (raw && raw.requestId) || null
+  const sortAt = source === 'shared' ? raw.savedAt : raw.acceptedAt
   return {
-    requestId: raw.requestId,
-    recommendationId: raw.recommendationId,
-    acceptedAt: raw.acceptedAt,
-    timeText: formatTimeText(raw.acceptedAt),
-    sceneSummary: formatSceneSummary(raw.scene, { omitSlots: true }),
+    source,
+    shareId,
+    badge: source === 'shared' ? raw.badge || '分享' : '',
+    listKey:
+      source === 'shared'
+        ? 'shared:' + String(shareId)
+        : 'own:' + String(recommendationId || requestId || ''),
+    requestId,
+    recommendationId,
+    acceptedAt: raw && raw.acceptedAt,
+    savedAt: raw && raw.savedAt,
+    timeText: formatTimeText(sortAt),
+    sceneSummary:
+      source === 'shared'
+        ? raw.sharerNickname
+          ? '来自 ' + raw.sharerNickname
+          : '来自好友'
+        : formatSceneSummary(raw.scene, { omitSlots: true }),
     dishes: dishes.map((d) => ({
       name: d.name,
       recipeId: d.recipeId,
       meatVeg: d.meatVeg,
-      ate: !!d.ate
+      ate: source === 'shared' ? false : !!d.ate
     }))
   }
 }
 
 function dishKey(requestId, name) {
   return String(requestId || '') + '::' + String(name || '')
+}
+
+function firstOwnListKey(items) {
+  for (let i = 0; i < (items || []).length; i++) {
+    const it = items[i]
+    if (it && it.source !== 'shared' && (it.dishes || []).length) {
+      return it.listKey || ''
+    }
+  }
+  return ''
 }
 
 /** Off noop (confirm/manual ate, no plan_ate row) must not stay unchecked. */
@@ -102,7 +131,8 @@ Page({
     tipText: '可点击记录已吃',
     tipSpot: null,
     tipBubbleTop: 120,
-    tipBubbleLeft: 28
+    tipBubbleLeft: 28,
+    tipOwnListKey: ''
   },
 
   _loadGen: 0,
@@ -133,10 +163,17 @@ Page({
     this.setData({ showTip: false, tipSpot: null, tipStep: 1 })
   },
 
-  /** 测量首卡第一道菜；小 tip 贴在菜右上角 */
+  /** 测量首个自产卡第一道菜；小 tip 贴在菜右上角（收到的卡无已吃） */
   measureTipSpot() {
     if (!this.data.showTip) return
-    const first = (this.data.items || [])[0]
+    const items = this.data.items || []
+    let first = null
+    for (let i = 0; i < items.length; i++) {
+      if (items[i] && items[i].source !== 'shared') {
+        first = items[i]
+        break
+      }
+    }
     const dish = first && first.dishes && first.dishes[0]
     if (!first || !dish) {
       this.setData({ tipSpot: null })
@@ -187,11 +224,15 @@ Page({
         if (gen !== this._loadGen) return
         const items = ((result && result.items) || []).map(mapItem)
         const nextCursor = (result && result.nextCursor) || null
-        this.setData({ items, nextCursor, loading: false }, () => {
-          if (this.data.showTip) {
-            setTimeout(() => this.measureTipSpot(), 50)
+        const tipOwnListKey = firstOwnListKey(items)
+        this.setData(
+          { items, nextCursor, loading: false, tipOwnListKey },
+          () => {
+            if (this.data.showTip && tipOwnListKey) {
+              setTimeout(() => this.measureTipSpot(), 50)
+            }
           }
-        })
+        )
         track('accepted_plans_list', { page: 1, count: items.length })
       })
       .catch((err) => {
@@ -240,6 +281,18 @@ Page({
       })
   },
 
+  onOpenShared(e) {
+    const ds = (e && e.currentTarget && e.currentTarget.dataset) || {}
+    const shareId = ds.shareId
+    if (!shareId) return
+    tapFeedback()
+    track('accepted_open_shared', { shareId })
+    wx.navigateTo({
+      url:
+        '/pages/sharedPlan/sharedPlan?shareId=' + encodeURIComponent(shareId)
+    })
+  },
+
   onToggleDish(e) {
     const ds = (e && e.currentTarget && e.currentTarget.dataset) || {}
     const requestId = ds.requestId
@@ -249,10 +302,19 @@ Page({
 
     const loc = this.findDish(requestId, name)
     if (!loc) return
+    if (loc.item && loc.item.source === 'shared') return
 
-    // tips 期间只允许首卡第一道菜；蒙层外点不动
+    // tips 期间只允许 tip 热区那道菜；蒙层外点不动
     if (this.data.showTip) {
-      if (loc.itemIndex !== 0 || loc.dishIndex !== 0) return
+      const spot = this.data.tipSpot
+      if (
+        !spot ||
+        loc.dishIndex !== 0 ||
+        String(loc.item.requestId) !== String(spot.requestId) ||
+        String(name) !== String(spot.name)
+      ) {
+        return
+      }
     }
 
     const ate = !!loc.dish.ate
@@ -364,7 +426,12 @@ Page({
       const dishes = items[i].dishes || []
       for (let j = 0; j < dishes.length; j++) {
         if (items[i].requestId === requestId && dishes[j].name === name) {
-          return { itemIndex: i, dishIndex: j, dish: dishes[j] }
+          return {
+            itemIndex: i,
+            dishIndex: j,
+            dish: dishes[j],
+            item: items[i]
+          }
         }
       }
     }
@@ -375,11 +442,48 @@ Page({
     const items = this.data.items.slice()
     const cur = items[itemIndex]
     if (!cur || !cur.dishes || !cur.dishes[dishIndex]) return
+    if (cur.source === 'shared') return
     const item = Object.assign({}, cur)
     const dishes = item.dishes.slice()
     dishes[dishIndex] = Object.assign({}, dishes[dishIndex], { ate: !!ate })
     item.dishes = dishes
     items[itemIndex] = item
     this.setData({ items })
+  },
+
+  onShareAppMessage(res) {
+    const ds = (res.target && res.target.dataset) || {}
+    const entry = ds.entry || 'accepted'
+    const recommendationId = ds.recommendationId
+    track('plan_share_create', { entry })
+    return callCloud('share', {
+      action: 'create',
+      recommendationId,
+      entry
+    })
+      .then((r) => {
+        const shareId = r && r.shareId
+        const items = this.data.items || []
+        let dishes = []
+        for (let i = 0; i < items.length; i++) {
+          if (
+            items[i].source !== 'shared' &&
+            String(items[i].recommendationId) === String(recommendationId)
+          ) {
+            dishes = (items[i].dishes || []).map((d) => ({ name: d.name }))
+            break
+          }
+        }
+        return {
+          title: shareCardTitle(dishes) || '买菜做什么 · 方案',
+          path:
+            '/pages/sharedPlan/sharedPlan?shareId=' +
+            encodeURIComponent(shareId || '')
+        }
+      })
+      .catch(() => ({
+        title: '买菜做什么',
+        path: '/pages/index/index'
+      }))
   }
 })

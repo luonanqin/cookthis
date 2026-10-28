@@ -47,6 +47,10 @@
   overflow: visible;
 }
 
+.card-shared {
+  padding-bottom: 20rpx;
+}
+
 /* 方案描述：未滚完本卡菜品时吸顶（贴齐 hint-bar 底边） */
 .meta {
   position: sticky;
@@ -59,6 +63,58 @@
   line-height: 1.4;
   background: var(--color-surface);
   border-radius: 0;
+}
+
+.meta-own,
+.meta-shared {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
+.meta-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.badge {
+  flex-shrink: 0;
+  padding: 2rpx 12rpx;
+  font-size: var(--fs-xs);
+  line-height: 1.4;
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  border-radius: 8rpx;
+}
+
+.card-share {
+  flex-shrink: 0;
+  margin: 0 !important;
+  font-weight: 400 !important;
+}
+
+.card-share::after {
+  border: none !important;
+}
+
+.dish-names {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  padding-top: 8rpx;
+}
+
+.dish-name-plain {
+  font-size: var(--fs-md);
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+.dish-sep {
+  font-size: var(--fs-md);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
 }
 
 .chips {

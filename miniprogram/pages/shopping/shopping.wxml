@@ -79,6 +79,13 @@
       hover-stay-time="80"
       bindtap="onRecipeSheetOpen"
     >看菜谱</view>
+    <button
+      wx:if="{{!loading && !empty}}"
+      class="btn-outline shopping-share"
+      open-type="share"
+      data-entry="shopping"
+      hover-class="button-hover"
+    >分享方案</button>
     <button class="btn-outline" bindtap="onBack">返回</button>
   </view>
 </view>
