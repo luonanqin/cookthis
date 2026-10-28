@@ -18,7 +18,12 @@ const {
   PAGE_SIZE,
   collectAteNamesByRequestId,
   shapeAcceptedItem,
-  applyAcceptedCursor
+  shapeSharedListItem,
+  mergeOwnAndSharedPage,
+  normalizeMergeCursor,
+  listItemSortAt,
+  listItemKind,
+  listItemCursorId
 } = require('./listAccepted.js')
 // Vendored: keep in sync with cloudfunctions/_shared/recipePool.js
 const {
@@ -726,40 +731,44 @@ function listAcceptedQueryDate(value) {
 }
 
 async function handleListAccepted(event, uid) {
-  const cursor = (event && event.cursor) || null
+  const rawCursor = (event && event.cursor) || null
+  const mergeCursor = normalizeMergeCursor(rawCursor)
   const fetchLimit = Math.min(20, Number(event && event.limit) || PAGE_SIZE) + 5
 
-  const where = { uid, accepted: true }
-  if (cursor && cursor.acceptedAt != null && cursor.acceptedAt !== '') {
-    const cursorAt = listAcceptedQueryDate(cursor.acceptedAt)
-    where.acceptedAt = _.lte(cursorAt || cursor.acceptedAt)
+  // MVP pagination: fetch latest N own + N shared, merge-sort by sortAt in memory,
+  // slice PAGE_SIZE; next page re-filters both sides with { sortAt, kind, id }.
+  // Volume is small enough that approximate dual-cursor filtering is fine.
+
+  const ownWhere = { uid, accepted: true }
+  if (mergeCursor && mergeCursor.sortAt != null && mergeCursor.sortAt !== '') {
+    const cursorAt = listAcceptedQueryDate(mergeCursor.sortAt)
+    ownWhere.acceptedAt = _.lte(cursorAt || mergeCursor.sortAt)
   }
 
-  let rows = []
+  let ownRows = []
   try {
     const recRes = await db.collection('recommendations')
-      .where(where)
+      .where(ownWhere)
       .orderBy('acceptedAt', 'desc')
       .orderBy('_id', 'desc') // tie-break matches applyAcceptedCursor string _id compare
       .limit(fetchLimit)
       .get()
-    rows = recRes.data || []
+    ownRows = recRes.data || []
   } catch (e) {
-    if (!where.acceptedAt) throw e
+    if (!ownWhere.acceptedAt) throw e
     const recRes = await db.collection('recommendations')
       .where({ uid, accepted: true })
       .orderBy('acceptedAt', 'desc')
       .orderBy('_id', 'desc') // tie-break matches applyAcceptedCursor string _id compare
       .limit(fetchLimit)
       .get()
-    rows = recRes.data || []
+    ownRows = recRes.data || []
   }
 
-  const pageDocs = applyAcceptedCursor(rows, cursor)
-
+  // Shape all fetched own rows; mergeOwnAndSharedPage applies the merged cursor.
   const requestIds = []
   const seenReq = new Set()
-  for (const doc of pageDocs) {
+  for (const doc of ownRows) {
     if (!doc || !doc.requestId || seenReq.has(doc.requestId)) continue
     seenReq.add(doc.requestId)
     requestIds.push(doc.requestId)
@@ -782,29 +791,67 @@ async function handleListAccepted(event, uid) {
   }
 
   const ateMap = collectAteNamesByRequestId(mealLogs)
-  const items = []
-  for (const doc of pageDocs) {
+  const ownItems = []
+  for (const doc of ownRows) {
     const item = shapeAcceptedItem(doc, ateMap.get(doc.requestId))
-    if (item) items.push(item)
+    if (item) ownItems.push(item)
   }
 
-  let nextCursor = null
-  if (pageDocs.length === PAGE_SIZE) {
-    const lastDoc = pageDocs[pageDocs.length - 1]
-    const rest = applyAcceptedCursor(rows, {
-      acceptedAt: lastDoc.acceptedAt,
-      recommendationId: lastDoc._id
-    })
-    if (rest.length > 0 || rows.length >= fetchLimit) {
-      const lastItem = items[items.length - 1]
-      nextCursor = {
-        acceptedAt: (lastItem && lastItem.acceptedAt) || lastDoc.acceptedAt,
-        recommendationId: (lastItem && lastItem.recommendationId) || lastDoc._id
-      }
+  let sharedRows = []
+  const sharedWhere = { ownerUid: uid }
+  if (mergeCursor && mergeCursor.sortAt != null && mergeCursor.sortAt !== '') {
+    const cursorAt = listAcceptedQueryDate(mergeCursor.sortAt)
+    sharedWhere.savedAt = _.lte(cursorAt || mergeCursor.sortAt)
+  }
+  try {
+    const sharedRes = await db.collection('received_plans')
+      .where(sharedWhere)
+      .orderBy('savedAt', 'desc')
+      .limit(fetchLimit)
+      .get()
+    sharedRows = sharedRes.data || []
+  } catch (e) {
+    // Missing index or cursor filter: fall back to ownerUid-only, merge filters in memory
+    try {
+      const sharedRes = await db.collection('received_plans')
+        .where({ ownerUid: uid })
+        .orderBy('savedAt', 'desc')
+        .limit(fetchLimit)
+        .get()
+      sharedRows = sharedRes.data || []
+    } catch (e2) {
+      sharedRows = []
     }
   }
 
-  return { ok: true, items, nextCursor }
+  // Shared items: no meal_logs / ate. dishNamesSummary is enough for list.
+  const sharedItems = []
+  for (const doc of sharedRows) {
+    const item = shapeSharedListItem(doc)
+    if (item) sharedItems.push(item)
+  }
+
+  const merged = mergeOwnAndSharedPage(
+    ownItems,
+    sharedItems,
+    mergeCursor,
+    PAGE_SIZE
+  )
+  let nextCursor = merged.nextCursor
+  if (
+    !nextCursor &&
+    merged.items.length === PAGE_SIZE &&
+    (ownRows.length >= fetchLimit || sharedRows.length >= fetchLimit)
+  ) {
+    const last = merged.items[merged.items.length - 1]
+    nextCursor = {
+      sortAt: listItemSortAt(last),
+      kind: listItemKind(last),
+      id: listItemCursorId(last)
+    }
+  }
+
+  return { ok: true, items: merged.items, nextCursor }
 }
 
 async function handleEngage(event, uid) {
