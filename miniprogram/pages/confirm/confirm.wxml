@@ -14,7 +14,7 @@
     </view>
 
     <view class="toolbar">
-      <text class="section-title">时令</text>
+      <text class="section-title {{warnSeason ? 'title-warn' : ''}} {{warnSeason && warnPulse ? 'title-pulse' : ''}}">时令</text>
       <view class="toolbar-actions">
         <text class="link" bindtap="selectAllSeasonal">{{seasonalSelectAllLabel}}</text>
         <text class="link" bindtap="clearSeasonal">清空</text>
@@ -99,7 +99,7 @@
 
       <view class="field">
         <view class="field-label-row">
-          <text class="field-label">人数</text>
+          <text class="field-label {{warnPeople ? 'title-warn' : ''}} {{warnPeople && warnPulse ? 'title-pulse' : ''}}">人数</text>
           <text class="field-label-meta">{{householdLabel}}</text>
         </view>
         <view class="combo-row">
@@ -116,7 +116,7 @@
       </view>
 
       <view class="field" wx:if="{{isDaily}}">
-        <text class="field-label">搭配</text>
+        <text class="field-label {{warnCombo ? 'title-warn' : ''}} {{warnCombo && warnPulse ? 'title-pulse' : ''}}">搭配</text>
         <view class="combo-row">
           <picker mode="selector" range="{{comboRange}}" value="{{meatIndex}}" data-field="meat" bindchange="onComboPick">
             <view class="picker-cell">荤 {{combo.meat}}</view>
@@ -131,7 +131,7 @@
       </view>
 
       <view class="field" wx:if="{{isDaily}}">
-        <text class="field-label">几顿</text>
+        <text class="field-label {{warnSlots ? 'title-warn' : ''}} {{warnSlots && warnPulse ? 'title-pulse' : ''}}">几顿</text>
         <view class="chip-row">
           <view
             wx:for="{{dailySlotPresets}}"
@@ -148,7 +148,7 @@
       </view>
 
       <view class="field" wx:else>
-        <text class="field-label">几顿</text>
+        <text class="field-label {{warnSlots ? 'title-warn' : ''}} {{warnSlots && warnPulse ? 'title-pulse' : ''}}">几顿</text>
         <view class="slot-stepper">
           <text class="step-btn" data-delta="-1" bindtap="bumpPartySlots">−</text>
           <text class="slot-count">{{partySlotCount}}</text>

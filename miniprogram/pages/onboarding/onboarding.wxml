@@ -159,7 +159,7 @@
       <view class="section-title">所在城市</view>
       <view class="hint">仅用于匹配当地常见食材</view>
       <picker mode="region" level="city" value="{{region}}" bindchange="onRegionChange">
-        <view class="picker-row">{{city || '点此选择省市'}}</view>
+        <view class="picker-row">{{city || '点此选择城市匹配当地食材'}}</view>
       </picker>
     </view>
   </block>

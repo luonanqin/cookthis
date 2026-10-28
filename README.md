@@ -21,6 +21,7 @@
 | 11 | Slice 11 | **购物清单别名展示 + 推荐别名匹配**（当地主名/副名；确认别名能命中通用名主料） |
 | 12 | Slice 12 | **用户建议反馈**（首页入口 / 无数字红点 / 列表顶提交 / 运营回复 / 订阅落地） |
 | 13 | Slice 13 | **菜场规模与食材列表档位**（预生成分档名单 / 首页半屏 / 确认页切换刷新） |
+| 14 | Slice 14 | **方案分享**（推荐卡 / 食材页 / 已选自产 → 只读落地 / 保存到已选） |
 | — | 语音 | 前端已下线，暂不点验 |
 
 新用户进首页只会**弹一次**「去设置 / 先逛逛」；选「先逛逛」或引导页「暂时跳过」即可继续测 Slice 1～4。完整引导放到 **Slice 6** 再验。跳过/轻量跳过后的**弱提醒与快捷补全**放到 **Slice 10** 再验。
@@ -45,18 +46,19 @@
 | `freshness.js` | `recommend/freshness.js`（主料新鲜度分档，供 homePlans 引用） |
 | `profileLite.js` | 小程序 `miniprogram/utils/profileLite.js`（日常轻量补全是否弹） |
 | `profileGaps.js` | 小程序 `miniprogram/utils/profileGaps.js`（忌口/成员/城市/菜系缺口；推荐顶栏只盯忌口） |
-| `shoppingList.js` | 小程序 `miniprogram/utils/shoppingList.js`（清单页本地聚合，非云函数） |
+| `shoppingList.js` | 小程序 `miniprogram/utils/shoppingList.js`（清单页本地聚合）；`share/shoppingList.js`（供 `planShare` 聚合完整用料；无 bought） |
 | `planIngredientSummary.js` | 小程序 `miniprogram/utils/planIngredientSummary.js`（方案卡食材摘要） |
 | `recipeSheet.js` | 小程序 `miniprogram/utils/recipeSheet.js`（清单页菜谱弹层） |
 | `shoppingChecks.js` | 小程序 `miniprogram/utils/shoppingChecks.js`（清单勾选 key / 清理） |
 | `confirmCandidates.js` | `meals/confirmCandidates.js` |
 | `removeMealLog.js` | `meals/removeMealLog.js`（§4.2 删除归属校验） |
-| `listAccepted.js` | `recommend/listAccepted.js` |
+| `listAccepted.js` | `recommend/listAccepted.js`（自产 + `received_plans` 合并；含 `source` / `badge`） |
 | `planAte.js` | `meals/planAte.js` |
 | `unconventionalPlans.js` | `recommend/unconventionalPlans.js` |
 | `feedbackLogic.js` | `feedback/feedbackLogic.js`（校验 / sortKey / shapeFeedback） |
 | `marketScale.js` | `profile/marketScale.js`；小程序 `miniprogram/utils/marketScale.js`（档位文案 / 半屏门禁 / 历史截断） |
 | `confirmListFromScale.js` | `ingredients/confirmListFromScale.js`（预生成 by-scale → seasonal/yearRound） |
+| `planShare.js` | `share/planShare.js`；小程序 `miniprogram/utils/planShare.js`（快照构建 / 分享卡 title；小程序侧仅 title） |
 
 部署 `recommend`（含 `listAccepted`）前，请在云开发控制台为集合 `recommendations` 创建复合索引：`uid`、`accepted`、`acceptedAt`（与 `orderBy acceptedAt desc` 分页查询一致）。
 
@@ -241,6 +243,26 @@
 
 计划：[`docs/superpowers/plans/2026-10-14-菜场规模与食材列表档位.md`](docs/superpowers/plans/2026-10-14-菜场规模与食材列表档位.md)。  
 设计：[`docs/superpowers/specs/2026-10-14-菜场规模与食材列表档位-design.md`](docs/superpowers/specs/2026-10-14-菜场规模与食材列表档位-design.md)。
+
+---
+
+## Slice 14 准备（方案分享）
+
+假定 **Slice 2～3、Slice 8 准备已完成**（能出推荐、「去买菜」进清单、「已选方案」列表可用）。再补：
+
+1. **上传并部署**云函数：`cloudfunctions/share`（云端安装依赖；包内须含 vendored `planShare.js` + `shoppingList.js`）。改 `_shared/planShare.js` / `listAccepted.js` 后记得同步到 `share/`、`recommend/` 与小程序 `utils/planShare.js`（title）。
+2. **重新部署**云函数：`recommend`（`listAccepted` 合并 `received_plans`）。
+3. **再建集合**：`plan_shares`、`received_plans`（权限同上，业务读写走云函数）。
+4. **复合索引**（控制台按报错补齐亦可）：
+   - `plan_shares`：`createdBy + sourceRequestId + sourcePlanIndex + sourceSwapCount`（复用）；`shareId`（`get` / `save`）
+   - `received_plans`：`ownerUid + shareId`（幂等）；列表 `ownerUid + savedAt DESC`
+5. 本地：`npm test`（含 `planShare` / `listAccepted`）。分享面板需**真机**或开发者工具预览号互测。
+
+做完即可对照下方「Slice 14 验收清单」。
+
+计划：[`docs/superpowers/plans/2026-10-28-方案分享.md`](docs/superpowers/plans/2026-10-28-方案分享.md)。  
+设计：[`docs/superpowers/specs/2026-10-28-方案分享-design.md`](docs/superpowers/specs/2026-10-28-方案分享-design.md)。  
+需求：[`docs/superpowers/specs/2026-10-24-方案分享-requirements.md`](docs/superpowers/specs/2026-10-24-方案分享-requirements.md)。
 
 ---
 
@@ -435,21 +457,20 @@
 
 ## 本切片验收清单（Slice 10）
 
-**状态：待点验**（需重新部署 `profile` / `auth` + 小程序编译）
+**状态：已验收 · 2026-10-28**
 
 **自动化：**
 
-- [ ] `npm test` PASS（含 `computeProfileGaps`：跳过轻量仍开忌口缺口；`familyAvoidsNone` / 菜系 ConfirmedAt 关闭对应缺口；`recommendBanner === familyAvoidsOpen`）。
+- [x] `npm test` PASS（含 `computeProfileGaps`：跳过轻量仍开忌口缺口；`familyAvoidsNone` / 菜系 ConfirmedAt 关闭对应缺口；`recommendBanner === familyAvoidsOpen`）。
 
 **需人工：** Slice 10 准备后：
 
-1. [ ] **先逛逛 + 跳过轻量**：忌口空 → 日常确认弹轻量层 → 跳过 → 仍能出方案；进推荐页见顶栏「补一下家庭忌口…」；**无关闭按钮**。
-2. [ ] **顶栏保存忌口**：点顶栏 → 勾忌口（如猪肉）→「保存并刷新方案」→ `recommend.create` 刷新列表；顶栏消失。
-3. [ ] **顶栏「我家无忌口」**：另起未表态账号/清忌口字段后 → 顶栏点无忌口 → 顶栏消失；`familyAvoids` 可仍为空且能出方案。
-4. [ ] **仅缺城市**：忌口已表态、城市空 → 推荐**无**顶栏；「我的」顶部仍有城市提醒项。
-5. [ ] **「我的」常驻提醒**：缺口列表不可关；点进对应编辑；「无忌口」「暂无偏好」能消对应项；取消 sheet **不**消提醒。
-6. [ ] **空方案仍见顶栏**：忌口未表态且推荐空态时，顶栏仍在，可点开快捷补全。
-7. [ ] **确认页轻量回归**：抽组件后，日常空忌口仍可弹层；保存写出方案；跳过写出方案且**不算**忌口已表态（再进推荐仍见顶栏）。
+1. [x] **先逛逛 + 跳过轻量**：忌口空 → 日常确认弹轻量层 → 跳过 → 仍能出方案；进推荐页见顶栏「补一下家庭忌口…」；**无关闭按钮**。
+2. [x] **顶栏保存忌口**：点顶栏 → 勾忌口（如猪肉）→「保存并刷新方案」→ `recommend.create` 刷新列表；顶栏消失。
+3. [x] **顶栏「我家无忌口」**：另起未表态账号/清忌口字段后 → 顶栏点无忌口 → 顶栏消失；`familyAvoids` 可仍为空且能出方案。（点验说明：无城市时仍须补城市才能确认出方案，视为合理顺带引导；城市占位文案已改为「点此选择城市匹配当地食材」。）
+4. [x] **「我的」常驻提醒**：缺口列表不可关；点进对应编辑；「无忌口」「暂无偏好」能消对应项；取消 sheet **不**消提醒。
+5. [x] **空方案仍见顶栏**：忌口未表态且推荐空态时，顶栏仍在，可点开快捷补全。
+6. [x] **确认页轻量回归**：抽组件后，日常空忌口仍可弹层；保存写出方案；跳过写出方案且**不算**忌口已表态（再进推荐仍见顶栏）。
 
 **本切片不验：** 完整 onboarding 四步文案微调、广告、语音、可关闭「N 天后再提醒」。
 
@@ -521,6 +542,29 @@
 **本切片不验：** 「我的」内改规模、implies 小类包、无 by-scale 城的旧名单细节、广告、语音。
 
 **部署提醒：** 三者同发；`ingredients` 包内须含同步后的 `data/cities/*/ingredients-by-scale.json`。定位半屏须真机 + 隐私协议。
+
+---
+
+## 本切片验收清单（Slice 14）
+
+**状态：待点验**（需部署 `share` + 重发 `recommend`；建 `plan_shares` / `received_plans` 与索引；真机互测分享）
+
+**自动化：**
+
+- [ ] `npm test` PASS（含 `planShare` / `listAccepted`）。
+
+**需人工：** Slice 14 准备后（建议两微信号：分享人 A / 接收人 B）：
+
+1. [ ] **推荐卡分享**：方案卡旁「分享」→ 微信面板；B 打开落地页见**菜名 + 完整用料**（无步骤、无已买勾选）；未登录 / 无 users 文档也可预览。
+2. [ ] **保存幂等**：B「保存到我的」→「已选方案」出现「分享」角标；再保存不双份；按钮变为「已保存到已选方案」。
+3. [ ] **快照不可变**：A 换一批或改确认勾选后再分享**同卡槽** → 新批次应拿**新** `shareId`（`swapCount` 进复用键）；**已发出**的旧卡片内容不变。
+4. [ ] **收到项锁定**：B 的「分享」条目可点进落地页；**无**分享钮、**无**已吃勾选、**无**去买菜。自产条目仍可分享 + 已吃。
+5. [ ] **另两入口**：食材页「分享方案」、已选自产条目「分享」→ 同样落地；路径固定 `/pages/sharedPlan/sharedPlan?shareId=`。
+6. [ ] **失效态**：伪造 / 删除快照后打开 → 「分享已失效或不存在」。
+
+**本切片不验：** 社区广场 / Feed / 排行榜、分享封面自定义、快照过期、广告、语音。
+
+**部署提醒：** `share` 与 `recommend`（listAccepted）同发；索引务必含 `plan_shares.shareId` 与带 `sourceSwapCount` 的复用复合索引。
 
 ---
 

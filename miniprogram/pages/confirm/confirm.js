@@ -241,6 +241,11 @@ Page({
     partySlotCount: 1,
     partyAvoidOptions: PARTY_AVOID_OPTIONS,
     partyAvoidChecked: {},
+    warnSeason: false,
+    warnPeople: false,
+    warnCombo: false,
+    warnSlots: false,
+    warnPulse: false,
     upcomingHolidays: [],
     holidayId: '',
     holidayDate: '',
@@ -646,6 +651,7 @@ Page({
       seasonalSelectAllLabel: this._seasonalSelectAllLabel(this.data.seasonal, seasonalChecked),
       ...this._counts(seasonalChecked, this.data.yearRoundChecked, this.data.manuals)
     })
+    this._syncWarnClears()
   },
 
   selectAllSeasonal() {
@@ -662,6 +668,7 @@ Page({
       seasonalSelectAllLabel: allSelected ? '全选' : '取消全选',
       ...this._counts(seasonalChecked, this.data.yearRoundChecked, this.data.manuals)
     })
+    this._syncWarnClears()
   },
 
   clearSeasonal() {
@@ -675,6 +682,7 @@ Page({
       seasonalSelectAllLabel: '全选',
       ...this._counts(seasonalChecked, this.data.yearRoundChecked, this.data.manuals)
     })
+    this._syncWarnClears()
   },
 
   toggleYearRoundSection() {
@@ -689,6 +697,7 @@ Page({
       yearRoundChecked,
       ...this._counts(this.data.seasonalChecked, yearRoundChecked, this.data.manuals)
     })
+    this._syncWarnClears()
   },
 
   onManualInput(e) {
@@ -709,6 +718,7 @@ Page({
       manualInput: '',
       ...this._counts(this.data.seasonalChecked, this.data.yearRoundChecked, manuals)
     })
+    this._syncWarnClears()
   },
 
   removeManual(e) {
@@ -718,6 +728,7 @@ Page({
       manuals,
       ...this._counts(this.data.seasonalChecked, this.data.yearRoundChecked, manuals)
     })
+    this._syncWarnClears()
   },
 
   onMealTypeTap(e) {
@@ -781,6 +792,7 @@ Page({
 
     if (this.data.isDaily) {
       this.setData(this._countsForTarget(this.data.householdCounts, tier, target))
+      this._syncWarnClears()
       return
     }
 
@@ -789,6 +801,7 @@ Page({
     const patch = this._partyPatch(partyCounts)
     this._applyPartyCombo(patch, partyCounts)
     this.setData(patch)
+    this._syncWarnClears()
   },
 
   onComboPick(e) {
@@ -801,6 +814,7 @@ Page({
     next[field] = COMBO_RANGE[idx]
     const indexKey = field + 'Index'
     this.setData({ combo: next, [indexKey]: idx })
+    this._syncWarnClears()
   },
 
   onDailySlotPreset(e) {
@@ -816,6 +830,7 @@ Page({
       customChipLabel: '自定义'
       // 保留 customLunchCount/customDinnerCount 供再次打开弹窗
     })
+    this._syncWarnClears()
     track('scene_meal_slots_change', {
       meal_slots_mode: 'preset',
       presetId: id,
@@ -875,6 +890,7 @@ Page({
       customChipLabel: formatCustomChipLabel(l, d),
       mealSlots
     })
+    this._syncWarnClears()
     track('scene_meal_slots_change', {
       meal_slots_mode: 'custom',
       lunchCount: l,
@@ -890,6 +906,7 @@ Page({
       partySlotCount: next,
       mealSlots: buildPartySlots(next)
     })
+    this._syncWarnClears()
   },
 
   togglePartyAvoid(e) {
@@ -996,34 +1013,86 @@ Page({
     return scene
   },
 
+  /** 缺填标题标红 + 闪两下；红字保留到补全 */
+  _flashWarnTitles(flags) {
+    this.setData(
+      Object.assign(
+        {
+          warnSeason: false,
+          warnPeople: false,
+          warnCombo: false,
+          warnSlots: false,
+          warnPulse: false
+        },
+        flags || {}
+      )
+    )
+    setTimeout(() => {
+      this.setData({ warnPulse: true })
+    }, 20)
+    setTimeout(() => {
+      this.setData({ warnPulse: false })
+    }, 980)
+  },
+
+  /** 用户改完对应项后去掉标红 */
+  _syncWarnClears() {
+    const patch = {}
+    if (this.data.warnSeason && this.buildSelected().length) {
+      patch.warnSeason = false
+    }
+    if (this.data.warnPeople && this.data.peopleCount >= 1) {
+      // 聚会无有效搭配时人数标题也红：人数够且 combo 在再清
+      if (this.data.isDaily || isComboPresent(this.data.combo)) {
+        patch.warnPeople = false
+      }
+    }
+    if (this.data.warnCombo && this.data.isDaily && isComboPresent(this.data.combo)) {
+      patch.warnCombo = false
+    }
+    if (this.data.warnSlots && this.data.mealSlots && this.data.mealSlots.length) {
+      patch.warnSlots = false
+    }
+    if (Object.keys(patch).length) this.setData(patch)
+  },
+
   onConfirm() {
     if (this.data.submitting || this.data.liteBusy) return
     tapFeedback('heavy')
     const selected = this.buildSelected()
-    if (!selected.length) {
-      wx.showToast({ title: '请先选择食材', icon: 'none' })
-      return
-    }
     const scene = this.buildScene()
-    if (!(scene.peopleCount >= 1)) {
-      wx.showToast({ title: '请选择人数', icon: 'none' })
-      return
-    }
-    if (!isComboPresent(scene.combo)) {
-      wx.showToast({
-        title: scene.mealType === 'daily' ? '请选择荤素搭配' : '请设置本场人数',
-        icon: 'none'
+    const warnSeason = !selected.length
+    const peopleMissing = !(scene.peopleCount >= 1)
+    const comboMissing = !isComboPresent(scene.combo)
+    const warnCombo = this.data.isDaily && comboMissing
+    const warnPeople = peopleMissing || (!this.data.isDaily && comboMissing)
+    const warnSlots = !scene.mealSlots || !scene.mealSlots.length
+
+    if (warnSeason || warnPeople || warnCombo || warnSlots) {
+      this._flashWarnTitles({
+        warnSeason,
+        warnPeople,
+        warnCombo,
+        warnSlots
       })
-      return
-    }
-    if (!scene.mealSlots || !scene.mealSlots.length) {
-      wx.showToast({
-        title:
-          this.data.isDaily && this.data.dailySlotMode === 'custom'
-            ? '请先选择吃几顿'
-            : '请选择几顿',
-        icon: 'none'
-      })
+      if (warnSeason) {
+        wx.showToast({ title: '请先选择食材', icon: 'none' })
+      } else if (peopleMissing) {
+        wx.showToast({ title: '请选择人数', icon: 'none' })
+      } else if (comboMissing) {
+        wx.showToast({
+          title: scene.mealType === 'daily' ? '请选择荤素搭配' : '请设置本场人数',
+          icon: 'none'
+        })
+      } else {
+        wx.showToast({
+          title:
+            this.data.isDaily && this.data.dailySlotMode === 'custom'
+              ? '请先选择吃几顿'
+              : '请选择几顿',
+          icon: 'none'
+        })
+      }
       return
     }
 
