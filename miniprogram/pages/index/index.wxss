@@ -156,9 +156,47 @@
 }
 
 .link-dev {
-  margin-top: 28rpx;
+  margin-top: 16rpx;
+  padding: 24rpx 16rpx;
+  box-sizing: border-box;
+  min-height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: var(--fs-sm);
   color: var(--color-text-secondary);
+}
+
+.dev-scale-panel {
+  margin-top: 24rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx dashed var(--color-border, #e8e4dc);
+}
+
+.dev-scale-title {
+  font-size: var(--fs-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: 8rpx;
+}
+
+.dev-scale-status {
+  font-size: var(--fs-xs, 22rpx);
+  line-height: 1.5;
+  color: var(--color-text-tertiary, #9a958c);
+  white-space: pre-wrap;
+}
+
+.dev-scale-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx 28rpx;
+  margin-top: 4rpx;
+}
+
+.dev-scale-actions .link-dev {
+  margin-top: 0;
+  padding: 24rpx 8rpx;
+  justify-content: flex-start;
 }
 
 /* 进场确认：独立半屏弹层（不套 .sheet，避免 overflow 把按钮顶飞） */
@@ -314,11 +352,20 @@
   gap: 6rpx;
 }
 
+.scale-card.on {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
 .scale-card-title {
   font-size: var(--fs-md);
   font-weight: 600;
   color: var(--color-text);
   line-height: 1.3;
+}
+
+.scale-card.on .scale-card-title {
+  color: var(--color-primary);
 }
 
 .scale-card-desc {
@@ -338,4 +385,8 @@
 .scale-default-wrap .scale-default-btn {
   margin: 0;
   min-width: 240rpx;
+}
+
+.scale-default-wrap .scale-default-btn.on {
+  background: var(--color-primary-soft) !important;
 }

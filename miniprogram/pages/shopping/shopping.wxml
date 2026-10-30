@@ -1,6 +1,16 @@
 <page-meta page-style="{{showRecipeSheet ? 'overflow: hidden;' : ''}}" />
 <view class="page {{typeScaleClass}}">
-  <view wx:if="{{accepted}}" class="banner">已采纳，可按清单采购</view>
+  <view wx:if="{{accepted}}" class="banner">
+    <text class="banner-text">已采纳，可按清单采购</text>
+    <button
+      wx:if="{{!loading && !empty}}"
+      class="banner-share"
+      open-type="share"
+      data-entry="shopping"
+      hover-class="button-hover"
+      size="mini"
+    >分享</button>
+  </view>
 
   <view wx:if="{{loading}}" class="empty">
     <text>清单加载中…</text>
@@ -79,13 +89,6 @@
       hover-stay-time="80"
       bindtap="onRecipeSheetOpen"
     >看菜谱</view>
-    <button
-      wx:if="{{!loading && !empty}}"
-      class="btn-outline shopping-share"
-      open-type="share"
-      data-entry="shopping"
-      hover-class="button-hover"
-    >分享方案</button>
     <button class="btn-outline" bindtap="onBack">返回</button>
   </view>
 </view>

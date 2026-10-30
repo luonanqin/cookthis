@@ -1,7 +1,9 @@
 'use strict'
 
+const { normalizeCategory } = require('./categoryTaxonomy.js')
+
 /**
- * 单道菜内食材排序：主料 → 调味；主料内肉类 → 水产 → 其他；同段按名称。
+ * 单道菜内食材排序：主料 → 调味；主料内肉类 → 水产类 → 其他；同段按名称。
  * @param {{ name: string, kind: 'main'|'seasoning', category: string }} a
  * @param {{ name: string, kind: 'main'|'seasoning', category: string }} b
  */
@@ -12,8 +14,9 @@ function compareDishIngredients(a, b) {
 
   if (a.kind !== 'seasoning') {
     const mainRank = (c) => {
-      if (c === 'meat') return 0
-      if (c === 'seafood') return 1
+      const n = normalizeCategory(c)
+      if (n === '肉类' || n === '内脏') return 0
+      if (n === '鱼' || n === '河鲜' || n === '海鲜') return 1
       return 2
     }
     const dr = mainRank(a.category) - mainRank(b.category)
@@ -54,7 +57,7 @@ function buildRecipeSheet(input) {
         ingredients.push({
           name,
           kind: 'main',
-          category: categoryByName[name] || 'other'
+          category: normalizeCategory(categoryByName[name], '其他')
         })
       }
       for (const name of dish.seasonings || []) {
@@ -62,7 +65,7 @@ function buildRecipeSheet(input) {
         ingredients.push({
           name,
           kind: 'seasoning',
-          category: categoryByName[name] || 'seasoning'
+          category: normalizeCategory(categoryByName[name], '调味')
         })
       }
       ingredients.sort(compareDishIngredients)

@@ -194,7 +194,23 @@ Page({
     this._refreshHouseholdPreview()
   },
 
+  onUnload() {
+    this._clearFlashTimers()
+  },
+
+  _clearFlashTimers() {
+    if (this._flashOnTimer) {
+      clearTimeout(this._flashOnTimer)
+      this._flashOnTimer = null
+    }
+    if (this._flashOffTimer) {
+      clearTimeout(this._flashOffTimer)
+      this._flashOffTimer = null
+    }
+  },
+
   _flashWarn(key) {
+    this._clearFlashTimers()
     const draftMembers = (this.data.draftMembers || []).slice()
     const idx = draftMembers.findIndex((m) => m.key === key)
     if (idx < 0) return
@@ -205,14 +221,16 @@ Page({
     })
     this.setData({ draftMembers })
     // 下一帧再开动画，保证 class 切换能触发
-    setTimeout(() => {
+    this._flashOnTimer = setTimeout(() => {
+      this._flashOnTimer = null
       const list = (this.data.draftMembers || []).slice()
       const i = list.findIndex((m) => m.key === key)
       if (i < 0) return
       list[i] = Object.assign({}, list[i], { warnPulse: true })
       this.setData({ draftMembers: list })
     }, 20)
-    setTimeout(() => {
+    this._flashOffTimer = setTimeout(() => {
+      this._flashOffTimer = null
       const list = (this.data.draftMembers || []).slice()
       const i = list.findIndex((m) => m.key === key)
       if (i < 0) return

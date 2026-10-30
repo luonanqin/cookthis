@@ -31,7 +31,7 @@ const plan = {
 }
 
 describe('buildShoppingList', () => {
-  it('groups by category and pairs two per row; no alreadyHave tags', () => {
+  it('groups by Chinese taxonomy; maps legacy English codes', () => {
     const { groups } = buildShoppingList({
       plan,
       categoryByName: {
@@ -41,10 +41,10 @@ describe('buildShoppingList', () => {
       }
     })
 
-    const meat = groups.find((g) => g.category === 'meat')
-    const root = groups.find((g) => g.category === 'root')
-    const leaf = groups.find((g) => g.category === 'leaf')
-    const seasoning = groups.find((g) => g.category === 'seasoning')
+    const meat = groups.find((g) => g.category === '肉类')
+    const root = groups.find((g) => g.category === '根茎')
+    const leaf = groups.find((g) => g.category === '菜叶')
+    const seasoning = groups.find((g) => g.category === '调味')
 
     assert.ok(meat)
     assert.equal(meat.label, '肉类')
@@ -53,22 +53,59 @@ describe('buildShoppingList', () => {
       ['猪肉']
     )
     assert.ok(root)
+    assert.equal(root.label, '根茎')
     assert.ok(leaf)
+    assert.equal(leaf.label, '菜叶')
     assert.ok(seasoning)
+    assert.equal(seasoning.label, '调味')
     assert.equal(seasoning.items.filter((x) => x.name === '盐').length, 1)
 
-    // no alreadyHave / kind tags on items
     assert.equal(meat.items[0].alreadyHave, undefined)
     assert.equal(meat.items[0].kind, undefined)
 
-    // category order: meat before leaf before seasoning
     const idxs = {
-      meat: groups.findIndex((g) => g.category === 'meat'),
-      leaf: groups.findIndex((g) => g.category === 'leaf'),
-      seasoning: groups.findIndex((g) => g.category === 'seasoning')
+      meat: groups.findIndex((g) => g.category === '肉类'),
+      leaf: groups.findIndex((g) => g.category === '菜叶'),
+      seasoning: groups.findIndex((g) => g.category === '调味')
     }
     assert.ok(idxs.meat < idxs.leaf)
     assert.ok(idxs.leaf < idxs.seasoning)
+  })
+
+  it('labels Chinese taxonomy categories from by-scale (not 其他)', () => {
+    const { groups } = buildShoppingList({
+      plan: {
+        meals: [
+          {
+            dishes: [
+              {
+                name: '示例',
+                mainIngredients: ['牛肉', '土豆', '生菜'],
+                seasonings: ['盐']
+              }
+            ]
+          }
+        ]
+      },
+      categoryByName: {
+        牛肉: '肉类',
+        土豆: '根茎',
+        生菜: '菜叶'
+      }
+    })
+    const meat = groups.find((g) => g.category === '肉类')
+    const root = groups.find((g) => g.category === '根茎')
+    const leaf = groups.find((g) => g.category === '菜叶')
+    const seasoning = groups.find((g) => g.category === '调味')
+    assert.ok(meat)
+    assert.equal(meat.label, '肉类')
+    assert.ok(root)
+    assert.equal(root.label, '根茎')
+    assert.ok(leaf)
+    assert.equal(leaf.label, '菜叶')
+    assert.ok(seasoning)
+    assert.equal(seasoning.label, '调味')
+    assert.equal(groups.filter((g) => g.label === '其他').length, 0)
   })
 
   it('pairRows packs two items per row', () => {

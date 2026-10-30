@@ -36,6 +36,37 @@
       hover-stay-time="80"
       bindtap="onResetPreferenceTest"
     >重置偏好（测试）</view>
+
+    <view wx:if="{{showMarketScaleDebug}}" class="dev-scale-panel">
+      <view class="dev-scale-title">菜场规模（测试）</view>
+      <view class="dev-scale-status">{{marketScaleDebugStatus}}</view>
+      <view class="dev-scale-actions">
+        <view
+          class="link link-dev"
+          hover-class="tap-hover"
+          hover-stay-time="80"
+          bindtap="onDebugMarketScaleClear"
+        >清规模状态</view>
+        <view
+          class="link link-dev"
+          hover-class="tap-hover"
+          hover-stay-time="80"
+          bindtap="onDebugMarketScaleReadyRelocate"
+        >设为可再弹</view>
+        <view
+          class="link link-dev"
+          hover-class="tap-hover"
+          hover-stay-time="80"
+          bindtap="onDebugMarketScaleClearSession"
+        >清会话已弹</view>
+        <view
+          class="link link-dev"
+          hover-class="tap-hover"
+          hover-stay-time="80"
+          bindtap="onDebugToggleForceNoLocation"
+        >{{debugForceNoLocationLabel}}</view>
+      </view>
+    </view>
   </view>
 
   <view class="mask" wx:if="{{showConfirm}}" catchtouchmove="true">
@@ -99,7 +130,7 @@
       </view>
       <view class="scale-cards">
         <view
-          class="scale-card"
+          class="scale-card {{marketScaleHighlight === 'small' ? 'on' : ''}}"
           hover-class="tap-hover"
           hover-stay-time="80"
           data-choice="small"
@@ -109,17 +140,17 @@
           <view class="scale-card-desc">小门面、路边摊位</view>
         </view>
         <view
-          class="scale-card"
+          class="scale-card {{marketScaleHighlight === 'medium' ? 'on' : ''}}"
           hover-class="tap-hover"
           hover-stay-time="80"
           data-choice="medium"
           bindtap="onMarketScaleSelect"
         >
           <view class="scale-card-title">中菜场</view>
-          <view class="scale-card-desc">小超市、连着几个门面</view>
+          <view class="scale-card-desc">普通超市、连着几个门面</view>
         </view>
         <view
-          class="scale-card"
+          class="scale-card {{marketScaleHighlight === 'large' ? 'on' : ''}}"
           hover-class="tap-hover"
           hover-stay-time="80"
           data-choice="large"
@@ -132,7 +163,7 @@
       <view class="scale-default-wrap">
         <button
           size="mini"
-          class="btn-outline scale-default-btn"
+          class="btn-outline scale-default-btn {{marketScaleDefaultOn ? 'on' : ''}}"
           data-choice="default_medium"
           disabled="{{busy}}"
           bindtap="onMarketScaleSelect"

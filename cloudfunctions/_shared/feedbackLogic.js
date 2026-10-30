@@ -5,7 +5,7 @@ const UNREAD_SORT_BASE = 2e15
 const CATEGORY_LABELS = {
   recipe: '菜谱',
   ingredient: '食材',
-  feature: '功能建议',
+  feature: '功能',
   other: '其他'
 }
 

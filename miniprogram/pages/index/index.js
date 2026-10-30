@@ -3,11 +3,76 @@ const { ensureLogin, getUser, patchUser } = require('../../services/session.js')
 const { track } = require('../../utils/track.js')
 const { tapFeedback } = require('../../utils/haptic.js')
 const { computeProfileGaps } = require('../../utils/profileGaps.js')
-const { shouldShowMarketScaleSheet } = require('../../utils/marketScale.js')
+const {
+  shouldShowMarketScaleSheet,
+  effectiveFromChoice,
+  labelForChoice,
+  chosenAtToMs,
+  RELOCATE_MIN_METERS,
+  RELOCATE_COOLDOWN_MS
+} = require('../../utils/marketScale.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 
 /** 同一小程序会话内规模半屏最多一次（模块级，随 App 进程存活） */
 let marketScaleSessionShown = false
+
+/** 开发调试：强制 getLocation 失败，模拟未授权/无定位 */
+let debugForceNoLocation = false
+
+/** ~1.2km north of fix（略大于 RELOCATE_MIN_METERS） */
+const DEBUG_RELOCATE_OFFSET_LAT = 0.011
+
+function isNonReleaseEnv() {
+  try {
+    const info = wx.getAccountInfoSync && wx.getAccountInfoSync()
+    const env = info && info.miniProgram && info.miniProgram.envVersion
+    return env === 'develop' || env === 'trial'
+  } catch (e) {
+    return false
+  }
+}
+
+function formatChosenAtAge(chosenAt, now) {
+  const ms = chosenAtToMs(chosenAt)
+  if (ms == null) return '未选过'
+  const mins = Math.floor((now - ms) / 60000)
+  if (mins < 1) return '刚刚'
+  if (mins < 60) return `${mins} 分钟前`
+  const hours = Math.floor(mins / 60)
+  if (hours < 48) return `${hours} 小时前`
+  return `${Math.floor(hours / 24)} 天前`
+}
+
+/** 不取定位时的粗判：方便调试面板说明「为什么不弹」 */
+function predictMarketScaleShow(user, now) {
+  if (debugForceNoLocation) {
+    const hasChoice = !!(user && user.marketScaleChoice)
+    return hasChoice
+      ? '模拟无定位：有档位 → 不弹半屏、不改档'
+      : '模拟无定位：无档位 → 不弹，静默写默认中档'
+  }
+  if (marketScaleSessionShown) {
+    return '下次不弹：本会话已弹过（点「清会话已弹」或重开）'
+  }
+  const chosenMs = chosenAtToMs(user && user.marketScaleChosenAt)
+  if (chosenMs == null) {
+    return '下次可弹首次（需有定位；无定位则静默默认中档）'
+  }
+  const remain = RELOCATE_COOLDOWN_MS - (now - chosenMs)
+  if (remain > 0) {
+    const mins = Math.max(1, Math.ceil(remain / 60000))
+    return `下次不弹：冷却还剩约 ${mins} 分（用「设为可再弹」或「清规模状态」）`
+  }
+  const anchor = user && user.marketScaleAnchor
+  if (
+    !anchor ||
+    typeof anchor.lat !== 'number' ||
+    typeof anchor.lng !== 'number'
+  ) {
+    return '下次不弹：无锚点，无法判定挪地（用「设为可再弹」）'
+  }
+  return '下次可弹挪地（需定位且距锚点≥1km；「设为可再弹」已写偏锚点）'
+}
 
 const MARKET_SCALE_LOCATION_TIMEOUT_MS = 5000
 const MARKET_SCALE_COPY = {
@@ -29,6 +94,8 @@ Page({
     showMarketScale: false,
     marketScaleTitle: '',
     marketScaleHint: '',
+    marketScaleHighlight: '',
+    marketScaleDefaultOn: false,
     candidates: [],
     candidatesPeek: false,
     selected: {},
@@ -38,11 +105,15 @@ Page({
     requestId: null,
     recommendationId: null,
     profileGapCount: 0,
-    feedbackHasUnread: false
+    feedbackHasUnread: false,
+    showMarketScaleDebug: false,
+    marketScaleDebugStatus: '',
+    debugForceNoLocationLabel: '模拟无定位：关'
   },
 
   onLoad(query) {
     this._maybeOpenFeedback(query)
+    this.setData({ showMarketScaleDebug: isNonReleaseEnv() })
   },
 
   onShow() {
@@ -51,18 +122,20 @@ Page({
     this._prefetchConfirmCandidates()
     // 先用本地缓存（我的页保存后已 patch），红点立刻对；再拉 auth
     this.refreshProfileGapBadge(getUser())
+    this.refreshMarketScaleDebugStatus()
     // Do not force onboarding — Slice 1-4 stay usable. Guide is Slice 5 / MVP-gap.
     ensureLogin({ preferLocalStance: true })
       .then((user) => {
         this.refreshProfileGapBadge(user)
+        this.refreshMarketScaleDebugStatus(user)
         const app = getApp()
         // 仅显式 false 才弹；true / 缺字段都不弹
         if (!user || user.onboardingDone !== false) return
         if (!app || app.globalData.onboardingTipShown) return
         app.globalData.onboardingTipShown = true
         wx.showModal({
-          title: '家庭设置',
-          content: '可先试用买菜推荐；完整引导可点「暂时跳过」或稍后在「我的偏好」完善。',
+          title: '完善家庭设置',
+          content: '建议先设置家庭成员和忌口，推荐会更准哦。',
           confirmText: '去设置',
           cancelText: '先逛逛',
           success: (res) => {
@@ -99,7 +172,9 @@ Page({
     if (this._openedFeedbackOnce) return
     this._openedFeedbackOnce = true
     track('feedback_open_from_subscribe', {})
-    setTimeout(() => {
+    if (this._openFeedbackTimer) clearTimeout(this._openFeedbackTimer)
+    this._openFeedbackTimer = setTimeout(() => {
+      this._openFeedbackTimer = null
       wx.navigateTo({ url: '/pages/feedback/list' })
     }, 0)
   },
@@ -157,6 +232,13 @@ Page({
     }
     this.setData({ busy: false })
     this._goConfirm()
+  },
+
+  onUnload() {
+    if (this._openFeedbackTimer) {
+      clearTimeout(this._openFeedbackTimer)
+      this._openFeedbackTimer = null
+    }
   },
 
   onHide() {
@@ -333,6 +415,9 @@ Page({
   },
 
   _getLocationGcJ02() {
+    if (debugForceNoLocation && isNonReleaseEnv()) {
+      return Promise.resolve(null)
+    }
     return new Promise((resolve) => {
       let settled = false
       const finish = (fix) => {
@@ -439,11 +524,14 @@ Page({
       const copy = MARKET_SCALE_COPY[decision.reason] || MARKET_SCALE_COPY.first
       track('market_scale_sheet_show', { reason: decision.reason || 'first' })
       this._enableMarketScaleBackGuard()
+      const prior = (getUser() || {}).marketScaleChoice || null
       this.setData({
         showConfirm: false,
         showMarketScale: true,
         marketScaleTitle: copy.title,
         marketScaleHint: copy.hint,
+        marketScaleHighlight: prior ? effectiveFromChoice(prior) : '',
+        marketScaleDefaultOn: prior === 'default_medium',
         busy: false
       })
       return true
@@ -466,7 +554,11 @@ Page({
       payload.lat = fix.lat
       payload.lng = fix.lng
     }
-    this.setData({ busy: true })
+    this.setData({
+      busy: true,
+      marketScaleHighlight: effectiveFromChoice(choice),
+      marketScaleDefaultOn: choice === 'default_medium'
+    })
     track('market_scale_sheet_select', { choice, source: 'sheet' })
     this._setMarketScale(payload)
       .catch((err) => {
@@ -476,6 +568,7 @@ Page({
       .then(() => {
         this._disableMarketScaleBackGuard()
         this.setData({ showMarketScale: false, busy: false })
+        this.refreshMarketScaleDebugStatus(getUser())
         this._navigateConfirm()
       })
   },
@@ -520,6 +613,107 @@ Page({
           })
       }
     })
+  },
+
+  refreshMarketScaleDebugStatus(user) {
+    if (!this.data.showMarketScaleDebug && !isNonReleaseEnv()) return
+    if (!this.data.showMarketScaleDebug) {
+      this.setData({ showMarketScaleDebug: true })
+    }
+    const u = user || getUser() || {}
+    const now = Date.now()
+    const choice = u.marketScaleChoice
+      ? labelForChoice(u.marketScaleChoice)
+      : '无'
+    const age = formatChosenAtAge(u.marketScaleChosenAt, now)
+    const anchor = u.marketScaleAnchor
+    const anchorText =
+      anchor && typeof anchor.lat === 'number' && typeof anchor.lng === 'number'
+        ? `${anchor.lat.toFixed(4)}, ${anchor.lng.toFixed(4)}`
+        : '无'
+    const session = marketScaleSessionShown ? '已弹过' : '未弹'
+    const locSim = debugForceNoLocation ? '强制无定位' : '真实定位'
+    const predict = predictMarketScaleShow(u, now)
+    this.setData({
+      debugForceNoLocationLabel: debugForceNoLocation
+        ? '模拟无定位：开'
+        : '模拟无定位：关',
+      marketScaleDebugStatus: `档位 ${choice} · 选档 ${age}\n锚点 ${anchorText}\n本会话 ${session} · ${locSim}\n${predict}`
+    })
+  },
+
+  onDebugToggleForceNoLocation() {
+    if (!isNonReleaseEnv()) return
+    tapFeedback()
+    debugForceNoLocation = !debugForceNoLocation
+    this.refreshMarketScaleDebugStatus(getUser())
+    wx.showToast({
+      title: debugForceNoLocation ? '已开：模拟无定位' : '已关：用真实定位',
+      icon: 'none'
+    })
+  },
+
+  onDebugMarketScaleClear() {
+    if (!isNonReleaseEnv()) return
+    tapFeedback()
+    callCloud('profile', { action: 'debugMarketScale', mode: 'clear' })
+      .then((res) => {
+        this._applyMarketScaleSnapshot(res)
+        marketScaleSessionShown = false
+        this.refreshMarketScaleDebugStatus(getUser())
+        wx.showToast({ title: '已清规模状态', icon: 'none' })
+      })
+      .catch((err) => {
+        console.error(err)
+        wx.showToast({ title: '失败，请部署 profile', icon: 'none' })
+      })
+  },
+
+  onDebugMarketScaleReadyRelocate() {
+    if (!isNonReleaseEnv()) return
+    tapFeedback()
+    wx.showLoading({ title: '取定位…', mask: true })
+    this._getLocationGcJ02()
+      .then((fix) => {
+        if (!fix) {
+          wx.hideLoading()
+          wx.showToast({ title: '需要定位（请开模拟位置）', icon: 'none' })
+          return null
+        }
+        const anchorLat = fix.lat - DEBUG_RELOCATE_OFFSET_LAT
+        const anchorLng = fix.lng
+        return callCloud('profile', {
+          action: 'debugMarketScale',
+          mode: 'readyRelocate',
+          lat: fix.lat,
+          lng: fix.lng,
+          anchorLat,
+          anchorLng
+        }).then((res) => {
+          wx.hideLoading()
+          this._applyMarketScaleSnapshot(res)
+          marketScaleSessionShown = false
+          this.refreshMarketScaleDebugStatus(getUser())
+          const meters = Math.round(RELOCATE_MIN_METERS * 1.2)
+          wx.showToast({
+            title: `可再弹 · 锚点约偏 ${meters}m`,
+            icon: 'none'
+          })
+        })
+      })
+      .catch((err) => {
+        wx.hideLoading()
+        console.error(err)
+        wx.showToast({ title: '失败，请部署 profile', icon: 'none' })
+      })
+  },
+
+  onDebugMarketScaleClearSession() {
+    if (!isNonReleaseEnv()) return
+    tapFeedback()
+    marketScaleSessionShown = false
+    this.refreshMarketScaleDebugStatus(getUser())
+    wx.showToast({ title: '已清会话已弹', icon: 'none' })
   },
 
   goFeedback() {

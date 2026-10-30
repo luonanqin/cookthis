@@ -578,6 +578,72 @@ async function handleResetPreferenceTest(uid, user) {
   return { ok: true, reset: true, removedMembers }
 }
 
+/**
+ * 开发/体验版测试：菜场规模半屏触发条件。
+ * mode=clear：清空 choice / chosenAt / anchor（下次可走首次弹层）
+ * mode=readyRelocate：chosenAt 调到 cooldown 前，并写入距当前位置 ≥1km 的锚点
+ */
+async function handleDebugMarketScale(event, uid, user) {
+  if (!user || !user._id) return { ok: false, error: 'USER_NOT_FOUND' }
+  const mode = event && event.mode
+  if (mode !== 'clear' && mode !== 'readyRelocate') {
+    return { ok: false, error: 'INVALID_MODE' }
+  }
+
+  if (mode === 'clear') {
+    await db.collection('users').doc(user._id).update({
+      data: {
+        marketScaleChoice: _.remove(),
+        marketScaleEffective: _.remove(),
+        marketScaleChosenAt: _.remove(),
+        marketScaleAnchor: _.remove(),
+        updatedAt: db.serverDate()
+      }
+    })
+    return {
+      ok: true,
+      mode: 'clear',
+      ...marketScaleSnapshot({})
+    }
+  }
+
+  const lat = event && event.lat
+  const lng = event && event.lng
+  const anchorLat = event && event.anchorLat
+  const anchorLng = event && event.anchorLng
+  const hasAnchor =
+    typeof anchorLat === 'number' &&
+    Number.isFinite(anchorLat) &&
+    typeof anchorLng === 'number' &&
+    Number.isFinite(anchorLng)
+  if (!hasAnchor) {
+    return { ok: false, error: 'NEED_ANCHOR' }
+  }
+
+  // 略大于 RELOCATE_COOLDOWN_MS（30min），避免边界
+  const chosenAt = new Date(Date.now() - 31 * 60 * 1000).toISOString()
+  const choice = user.marketScaleChoice || 'medium'
+  const effective = effectiveFromChoice(choice)
+  const patch = {
+    marketScaleChoice: choice,
+    marketScaleEffective: effective,
+    marketScaleChosenAt: chosenAt,
+    marketScaleAnchor: { lat: anchorLat, lng: anchorLng },
+    updatedAt: db.serverDate()
+  }
+  await db.collection('users').doc(user._id).update({ data: patch })
+
+  return {
+    ok: true,
+    mode: 'readyRelocate',
+    fix:
+      typeof lat === 'number' && Number.isFinite(lat) && typeof lng === 'number' && Number.isFinite(lng)
+        ? { lat, lng }
+        : null,
+    ...marketScaleSnapshot({ ...user, ...patch })
+  }
+}
+
 async function handleConfirmCuisineNoPreference(uid, user) {
   await db.collection('users').doc(user._id).update({
     data: {
@@ -614,11 +680,12 @@ exports.main = async (event) => {
   if (action === 'confirmCuisineNoPreference') return handleConfirmCuisineNoPreference(uid, user)
   if (action === 'resetPreferenceTest') return handleResetPreferenceTest(uid, user)
   if (action === 'setMarketScale') return handleSetMarketScale(event, uid, user)
+  if (action === 'debugMarketScale') return handleDebugMarketScale(event, uid, user)
   console.warn('profile UNKNOWN_ACTION', action)
   return {
     ok: false,
     error: 'UNKNOWN_ACTION',
-    hint: '请重新上传并部署云函数 profile（需含 saveProfileLite / skipProfileLite / confirmFamilyAvoidsNone / confirmCuisineNoPreference / setMarketScale）',
+    hint: '请重新上传并部署云函数 profile（需含 saveProfileLite / skipProfileLite / confirmFamilyAvoidsNone / confirmCuisineNoPreference / setMarketScale / debugMarketScale）',
     action: action || null
   }
 }

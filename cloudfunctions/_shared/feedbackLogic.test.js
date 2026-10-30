@@ -73,7 +73,7 @@ describe('feedbackLogic', () => {
       userReadAt: null,
       unreadForUser: true
     })
-    assert.equal(card.categoryLabel, '功能建议')
+    assert.equal(card.categoryLabel, '功能')
     assert.equal(card.unread, true)
     assert.equal(card.id, 'f1')
   })

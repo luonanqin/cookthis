@@ -7,11 +7,17 @@ const cloud = require('wx-server-sdk')
 const { buildConfirmList } = require('./confirmList.js')
 // Vendored: keep in sync with cloudfunctions/_shared/confirmListFromScale.js
 const { flattenScaleBucket } = require('./confirmListFromScale.js')
+// Vendored: keep in sync with cloudfunctions/_shared/categoryTaxonomy.js
+const {
+  normalizeCategory,
+  needsCategoryMigration
+} = require('./categoryTaxonomy.js')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 const MAX = 500
 const VALID_SCALES = new Set(['small', 'medium', 'large'])
+const MIGRATE_CONFIRM = 'YES_MIGRATE_CATEGORIES_ZH'
 
 let normalizeCityKey
 try {
@@ -95,7 +101,104 @@ async function loadUserForOpenid(openid) {
   return u.data[0] || null
 }
 
+/**
+ * 一次性：把云库英文 category 改成中文。
+ * 云函数测试入参：
+ * { "action": "migrateCategoriesZh", "confirm": "YES_MIGRATE_CATEGORIES_ZH", "scope": "ingredients" }
+ * scope: ingredients | recommendations | all
+ */
+async function handleMigrateCategoriesZh(event) {
+  if ((event && event.confirm) !== MIGRATE_CONFIRM) {
+    return {
+      ok: false,
+      error: 'CONFIRM_REQUIRED',
+      hint: `传 confirm: "${MIGRATE_CONFIRM}"`
+    }
+  }
+  const scope = String((event && event.scope) || 'all')
+  const doIng = scope === 'all' || scope === 'ingredients'
+  const doRec = scope === 'all' || scope === 'recommendations'
+  const out = {
+    ok: true,
+    ingredientsUpdated: 0,
+    ingredientsScanned: 0,
+    recommendationsUpdated: 0,
+    recommendationsScanned: 0
+  }
+
+  if (doIng) {
+    let skip = 0
+    for (;;) {
+      const res = await db
+        .collection('ingredients')
+        .skip(skip)
+        .limit(100)
+        .get()
+      const rows = res.data || []
+      if (!rows.length) break
+      out.ingredientsScanned += rows.length
+      for (const row of rows) {
+        if (!needsCategoryMigration(row.category)) continue
+        const next = normalizeCategory(row.category)
+        await db.collection('ingredients').doc(row._id).update({
+          data: { category: next }
+        })
+        out.ingredientsUpdated++
+      }
+      skip += rows.length
+      if (rows.length < 100) break
+    }
+  }
+
+  if (doRec) {
+    let skip = 0
+    for (;;) {
+      const res = await db
+        .collection('recommendations')
+        .skip(skip)
+        .limit(50)
+        .get()
+      const rows = res.data || []
+      if (!rows.length) break
+      out.recommendationsScanned += rows.length
+      for (const row of rows) {
+        const selected = row.selectedIngredients
+        if (!Array.isArray(selected) || !selected.length) continue
+        let changed = false
+        const nextSelected = selected.map((item) => {
+          if (!item || typeof item !== 'object') return item
+          if (!needsCategoryMigration(item.category)) return item
+          changed = true
+          return Object.assign({}, item, {
+            category: normalizeCategory(item.category, '其他')
+          })
+        })
+        if (!changed) continue
+        await db.collection('recommendations').doc(row._id).update({
+          data: {
+            selectedIngredients: nextSelected,
+            updatedAt: db.serverDate()
+          }
+        })
+        out.recommendationsUpdated++
+      }
+      skip += rows.length
+      if (rows.length < 50) break
+    }
+  }
+
+  return out
+}
+
 exports.main = async (event) => {
+  // 控制台「云函数测试」没有 OPENID；迁移必须在登录校验之前分支
+  const action = event && (event.action || (event.data && event.data.action))
+  if (action === 'migrateCategoriesZh') {
+    const payload =
+      event && event.data && event.data.action ? event.data : event
+    return handleMigrateCategoriesZh(payload)
+  }
+
   const wxContext = cloud.getWXContext()
   const openid = wxContext.OPENID
   if (!openid) return { ok: false, error: 'NO_OPENID' }
@@ -125,5 +228,11 @@ exports.main = async (event) => {
     scale
   })
   const built = buildConfirmList(res.data, city)
+  // fallback 路径：把库里英文 category 即时映射成中文再返回
+  for (const list of [built.seasonal, built.yearRound]) {
+    for (const item of list || []) {
+      if (item) item.category = normalizeCategory(item.category, '其他')
+    }
+  }
   return { ok: true, scale, ...built }
 }

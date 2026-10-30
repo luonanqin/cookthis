@@ -40,28 +40,44 @@
 
 .composer-input {
   width: 100%;
-  min-height: 64rpx;
-  max-height: 120rpx;
-  padding: 12rpx 16rpx;
+  /* 约 100 字完整可见，不裁切 */
+  min-height: 280rpx;
+  max-height: none;
+  padding: 16rpx 18rpx;
   box-sizing: border-box;
   background: var(--color-surface);
   border: 1rpx solid var(--color-border);
   border-radius: 12rpx;
   font-size: var(--fs-body);
   color: var(--color-text);
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 .composer-bar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   margin-top: 12rpx;
 }
 
+.composer-bar-right {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20rpx;
+}
+
 .count {
+  flex: none;
   font-size: var(--fs-sm);
   color: var(--color-text-secondary);
+  line-height: 1;
+}
+
+/* 小程序 button 默认 width:100%，会把字数顶到左边 */
+.composer-bar-right button {
+  flex: none !important;
+  width: auto !important;
+  margin: 0 !important;
 }
 
 .empty,
@@ -144,16 +160,31 @@
   border-left: 6rpx solid var(--color-primary);
 }
 
+.reply-head {
+  display: flex;
+  align-items: baseline;
+  gap: 16rpx;
+  margin-bottom: 8rpx;
+  min-width: 0;
+}
+
 .reply-label {
   font-size: var(--fs-xs);
   color: var(--color-text-secondary);
-  margin-bottom: 8rpx;
+  flex-shrink: 0;
 }
 
 .clip {
   position: relative;
-  max-height: 150rpx;
+  font-size: var(--fs-body);
+  line-height: 1.5;
   overflow: hidden;
+  /* 收起：完整两行 + 第三行半截（由底部渐隐盖住） */
+  max-height: 105rpx;
+}
+
+.large-text .clip {
+  max-height: 135rpx;
 }
 
 .clip.expanded {
@@ -162,8 +193,8 @@
 }
 
 .clip-inner {
-  font-size: var(--fs-body);
-  line-height: 1.5;
+  font-size: inherit;
+  line-height: inherit;
   word-break: break-word;
   white-space: pre-wrap;
 }
@@ -173,7 +204,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  height: 56rpx;
+  height: 48rpx;
   pointer-events: none;
 }
 
@@ -186,8 +217,13 @@
 }
 
 .expand-btn {
-  margin-top: 8rpx;
+  margin-top: 0;
+  padding: 24rpx 8rpx 24rpx 32rpx;
+  box-sizing: border-box;
+  min-height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   font-size: var(--fs-sm);
   color: var(--color-primary);
-  display: inline-block;
 }

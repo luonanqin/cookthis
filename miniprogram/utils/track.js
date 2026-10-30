@@ -2,8 +2,8 @@ const { callCloud } = require('../services/cloud.js')
 
 const QUEUE_KEY = 'cookthis_track_queue'
 const MAX_QUEUE = 40
+const FLUSH_AT = 10
 let sessionId = null
-let flushTimer = null
 
 function getSessionId() {
   if (sessionId) return sessionId
@@ -34,6 +34,10 @@ function writeQueue(q) {
   } catch (e) {}
 }
 
+/**
+ * 埋点入队。满 FLUSH_AT 条立即上报；不足则留在本地，
+ * 由 App.onHide 调用 flush（不用 setTimeout，避免体验报告「定时器未随页面回收」）。
+ */
 function track(event, props) {
   if (!event) return
   const item = {
@@ -47,14 +51,7 @@ function track(event, props) {
   const q = readQueue()
   q.push(item)
   writeQueue(q)
-  if (q.length >= 10) {
-    flush()
-  } else if (!flushTimer) {
-    flushTimer = setTimeout(() => {
-      flushTimer = null
-      flush()
-    }, 5000)
-  }
+  if (q.length >= FLUSH_AT) flush()
 }
 
 function flush() {

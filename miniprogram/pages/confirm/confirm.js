@@ -1,6 +1,6 @@
 const { callCloud } = require('../../services/cloud.js')
 const { getUser, ensureLogin, patchUser } = require('../../services/session.js')
-const { suggestPartyCombo } = require('../../utils/suggestCombo.js')
+const { suggestPartyCombo, suggestComboByPeople } = require('../../utils/suggestCombo.js')
 const { filterHolidays } = require('../../utils/filterHolidays.js')
 const { track } = require('../../utils/track.js')
 const { PEOPLE_RANGE, COMBO_RANGE, indexOfValue } = require('../../utils/formRanges.js')
@@ -20,6 +20,10 @@ const {
   effectiveFromChoice,
   labelForChoice
 } = require('../../utils/marketScale.js')
+const {
+  CATEGORY_LABEL: CATEGORY_LABELS,
+  normalizeCategory
+} = require('../../utils/categoryTaxonomy.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 const holidaysPack = require('../../data/holidays.js')
 
@@ -31,19 +35,6 @@ const MARKET_SCALE_PAGE_COPY = {
 const STORAGE_KEY = 'cookthis_last_selected'
 const RECOMMEND_KEY = 'cookthis_last_recommend'
 
-const CATEGORY_LABELS = {
-  leaf: '叶菜',
-  root: '根茎',
-  fruit_veg: '茄果',
-  bean: '豆类',
-  mushroom: '菌菇',
-  meat: '肉类',
-  seafood: '水产',
-  egg_dairy: '蛋奶',
-  tofu: '豆制品',
-  other: '其他'
-}
-
 const MEAL_TYPE_OPTIONS = [
   { id: 'daily', label: '日常' },
   { id: 'friends_party', label: '聚会' }
@@ -51,6 +42,15 @@ const MEAL_TYPE_OPTIONS = [
 
 /** 大/小/老每档可选人数（与搭配 picker 同交互） */
 const TIER_RANGE = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+/** 无家庭成员时：当次访客 1 大人 + 一荤一素（不写 members / defaultPeopleCount） */
+const EMPTY_MEMBER_GUESTS = { adult: 1, child: 0, elder: 0 }
+const EMPTY_MEMBER_COMBO = { meat: 1, veg: 1, soup: 0 }
+
+function householdTotal(counts) {
+  const c = normalizeTierCounts(counts)
+  return c.adult + c.child + c.elder
+}
 
 // Short list: vocab codes matching ingredients.avoidTags / 忌口词表
 const PARTY_AVOID_OPTIONS = [
@@ -128,8 +128,8 @@ function mergeYearRoundChecked(oldItems, oldChecked, newItems, familyAvoids) {
 
 function groupByCategory(items) {
   const map = new Map()
-  ;(items || []).forEach(it => {
-    const c = it.category || 'other'
+  ;(items || []).forEach((it) => {
+    const c = normalizeCategory(it && it.category, '其他')
     if (!map.has(c)) map.set(c, [])
     map.get(c).push(it)
   })
@@ -398,18 +398,23 @@ Page({
   _applyMembersToScene(members) {
     const list = members || []
     const hh = computeHouseholdCounts(list)
-    const guests = this._emptyTier()
     const omit = this._emptyTier()
+    const user = getUser() || {}
+    // 无成员：不当次空白；用访客 1 大人（不落库），便于直接出推荐
+    const guests = list.length > 0 ? this._emptyTier() : Object.assign({}, EMPTY_MEMBER_GUESTS)
     const patch = this._tierPatch(hh, guests, omit)
     patch.members = list
-    if (list.length > 0) {
-      const user = getUser() || {}
-      const combo = cloneCombo(user.defaultCombo)
-      if (combo && isComboPresent(combo)) {
-        this._setComboIndexes(patch, combo)
-      }
+    const savedCombo = cloneCombo(user.defaultCombo)
+    if (savedCombo && isComboPresent(savedCombo)) {
+      this._setComboIndexes(patch, savedCombo)
+    } else if (list.length > 0) {
+      const n = patch.peopleCount || 0
+      this._setComboIndexes(
+        patch,
+        suggestComboByPeople(n) || Object.assign({}, EMPTY_MEMBER_COMBO)
+      )
     } else {
-      this._setComboIndexes(patch, { meat: 0, veg: 0, soup: 0 })
+      this._setComboIndexes(patch, Object.assign({}, EMPTY_MEMBER_COMBO))
     }
     this.setData(patch)
     patchUser({ defaultPeopleCount: list.length, members: list })
@@ -432,8 +437,12 @@ Page({
   },
 
   _initSceneFromSession() {
-    // 人数/搭配等 loadHousehold：无成员则为 0，不臆造默认人数
-    const tier = this._tierPatch(this._emptyTier(), this._emptyTier(), this._emptyTier())
+    // 人数/搭配等 loadHousehold 覆盖；无成员时先按 1 大人 + 一荤一素占位
+    const tier = this._tierPatch(
+      this._emptyTier(),
+      Object.assign({}, EMPTY_MEMBER_GUESTS),
+      this._emptyTier()
+    )
     const upcomingHolidays = filterHolidays(holidaysPack.items || [], todayStr(), 30)
     this.setData(
       Object.assign(
@@ -451,7 +460,7 @@ Page({
           holidayDate: ''
         },
         tier,
-        this._setComboIndexes({}, { meat: 0, veg: 0, soup: 0 })
+        this._setComboIndexes({}, Object.assign({}, EMPTY_MEMBER_COMBO))
       )
     )
   },
@@ -604,8 +613,15 @@ Page({
     if (!choice) return
     const user = getUser() || {}
     const current = user.marketScaleChoice || null
+    const effective = effectiveFromChoice(choice)
+    // 先刷新选中态，再决定关层 / 写库（否则等云函数时只有震动、卡面不变）
+    this.setData({
+      marketScaleHighlight: effective,
+      marketScaleDefaultOn: choice === 'default_medium'
+    })
     // 点当前已选档：关层不写库，避免重复 history
     if (choice === current) {
+      tapFeedback()
       this.setData({ showMarketScale: false })
       return
     }
@@ -621,7 +637,13 @@ Page({
       })
       .catch((err) => {
         console.error(err)
-        this.setData({ marketScaleBusy: false })
+        // 写库失败：选中态回退到本地已保存档
+        const fallbackChoice = (getUser() || {}).marketScaleChoice || current || 'default_medium'
+        this.setData({
+          marketScaleBusy: false,
+          marketScaleHighlight: effectiveFromChoice(fallbackChoice),
+          marketScaleDefaultOn: fallbackChoice === 'default_medium'
+        })
         wx.showToast({ title: '切换失败，请重试', icon: 'none' })
       })
   },
@@ -743,12 +765,14 @@ Page({
     }
     if (isDaily) {
       this._partyComboSeed = null
-      const combo = cloneCombo(user.defaultCombo) || { meat: 1, veg: 1, soup: 0 }
-      const tier = this._tierPatch(
-        this.data.householdCounts,
-        this._emptyTier(),
-        this._emptyTier()
-      )
+      const combo = cloneCombo(user.defaultCombo) || Object.assign({}, EMPTY_MEMBER_COMBO)
+      const hh = this.data.householdCounts
+      // 无档案成员时保留「1 大人」访客默认，避免切回日常又变空白
+      const guests =
+        householdTotal(hh) > 0
+          ? this._emptyTier()
+          : Object.assign({}, EMPTY_MEMBER_GUESTS)
+      const tier = this._tierPatch(hh, guests, this._emptyTier())
       Object.assign(patch, tier)
       patch.combo = combo
       patch.meatIndex = indexOfValue(COMBO_RANGE, combo.meat, 1)
@@ -925,30 +949,31 @@ Page({
   buildSelected() {
     const selected = []
     const { seasonal, yearRound, seasonalChecked, yearRoundChecked, manuals } = this.data
-    seasonal.forEach(it => {
+    seasonal.forEach((it) => {
       if (seasonalChecked[it.id]) {
         selected.push({
           id: it.id,
           name: it.name,
-          category: it.category,
+          category: normalizeCategory(it.category, '其他'),
           source: 'seasonal'
         })
       }
     })
-    yearRound.forEach(it => {
+    yearRound.forEach((it) => {
       if (yearRoundChecked[it.id]) {
         selected.push({
           id: it.id,
           name: it.name,
-          category: it.category,
+          category: normalizeCategory(it.category, '其他'),
           source: 'year_round'
         })
       }
     })
-    manuals.forEach(it => {
+    manuals.forEach((it) => {
       selected.push({
         id: it.id,
         name: it.name,
+        category: normalizeCategory(it.category, '其他'),
         source: 'manual'
       })
     })
@@ -981,7 +1006,7 @@ Page({
       scene.householdCounts = normalizeTierCounts(householdCounts)
       scene.guestCounts = normalizeTierCounts(guestCounts)
       scene.omitCounts = normalizeTierCounts(omitCounts)
-      // 以页面展示人数为准（无成员可为 0；不因 expand 兜底变成 1）
+      // 以页面展示人数为准（含无成员时的默认访客 1 大人）
       const td = this.data.tierDisplay || {}
       scene.peopleCount =
         (Number(td.adult) || 0) + (Number(td.child) || 0) + (Number(td.elder) || 0)
@@ -1013,8 +1038,24 @@ Page({
     return scene
   },
 
+  onUnload() {
+    this._clearFlashTimers()
+  },
+
+  _clearFlashTimers() {
+    if (this._flashOnTimer) {
+      clearTimeout(this._flashOnTimer)
+      this._flashOnTimer = null
+    }
+    if (this._flashOffTimer) {
+      clearTimeout(this._flashOffTimer)
+      this._flashOffTimer = null
+    }
+  },
+
   /** 缺填标题标红 + 闪两下；红字保留到补全 */
   _flashWarnTitles(flags) {
+    this._clearFlashTimers()
     this.setData(
       Object.assign(
         {
@@ -1027,10 +1068,12 @@ Page({
         flags || {}
       )
     )
-    setTimeout(() => {
+    this._flashOnTimer = setTimeout(() => {
+      this._flashOnTimer = null
       this.setData({ warnPulse: true })
     }, 20)
-    setTimeout(() => {
+    this._flashOffTimer = setTimeout(() => {
+      this._flashOffTimer = null
       this.setData({ warnPulse: false })
     }, 980)
   },

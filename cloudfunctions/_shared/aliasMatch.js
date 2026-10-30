@@ -197,10 +197,34 @@ function applyShoppingDisplay(groups, opts) {
   })
 }
 
+/**
+ * 把已选食材的 category 扩到别名组（如 猪肋排→排骨、三线肉→五花肉），
+ * 避免菜谱用口语名时清单掉进「其他」。
+ * @param {Record<string, string>} categoryByName
+ * @param {{ equiv?: Map<string, Set<string>> }|null} index
+ * @returns {Record<string, string>}
+ */
+function expandCategoryByName(categoryByName, index) {
+  const src = categoryByName || {}
+  const out = Object.assign({}, src)
+  if (!index || !index.equiv) return out
+  for (const name of Object.keys(src)) {
+    const cat = src[name]
+    if (!cat) continue
+    const group = index.equiv.get(name)
+    if (!group) continue
+    group.forEach((surface) => {
+      if (out[surface] == null) out[surface] = cat
+    })
+  }
+  return out
+}
+
 module.exports = {
   loadAliases,
   buildAliasIndex,
   expandNames,
+  expandCategoryByName,
   normalizeCityKey,
   flattenShelfNameOrder,
   fitSecondaryNames,

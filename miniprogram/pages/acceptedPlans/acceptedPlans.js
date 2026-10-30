@@ -141,6 +141,13 @@ Page({
   /** 用户最终期望的 ate：key → boolean */
   _desiredAte: {},
 
+  onUnload() {
+    if (this._tipMeasureTimer) {
+      clearTimeout(this._tipMeasureTimer)
+      this._tipMeasureTimer = null
+    }
+  },
+
   onShow() {
     this.applyTypeScale()
     this.setData({
@@ -229,7 +236,11 @@ Page({
           { items, nextCursor, loading: false, tipOwnListKey },
           () => {
             if (this.data.showTip && tipOwnListKey) {
-              setTimeout(() => this.measureTipSpot(), 50)
+              if (this._tipMeasureTimer) clearTimeout(this._tipMeasureTimer)
+              this._tipMeasureTimer = setTimeout(() => {
+                this._tipMeasureTimer = null
+                this.measureTipSpot()
+              }, 50)
             }
           }
         )
@@ -387,7 +398,11 @@ Page({
               tipStep: 2,
               tipText: '再点击取消记录'
             })
-            setTimeout(() => this.measureTipSpot(), 40)
+            if (this._tipMeasureTimer) clearTimeout(this._tipMeasureTimer)
+            this._tipMeasureTimer = setTimeout(() => {
+              this._tipMeasureTimer = null
+              this.measureTipSpot()
+            }, 40)
           } else if (tipStep === 2 && !desired) {
             this.finishTip()
           }

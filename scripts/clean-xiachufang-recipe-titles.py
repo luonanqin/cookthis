@@ -9,7 +9,9 @@
 - 去掉全部英文与标点；字数 < 3、为空、或恰为纯食材名 → 删除。
 - category-results：清洗后标题与条目食材名的字符交叉 / 食材字数 ≤ 50% → 删除
   （例：红烧鲢鱼 ∩ 白鲢鱼 = 鲢鱼 2 字，2/3 > 50% 保留）。
-- 同一食材下按 title 去重。默认写 *.cleaned.json；--in-place 覆盖原文件。
+- 同一食材下按清洗后 title 去重：只留一条，**保留 count 最大的**；ingredients 并集保序。
+- 输出不含「水果」「主食」「调味」分类下的食材条目；菜谱 ingredients 里同类名也会去掉。
+- 默认写 *.cleaned.json；--in-place 覆盖原文件。
 
 用法:
   python3 scripts/clean-xiachufang-recipe-titles.py
@@ -28,10 +30,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DIR = ROOT / "data" / "recipes" / "xiachufang"
 INGREDIENTS_ALL = ROOT / "data" / "catalog" / "ingredients-all.json"
+INGREDIENTS_BY_CATEGORY = (
+    ROOT / "data" / "catalog" / "ingredients-all-by-category.json"
+)
 DEFAULT_FILES = (
     "xiachufang-category-results.json",
     "xiachufang-search-results.json",
 )
+
+# 清洗结果不保留这些分类下的食材
+EXCLUDE_CATEGORIES = frozenset({"水果", "主食", "调味"})
 
 
 def load_ingredient_names(path: Path = INGREDIENTS_ALL) -> set[str]:
@@ -45,6 +53,31 @@ def load_ingredient_names(path: Path = INGREDIENTS_ALL) -> set[str]:
             if isinstance(n, str) and n.strip():
                 names.add(n.strip())
     return names
+
+
+def load_excluded_ingredient_names(
+    path: Path = INGREDIENTS_BY_CATEGORY,
+) -> set[str]:
+    """水果 / 主食 / 调味 分类下的食材名。"""
+    if not path.is_file():
+        return set()
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    names: set[str] = set()
+    cats = doc.get("categories") or {}
+    for cat in EXCLUDE_CATEGORIES:
+        for n in cats.get(cat) or []:
+            if isinstance(n, str) and n.strip():
+                names.add(n.strip())
+    return names
+
+
+def item_is_excluded(name: str, rec: dict, excluded_names: set[str]) -> bool:
+    cats = rec.get("categories") or []
+    if any(c in EXCLUDE_CATEGORIES for c in cats):
+        return True
+    if name in excluded_names:
+        return True
+    return False
 
 EMOJI_RE = re.compile(
     "["
@@ -272,6 +305,53 @@ PHRASE_RES = [
         r"轻食",
         r"必备",
         r"真的",
+        r"年味",
+        r"两步搞定脆嫰",
+        r"简单",
+        r"最爱的",
+        r"沙猛",
+        r"酸爽开胃",
+        r"两条快乐",
+        r"巨下饭",
+        r"电压力锅",
+        r"妈咪的",
+        r"不一样",
+        r"老家",
+        r"香酥松软的李连贵熏肉",
+        r"在家也能做出好吃的鸭边腿",
+        r"绝味鸭脖",
+        r"一吃就会上瘾的",
+        r"从此告别周黑鸭久久鸭脖",
+        r"健康不用卤的鸭脖",
+        r"媲美川菜店的",
+        r"超容易又好吃的",
+        r"自制周黑鸭",
+        r"巨巨香辣鸭翅",
+        r"朴素的",
+        r"不咸不淡的",
+        r"小技巧如何腌制咸鸭蛋",
+        r"奶奶40年腌制咸鸭蛋",
+        r"三步腌制流油咸鸭蛋",
+        r"恋上我的",
+        r"下酒菜",
+        r"不敢相信这是我自己的卤的鸭头",
+        r"好吃不腥家庭版",
+        r"妈妈菜",
+        r"3100",
+        r"版北京烤鸭鸭胸肉",
+        r"低卡饱腹一锅端的鸭胸肉烤蔬菜",
+        r"补铁鸭血",
+        r"能吃三碗饭的",
+        r"香辣嫩滑好吃到哭的",
+        r"卤鸭翅卤鸭掌卤鸡爪卤天卤地卤前任这个配料绝了",
+        r"吃了会上瘾的",
+        r"秘制",
+        r"米饭杀手",
+        r"五分钟",
+        r"酥而不腻的",
+        r"炒了20多年的",
+        r"吃不到膻味的比烧烤更好吃的",
+        r"秘制",
     ]
 ]
 
@@ -442,11 +522,17 @@ def ingredient_overlap_ratio(title: str, ingredient: str) -> float:
 def clean_doc(
     doc: dict,
     ingredient_names: set[str] | None = None,
+    excluded_names: set[str] | None = None,
     *,
     require_parent_overlap: bool = False,
     parent_overlap_min: float = 0.5,
 ) -> tuple[dict, dict]:
     names = ingredient_names if ingredient_names is not None else load_ingredient_names()
+    excluded = (
+        excluded_names
+        if excluded_names is not None
+        else load_excluded_ingredient_names()
+    )
     items_in = doc.get("items") or {}
     items_out: dict = {}
     stats = {
@@ -457,16 +543,34 @@ def clean_doc(
         "dropped_ingredient_only": 0,
         "dropped_low_overlap": 0,
         "dropped_denylist": 0,
+        "dropped_excluded_cat": 0,
+        "items_skipped_cat": 0,
         "deduped": 0,
         "examples": [],
     }
     for name, rec in items_in.items():
+        if item_is_excluded(name, rec or {}, excluded):
+            n_rec = len((rec or {}).get("recipes") or [])
+            stats["items_skipped_cat"] += 1
+            stats["recipes_in"] += n_rec
+            stats["recipes_dropped"] += n_rec
+            stats["dropped_excluded_cat"] += n_rec
+            if len(stats["examples"]) < 40:
+                cats = ",".join((rec or {}).get("categories") or []) or "?"
+                stats["examples"].append(
+                    ("DROP_CAT", name, f"{cats} ({n_rec} recipes)")
+                )
+            continue
         recipes_out: list[dict] = []
         seen_titles: dict[str, int] = {}  # title -> index in recipes_out
         for r in list(rec.get("recipes") or []):
             stats["recipes_in"] += 1
             old = r.get("title") or ""
-            ings = [x for x in (r.get("ingredients") or []) if x]
+            ings = [
+                x
+                for x in (r.get("ingredients") or [])
+                if x and x not in excluded
+            ]
             new = clean_title(
                 old,
                 parent_name=name,
@@ -515,19 +619,32 @@ def clean_doc(
             if new in seen_titles:
                 stats["recipes_dropped"] += 1
                 stats["deduped"] += 1
-                # 合并 ingredients（保序去重）；做过人数取较大值
+                # 同名只留一条：保留 count 更大的；ingredients 取并集
                 idx = seen_titles[new]
-                merged = list(recipes_out[idx]["ingredients"])
+                prev = recipes_out[idx]
+                prev_c = int(prev.get("count", 0) or 0)
+                prev_ings = list(prev.get("ingredients") or [])
+                if recipe_count > prev_c:
+                    base_ings, extra_ings = list(ings), prev_ings
+                    keep_count = recipe_count
+                else:
+                    base_ings, extra_ings = prev_ings, list(ings)
+                    keep_count = prev_c
+                merged = list(base_ings)
                 have = set(merged)
-                for x in ings:
+                for x in extra_ings:
                     if x not in have:
                         merged.append(x)
                         have.add(x)
-                recipes_out[idx]["ingredients"] = merged
-                prev_c = recipes_out[idx].get("count", 0) or 0
-                recipes_out[idx]["count"] = max(int(prev_c), recipe_count)
+                recipes_out[idx] = {
+                    "title": new,
+                    "count": keep_count,
+                    "ingredients": merged,
+                }
                 if len(stats["examples"]) < 40:
-                    stats["examples"].append(("DEDUP", old, new))
+                    stats["examples"].append(
+                        ("DEDUP", old, f"{new} (keep count={keep_count})")
+                    )
                 continue
             if new != old:
                 stats["titles_changed"] += 1
@@ -599,7 +716,12 @@ def main() -> int:
     args = ap.parse_args()
 
     ingredient_names = load_ingredient_names()
+    excluded_names = load_excluded_ingredient_names()
     print(f"ingredient lexicon: {len(ingredient_names)} names")
+    print(
+        f"exclude categories {sorted(EXCLUDE_CATEGORIES)}: "
+        f"{len(excluded_names)} names"
+    )
 
     total = {
         "recipes_in": 0,
@@ -609,6 +731,8 @@ def main() -> int:
         "dropped_ingredient_only": 0,
         "dropped_low_overlap": 0,
         "dropped_denylist": 0,
+        "dropped_excluded_cat": 0,
+        "items_skipped_cat": 0,
         "deduped": 0,
     }
 
@@ -620,7 +744,10 @@ def main() -> int:
         require_overlap = "category-results" in fname
         doc = json.loads(path.read_text(encoding="utf-8"))
         out_doc, stats = clean_doc(
-            doc, ingredient_names, require_parent_overlap=require_overlap
+            doc,
+            ingredient_names,
+            excluded_names,
+            require_parent_overlap=require_overlap,
         )
         for k in total:
             total[k] += stats[k]
@@ -630,7 +757,10 @@ def main() -> int:
             f"changed={stats['titles_changed']} dropped={stats['recipes_dropped']} "
             f"(ingredient-only={stats['dropped_ingredient_only']} "
             f"low-overlap={stats['dropped_low_overlap']} "
-            f"deny={stats['dropped_denylist']} deduped={stats['deduped']})"
+            f"deny={stats['dropped_denylist']} "
+            f"excl-cat-items={stats['items_skipped_cat']} "
+            f"excl-cat-recipes={stats['dropped_excluded_cat']} "
+            f"deduped={stats['deduped']})"
             + (" [parent overlap >50%]" if require_overlap else "")
         )
         for kind, old, new in stats["examples"][:15]:
@@ -642,6 +772,8 @@ def main() -> int:
                 print(f"  DROP_LOW_OVERLAP {old!r} -> {new!r}")
             elif kind == "DROP_DENY":
                 print(f"  DROP_DENY {old!r} -> {new!r}")
+            elif kind == "DROP_CAT":
+                print(f"  DROP_CAT {old!r} -> {new!r}")
             elif kind == "DEDUP":
                 print(f"  DEDUP {old!r} -> {new!r}")
             else:
@@ -664,7 +796,10 @@ def main() -> int:
         f"changed={total['titles_changed']} dropped={total['recipes_dropped']} "
         f"(ingredient-only={total['dropped_ingredient_only']} "
         f"low-overlap={total['dropped_low_overlap']} "
-        f"deny={total['dropped_denylist']} deduped={total['deduped']})"
+        f"deny={total['dropped_denylist']} "
+        f"excl-cat-items={total['items_skipped_cat']} "
+        f"excl-cat-recipes={total['dropped_excluded_cat']} "
+        f"deduped={total['deduped']})"
     )
     return 0
 

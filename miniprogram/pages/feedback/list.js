@@ -7,15 +7,23 @@ const { FEEDBACK_SUBSCRIBE_TMPL_ID } = require('../../utils/subscribe.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 
 const CACHE_KEY = 'cookthis_feedback_list_v1'
-const CATEGORY_KEY = 'cookthis_feedback_category_v1'
 const TTL = 7 * 24 * 60 * 60 * 1000
 const PAGE_SIZE = 5
-const COLLAPSE_RPX = 150
+/** 收起高度：与 .clip max-height（两行半 + 渐隐）对齐 */
+function collapseMaxPx(largeText) {
+  const collapseRpx = largeText ? 135 : 105
+  try {
+    const sys = wx.getSystemInfoSync()
+    return (collapseRpx / 750) * (sys.windowWidth || 375)
+  } catch (e) {
+    return (collapseRpx / 750) * 375
+  }
+}
 
 const CATEGORY_LABELS = {
   recipe: '菜谱',
   ingredient: '食材',
-  feature: '功能建议',
+  feature: '功能',
   other: '其他'
 }
 
@@ -48,20 +56,6 @@ function formatTimeText(ms) {
   )
 }
 
-function readLastCategory() {
-  try {
-    const v = wx.getStorageSync(CATEGORY_KEY)
-    if (v && CATEGORY_LABELS[v]) return v
-  } catch (e) {}
-  return 'feature'
-}
-
-function writeLastCategory(id) {
-  try {
-    wx.setStorageSync(CATEGORY_KEY, id)
-  } catch (e) {}
-}
-
 function readCache() {
   try {
     const raw = wx.getStorageSync(CACHE_KEY)
@@ -90,6 +84,7 @@ function decorateItem(raw) {
     repliedAt: raw.repliedAt,
     unread: !!raw.unread,
     timeText: formatTimeText(raw.createdAt),
+    replyTimeText: formatTimeText(raw.repliedAt),
     contentExpanded: false,
     replyExpanded: false,
     contentOverflow: false,
@@ -115,7 +110,7 @@ Page({
 
   data: {
     categories: CATEGORIES,
-    category: 'feature',
+    category: '',
     draft: '',
     draftLen: 0,
     submitting: false,
@@ -128,10 +123,6 @@ Page({
   _loadGen: 0,
   _epoch: 0,
   _measureTimer: null,
-
-  onLoad() {
-    this.setData({ category: readLastCategory() })
-  },
 
   onShow() {
     this.applyTypeScale()
@@ -153,8 +144,8 @@ Page({
     const id = e.currentTarget.dataset.id
     if (!id || !CATEGORY_LABELS[id]) return
     tapFeedback('light')
-    writeLastCategory(id)
-    this.setData({ category: id })
+    // 不缓存未提交的选择；点已选项可取消
+    this.setData({ category: this.data.category === id ? '' : id })
   },
 
   onDraftInput(e) {
@@ -164,6 +155,10 @@ Page({
 
   onSubmit() {
     if (this.data.submitting) return
+    if (!CATEGORY_LABELS[this.data.category]) {
+      wx.showToast({ title: '请选择反馈类型', icon: 'none' })
+      return
+    }
     const content = String(this.data.draft || '').trim()
     if (!content) {
       wx.showToast({ title: '请填写内容', icon: 'none' })
@@ -193,7 +188,13 @@ Page({
             subscribeReady: !!subscribeReady
           })
           const items = [decorateItem(item)].concat(this.data.items || [])
-          this.setData({ draft: '', draftLen: 0, items, submitting: false })
+          this.setData({
+            draft: '',
+            draftLen: 0,
+            category: '',
+            items,
+            submitting: false
+          })
           this._persistCache()
           this._scheduleMeasure()
           wx.showModal({
@@ -393,11 +394,7 @@ Page({
   _measureOverflow() {
     const items = this.data.items || []
     if (!items.length) return
-    let maxPx = 75
-    try {
-      const sys = wx.getSystemInfoSync()
-      maxPx = (COLLAPSE_RPX / 750) * (sys.windowWidth || 375)
-    } catch (e) {}
+    const maxPx = collapseMaxPx(!!this.data.largeText)
 
     const q = wx.createSelectorQuery().in(this)
     q.selectAll('.js-content-inner').boundingClientRect()

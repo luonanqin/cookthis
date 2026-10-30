@@ -13,14 +13,15 @@
     <textarea
       class="composer-input"
       maxlength="100"
-      auto-height
       value="{{draft}}"
       placeholder="写一条建议（最多100字）"
       bindinput="onDraftInput"
     />
     <view class="composer-bar">
-      <text class="count">{{draftLen}}/100</text>
-      <button size="mini" type="primary" loading="{{submitting}}" bindtap="onSubmit">提交</button>
+      <view class="composer-bar-right">
+        <text class="count">{{draftLen}}/100</text>
+        <button size="mini" type="primary" loading="{{submitting}}" bindtap="onSubmit">提交</button>
+      </view>
     </view>
   </view>
 
@@ -55,7 +56,10 @@
       </view>
 
       <view wx:if="{{item.replyText}}" class="block reply-block">
-        <view class="reply-label">回复</view>
+        <view class="reply-head">
+          <text class="reply-label">管理员</text>
+          <text wx:if="{{item.replyTimeText}}" class="time">{{item.replyTimeText}}</text>
+        </view>
         <view class="clip {{item.replyExpanded ? 'expanded' : ''}}">
           <view class="clip-inner js-reply-inner" data-id="{{item.id}}">{{item.replyText}}</view>
           <view

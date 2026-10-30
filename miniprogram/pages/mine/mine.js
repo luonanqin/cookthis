@@ -240,6 +240,13 @@ Page({
     this.setData(gapMarksFromState(this.data))
   },
 
+  onUnload() {
+    if (this._afterSaveTimer) {
+      clearTimeout(this._afterSaveTimer)
+      this._afterSaveTimer = null
+    }
+  },
+
   onShow() {
     this.applyTypeScale()
     // auth 已带 members：本地缓存立刻上屏，无需再打 profile.get
@@ -566,7 +573,9 @@ Page({
         })
         wx.showToast({ title: '已保存', icon: 'success' })
         this.applyProfile(next)
-        setTimeout(() => {
+        if (this._afterSaveTimer) clearTimeout(this._afterSaveTimer)
+        this._afterSaveTimer = setTimeout(() => {
+          this._afterSaveTimer = null
           const pages = getCurrentPages() || []
           if (pages.length > 1) {
             wx.navigateBack()

@@ -268,7 +268,7 @@
           bindtap="onMarketScaleSelect"
         >
           <view class="scale-card-title">中菜场</view>
-          <view class="scale-card-desc">小超市、连着几个门面</view>
+          <view class="scale-card-desc">普通超市、连着几个门面</view>
         </view>
         <view
           class="scale-card {{marketScaleHighlight === 'large' ? 'on' : ''}}"

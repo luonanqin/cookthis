@@ -1,40 +1,10 @@
 'use strict'
 
-const CATEGORY_ORDER = [
-  'meat',
-  'seafood',
-  'egg_dairy',
-  'tofu',
-  'leaf',
-  'root',
-  'fruit_veg',
-  'bean',
-  'mushroom',
-  'seasoning',
-  'other'
-]
-
-const CATEGORY_LABEL = {
-  meat: '肉类',
-  seafood: '水产',
-  egg_dairy: '蛋奶',
-  tofu: '豆制品',
-  leaf: '叶菜',
-  root: '根茎',
-  fruit_veg: '茄果',
-  bean: '豆类',
-  mushroom: '菌菇',
-  seasoning: '调味',
-  other: '其他'
-}
-
-/**
- * @param {string} category
- * @returns {string}
- */
-function categoryLabel(category) {
-  return CATEGORY_LABEL[category] || CATEGORY_LABEL.other
-}
+const {
+  CATEGORY_ORDER,
+  categoryLabel,
+  normalizeCategory
+} = require('./categoryTaxonomy.js')
 
 /**
  * 将 items 两两一行。
@@ -51,7 +21,7 @@ function pairRows(items) {
 }
 
 /**
- * 购买清单：按食材分类分组；不含「已有/主料/调味」标签逻辑。
+ * 购买清单：按中文食材分类分组；不含「已有/主料/调味」标签逻辑。
  * @param {{
  *   plan: object,
  *   categoryByName?: Record<string, string>
@@ -75,12 +45,12 @@ function buildShoppingList(input) {
     for (const dish of meal.dishes || []) {
       for (const name of dish.mainIngredients || []) {
         if (!name || byName.has(name)) continue
-        const category = categoryByName[name] || 'other'
+        const category = normalizeCategory(categoryByName[name], '其他')
         byName.set(name, { name, category })
       }
       for (const name of dish.seasonings || []) {
         if (!name || byName.has(name)) continue
-        const category = categoryByName[name] || 'seasoning'
+        const category = normalizeCategory(categoryByName[name], '调味')
         byName.set(name, { name, category })
       }
     }
@@ -88,9 +58,9 @@ function buildShoppingList(input) {
 
   const buckets = new Map()
   for (const item of byName.values()) {
-    const c = item.category || 'other'
+    const c = normalizeCategory(item.category, '其他')
     if (!buckets.has(c)) buckets.set(c, [])
-    buckets.get(c).push(item)
+    buckets.get(c).push({ name: item.name, category: c })
   }
 
   for (const items of buckets.values()) {
@@ -111,9 +81,10 @@ function buildShoppingList(input) {
   }
   for (const [category, items] of buckets.entries()) {
     if (!items.length) continue
+    const c = normalizeCategory(category, '其他')
     groups.push({
-      category,
-      label: categoryLabel(category),
+      category: c,
+      label: categoryLabel(c),
       items,
       rows: pairRows(items)
     })
@@ -136,5 +107,6 @@ module.exports = {
   pairRows,
   categoryLabel,
   CATEGORY_ORDER,
-  flattenShoppingList
+  flattenShoppingList,
+  normalizeCategory
 }

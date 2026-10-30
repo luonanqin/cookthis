@@ -12,8 +12,10 @@ const {
   buildAliasIndex,
   normalizeCityKey,
   applyShoppingDisplay,
+  expandCategoryByName,
   fitSecondaryNames
 } = require('../../utils/aliasMatch.js')
+const { normalizeCategory } = require('../../utils/categoryTaxonomy.js')
 const typeScale = require('../../utils/typeScale.js')
 const { shoppingAdSlots } = require('../../utils/ads.js')
 const { track } = require('../../utils/track.js')
@@ -70,7 +72,7 @@ function categoryByNameFromStorage() {
   const selected = (snap && snap.selected) || []
   const map = {}
   selected.forEach((x) => {
-    if (x && x.name) map[x.name] = x.category || 'other'
+    if (x && x.name) map[x.name] = normalizeCategory(x.category, '其他')
   })
   return map
 }
@@ -186,16 +188,18 @@ Page({
       (recommend.scene && recommend.scene.mealType) ||
       (selectedSnap.scene && selectedSnap.scene.mealType) ||
       'daily'
-    const categoryByName = categoryByNameFromStorage()
+    const categoryByNameRaw = categoryByNameFromStorage()
     let plan = pickPlan(recommend.plans, idx)
 
     const finish = (finalPlan, sourceMealType) => {
       try {
+        const user = getUser() || {}
+        const index = getAliasIndex()
+        // 菜谱口语名（排骨）↔ 已选通用名（猪肋排）靠别名补全 category
+        const categoryByName = expandCategoryByName(categoryByNameRaw, index)
         const built = finalPlan
           ? buildShoppingList({ plan: finalPlan, categoryByName })
           : { groups: [] }
-        const user = getUser() || {}
-        const index = getAliasIndex()
         const shelfOrder = loadShelfOrder(user.city)
         const labeled = applyShoppingDisplay(built.groups || [], {
           city: user.city,
@@ -205,7 +209,13 @@ Page({
         })
         const flatNames = flattenShoppingList({ groups: labeled }).map((x) => x.name)
         const checksMap = readJson(CHECKS_KEY) || {}
-        const key = shoppingCheckKey(this._requestId, idx, this._swapCount)
+        this._checksCity = user.city || ''
+        const key = shoppingCheckKey(
+          this._requestId,
+          idx,
+          this._swapCount,
+          this._checksCity
+        )
         const restored = checkedNamesFromMap(checksMap, key, flatNames)
         const checkedNames = {}
         restored.forEach((n) => {
@@ -293,7 +303,12 @@ Page({
 
   _persistChecks(groups) {
     const checksMap = readJson(CHECKS_KEY) || {}
-    const key = shoppingCheckKey(this._requestId, this._planIndex, this._swapCount)
+    const key = shoppingCheckKey(
+      this._requestId,
+      this._planIndex,
+      this._swapCount,
+      this._checksCity
+    )
     const names = []
     ;(groups || []).forEach((g) => {
       ;(g.items || []).forEach((it) => {
@@ -307,6 +322,10 @@ Page({
   noop() {},
 
   onUnload() {
+    if (this._recipeScrollTimer) {
+      clearTimeout(this._recipeScrollTimer)
+      this._recipeScrollTimer = null
+    }
     this._recipeScrollTop = 0
     this._recipeSheetScrolled = false
     this._recipeSheetOpenedAt = 0
@@ -324,7 +343,9 @@ Page({
     // 先置一个略不同的值，确保 scroll-view 能吃到恢复的 scrollTop
     const top = this._recipeScrollTop || 0
     this.setData({ showRecipeSheet: true, recipeScrollTop: top === 0 ? 0.01 : top - 0.01 })
-    setTimeout(() => {
+    if (this._recipeScrollTimer) clearTimeout(this._recipeScrollTimer)
+    this._recipeScrollTimer = setTimeout(() => {
+      this._recipeScrollTimer = null
       this.setData({ recipeScrollTop: top })
     }, 30)
   },

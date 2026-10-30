@@ -3,6 +3,7 @@ const cloud = require('wx-server-sdk')
 // Vendored copy: WeChat upload only packs this function dir (../_shared is unreliable).
 // Source of truth for tests: cloudfunctions/_shared/nickname.js — keep in sync when changing.
 const { buildDefaultNickname } = require('./nickname.js')
+const { pickDefaultAvatar } = require('./defaultAvatar.js')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
@@ -32,6 +33,18 @@ exports.main = async (event) => {
     })
     const userRes = await db.collection('users').where({ uid: row.uid }).limit(1).get()
     const user = userRes.data[0]
+    // 历史测试号等 avatarUrl 为空：按 uid 补写内置卡通头像（与新用户同一套）
+    let avatarUrl = user.avatarUrl || null
+    if (!avatarUrl) {
+      avatarUrl = pickDefaultAvatar(user.uid)
+      try {
+        await db.collection('users').doc(user._id).update({
+          data: { avatarUrl, updatedAt: now }
+        })
+      } catch (e) {
+        // 补写失败仍返回算出的路径，避免端上一直空白
+      }
+    }
     let members = []
     try {
       const mRes = await db.collection('members').where({ uid: row.uid }).limit(50).get()
@@ -50,7 +63,7 @@ exports.main = async (event) => {
       ok: true,
       uid: user.uid,
       nickname: user.nickname,
-      avatarUrl: user.avatarUrl || null,
+      avatarUrl,
       isNewUser: false,
       city: user.city || null,
       familyAvoids: user.familyAvoids || [],
@@ -78,13 +91,14 @@ exports.main = async (event) => {
 
   const uid = `u_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`
   let nickname = buildDefaultNickname(uid)
+  const avatarUrl = pickDefaultAvatar(uid)
   // 可选：查重 nickname，冲突则 buildDefaultNickname(uid, 5)
 
   await db.collection('users').add({
     data: {
       uid,
       nickname,
-      avatarUrl: null,
+      avatarUrl,
       phone: null,
       phoneVerified: false,
       city: null,
@@ -120,7 +134,7 @@ exports.main = async (event) => {
     ok: true,
     uid,
     nickname,
-    avatarUrl: null,
+    avatarUrl,
     isNewUser: true,
     city: null,
     familyAvoids: [],

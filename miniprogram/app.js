@@ -1,5 +1,5 @@
 const { ensureLogin } = require('./services/session.js')
-const { track } = require('./utils/track.js')
+const { track, flush } = require('./utils/track.js')
 const typeScale = require('./utils/typeScale.js')
 
 App({
@@ -28,5 +28,8 @@ App({
         console.error(err)
         wx.showToast({ title: '登录失败', icon: 'none' })
       })
+  },
+  onHide() {
+    flush()
   }
 })

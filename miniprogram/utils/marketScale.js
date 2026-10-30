@@ -128,6 +128,7 @@ module.exports = {
   effectiveFromChoice,
   labelForChoice,
   haversineMeters,
+  chosenAtToMs,
   shouldShowMarketScaleSheet,
   appendHistory,
   HISTORY_MAX,

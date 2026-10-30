@@ -1,14 +1,15 @@
 'use strict'
 
 /**
- * 清单已买勾选 storage key：同一推荐会话 + 方案序号 + 换一批代数。
- * 换一批后 swapCount 变化，旧勾选自动失效。
+ * 清单已买勾选 storage key：同一推荐会话 + 方案序号 + 换一批代数 + 城市。
+ * 换一批后 swapCount 变化，或「我的」换城后，旧勾选自动失效。
  */
-function shoppingCheckKey(requestId, planIndex, swapCount) {
+function shoppingCheckKey(requestId, planIndex, swapCount, city) {
   const rid = requestId || 'none'
   const idx = Number.isFinite(Number(planIndex)) ? Number(planIndex) : 0
   const swap = Number.isFinite(Number(swapCount)) ? Number(swapCount) : 0
-  return rid + ':' + idx + ':' + swap
+  const cityPart = String(city == null ? '' : city).trim() || 'none'
+  return rid + ':' + idx + ':' + swap + ':' + cityPart
 }
 
 /**

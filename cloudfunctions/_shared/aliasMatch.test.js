@@ -102,6 +102,21 @@ describe('aliasMatch', () => {
     assert.equal(fitSecondaryNames(['附名特别特别特别长放不下'], '鸡爪'), null)
   })
 
+  it('expandCategoryByName copies category across alias group', () => {
+    const { expandCategoryByName } = require('./aliasMatch.js')
+    const index = buildAliasIndex({
+      猪肋排: ['排骨', '肋排'],
+      三线肉: ['五花肉', '三层肉']
+    })
+    const out = expandCategoryByName(
+      { 猪肋排: '肉类', 三线肉: '肉类' },
+      index
+    )
+    assert.equal(out['排骨'], '肉类')
+    assert.equal(out['五花肉'], '肉类')
+    assert.equal(out['猪肋排'], '肉类')
+  })
+
   it('applyShoppingDisplay dedupes by checkKey and rewrites name', () => {
     const index = buildAliasIndex(ALIASES)
     const groups = [
