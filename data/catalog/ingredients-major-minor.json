@@ -1,0 +1,2336 @@
+{
+  "version": 2,
+  "description": "由 ingredients-by-category.json 重整：类型 → 大类(group) → 小类(children)；同义合并为 aliases；确认页只展示大类",
+  "sourceFile": "data/catalog/ingredients-by-category.json",
+  "notes": [
+    "role=self 为大类自身；part 为部位/品种；other 为未挂到已知大类的散项",
+    "displayOnConfirm=true 的大类可作为确认页展示项；children 供 implies / 推荐可用集",
+    "番茄含别名西红柿；葱含大小葱等见 aliases"
+  ],
+  "aliasMap": {
+    "西红柿": "番茄",
+    "邹皮椒": "皱皮椒",
+    "驺皮椒": "皱皮椒",
+    "藕": "莲藕",
+    "鸡脚": "鸡爪",
+    "菜花": "花菜",
+    "菜薹": "菜苔",
+    "西芹": "芹菜",
+    "水芹菜": "水芹",
+    "芥蓝": "芥兰",
+    "碗豆尖": "豌豆尖",
+    "红薯尖": "红薯叶",
+    "广东菜心": "菜心",
+    "黄芽菜": "大白菜",
+    "卷心菜": "包菜",
+    "上海青": "小白菜",
+    "红美人椒": "美人椒",
+    "芋艿": "芋头",
+    "毛芋艿": "芋头",
+    "槟榔芋": "芋头",
+    "荔浦芋": "芋头",
+    "香芋": "芋头",
+    "花生米": "花生",
+    "绿豆芽": "豆芽",
+    "黄豆芽": "豆芽",
+    "鸡枞菌": "鸡枞",
+    "豆腐干": "豆干",
+    "豆腐皮": "豆皮",
+    "北豆腐": "豆腐",
+    "南豆腐": "豆腐",
+    "嫩豆腐": "豆腐",
+    "内酯豆腐": "豆腐",
+    "大葱": "葱",
+    "小葱": "葱",
+    "青蒜": "蒜苗"
+  },
+  "totalGroups": 54,
+  "totalItems": 415,
+  "unplaced": [],
+  "categories": [
+    {
+      "id": "meat",
+      "name": "肉类",
+      "groupCount": 7,
+      "itemCount": 71,
+      "groups": [
+        {
+          "id": "pork",
+          "name": "猪肉",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "猪肉",
+              "role": "self"
+            },
+            {
+              "name": "五花肉",
+              "role": "part"
+            },
+            {
+              "name": "排骨",
+              "role": "part"
+            },
+            {
+              "name": "小排",
+              "role": "part"
+            },
+            {
+              "name": "肋排",
+              "role": "part"
+            },
+            {
+              "name": "肥膘",
+              "role": "part"
+            },
+            {
+              "name": "猪蹄",
+              "role": "part"
+            },
+            {
+              "name": "猪肚",
+              "role": "part"
+            },
+            {
+              "name": "猪肝",
+              "role": "part"
+            },
+            {
+              "name": "猪血",
+              "role": "part"
+            },
+            {
+              "name": "猪耳",
+              "role": "part"
+            },
+            {
+              "name": "肥肠",
+              "role": "part"
+            },
+            {
+              "name": "血旺",
+              "role": "part"
+            },
+            {
+              "name": "猪油",
+              "role": "part"
+            },
+            {
+              "name": "猪板油",
+              "role": "part"
+            },
+            {
+              "name": "油渣",
+              "role": "part"
+            },
+            {
+              "name": "培根",
+              "role": "part"
+            },
+            {
+              "name": "火腿",
+              "role": "part"
+            },
+            {
+              "name": "午餐肉",
+              "role": "part"
+            },
+            {
+              "name": "腊肉",
+              "role": "part"
+            },
+            {
+              "name": "熏肉",
+              "role": "part"
+            },
+            {
+              "name": "熏蹄",
+              "role": "part"
+            },
+            {
+              "name": "香肠",
+              "role": "part"
+            },
+            {
+              "name": "腊肠",
+              "role": "part"
+            },
+            {
+              "name": "红肠",
+              "role": "part"
+            },
+            {
+              "name": "酱肉",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "beef",
+          "name": "牛肉",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "牛肉",
+              "role": "self"
+            },
+            {
+              "name": "牛腩",
+              "role": "part"
+            },
+            {
+              "name": "牛腱",
+              "role": "part"
+            },
+            {
+              "name": "牛排",
+              "role": "part"
+            },
+            {
+              "name": "毛肚",
+              "role": "part"
+            },
+            {
+              "name": "牛骨髓",
+              "role": "part"
+            },
+            {
+              "name": "牛肉干",
+              "role": "part"
+            },
+            {
+              "name": "牦牛肉",
+              "role": "part"
+            },
+            {
+              "name": "牛百叶",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "lamb",
+          "name": "羊肉",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "羊肉",
+              "role": "self"
+            },
+            {
+              "name": "羊排",
+              "role": "part"
+            },
+            {
+              "name": "羊杂",
+              "role": "part"
+            },
+            {
+              "name": "羊肉卷",
+              "role": "part"
+            },
+            {
+              "name": "羊肉片",
+              "role": "part"
+            },
+            {
+              "name": "羊蝎子",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "chicken",
+          "name": "鸡肉",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "鸡肉",
+              "role": "self"
+            },
+            {
+              "name": "鸡胸",
+              "role": "part"
+            },
+            {
+              "name": "鸡腿",
+              "role": "part"
+            },
+            {
+              "name": "鸡翅",
+              "role": "part"
+            },
+            {
+              "name": "鸡爪",
+              "role": "part",
+              "aliases": [
+                "鸡脚"
+              ]
+            },
+            {
+              "name": "鸡架",
+              "role": "part"
+            },
+            {
+              "name": "鸡杂",
+              "role": "part"
+            },
+            {
+              "name": "鸡肝",
+              "role": "part"
+            },
+            {
+              "name": "鸡胗",
+              "role": "part"
+            },
+            {
+              "name": "童子鸡",
+              "role": "part"
+            },
+            {
+              "name": "老母鸡",
+              "role": "part"
+            },
+            {
+              "name": "烧鸡",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "duck",
+          "name": "鸭肉",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "鸭肉",
+              "role": "self"
+            },
+            {
+              "name": "鸭肠",
+              "role": "part"
+            },
+            {
+              "name": "鸭脖",
+              "role": "part"
+            },
+            {
+              "name": "鸭舌",
+              "role": "part"
+            },
+            {
+              "name": "鸭血",
+              "role": "part"
+            },
+            {
+              "name": "板鸭",
+              "role": "part"
+            },
+            {
+              "name": "酱鸭",
+              "role": "part"
+            },
+            {
+              "name": "盐水鸭",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "goose",
+          "name": "鹅肉",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "鹅肉",
+              "role": "self"
+            }
+          ]
+        },
+        {
+          "id": "other_meat",
+          "name": "其他禽畜",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "乳鸽",
+              "role": "part"
+            },
+            {
+              "name": "兔肉",
+              "role": "part"
+            },
+            {
+              "name": "驴肉",
+              "role": "part"
+            },
+            {
+              "name": "鹿肉",
+              "role": "part"
+            },
+            {
+              "name": "飞龙肉",
+              "role": "part"
+            },
+            {
+              "name": "牛蛙",
+              "role": "part"
+            },
+            {
+              "name": "田鸡",
+              "role": "part"
+            },
+            {
+              "name": "蚕蛹",
+              "role": "part"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "seafood",
+      "name": "水产",
+      "groupCount": 7,
+      "itemCount": 58,
+      "groups": [
+        {
+          "id": "fish",
+          "name": "鱼类",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "鱼",
+              "role": "part"
+            },
+            {
+              "name": "草鱼",
+              "role": "part"
+            },
+            {
+              "name": "鲤鱼",
+              "role": "part"
+            },
+            {
+              "name": "鲫鱼",
+              "role": "part"
+            },
+            {
+              "name": "黑鱼",
+              "role": "part"
+            },
+            {
+              "name": "鲈鱼",
+              "role": "part"
+            },
+            {
+              "name": "黄鱼",
+              "role": "part"
+            },
+            {
+              "name": "带鱼",
+              "role": "part"
+            },
+            {
+              "name": "鲅鱼",
+              "role": "part"
+            },
+            {
+              "name": "鲑鱼",
+              "role": "part"
+            },
+            {
+              "name": "鲮鱼",
+              "role": "part"
+            },
+            {
+              "name": "鮰鱼",
+              "role": "part"
+            },
+            {
+              "name": "刀鱼",
+              "role": "part"
+            },
+            {
+              "name": "白鱼",
+              "role": "part"
+            },
+            {
+              "name": "银鱼",
+              "role": "part"
+            },
+            {
+              "name": "面条鱼",
+              "role": "part"
+            },
+            {
+              "name": "江鱼",
+              "role": "part"
+            },
+            {
+              "name": "湟鱼",
+              "role": "part"
+            },
+            {
+              "name": "文昌鱼",
+              "role": "part"
+            },
+            {
+              "name": "武昌鱼",
+              "role": "part"
+            },
+            {
+              "name": "河豚",
+              "role": "part"
+            },
+            {
+              "name": "鱼头",
+              "role": "part"
+            },
+            {
+              "name": "鱼丸",
+              "role": "part"
+            },
+            {
+              "name": "鱼卷",
+              "role": "part"
+            },
+            {
+              "name": "鱼糕",
+              "role": "part"
+            },
+            {
+              "name": "鱼糜",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "shrimp",
+          "name": "虾类",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "大虾",
+              "role": "part"
+            },
+            {
+              "name": "对虾",
+              "role": "part"
+            },
+            {
+              "name": "河虾",
+              "role": "part"
+            },
+            {
+              "name": "虾仁",
+              "role": "part"
+            },
+            {
+              "name": "虾籽",
+              "role": "part"
+            },
+            {
+              "name": "基围虾",
+              "role": "part"
+            },
+            {
+              "name": "小龙虾",
+              "role": "part"
+            },
+            {
+              "name": "龙虾",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "crab",
+          "name": "蟹类",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "螃蟹",
+              "role": "part"
+            },
+            {
+              "name": "大闸蟹",
+              "role": "part"
+            },
+            {
+              "name": "梭子蟹",
+              "role": "part"
+            },
+            {
+              "name": "蟹黄",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "shell",
+          "name": "贝螺",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "花蛤",
+              "role": "part"
+            },
+            {
+              "name": "蛤蜊",
+              "role": "part"
+            },
+            {
+              "name": "蚬子",
+              "role": "part"
+            },
+            {
+              "name": "生蚝",
+              "role": "part"
+            },
+            {
+              "name": "海蛎子",
+              "role": "part"
+            },
+            {
+              "name": "鲍鱼",
+              "role": "part"
+            },
+            {
+              "name": "象拔蚌",
+              "role": "part"
+            },
+            {
+              "name": "田螺",
+              "role": "part"
+            },
+            {
+              "name": "泥螺",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "cephalopod",
+          "name": "软体",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "鱿鱼",
+              "role": "part"
+            },
+            {
+              "name": "墨鱼",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "seaweed",
+          "name": "藻类",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "海带",
+              "role": "part"
+            },
+            {
+              "name": "紫菜",
+              "role": "part"
+            },
+            {
+              "name": "裙带菜",
+              "role": "part"
+            },
+            {
+              "name": "海白菜",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "other_seafood",
+          "name": "其他水产",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "海鲜",
+              "role": "part"
+            },
+            {
+              "name": "海参",
+              "role": "part"
+            },
+            {
+              "name": "海胆",
+              "role": "part"
+            },
+            {
+              "name": "卤虫",
+              "role": "part"
+            },
+            {
+              "name": "土笋",
+              "role": "part"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "egg_dairy",
+      "name": "蛋奶",
+      "groupCount": 2,
+      "itemCount": 8,
+      "groups": [
+        {
+          "id": "egg",
+          "name": "蛋类",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "鸡蛋",
+              "role": "part"
+            },
+            {
+              "name": "咸蛋",
+              "role": "part"
+            },
+            {
+              "name": "皮蛋",
+              "role": "part"
+            },
+            {
+              "name": "糟蛋",
+              "role": "part"
+            },
+            {
+              "name": "鸭蛋",
+              "role": "part"
+            },
+            {
+              "name": "鹅蛋",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "dairy",
+          "name": "奶类",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "牛奶",
+              "role": "part"
+            },
+            {
+              "name": "酸奶",
+              "role": "part"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "leaf",
+      "name": "叶菜",
+      "groupCount": 10,
+      "itemCount": 68,
+      "groups": [
+        {
+          "id": "cabbage",
+          "name": "白菜类",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "白菜",
+              "role": "part"
+            },
+            {
+              "name": "大白菜",
+              "role": "part",
+              "aliases": [
+                "黄芽菜"
+              ]
+            },
+            {
+              "name": "小白菜",
+              "role": "part",
+              "aliases": [
+                "上海青"
+              ]
+            },
+            {
+              "name": "娃娃菜",
+              "role": "part"
+            },
+            {
+              "name": "包菜",
+              "role": "part",
+              "aliases": [
+                "卷心菜"
+              ]
+            },
+            {
+              "name": "紫甘蓝",
+              "role": "part"
+            },
+            {
+              "name": "白菜苔",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "greens",
+          "name": "青菜类",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "青菜",
+              "role": "part"
+            },
+            {
+              "name": "油菜",
+              "role": "part"
+            },
+            {
+              "name": "菜心",
+              "role": "part",
+              "aliases": [
+                "广东菜心"
+              ]
+            },
+            {
+              "name": "生菜",
+              "role": "part"
+            },
+            {
+              "name": "罗马生菜",
+              "role": "part"
+            },
+            {
+              "name": "油麦菜",
+              "role": "part"
+            },
+            {
+              "name": "空心菜",
+              "role": "part"
+            },
+            {
+              "name": "西洋菜",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "spinach_amaranth",
+          "name": "菠菜苋菜",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "菠菜",
+              "role": "part"
+            },
+            {
+              "name": "苋菜",
+              "role": "part"
+            },
+            {
+              "name": "红苋菜",
+              "role": "part"
+            },
+            {
+              "name": "甜菜叶",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "celery_fennel",
+          "name": "芹茴类",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "芹菜",
+              "role": "part",
+              "aliases": [
+                "西芹"
+              ]
+            },
+            {
+              "name": "水芹",
+              "role": "part",
+              "aliases": [
+                "水芹菜"
+              ]
+            },
+            {
+              "name": "茴香",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "lettuce_stem",
+          "name": "莴笋类",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "莴笋",
+              "role": "part"
+            },
+            {
+              "name": "莴苣",
+              "role": "part"
+            },
+            {
+              "name": "青笋",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "mustard",
+          "name": "芥菜类",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "芥菜",
+              "role": "part"
+            },
+            {
+              "name": "芥兰",
+              "role": "part",
+              "aliases": [
+                "芥蓝"
+              ]
+            },
+            {
+              "name": "雪里蕻",
+              "role": "part"
+            },
+            {
+              "name": "酸菜",
+              "role": "part"
+            },
+            {
+              "name": "冬菜",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "flower_veg",
+          "name": "花叶菜",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "花菜",
+              "role": "part",
+              "aliases": [
+                "菜花"
+              ]
+            },
+            {
+              "name": "西兰花",
+              "role": "part"
+            },
+            {
+              "name": "黄花菜",
+              "role": "part"
+            },
+            {
+              "name": "韭菜",
+              "role": "part"
+            },
+            {
+              "name": "韭黄",
+              "role": "part"
+            },
+            {
+              "name": "韭菜花",
+              "role": "part"
+            },
+            {
+              "name": "蒜苔",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "shoot_tip",
+          "name": "笋尖芽",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "笋",
+              "role": "part"
+            },
+            {
+              "name": "脆笋",
+              "role": "part"
+            },
+            {
+              "name": "芦笋",
+              "role": "part"
+            },
+            {
+              "name": "豌豆尖",
+              "role": "part",
+              "aliases": [
+                "碗豆尖"
+              ]
+            },
+            {
+              "name": "丝瓜尖",
+              "role": "part"
+            },
+            {
+              "name": "苦瓜尖",
+              "role": "part"
+            },
+            {
+              "name": "红薯叶",
+              "role": "part",
+              "aliases": [
+                "红薯尖"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "aromatic_leaf",
+          "name": "香辛叶",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "香菜",
+              "role": "part"
+            },
+            {
+              "name": "沙葱",
+              "role": "part"
+            },
+            {
+              "name": "折耳根",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "wild_other_leaf",
+          "name": "野菜其他",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "荠菜",
+              "role": "part"
+            },
+            {
+              "name": "马兰头",
+              "role": "part"
+            },
+            {
+              "name": "草头",
+              "role": "part"
+            },
+            {
+              "name": "苜蓿",
+              "role": "part"
+            },
+            {
+              "name": "苦菊",
+              "role": "part"
+            },
+            {
+              "name": "茼蒿",
+              "role": "part"
+            },
+            {
+              "name": "藜蒿",
+              "role": "part"
+            },
+            {
+              "name": "芦蒿",
+              "role": "part"
+            },
+            {
+              "name": "蕨菜",
+              "role": "part"
+            },
+            {
+              "name": "莼菜",
+              "role": "part"
+            },
+            {
+              "name": "菜苔",
+              "role": "part",
+              "aliases": [
+                "菜薹"
+              ]
+            },
+            {
+              "name": "芽菜",
+              "role": "part"
+            },
+            {
+              "name": "儿菜",
+              "role": "part"
+            },
+            {
+              "name": "黄芪菜",
+              "role": "part"
+            },
+            {
+              "name": "芝麻菜",
+              "role": "part"
+            },
+            {
+              "name": "枸杞叶",
+              "role": "part"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fruit_veg",
+      "name": "茄果瓜果",
+      "groupCount": 4,
+      "itemCount": 57,
+      "groups": [
+        {
+          "id": "tomato_eggplant",
+          "name": "番茄茄子",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "番茄",
+              "role": "part",
+              "aliases": [
+                "西红柿"
+              ]
+            },
+            {
+              "name": "茄子",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "pepper",
+          "name": "辣椒类",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "青椒",
+              "role": "part"
+            },
+            {
+              "name": "辣椒",
+              "role": "part"
+            },
+            {
+              "name": "尖椒",
+              "role": "part"
+            },
+            {
+              "name": "线椒",
+              "role": "part"
+            },
+            {
+              "name": "彩椒",
+              "role": "part"
+            },
+            {
+              "name": "杭椒",
+              "role": "part"
+            },
+            {
+              "name": "朝天椒",
+              "role": "part"
+            },
+            {
+              "name": "皱皮椒",
+              "role": "part",
+              "aliases": [
+                "邹皮椒",
+                "驺皮椒"
+              ]
+            },
+            {
+              "name": "美人椒",
+              "role": "part",
+              "aliases": [
+                "红美人椒"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "gourd",
+          "name": "瓜类",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "黄瓜",
+              "role": "part"
+            },
+            {
+              "name": "丝瓜",
+              "role": "part"
+            },
+            {
+              "name": "冬瓜",
+              "role": "part"
+            },
+            {
+              "name": "南瓜",
+              "role": "part"
+            },
+            {
+              "name": "苦瓜",
+              "role": "part"
+            },
+            {
+              "name": "茭白",
+              "role": "part"
+            },
+            {
+              "name": "菱角",
+              "role": "part"
+            },
+            {
+              "name": "玉米",
+              "role": "part"
+            },
+            {
+              "name": "玉米笋",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "fruit",
+          "name": "水果",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "苹果",
+              "role": "part"
+            },
+            {
+              "name": "梨",
+              "role": "part"
+            },
+            {
+              "name": "雪花梨",
+              "role": "part"
+            },
+            {
+              "name": "桃",
+              "role": "part"
+            },
+            {
+              "name": "黄桃",
+              "role": "part"
+            },
+            {
+              "name": "水蜜桃",
+              "role": "part"
+            },
+            {
+              "name": "樱桃",
+              "role": "part"
+            },
+            {
+              "name": "草莓",
+              "role": "part"
+            },
+            {
+              "name": "葡萄",
+              "role": "part"
+            },
+            {
+              "name": "葡萄干",
+              "role": "part"
+            },
+            {
+              "name": "西瓜",
+              "role": "part"
+            },
+            {
+              "name": "甜瓜",
+              "role": "part"
+            },
+            {
+              "name": "蜜瓜",
+              "role": "part"
+            },
+            {
+              "name": "香蕉",
+              "role": "part"
+            },
+            {
+              "name": "芒果",
+              "role": "part"
+            },
+            {
+              "name": "荔枝",
+              "role": "part"
+            },
+            {
+              "name": "龙眼",
+              "role": "part"
+            },
+            {
+              "name": "菠萝",
+              "role": "part"
+            },
+            {
+              "name": "猕猴桃",
+              "role": "part"
+            },
+            {
+              "name": "柚子",
+              "role": "part"
+            },
+            {
+              "name": "脐橙",
+              "role": "part"
+            },
+            {
+              "name": "芦柑",
+              "role": "part"
+            },
+            {
+              "name": "蜜桔",
+              "role": "part"
+            },
+            {
+              "name": "金桔",
+              "role": "part"
+            },
+            {
+              "name": "大枣",
+              "role": "part"
+            },
+            {
+              "name": "圆枣",
+              "role": "part"
+            },
+            {
+              "name": "冬枣",
+              "role": "part"
+            },
+            {
+              "name": "柿子",
+              "role": "part"
+            },
+            {
+              "name": "柿饼",
+              "role": "part"
+            },
+            {
+              "name": "山楂",
+              "role": "part"
+            },
+            {
+              "name": "杨梅",
+              "role": "part"
+            },
+            {
+              "name": "石榴",
+              "role": "part"
+            },
+            {
+              "name": "椰子",
+              "role": "part"
+            },
+            {
+              "name": "沙棘",
+              "role": "part"
+            },
+            {
+              "name": "枸杞",
+              "role": "part"
+            },
+            {
+              "name": "罗汉果",
+              "role": "part"
+            },
+            {
+              "name": "酸嘢",
+              "role": "part"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "root",
+      "name": "根茎坚果",
+      "groupCount": 5,
+      "itemCount": 33,
+      "groups": [
+        {
+          "id": "potato",
+          "name": "薯芋类",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "土豆",
+              "role": "part"
+            },
+            {
+              "name": "小土豆",
+              "role": "part"
+            },
+            {
+              "name": "红薯",
+              "role": "part"
+            },
+            {
+              "name": "地瓜",
+              "role": "part"
+            },
+            {
+              "name": "芋头",
+              "role": "part",
+              "aliases": [
+                "槟榔芋",
+                "毛芋艿",
+                "芋艿",
+                "荔浦芋",
+                "香芋"
+              ]
+            },
+            {
+              "name": "魔芋",
+              "role": "part"
+            },
+            {
+              "name": "茨菰",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "root_veg",
+          "name": "根菜类",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "萝卜",
+              "role": "part"
+            },
+            {
+              "name": "白萝卜",
+              "role": "part"
+            },
+            {
+              "name": "胡萝卜",
+              "role": "part"
+            },
+            {
+              "name": "洋葱",
+              "role": "part"
+            },
+            {
+              "name": "莲藕",
+              "role": "part",
+              "aliases": [
+                "藕"
+              ]
+            },
+            {
+              "name": "藕尖",
+              "role": "part"
+            },
+            {
+              "name": "藕粉",
+              "role": "part"
+            },
+            {
+              "name": "山药",
+              "role": "part"
+            },
+            {
+              "name": "银条",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "shoot",
+          "name": "笋类",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "冬笋",
+              "role": "part"
+            },
+            {
+              "name": "春笋",
+              "role": "part"
+            },
+            {
+              "name": "竹笋",
+              "role": "part"
+            },
+            {
+              "name": "笋干",
+              "role": "part"
+            },
+            {
+              "name": "酸笋",
+              "role": "part"
+            },
+            {
+              "name": "玉兰片",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "nut_seed",
+          "name": "坚果籽",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "花生",
+              "role": "part",
+              "aliases": [
+                "花生米"
+              ]
+            },
+            {
+              "name": "板栗",
+              "role": "part"
+            },
+            {
+              "name": "栗子",
+              "role": "part"
+            },
+            {
+              "name": "核桃",
+              "role": "part"
+            },
+            {
+              "name": "核桃仁",
+              "role": "part"
+            },
+            {
+              "name": "松仁",
+              "role": "part"
+            },
+            {
+              "name": "巴旦木",
+              "role": "part"
+            },
+            {
+              "name": "莲子",
+              "role": "part"
+            },
+            {
+              "name": "百合",
+              "role": "part"
+            },
+            {
+              "name": "锁阳",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "other_root",
+          "name": "其他",
+          "displayOnConfirm": false,
+          "children": [
+            {
+              "name": "萝卜干",
+              "role": "other"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bean",
+      "name": "豆类",
+      "groupCount": 2,
+      "itemCount": 12,
+      "groups": [
+        {
+          "id": "fresh_bean",
+          "name": "鲜豆",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "四季豆",
+              "role": "part"
+            },
+            {
+              "name": "豆角",
+              "role": "part"
+            },
+            {
+              "name": "豇豆",
+              "role": "part"
+            },
+            {
+              "name": "扁豆",
+              "role": "part"
+            },
+            {
+              "name": "荷兰豆",
+              "role": "part"
+            },
+            {
+              "name": "蜜豆",
+              "role": "part"
+            },
+            {
+              "name": "毛豆",
+              "role": "part"
+            },
+            {
+              "name": "蚕豆",
+              "role": "part"
+            },
+            {
+              "name": "豌豆",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "dry_bean_sprout",
+          "name": "干豆芽",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "黄豆",
+              "role": "part"
+            },
+            {
+              "name": "红豆",
+              "role": "part"
+            },
+            {
+              "name": "豆芽",
+              "role": "part",
+              "aliases": [
+                "绿豆芽",
+                "黄豆芽"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mushroom",
+      "name": "菌菇",
+      "groupCount": 3,
+      "itemCount": 22,
+      "groups": [
+        {
+          "id": "common_mushroom",
+          "name": "常见菌菇",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "香菇",
+              "role": "part"
+            },
+            {
+              "name": "平菇",
+              "role": "part"
+            },
+            {
+              "name": "金针菇",
+              "role": "part"
+            },
+            {
+              "name": "杏鲍菇",
+              "role": "part"
+            },
+            {
+              "name": "口蘑",
+              "role": "part"
+            },
+            {
+              "name": "蘑菇",
+              "role": "part"
+            },
+            {
+              "name": "茶树菇",
+              "role": "part"
+            },
+            {
+              "name": "鹿茸菇",
+              "role": "part"
+            },
+            {
+              "name": "猴头菇",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "wood_ear",
+          "name": "木耳银耳",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "木耳",
+              "role": "part"
+            },
+            {
+              "name": "石耳",
+              "role": "part"
+            },
+            {
+              "name": "银耳",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "wild_mushroom",
+          "name": "野生菌",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "松茸",
+              "role": "part"
+            },
+            {
+              "name": "榛蘑",
+              "role": "part"
+            },
+            {
+              "name": "竹荪",
+              "role": "part"
+            },
+            {
+              "name": "鸡枞",
+              "role": "part",
+              "aliases": [
+                "鸡枞菌"
+              ]
+            },
+            {
+              "name": "奶浆菌",
+              "role": "part"
+            },
+            {
+              "name": "牛肝菌",
+              "role": "part"
+            },
+            {
+              "name": "羊肚菌",
+              "role": "part"
+            },
+            {
+              "name": "见手青",
+              "role": "part"
+            },
+            {
+              "name": "野生菌",
+              "role": "self"
+            },
+            {
+              "name": "茨菇",
+              "role": "part"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tofu",
+      "name": "豆制品",
+      "groupCount": 3,
+      "itemCount": 20,
+      "groups": [
+        {
+          "id": "tofu",
+          "name": "豆腐",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "豆腐",
+              "role": "self",
+              "aliases": [
+                "内酯豆腐",
+                "北豆腐",
+                "南豆腐",
+                "嫩豆腐"
+              ]
+            },
+            {
+              "name": "冻豆腐",
+              "role": "part"
+            },
+            {
+              "name": "油豆腐",
+              "role": "part"
+            },
+            {
+              "name": "臭豆腐",
+              "role": "part"
+            },
+            {
+              "name": "豆腐圆",
+              "role": "part"
+            },
+            {
+              "name": "奶豆腐",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "tofu_skin",
+          "name": "豆皮豆干",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "豆干",
+              "role": "part",
+              "aliases": [
+                "豆腐干"
+              ]
+            },
+            {
+              "name": "香干",
+              "role": "part"
+            },
+            {
+              "name": "豆皮",
+              "role": "part",
+              "aliases": [
+                "豆腐皮"
+              ]
+            },
+            {
+              "name": "千张",
+              "role": "part"
+            },
+            {
+              "name": "百叶",
+              "role": "part"
+            },
+            {
+              "name": "腐竹",
+              "role": "part"
+            },
+            {
+              "name": "豆参",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "gluten_mock",
+          "name": "面筋素食",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "面筋",
+              "role": "part"
+            },
+            {
+              "name": "油面筋",
+              "role": "part"
+            },
+            {
+              "name": "烤麸",
+              "role": "part"
+            },
+            {
+              "name": "素鸡",
+              "role": "part"
+            },
+            {
+              "name": "素鸭",
+              "role": "part"
+            },
+            {
+              "name": "素鹅",
+              "role": "part"
+            },
+            {
+              "name": "腐乳",
+              "role": "part"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "staple",
+      "name": "主食粉面",
+      "groupCount": 6,
+      "itemCount": 37,
+      "groups": [
+        {
+          "id": "rice_grain",
+          "name": "米粮",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "大米",
+              "role": "part"
+            },
+            {
+              "name": "糯米",
+              "role": "part"
+            },
+            {
+              "name": "小米",
+              "role": "part"
+            },
+            {
+              "name": "糜米",
+              "role": "part"
+            },
+            {
+              "name": "青稞",
+              "role": "part"
+            },
+            {
+              "name": "杂粮",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "noodle",
+          "name": "面条",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "挂面",
+              "role": "part"
+            },
+            {
+              "name": "拉面",
+              "role": "part"
+            },
+            {
+              "name": "手擀面",
+              "role": "part"
+            },
+            {
+              "name": "刀削面",
+              "role": "part"
+            },
+            {
+              "name": "烩面",
+              "role": "part"
+            },
+            {
+              "name": "裤带面",
+              "role": "part"
+            },
+            {
+              "name": "荞麦面",
+              "role": "part"
+            },
+            {
+              "name": "青稞面",
+              "role": "part"
+            },
+            {
+              "name": "宫面",
+              "role": "part"
+            },
+            {
+              "name": "面线",
+              "role": "part"
+            },
+            {
+              "name": "饺子皮",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "rice_noodle",
+          "name": "米粉粉丝",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "米粉",
+              "role": "part"
+            },
+            {
+              "name": "米线",
+              "role": "part"
+            },
+            {
+              "name": "粉丝",
+              "role": "part"
+            },
+            {
+              "name": "粉条",
+              "role": "part"
+            },
+            {
+              "name": "宽粉",
+              "role": "part"
+            },
+            {
+              "name": "陈村粉",
+              "role": "part"
+            },
+            {
+              "name": "饵丝",
+              "role": "part"
+            },
+            {
+              "name": "青团粉",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "bread_pastry",
+          "name": "面点",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "面粉",
+              "role": "part"
+            },
+            {
+              "name": "馍",
+              "role": "part"
+            },
+            {
+              "name": "白吉馍",
+              "role": "part"
+            },
+            {
+              "name": "烧饼",
+              "role": "part"
+            },
+            {
+              "name": "馕",
+              "role": "part"
+            },
+            {
+              "name": "列巴",
+              "role": "part"
+            },
+            {
+              "name": "麻糖",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "jelly",
+          "name": "凉皮凉粉",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "凉皮",
+              "role": "part"
+            },
+            {
+              "name": "酿皮",
+              "role": "part"
+            },
+            {
+              "name": "凉粉",
+              "role": "part"
+            },
+            {
+              "name": "莜面",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "other_staple",
+          "name": "其他",
+          "displayOnConfirm": false,
+          "children": [
+            {
+              "name": "黑芝麻",
+              "role": "other"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "seasoning",
+      "name": "调味香辛",
+      "groupCount": 5,
+      "itemCount": 29,
+      "groups": [
+        {
+          "id": "allium",
+          "name": "葱姜蒜",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "葱",
+              "role": "part",
+              "aliases": [
+                "大葱",
+                "小葱"
+              ]
+            },
+            {
+              "name": "姜",
+              "role": "part"
+            },
+            {
+              "name": "蒜",
+              "role": "part"
+            },
+            {
+              "name": "蒜苗",
+              "role": "part",
+              "aliases": [
+                "青蒜"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "basic",
+          "name": "基础调味",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "盐",
+              "role": "part"
+            },
+            {
+              "name": "糖",
+              "role": "part"
+            },
+            {
+              "name": "醋",
+              "role": "part"
+            },
+            {
+              "name": "陈醋",
+              "role": "part"
+            },
+            {
+              "name": "酱油",
+              "role": "part"
+            },
+            {
+              "name": "料酒",
+              "role": "part"
+            },
+            {
+              "name": "香油",
+              "role": "part"
+            },
+            {
+              "name": "淀粉",
+              "role": "part"
+            },
+            {
+              "name": "蚝油",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "spicy",
+          "name": "辛香辣",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "胡椒",
+              "role": "part"
+            },
+            {
+              "name": "花椒",
+              "role": "part"
+            },
+            {
+              "name": "青花椒",
+              "role": "part"
+            },
+            {
+              "name": "干辣椒",
+              "role": "part"
+            },
+            {
+              "name": "剁椒",
+              "role": "part"
+            },
+            {
+              "name": "地椒",
+              "role": "part"
+            },
+            {
+              "name": "红油",
+              "role": "part"
+            },
+            {
+              "name": "豆瓣酱",
+              "role": "part"
+            },
+            {
+              "name": "郫县豆瓣",
+              "role": "part"
+            },
+            {
+              "name": "麻辣烫底料",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "sauce_other",
+          "name": "酱料其他",
+          "displayOnConfirm": true,
+          "children": [
+            {
+              "name": "甜面酱",
+              "role": "part"
+            },
+            {
+              "name": "芝麻酱",
+              "role": "part"
+            },
+            {
+              "name": "沙茶酱",
+              "role": "part"
+            },
+            {
+              "name": "酥油",
+              "role": "part"
+            },
+            {
+              "name": "陈皮",
+              "role": "part"
+            }
+          ]
+        },
+        {
+          "id": "other_seasoning",
+          "name": "其他",
+          "displayOnConfirm": false,
+          "children": [
+            {
+              "name": "酸汤",
+              "role": "other"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "avoidVocab": [
+    {
+      "id": "pork",
+      "label": "猪肉类"
+    },
+    {
+      "id": "seafood",
+      "label": "海鲜"
+    },
+    {
+      "id": "offal",
+      "label": "内脏"
+    },
+    {
+      "id": "coriander",
+      "label": "香菜"
+    },
+    {
+      "id": "peanut",
+      "label": "花生"
+    },
+    {
+      "id": "dairy",
+      "label": "乳制品"
+    }
+  ],
+  "avoidMembers": {
+    "pork": [
+      "猪肉",
+      "猪肋排",
+      "三线肉",
+      "腊肠",
+      "猪大肠",
+      "猪红",
+      "酱肉",
+      "腊肉",
+      "牛肉",
+      "熏肉",
+      "红肠",
+      "猪爪",
+      "火腿",
+      "黄喉"
+    ],
+    "seafood": [
+      "虾仁",
+      "带鱼",
+      "鱿鱼",
+      "沙甲",
+      "鲈鱼",
+      "草鱼",
+      "大闸蟹",
+      "河虾",
+      "鲮鱼",
+      "象拔蚌",
+      "小龙虾",
+      "鱼糕",
+      "武昌鱼",
+      "鱼头",
+      "刀鱼",
+      "蟹黄",
+      "银鱼",
+      "螃蟹",
+      "河豚",
+      "虾",
+      "梭子蟹",
+      "鲤鱼",
+      "海参",
+      "海胆",
+      "鲍鱼",
+      "生蚝",
+      "蚬子",
+      "白鱼",
+      "鱼",
+      "黄鱼",
+      "泥螺",
+      "鱼丸",
+      "海鲜",
+      "虾籽",
+      "土笋",
+      "文昌鱼",
+      "鱼卷",
+      "鲅鱼",
+      "面条鱼",
+      "鮰鱼",
+      "鱼糜",
+      "田螺",
+      "龙虾",
+      "酸汤",
+      "鲑鱼",
+      "湟鱼",
+      "卤虫"
+    ],
+    "offal": [],
+    "coriander": [],
+    "peanut": [],
+    "dairy": []
+  }
+}
