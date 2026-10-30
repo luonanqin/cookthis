@@ -1,0 +1,2 @@
+{"uid":"u_muwyny8rrn2eie","logId":"log_fix_old_egg_soup","date":"2026-09-28","meal":"dinner","dishNames":["蛋花汤"],"ingredientNames":["鸡蛋"],"source":"manual","recommendationId":null,"requestId":null,"createdAt":{"$date":"2026-09-28T12:00:00.000Z"}}
+{"uid":"u_muwyny8rrn2eie","logId":"log_fix_old_celery","date":"2026-09-29","meal":"dinner","dishNames":["芹菜炒胡萝卜"],"ingredientNames":["芹菜","胡萝卜"],"source":"manual","recommendationId":null,"requestId":null,"createdAt":{"$date":"2026-09-29T12:00:00.000Z"}}

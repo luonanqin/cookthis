@@ -7,3 +7,12 @@ miniprogram_npm/
 project.private.config.json
 
 .venv/
+__pycache__/
+*.pyc
+.cloudbase/
+export/
+tools/**/screenshots_inbox/
+tools/**/result/
+tools/**/shots/
+tools/meituan-automator/Untitled
+data/audits.json

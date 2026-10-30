@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "下厨房食材热门度",
+  "version": "1.4.3",
+  "description": "按全量食材采集下厨房当前页做过人数与菜谱名，并抽取菜名中的食材",
+  "permissions": ["storage", "downloads", "tabs", "activeTab"],
+  "host_permissions": [
+    "https://mbdbj.xiachufang.com/*",
+    "https://www.xiachufang.com/*",
+    "http://127.0.0.1:18765/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "下厨房食材热门度",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://mbdbj.xiachufang.com/*",
+        "https://www.xiachufang.com/auth/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["data/ingredients.json"],
+      "matches": ["https://mbdbj.xiachufang.com/*"]
+    }
+  ]
+}

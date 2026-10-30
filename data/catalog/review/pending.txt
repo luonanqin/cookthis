@@ -1,0 +1,10 @@
+# 自动生成：各城清洗后货架上 len≥3 的名（<3 不进本表）
+# 已在 reject / accept / segment-hints（原串或拆出的段）里标记过的不再列出
+# 已在 ingredients-all 且字数≤3、或 builtin/别名 的整名也不列出
+# 冻结下次不出现：r→reject 或 a→accept；s= 拆开后原串离开货架即消失
+# 标注在「食材名」后、Tab 前：
+#   名 r\t城/类            → 不要
+#   名 a\t城/类            → 整段保留为食材
+#   名 s?=… / 改成 s=…     → 取出食材（未确认 / 已确认）
+# 只刷新本表：.venv/bin/python pending_review.py --min-len N [--max-len N]
+# 标完：.venv/bin/python finish_review.py

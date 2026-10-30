@@ -1,0 +1,6 @@
+screenshots/
+screenshots_inbox/
+.venv/
+__pycache__/
+*.pyc
+output/

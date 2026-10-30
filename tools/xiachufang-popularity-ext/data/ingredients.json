@@ -1,0 +1,8272 @@
+{
+  "version": 3,
+  "source": "data/catalog/ingredients-all.json",
+  "categorySource": "data/catalog/ingredients-all-by-category.json",
+  "total": 1192,
+  "extractNote": "extractLexicon 不含「调味」分类",
+  "items": [
+    {
+      "name": "三文鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "三月茄",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "三线肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "三黄鸡",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "上海青",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "东北酸菜丝",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "丝瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "丸子",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "乌骨鸡",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "乌鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "乌鸡",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "乌鸡卷",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "乌鸡蛋",
+      "categories": [
+        "蛋奶"
+      ]
+    },
+    {
+      "name": "九层塔",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "九节虾",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "乳鸽",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "二刀肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "二荆条",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "云丝",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "云南小瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "五花肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "五香干",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "五香豆干",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "五香豆皮",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "亲亲肠",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "仔姜",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "仔鸡",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "仔鸭肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "付子瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "仿蟹柳",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "佛手瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "儿菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "兔子",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "兔子肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "兔肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "八爪鱼",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "公鸡",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "内酯豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "冬枣",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "冬瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "冬笋",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "冬菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "凉皮",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "凉粉",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "凉薯",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "凤爪",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "刀削面",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "刀豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "刀鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "列巴",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "剁椒",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "剁椒酱",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "前夹肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "前腿肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "剥皮鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "包心鱼丸",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "包心鱼卷",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "包菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "北极虾",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "北豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "千叶豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "千层肚",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "千张",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "千张丝",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "千张结",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "千页豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "午餐肉",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "南瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "南瓜尖",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "卤水豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "卷心菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "卷窝菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "厚千张",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "厚豆干",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "厚豆皮",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "厚豆腐皮",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "发鱿鱼",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "口蘑",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "叫头",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "叶生菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "吊龙",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "后腿肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "咸蛋",
+      "categories": [
+        "蛋奶"
+      ]
+    },
+    {
+      "name": "咸蛋黄",
+      "categories": [
+        "蛋奶"
+      ]
+    },
+    {
+      "name": "咸鸭蛋",
+      "categories": [
+        "蛋奶"
+      ]
+    },
+    {
+      "name": "响铃卷",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "嘎鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "四季豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "圆包菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "圆嫩南瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "圆彩椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "圆枣",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "圆椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "圆白菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "圆细面",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "圆茄子",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "圆青椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "土丝瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "土笋",
+      "categories": [
+        "河鲜"
+      ]
+    },
+    {
+      "name": "土豆",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "土韭菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "土鸡",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "土鸡母",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "土鸭",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "圣女果",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "地椒",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "地瓜",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "地菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "基围虾",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "墨鱼丸",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "墨鱼仔",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "墨鱼干",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "多宝鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "大头蒜",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "大头虾",
+      "categories": [
+        "河鲜"
+      ]
+    },
+    {
+      "name": "大宽面",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "大带子",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "大枣",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "大白菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "大米",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "大芥蓝",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "大葱",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "大蒜",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "大蒜叶",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "大蒜瓣",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "大蒜粒",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "大蛤蛎",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "大豆泡",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "大闸蟹",
+      "categories": [
+        "河鲜"
+      ]
+    },
+    {
+      "name": "大鸡腿",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "大鹅",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "大黄鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "太子蟹",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "奶白菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "奶豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "姜",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "娃娃菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "嫩仔姜",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "嫩南瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "嫩姜",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "嫩子姜",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "嫩蒜苗",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "嫩豆干",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "嫩豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "子姜",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "宽扁豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "宽粉",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "宽面条",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "对虾",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "小乳瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "小娃娃菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "小棠菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "小油菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "小白菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "小章鱼",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "小米",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "小米椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "小米辣",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "小米饼",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "小芥蓝",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "小茴香菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "小葱",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "小里脊",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "小银鲳鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "小青菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "小青龙",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "小鸡腿",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "小麦粉",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "小麦芹",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "小黄鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "小龙虾",
+      "categories": [
+        "河鲜"
+      ]
+    },
+    {
+      "name": "小龙虾尾",
+      "categories": [
+        "河鲜"
+      ]
+    },
+    {
+      "name": "山楂",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "山药",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "巴旦木",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "巴沙鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "帝王蟹",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "带鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "干冬菇",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "干姬松茸",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "干油豆皮",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "干海带丝",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "干腐竹",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "干花生",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "干茶树菇",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "干葱仔",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "干葱头",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "干虾仁",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "干虾皮",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "干豆棍",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "干豆皮",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "干豆皮丝",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "干豆筋棍",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "干豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "干豆腐丝",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "干豆腐结",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "干贝",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "干贝柱",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "干贡菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "干辣椒",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "干香菇",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "干鱿鱼",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "干黄花菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "平包菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "平菇",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "年糕",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "广味腊肠",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "扁豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "扇贝",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "扇骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "手擀粉",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "手擀面",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "扒皮鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "抄手皮",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "折耳根",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "折耳根叶",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "拉皮",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "拉面",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "挂面",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "排骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "撒尿丸子",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "撒尿牛丸",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "散花菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "整鸭",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "文哈",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "文昌鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "文昌鸡",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "文蛤",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "斑节虾",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "料酒",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "方竹笋",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "无筋豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "无筋豆角",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "无骨鸡爪",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "无骨鸭掌",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "日本豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "旱黄瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "明虾",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "春笋",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "春菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "月牙骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "朝天椒",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "木耳",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "木耳菜",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "杏鲍菇",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "杨梅",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "杭椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "杭白菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "松仁",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "松花皮蛋",
+      "categories": [
+        "蛋奶"
+      ]
+    },
+    {
+      "name": "松花菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "松花蛋",
+      "categories": [
+        "蛋奶"
+      ]
+    },
+    {
+      "name": "松茸菌",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "板栗",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "板栗仁",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "板栗肉",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "板蟹",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "板鸭",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "枣构杞",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "枸杞",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "枸杞叶",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "柚子",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "柠檬叶",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "柿子",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "柿子椒",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "柿饼",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "格子豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "桂皮",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "桂花肠",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "桂花鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "桂鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "桃",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "梅头肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "梅干菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "梅条肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "梅花肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "梨",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "梭子蟹",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "梭边鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "棒菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "棒骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "椰子",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "榛蘑",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "榴莲蜜薯",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "槟榔芋",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "樱桃",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "樱桃萝卜",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "橄榄豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "欧芹",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "武昌鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "母鸡",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "毛山药",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "毛肚",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "毛葱头",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "毛蛤蜊",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "毛豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "毛豆米",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "毛豆粒",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "毛豆角",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "水发海带",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "水发牛筋",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "水发牛蹄筋",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "水发羊筋",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "水晶包",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "水果玉米",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "水果萝卜",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "水果黄瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "水瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "水笋",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "水芹菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "水蜜桃",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "水豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "江团",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "江团鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "沙姜",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "沙拉菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "沙棘",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "沙甲",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "沙茶酱",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "沙葱",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "河虾",
+      "categories": [
+        "河鲜"
+      ]
+    },
+    {
+      "name": "河豚",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "河鲈鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "油炸干子",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "油菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "油菜心",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "油菜苔",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "油豆泡",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "油豆皮",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "油豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "油豆腐泡",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "油豆角",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "油辣椒",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "油面筋",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "油麦菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "泡小米辣",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "泡泡豆干",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "泡灯笼椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "波士顿龙虾",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "泥螺",
+      "categories": [
+        "河鲜"
+      ]
+    },
+    {
+      "name": "泥鳅",
+      "categories": [
+        "河鲜"
+      ]
+    },
+    {
+      "name": "洋姜",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "洋葱",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "海参",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "海带",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "海带丝",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "海带头",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "海带结",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "海带芽",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "海带苗",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "海白菜",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "海白虾",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "海米",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "海胆",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "海虹",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "海虾",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "海虾仁",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "海蛎子",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "海螺",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "海鲈鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "海鲜菇",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "海鸭蛋",
+      "categories": [
+        "蛋奶"
+      ]
+    },
+    {
+      "name": "淀粉",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "淮山药",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "清水笋",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "清江鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "清瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "湿花生",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "湿豆皮",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "澳龙",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "濑尿虾",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "火箭鱿",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "火箭鱿鱼",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "火腿",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "火锅丸子",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "火锅刀削面",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "火锅年糕",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "火锅笋尖",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "火锅裙带菜",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "火锅豆皮",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "火锅豆腐",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "火锅香油",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "火锅魔芋",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "火锅鸭血",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "炸响铃",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "烟熏豆干",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "烟熏豆腐干",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "烟薯",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "烤麸",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "烧饼",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "烩面",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "熏猪蹄",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "熏肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "熏蹄",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "熟棱角",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "熟芝麻",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "燕饺",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "牛上脑",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛前腿肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛吊龙",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛大骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛奶",
+      "categories": [
+        "蛋奶"
+      ]
+    },
+    {
+      "name": "牛嫩肩",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛尾",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛尾骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛心菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "牛排",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛排骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛杆菌",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "牛板腱",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛柳",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛棒骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛百叶",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "牛皮豆干",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "牛眼肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛窝骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛筋",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛筋面",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "牛筒骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛肉丸",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "牛肉卷",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "牛肉干",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛肉肠",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "牛肋排",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛肋条",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛肚",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "牛肝菌",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "牛胸油",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛胸肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛脑",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "牛腩",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛腰",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "牛腱子",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛腱肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛腿肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛臀肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛蛙",
+      "categories": [
+        "河鲜"
+      ]
+    },
+    {
+      "name": "牛蝎子",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛蹄筋",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛里脊",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛霖肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛骨髓",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牛黄喉",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "牡蛎肉",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "牦牛牛肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "牦牛肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "独头蒜",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "独蒜",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "猕猴桃",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "猪二刀",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪前夹肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪前小排",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪前排",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪前肘",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪前肘子",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪前腿肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪前膈肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪后肘子",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪后腿",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪后蹄",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪大排",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪大肠",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "猪大骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪小排",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪小肚",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "猪尾巴",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪尾骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪展肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪心",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "猪心管",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "猪扇骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪排骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪梅花",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪棒子骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪棒骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪爪",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪牙梗",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪瘦肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪皮",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪筒",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪筒骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪红",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "猪耳朵",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "猪肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪肉卷",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "猪肉肠",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "猪肋排",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪肘",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪肘子",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪肚",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "猪肝",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "猪肠",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "猪肺",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "猪脊骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪脑",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "猪脑花",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "猪脚",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪腰",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "猪腰子",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "猪腱子肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪腿肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪舌",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "猪舌头",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "猪血",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "猪蹄",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪软骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪里脊",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪里脊肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪颈肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪颈骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猪黄喉",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "猪龙骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "猫耳朵面",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "猫耳面",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "玉兰片",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "玉米",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "玉米笋",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "玉米饼",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "珍宝蟹",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "球生菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "琵琶腿",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "瓠子瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "瓠瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "甜南瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "甜椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "甜玉米",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "甜瓜",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "甜菜叶",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "甜蒜头",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "甜虾",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "甜豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "甜豆粒",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "甜面酱",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "生姜",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "生板栗",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "生盐蛋",
+      "categories": [
+        "蛋奶"
+      ]
+    },
+    {
+      "name": "生花生",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "生菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "生蚝",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "生鸡爪",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "生鸭蛋",
+      "categories": [
+        "蛋奶"
+      ]
+    },
+    {
+      "name": "生鹅蛋",
+      "categories": [
+        "蛋奶"
+      ]
+    },
+    {
+      "name": "田螺",
+      "categories": [
+        "河鲜"
+      ]
+    },
+    {
+      "name": "甲鱼",
+      "categories": [
+        "河鲜"
+      ]
+    },
+    {
+      "name": "番茄",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "番薯",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "白凉粉",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "白千层",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "白吉馍",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "白条鸭",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "白毛肚",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "白洋葱",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "白玉菇",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "白花菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "白苋菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "白茄子",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "白菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "白菜心",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "白菜花",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "白菜苔",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "白萝卜",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "白蘑菇",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "白虾",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "白豆干",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "白豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "白豆角",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "白豇豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "白长豆角",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "白馒头",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "白鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "白鲢鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "白鳗",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "白鸭",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "百合",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "皇帝菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "皮皮虾",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "皮蛋",
+      "categories": [
+        "蛋奶"
+      ]
+    },
+    {
+      "name": "皱皮椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "皱皮青椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "盐",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "盐水鸭",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "目鱼花",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "眉毛肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "睡莲",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "石斑鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "石榴",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "石耳",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "秀珍菇",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "秋葵",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "空心菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "章鱼足",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "章鱼须",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "竹笋",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "竹筒笋",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "竹荪",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "笋子",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "笋尖",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "笋干",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "笋条",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "筒子骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "筒蒿",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "筒骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "米粉",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "米线",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "米豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "粉丝",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "粉皮",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "粉葛",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "粉藕",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "粗棒棒面",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "粗茄子",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "精瘦肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "糖",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "糖蒜",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "糜米",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "糟蛋",
+      "categories": [
+        "蛋奶"
+      ]
+    },
+    {
+      "name": "糯玉米",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "糯白玉米",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "糯米",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "素鲍鱼",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "素鸡",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "紫包菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "紫洋葱",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "紫甘蓝",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "紫皮蒜",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "紫苏",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "紫苏叶",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "紫茄子",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "紫菜",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "紫薯",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "紫薯糯米丸子",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "红小扁豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "红尖椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "红彩椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "红杭椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "红枣",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "红椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "红汉菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "红油",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "红油菜苔",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "红洋葱",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "红皮萝卜",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "红线椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "红美人椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "红肠",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "红苋菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "红苕",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "红菜苔",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "红萝卜",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "红葱头",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "红薯",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "红薯叶",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "红薯尖",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "红薯粉条",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "红虾",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "红虾仁",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "红虾皮",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "红豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "纯瘦肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "线椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "线茄子",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "细米线",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "细茄子",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "绣球菌",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "绿茄子",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "绿豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "绿豆芽",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "罐装",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "罗勒",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "罗勒叶",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "罗氏虾",
+      "categories": [
+        "河鲜"
+      ]
+    },
+    {
+      "name": "罗汉果",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "罗汉笋",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "罗非鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "罗马生菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "羊前腿",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "羊后腿",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "羊排",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "羊杂",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "羊肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "羊肉串",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "羊肉卷",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "羊脖子肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "羊腩",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "羊腰子",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "羊腿",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "羊腿肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "羊蝎子",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "美人椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "翘嘴鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "老南瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "老姜",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "老棱角",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "老母鸡",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "老虎斑",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "老豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "老豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "老鸭",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "老鸭子",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "老麻鸭",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "耗儿鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "耙胡豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "耙豌豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "肋排",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "肋排骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "肘子",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "肥牛卷",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "肥肠",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "胆水豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "背柳肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "胖头鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "胖白豇豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "胖豆角",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "胡椒",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "胡萝卜",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "胭脂萝卜",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "脆皮豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "脆皮豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "脆豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "脆骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "脊骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "脐橙",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "腊排骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "腊猪脚",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "腊猪蹄膀",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "腊肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "腊肠",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "腊草鱼干",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "腊鸡腿",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "腊鸭",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "腊鸭腿",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "腐乳",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "腐竹",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "臭豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "芋丝",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "芋仔",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "芋儿",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "芋头",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "芋艿",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "芒果",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "芝麻菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "芝麻酱",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "芥兰苗",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "芥菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "芦柑",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "芦笋",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "芦蒿",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "花卷",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "花椒",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "花生",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "花生碎",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "花生芽",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "花甲",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "花菇",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "花菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "花蛤",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "花螺",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "花蟹",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "花鲢",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "花鲢鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "花鲢鱼头",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "花鲢鱼尾",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "花龙",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "芹菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "芽菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "苕尖",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "苕皮",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "苜蓿",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "苦瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "苦苣",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "苦菊",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "苦藠头",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "苹果",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "茄子",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "茅根",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "茅草根",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "茭白",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "茴香",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "茶叶",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "茶树菇",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "茼蒿",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "茼蒿菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "草头",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "草莓",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "草鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "草鸡",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "荔枝",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "荞麦面",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "荠菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "荷兰芹",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "荷兰豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "荷叶饼",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "莜面",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "莲子",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "莲白",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "莲花白",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "莲藕",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "莴笋",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "莴笋头",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "莴笋尖",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "莴笋杆",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "莼菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "菜南瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "菜心",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "菜心苗",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "菜椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "菜瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "菜花",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "菜苔",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "菜薹",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "菠菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "菠菜苗",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "菠萝",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "菱角",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "萝卜",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "萝卜干",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "葡萄",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "葡萄干",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "葱",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "葱花",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "蒜",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "蒜头",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "蒜末",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "蒜泥",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "蒜米",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "蒜苔",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "蒜苗",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "蒜薹",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "蒲瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "蒿子秆",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "薄千张",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "薄皮鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "薄荷",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "薄豆干",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "薄豆皮",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "薄豆腐干",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "薄香干",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "藕",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "藕尖",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "藕粉",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "藜蒿",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "藠头",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "藤藤菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "蘑菇",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "虫草花",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "虫草菇",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "虹鳟鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "虾",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "虾仁",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "虾滑",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "虾皮",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "虾米",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "虾籽",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "虾饺",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "蚕蛹",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "蚕豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "蚕豆米",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "蚝油",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "蚬子",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "蛏子",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "蛤蜊",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "蜜桔",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "蜜瓜",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "蜜薯",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "螃蟹",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "螺丝椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "螺蛳",
+      "categories": [
+        "河鲜"
+      ]
+    },
+    {
+      "name": "蟹味菇",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "蟹肉棒",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "蟹黄",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "血哈",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "血旺",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "血鸽",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "裙带菜",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "裤带面",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "西兰花",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "西兰苔",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "西洋菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "西瓜",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "西生菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "西芹",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "西葫芦",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "西蓝花",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "豆干",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "豆干丝",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "豆油皮",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "豆皮",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "豆筋棍",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "豆腐圆",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "豆腐干",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "豆腐泡",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "豆腐皮",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "豆花",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "豆芽",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "豆角",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "豆香干",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "豇豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "豌豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "豌豆尖",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "豌豆米",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "豌豆粒",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "豌豆苗",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "豌豆荚",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "象拔蚌",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "贝贝南瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "贡丸",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "贡菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "财鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "赤小豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "起泡豆干",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "蹄膀",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "蹄花",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "软浆叶",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "辣椒面",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "迷迭香",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "郡把",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "郫县豆瓣",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "酥油",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "酱油",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "酱肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "酱鸭",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "酸嘢",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "酸奶",
+      "categories": [
+        "蛋奶"
+      ]
+    },
+    {
+      "name": "酸汤",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "酸笋",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "酸菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "酿皮",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "醋",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "里脊肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "野山椒",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "金不换",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "金昌鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "金桔",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "金针菇",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "金鲳鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "钉螺",
+      "categories": [
+        "河鲜"
+      ]
+    },
+    {
+      "name": "铁棍山药",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "银昌",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "银耳",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "银鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "银鳕鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "长丝瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "长白萝卜",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "长茄子",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "长豆角",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "长豇豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "长黄瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "陈村粉",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "陈醋",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "雪花梨",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "雪花猪肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "雪里红",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "雪里蕻",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "霉千张",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "青丝瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "青南瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "青团粉",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "青小米椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "青小米辣",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "青尖椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "青彩椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "青杭椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "青柠檬",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "青椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "青瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "青稞",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "青稞面",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "青笋",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "青笋头",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "青笋杆",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "青线椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "青花椒",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "青茄子",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "青菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "青萝卜",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "青蒜苗",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "青虾",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "青虾仁",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "青蛙",
+      "categories": [
+        "河鲜"
+      ]
+    },
+    {
+      "name": "青豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "青豆角",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "青豇豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "青豌豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "青黄瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "青龙仔",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "面包糠",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "面包蟹",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "面疙瘩",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "面筋",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "面筋串",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "面筋球",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "面粉",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "面线",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "面藕",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "面鱼鱼",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "鞭炮笋",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "韭叶面",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "韭菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "韭菜花",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "韭面",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "韭黄",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "饵丝",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "饺子皮",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "馄饨皮",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "馍",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "馍馍",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "馒头",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "馓子",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "馕",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "香干",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "香油",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "香笋",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "香肠",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "香芋",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "香芹",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "香茅",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "香茅草",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "香菇",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "香菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "香葱",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "香蕉",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "香豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "马蹄",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "马面鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "马齿苋",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "高笋",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "魔芋",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "魔芋丝",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "魔芋结",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "魔芋豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "鮰鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "鱼丸",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "鱼卷",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "鱼头",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "鱼杂",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鱼泡",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鱼籽福袋",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "鱼糕",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "鱼腥草",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "鱼腥草叶",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "鱼豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "鱿鱼",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "鱿鱼圈",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "鱿鱼干",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "鱿鱼板",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "鱿鱼花",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "鱿鱼须",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "鲅鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "鲇鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "鲈鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "鲍鱼",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "鲑鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "鲟鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "鲟龙鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "鲤鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "鲫鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "鲮鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "鳕鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "鳗鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "鳜鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "鳝鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "鸡中翅",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡全翅",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡全腿",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡大胸",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡大腿",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡小胸",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡小腿",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡尖翅",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡尾",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡心",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸡掌中宝",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸡杂",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸡架",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡毛菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "鸡爪",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡爪子",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡睾丸",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸡翅",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡翅中",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡翅尖",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡翅根",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡肉肠",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡肝",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸡肠",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸡肾",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸡胗",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸡胸",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡胸肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡脖",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡脚",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡脯肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡腰子",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸡腿",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡腿肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡腿菇",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "鸡菌",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸡蛋",
+      "categories": [
+        "蛋奶"
+      ]
+    },
+    {
+      "name": "鸡蛋肠",
+      "categories": [
+        "火锅"
+      ]
+    },
+    {
+      "name": "鸡蛋面",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "鸡血",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸡边腿",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸡郡肝",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸭君",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸭头",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸭子",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸭心",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸭掌",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸭爪",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸭翅",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸭翅中",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸭肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸭肝",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸭肠",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸭肫",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸭胗",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸭胸肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸭胸脯肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸭脖",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸭脖子",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸭脚",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸭脚板",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸭舌",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸭菌子",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸭蛋",
+      "categories": [
+        "蛋奶"
+      ]
+    },
+    {
+      "name": "鸭血",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸭边腿",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸭郡",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸭郡肝",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸭锁骨",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸭食管",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "鸽子",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鸽子蛋",
+      "categories": [
+        "蛋奶"
+      ]
+    },
+    {
+      "name": "鹅掌",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鹅蛋",
+      "categories": [
+        "蛋奶"
+      ]
+    },
+    {
+      "name": "鹌鹑",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "鹌鹑蛋",
+      "categories": [
+        "蛋奶"
+      ]
+    },
+    {
+      "name": "鹿茸菇",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "麻糖",
+      "categories": [
+        "主食"
+      ]
+    },
+    {
+      "name": "麻辣烫底料",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "麻鸭",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "黄凉粉",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "黄姜",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "黄彩椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "黄心菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "黄柠檬",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "黄桃",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "黄洋葱",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "黄牛肉",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "黄牛腩",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "黄牛腿",
+      "categories": [
+        "肉类"
+      ]
+    },
+    {
+      "name": "黄玉米",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "黄瓜",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "黄瓜花",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "黄瓜苗",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "黄白菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "黄皮椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "黄皮辣椒",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "黄芪菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "黄花菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "黄芽菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "黄萝卜",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "黄豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "黄豆芽",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "黄辣丁",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "黄道蟹",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "黄金针菇",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "黄骨鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "黄鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "黄鳝",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "黄鳝鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "黑平菇",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "黑毛肚",
+      "categories": [
+        "内脏"
+      ]
+    },
+    {
+      "name": "黑洋姜",
+      "categories": [
+        "根茎"
+      ]
+    },
+    {
+      "name": "黑牛肝菌",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "黑玉米",
+      "categories": [
+        "瓜果"
+      ]
+    },
+    {
+      "name": "黑芝麻",
+      "categories": [
+        "调味"
+      ]
+    },
+    {
+      "name": "黑虎虾",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "黑豆",
+      "categories": [
+        "豆类"
+      ]
+    },
+    {
+      "name": "黑豆腐",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "黑香干",
+      "categories": [
+        "豆制品"
+      ]
+    },
+    {
+      "name": "黑鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "黑鸡枞菌",
+      "categories": [
+        "菌菇"
+      ]
+    },
+    {
+      "name": "黔鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "龙利鱼",
+      "categories": [
+        "鱼"
+      ]
+    },
+    {
+      "name": "龙眼",
+      "categories": [
+        "水果"
+      ]
+    },
+    {
+      "name": "龙虾",
+      "categories": [
+        "海鲜"
+      ]
+    },
+    {
+      "name": "龙须菜",
+      "categories": [
+        "菜叶"
+      ]
+    },
+    {
+      "name": "龙骨",
+      "categories": [
+        "肉类"
+      ]
+    }
+  ],
+  "extractLexicon": [
+    "紫薯糯米丸子",
+    "东北酸菜丝",
+    "水发牛蹄筋",
+    "波士顿龙虾",
+    "火锅刀削面",
+    "火锅裙带菜",
+    "烟熏豆腐干",
+    "云南小瓜",
+    "五香豆干",
+    "五香豆皮",
+    "内酯豆腐",
+    "包心鱼丸",
+    "包心鱼卷",
+    "千叶豆腐",
+    "千页豆腐",
+    "卤水豆腐",
+    "厚豆腐皮",
+    "圆嫩南瓜",
+    "小娃娃菜",
+    "小茴香菜",
+    "小银鲳鱼",
+    "小龙虾尾",
+    "干姬松茸",
+    "干油豆皮",
+    "干海带丝",
+    "干茶树菇",
+    "干豆皮丝",
+    "干豆筋棍",
+    "干豆腐丝",
+    "干豆腐结",
+    "干黄花菜",
+    "广味腊肠",
+    "折耳根叶",
+    "撒尿丸子",
+    "撒尿牛丸",
+    "无筋豆角",
+    "无骨鸡爪",
+    "无骨鸭掌",
+    "日本豆腐",
+    "松花皮蛋",
+    "格子豆腐",
+    "榴莲蜜薯",
+    "樱桃萝卜",
+    "水发海带",
+    "水发牛筋",
+    "水发羊筋",
+    "水果玉米",
+    "水果萝卜",
+    "水果黄瓜",
+    "油炸干子",
+    "油豆腐泡",
+    "泡泡豆干",
+    "泡灯笼椒",
+    "火箭鱿鱼",
+    "火锅丸子",
+    "火锅年糕",
+    "火锅笋尖",
+    "火锅豆皮",
+    "火锅豆腐",
+    "火锅魔芋",
+    "火锅鸭血",
+    "烟熏豆干",
+    "牛前腿肉",
+    "牛皮豆干",
+    "牦牛牛肉",
+    "猪前夹肉",
+    "猪前小排",
+    "猪前肘子",
+    "猪前腿肉",
+    "猪前膈肉",
+    "猪后肘子",
+    "猪棒子骨",
+    "猪腱子肉",
+    "猪里脊肉",
+    "猫耳朵面",
+    "白长豆角",
+    "皱皮青椒",
+    "粗棒棒面",
+    "糯白玉米",
+    "红小扁豆",
+    "红油菜苔",
+    "红皮萝卜",
+    "红美人椒",
+    "红薯粉条",
+    "罗马生菜",
+    "羊脖子肉",
+    "胆水豆腐",
+    "胖白豇豆",
+    "胭脂萝卜",
+    "脆皮豆腐",
+    "腊猪蹄膀",
+    "腊草鱼干",
+    "花鲢鱼头",
+    "花鲢鱼尾",
+    "薄豆腐干",
+    "贝贝南瓜",
+    "起泡豆干",
+    "铁棍山药",
+    "长白萝卜",
+    "雪花猪肉",
+    "青小米椒",
+    "青小米辣",
+    "魔芋豆腐",
+    "鱼籽福袋",
+    "鱼腥草叶",
+    "鸡掌中宝",
+    "鸭胸脯肉",
+    "黄皮辣椒",
+    "黄金针菇",
+    "黑牛肝菌",
+    "黑鸡枞菌",
+    "三文鱼",
+    "三月茄",
+    "三线肉",
+    "三黄鸡",
+    "上海青",
+    "乌骨鸡",
+    "乌鸡卷",
+    "乌鸡蛋",
+    "九节虾",
+    "二刀肉",
+    "二荆条",
+    "五花肉",
+    "五香干",
+    "亲亲肠",
+    "仔鸭肉",
+    "付子瓜",
+    "仿蟹柳",
+    "佛手瓜",
+    "兔子肉",
+    "八爪鱼",
+    "刀削面",
+    "前夹肉",
+    "前腿肉",
+    "剥皮鱼",
+    "北极虾",
+    "北豆腐",
+    "千层肚",
+    "千张丝",
+    "千张结",
+    "午餐肉",
+    "南瓜尖",
+    "卷心菜",
+    "卷窝菜",
+    "厚千张",
+    "厚豆干",
+    "厚豆皮",
+    "发鱿鱼",
+    "叶生菜",
+    "后腿肉",
+    "咸蛋黄",
+    "咸鸭蛋",
+    "响铃卷",
+    "四季豆",
+    "圆包菜",
+    "圆彩椒",
+    "圆白菜",
+    "圆细面",
+    "圆茄子",
+    "圆青椒",
+    "土丝瓜",
+    "土韭菜",
+    "土鸡母",
+    "圣女果",
+    "基围虾",
+    "墨鱼丸",
+    "墨鱼仔",
+    "墨鱼干",
+    "多宝鱼",
+    "大头虾",
+    "大宽面",
+    "大带子",
+    "大白菜",
+    "大芥蓝",
+    "大蒜叶",
+    "大蛤蛎",
+    "大豆泡",
+    "大闸蟹",
+    "大鸡腿",
+    "大黄鱼",
+    "太子蟹",
+    "奶白菜",
+    "奶豆腐",
+    "娃娃菜",
+    "嫩南瓜",
+    "嫩蒜苗",
+    "嫩豆干",
+    "嫩豆腐",
+    "宽扁豆",
+    "宽面条",
+    "小乳瓜",
+    "小棠菜",
+    "小油菜",
+    "小白菜",
+    "小章鱼",
+    "小米椒",
+    "小米辣",
+    "小米饼",
+    "小芥蓝",
+    "小里脊",
+    "小青菜",
+    "小青龙",
+    "小鸡腿",
+    "小麦粉",
+    "小麦芹",
+    "小黄鱼",
+    "小龙虾",
+    "巴旦木",
+    "巴沙鱼",
+    "帝王蟹",
+    "干冬菇",
+    "干腐竹",
+    "干花生",
+    "干虾仁",
+    "干虾皮",
+    "干豆棍",
+    "干豆皮",
+    "干豆腐",
+    "干贝柱",
+    "干贡菜",
+    "干香菇",
+    "干鱿鱼",
+    "平包菜",
+    "手擀粉",
+    "手擀面",
+    "扒皮鱼",
+    "抄手皮",
+    "折耳根",
+    "散花菜",
+    "文昌鱼",
+    "文昌鸡",
+    "斑节虾",
+    "方竹笋",
+    "无筋豆",
+    "旱黄瓜",
+    "月牙骨",
+    "木耳菜",
+    "杏鲍菇",
+    "杭白菜",
+    "松花菜",
+    "松花蛋",
+    "松茸菌",
+    "板栗仁",
+    "板栗肉",
+    "枣构杞",
+    "枸杞叶",
+    "柿子椒",
+    "桂花肠",
+    "桂花鱼",
+    "梅头肉",
+    "梅干菜",
+    "梅条肉",
+    "梅花肉",
+    "梭子蟹",
+    "梭边鱼",
+    "槟榔芋",
+    "橄榄豆",
+    "武昌鱼",
+    "毛山药",
+    "毛蛤蜊",
+    "毛豆米",
+    "毛豆粒",
+    "毛豆角",
+    "水晶包",
+    "水芹菜",
+    "水蜜桃",
+    "水豆腐",
+    "江团鱼",
+    "沙拉菜",
+    "河鲈鱼",
+    "油菜心",
+    "油菜苔",
+    "油豆泡",
+    "油豆皮",
+    "油豆腐",
+    "油豆角",
+    "油面筋",
+    "油麦菜",
+    "海带丝",
+    "海带头",
+    "海带结",
+    "海带芽",
+    "海带苗",
+    "海白菜",
+    "海白虾",
+    "海虾仁",
+    "海蛎子",
+    "海鲈鱼",
+    "海鲜菇",
+    "海鸭蛋",
+    "淮山药",
+    "清水笋",
+    "清江鱼",
+    "湿花生",
+    "湿豆皮",
+    "濑尿虾",
+    "火箭鱿",
+    "炸响铃",
+    "熏猪蹄",
+    "熟棱角",
+    "牛上脑",
+    "牛吊龙",
+    "牛大骨",
+    "牛嫩肩",
+    "牛尾骨",
+    "牛心菜",
+    "牛排骨",
+    "牛杆菌",
+    "牛板腱",
+    "牛棒骨",
+    "牛百叶",
+    "牛眼肉",
+    "牛窝骨",
+    "牛筋面",
+    "牛筒骨",
+    "牛肉丸",
+    "牛肉卷",
+    "牛肉干",
+    "牛肉肠",
+    "牛肋排",
+    "牛肋条",
+    "牛肝菌",
+    "牛胸油",
+    "牛胸肉",
+    "牛腱子",
+    "牛腱肉",
+    "牛腿肉",
+    "牛臀肉",
+    "牛蝎子",
+    "牛蹄筋",
+    "牛里脊",
+    "牛霖肉",
+    "牛骨髓",
+    "牛黄喉",
+    "牡蛎肉",
+    "牦牛肉",
+    "猕猴桃",
+    "猪二刀",
+    "猪前排",
+    "猪前肘",
+    "猪后腿",
+    "猪后蹄",
+    "猪大排",
+    "猪大肠",
+    "猪大骨",
+    "猪小排",
+    "猪小肚",
+    "猪尾巴",
+    "猪尾骨",
+    "猪展肉",
+    "猪心管",
+    "猪扇骨",
+    "猪排骨",
+    "猪梅花",
+    "猪棒骨",
+    "猪牙梗",
+    "猪瘦肉",
+    "猪筒骨",
+    "猪耳朵",
+    "猪肉卷",
+    "猪肉肠",
+    "猪肋排",
+    "猪肘子",
+    "猪脊骨",
+    "猪脑花",
+    "猪腰子",
+    "猪腿肉",
+    "猪舌头",
+    "猪软骨",
+    "猪里脊",
+    "猪颈肉",
+    "猪颈骨",
+    "猪黄喉",
+    "猪龙骨",
+    "猫耳面",
+    "玉兰片",
+    "玉米笋",
+    "玉米饼",
+    "珍宝蟹",
+    "球生菜",
+    "琵琶腿",
+    "瓠子瓜",
+    "甜南瓜",
+    "甜玉米",
+    "甜菜叶",
+    "甜豆粒",
+    "生板栗",
+    "生盐蛋",
+    "生花生",
+    "生鸡爪",
+    "生鸭蛋",
+    "生鹅蛋",
+    "白凉粉",
+    "白千层",
+    "白吉馍",
+    "白条鸭",
+    "白毛肚",
+    "白洋葱",
+    "白玉菇",
+    "白花菜",
+    "白苋菜",
+    "白茄子",
+    "白菜心",
+    "白菜花",
+    "白菜苔",
+    "白萝卜",
+    "白蘑菇",
+    "白豆干",
+    "白豆腐",
+    "白豆角",
+    "白豇豆",
+    "白馒头",
+    "白鲢鱼",
+    "皇帝菜",
+    "皮皮虾",
+    "皱皮椒",
+    "盐水鸭",
+    "目鱼花",
+    "眉毛肉",
+    "石斑鱼",
+    "秀珍菇",
+    "空心菜",
+    "章鱼足",
+    "章鱼须",
+    "竹筒笋",
+    "筒子骨",
+    "米豆腐",
+    "粗茄子",
+    "精瘦肉",
+    "糯玉米",
+    "素鲍鱼",
+    "紫包菜",
+    "紫洋葱",
+    "紫甘蓝",
+    "紫茄子",
+    "红尖椒",
+    "红彩椒",
+    "红杭椒",
+    "红汉菜",
+    "红洋葱",
+    "红线椒",
+    "红苋菜",
+    "红菜苔",
+    "红萝卜",
+    "红薯叶",
+    "红薯尖",
+    "红虾仁",
+    "红虾皮",
+    "纯瘦肉",
+    "线茄子",
+    "细米线",
+    "细茄子",
+    "绣球菌",
+    "绿茄子",
+    "绿豆芽",
+    "罗氏虾",
+    "罗汉果",
+    "罗汉笋",
+    "罗非鱼",
+    "羊前腿",
+    "羊后腿",
+    "羊肉串",
+    "羊肉卷",
+    "羊腰子",
+    "羊腿肉",
+    "羊蝎子",
+    "美人椒",
+    "翘嘴鱼",
+    "老南瓜",
+    "老棱角",
+    "老母鸡",
+    "老虎斑",
+    "老豆腐",
+    "老鸭子",
+    "老麻鸭",
+    "耗儿鱼",
+    "耙胡豆",
+    "耙豌豆",
+    "肋排骨",
+    "肥牛卷",
+    "背柳肉",
+    "胖头鱼",
+    "胖豆角",
+    "胡萝卜",
+    "脆皮豆",
+    "脆豆腐",
+    "腊排骨",
+    "腊猪脚",
+    "腊鸡腿",
+    "腊鸭腿",
+    "臭豆腐",
+    "芝麻菜",
+    "芥兰苗",
+    "花生碎",
+    "花生芽",
+    "花鲢鱼",
+    "苦藠头",
+    "茅草根",
+    "茶树菇",
+    "茼蒿菜",
+    "荞麦面",
+    "荷兰芹",
+    "荷兰豆",
+    "荷叶饼",
+    "莲花白",
+    "莴笋头",
+    "莴笋尖",
+    "莴笋杆",
+    "菜南瓜",
+    "菜心苗",
+    "菠菜苗",
+    "萝卜干",
+    "葡萄干",
+    "蒿子秆",
+    "薄千张",
+    "薄皮鱼",
+    "薄豆干",
+    "薄豆皮",
+    "薄香干",
+    "藤藤菜",
+    "虫草花",
+    "虫草菇",
+    "虹鳟鱼",
+    "蚕豆米",
+    "螺丝椒",
+    "蟹味菇",
+    "蟹肉棒",
+    "裙带菜",
+    "裤带面",
+    "西兰花",
+    "西兰苔",
+    "西洋菜",
+    "西生菜",
+    "西葫芦",
+    "西蓝花",
+    "豆干丝",
+    "豆油皮",
+    "豆筋棍",
+    "豆腐圆",
+    "豆腐干",
+    "豆腐泡",
+    "豆腐皮",
+    "豆香干",
+    "豌豆尖",
+    "豌豆米",
+    "豌豆粒",
+    "豌豆苗",
+    "豌豆荚",
+    "象拔蚌",
+    "赤小豆",
+    "软浆叶",
+    "辣椒面",
+    "里脊肉",
+    "金昌鱼",
+    "金针菇",
+    "金鲳鱼",
+    "银鳕鱼",
+    "长丝瓜",
+    "长茄子",
+    "长豆角",
+    "长豇豆",
+    "长黄瓜",
+    "陈村粉",
+    "雪花梨",
+    "雪里红",
+    "雪里蕻",
+    "霉千张",
+    "青丝瓜",
+    "青南瓜",
+    "青团粉",
+    "青尖椒",
+    "青彩椒",
+    "青杭椒",
+    "青柠檬",
+    "青稞面",
+    "青笋头",
+    "青笋杆",
+    "青线椒",
+    "青茄子",
+    "青萝卜",
+    "青蒜苗",
+    "青虾仁",
+    "青豆角",
+    "青豇豆",
+    "青豌豆",
+    "青黄瓜",
+    "青龙仔",
+    "面包蟹",
+    "面疙瘩",
+    "面筋串",
+    "面筋球",
+    "面鱼鱼",
+    "鞭炮笋",
+    "韭叶面",
+    "韭菜花",
+    "饺子皮",
+    "馄饨皮",
+    "香豆腐",
+    "马面鱼",
+    "马齿苋",
+    "魔芋丝",
+    "魔芋结",
+    "鱼腥草",
+    "鱼豆腐",
+    "鱿鱼圈",
+    "鱿鱼干",
+    "鱿鱼板",
+    "鱿鱼花",
+    "鱿鱼须",
+    "鲟龙鱼",
+    "鸡中翅",
+    "鸡全翅",
+    "鸡全腿",
+    "鸡大胸",
+    "鸡大腿",
+    "鸡小胸",
+    "鸡小腿",
+    "鸡尖翅",
+    "鸡毛菜",
+    "鸡爪子",
+    "鸡睾丸",
+    "鸡翅中",
+    "鸡翅尖",
+    "鸡翅根",
+    "鸡肉肠",
+    "鸡胸肉",
+    "鸡脯肉",
+    "鸡腰子",
+    "鸡腿肉",
+    "鸡腿菇",
+    "鸡蛋肠",
+    "鸡蛋面",
+    "鸡边腿",
+    "鸡郡肝",
+    "鸭翅中",
+    "鸭胸肉",
+    "鸭脖子",
+    "鸭脚板",
+    "鸭菌子",
+    "鸭边腿",
+    "鸭郡肝",
+    "鸭锁骨",
+    "鸭食管",
+    "鸽子蛋",
+    "鹌鹑蛋",
+    "鹿茸菇",
+    "黄彩椒",
+    "黄心菜",
+    "黄柠檬",
+    "黄洋葱",
+    "黄牛肉",
+    "黄牛腩",
+    "黄牛腿",
+    "黄玉米",
+    "黄瓜花",
+    "黄瓜苗",
+    "黄白菜",
+    "黄皮椒",
+    "黄芪菜",
+    "黄花菜",
+    "黄芽菜",
+    "黄萝卜",
+    "黄豆芽",
+    "黄辣丁",
+    "黄道蟹",
+    "黄骨鱼",
+    "黄鳝鱼",
+    "黑平菇",
+    "黑毛肚",
+    "黑洋姜",
+    "黑玉米",
+    "黑虎虾",
+    "黑豆腐",
+    "黑香干",
+    "龙利鱼",
+    "龙须菜",
+    "丝瓜",
+    "丸子",
+    "乌鱼",
+    "乌鸡",
+    "乳鸽",
+    "云丝",
+    "仔鸡",
+    "儿菜",
+    "兔子",
+    "兔肉",
+    "公鸡",
+    "冬枣",
+    "冬瓜",
+    "冬笋",
+    "冬菜",
+    "凉皮",
+    "凉粉",
+    "凉薯",
+    "凤爪",
+    "刀豆",
+    "刀鱼",
+    "列巴",
+    "包菜",
+    "千张",
+    "南瓜",
+    "口蘑",
+    "叫头",
+    "吊龙",
+    "咸蛋",
+    "嘎鱼",
+    "圆枣",
+    "圆椒",
+    "土笋",
+    "土豆",
+    "土鸡",
+    "土鸭",
+    "地瓜",
+    "地菜",
+    "大枣",
+    "大米",
+    "大鹅",
+    "宽粉",
+    "对虾",
+    "小米",
+    "山楂",
+    "山药",
+    "带鱼",
+    "干贝",
+    "平菇",
+    "年糕",
+    "扁豆",
+    "扇贝",
+    "扇骨",
+    "拉皮",
+    "拉面",
+    "挂面",
+    "排骨",
+    "整鸭",
+    "文哈",
+    "文蛤",
+    "明虾",
+    "春笋",
+    "春菜",
+    "木耳",
+    "杨梅",
+    "杭椒",
+    "松仁",
+    "板栗",
+    "板蟹",
+    "板鸭",
+    "枸杞",
+    "柚子",
+    "柿子",
+    "柿饼",
+    "桂鱼",
+    "棒菜",
+    "棒骨",
+    "椰子",
+    "榛蘑",
+    "樱桃",
+    "母鸡",
+    "毛肚",
+    "毛豆",
+    "水瓜",
+    "水笋",
+    "江团",
+    "沙棘",
+    "沙甲",
+    "沙葱",
+    "河虾",
+    "河豚",
+    "油菜",
+    "泥螺",
+    "泥鳅",
+    "洋姜",
+    "洋葱",
+    "海参",
+    "海带",
+    "海米",
+    "海胆",
+    "海虹",
+    "海虾",
+    "海螺",
+    "清瓜",
+    "澳龙",
+    "火腿",
+    "烟薯",
+    "烤麸",
+    "烧饼",
+    "烩面",
+    "熏肉",
+    "熏蹄",
+    "燕饺",
+    "牛奶",
+    "牛尾",
+    "牛排",
+    "牛柳",
+    "牛筋",
+    "牛肉",
+    "牛肚",
+    "牛脑",
+    "牛腩",
+    "牛腰",
+    "牛蛙",
+    "猪心",
+    "猪爪",
+    "猪皮",
+    "猪筒",
+    "猪红",
+    "猪肉",
+    "猪肘",
+    "猪肚",
+    "猪肝",
+    "猪肠",
+    "猪肺",
+    "猪脑",
+    "猪脚",
+    "猪腰",
+    "猪舌",
+    "猪血",
+    "猪蹄",
+    "玉米",
+    "瓠瓜",
+    "甜椒",
+    "甜瓜",
+    "甜虾",
+    "甜豆",
+    "生菜",
+    "生蚝",
+    "田螺",
+    "甲鱼",
+    "番茄",
+    "番薯",
+    "白菜",
+    "白虾",
+    "白鱼",
+    "白鳗",
+    "白鸭",
+    "百合",
+    "皮蛋",
+    "睡莲",
+    "石榴",
+    "石耳",
+    "秋葵",
+    "竹笋",
+    "竹荪",
+    "笋子",
+    "笋尖",
+    "笋干",
+    "笋条",
+    "筒蒿",
+    "筒骨",
+    "米粉",
+    "米线",
+    "粉丝",
+    "粉皮",
+    "粉葛",
+    "粉藕",
+    "糜米",
+    "糟蛋",
+    "糯米",
+    "素鸡",
+    "紫菜",
+    "紫薯",
+    "红枣",
+    "红椒",
+    "红肠",
+    "红苕",
+    "红薯",
+    "红虾",
+    "红豆",
+    "线椒",
+    "绿豆",
+    "羊排",
+    "羊杂",
+    "羊肉",
+    "羊腩",
+    "羊腿",
+    "老豆",
+    "老鸭",
+    "肋排",
+    "肘子",
+    "肥肠",
+    "脆骨",
+    "脊骨",
+    "脐橙",
+    "腊肉",
+    "腊肠",
+    "腊鸭",
+    "腐乳",
+    "腐竹",
+    "芋丝",
+    "芋仔",
+    "芋儿",
+    "芋头",
+    "芋艿",
+    "芒果",
+    "芥菜",
+    "芦柑",
+    "芦笋",
+    "芦蒿",
+    "花卷",
+    "花生",
+    "花甲",
+    "花菇",
+    "花菜",
+    "花蛤",
+    "花螺",
+    "花蟹",
+    "花鲢",
+    "芹菜",
+    "芽菜",
+    "苕尖",
+    "苕皮",
+    "苜蓿",
+    "苦瓜",
+    "苦苣",
+    "苦菊",
+    "苹果",
+    "茄子",
+    "茅根",
+    "茭白",
+    "茼蒿",
+    "草头",
+    "草莓",
+    "草鱼",
+    "草鸡",
+    "荔枝",
+    "荠菜",
+    "莜面",
+    "莲子",
+    "莲白",
+    "莲藕",
+    "莴笋",
+    "莼菜",
+    "菜心",
+    "菜椒",
+    "菜瓜",
+    "菜花",
+    "菜苔",
+    "菜薹",
+    "菠菜",
+    "菠萝",
+    "菱角",
+    "萝卜",
+    "葡萄",
+    "蒜苔",
+    "蒜苗",
+    "蒜薹",
+    "蒲瓜",
+    "藕尖",
+    "藕粉",
+    "藜蒿",
+    "藠头",
+    "蘑菇",
+    "虾仁",
+    "虾滑",
+    "虾皮",
+    "虾米",
+    "虾籽",
+    "虾饺",
+    "蚕蛹",
+    "蚕豆",
+    "蚬子",
+    "蛏子",
+    "蛤蜊",
+    "蜜桔",
+    "蜜瓜",
+    "蜜薯",
+    "螃蟹",
+    "螺蛳",
+    "蟹黄",
+    "血哈",
+    "血旺",
+    "血鸽",
+    "西瓜",
+    "西芹",
+    "豆干",
+    "豆皮",
+    "豆腐",
+    "豆花",
+    "豆芽",
+    "豆角",
+    "豇豆",
+    "豌豆",
+    "贡丸",
+    "贡菜",
+    "财鱼",
+    "蹄膀",
+    "蹄花",
+    "郡把",
+    "酱肉",
+    "酱鸭",
+    "酸嘢",
+    "酸奶",
+    "酸笋",
+    "酸菜",
+    "酿皮",
+    "金桔",
+    "钉螺",
+    "银昌",
+    "银耳",
+    "银鱼",
+    "青椒",
+    "青瓜",
+    "青稞",
+    "青笋",
+    "青菜",
+    "青虾",
+    "青蛙",
+    "青豆",
+    "面筋",
+    "面粉",
+    "面线",
+    "面藕",
+    "韭菜",
+    "韭面",
+    "韭黄",
+    "饵丝",
+    "馍馍",
+    "馒头",
+    "馓子",
+    "香干",
+    "香笋",
+    "香肠",
+    "香芋",
+    "香芹",
+    "香菇",
+    "香菜",
+    "香蕉",
+    "马蹄",
+    "高笋",
+    "魔芋",
+    "鮰鱼",
+    "鱼丸",
+    "鱼卷",
+    "鱼头",
+    "鱼杂",
+    "鱼泡",
+    "鱼糕",
+    "鱿鱼",
+    "鲅鱼",
+    "鲇鱼",
+    "鲈鱼",
+    "鲍鱼",
+    "鲑鱼",
+    "鲟鱼",
+    "鲤鱼",
+    "鲫鱼",
+    "鲮鱼",
+    "鳕鱼",
+    "鳗鱼",
+    "鳜鱼",
+    "鳝鱼",
+    "鸡尾",
+    "鸡心",
+    "鸡杂",
+    "鸡架",
+    "鸡爪",
+    "鸡翅",
+    "鸡肉",
+    "鸡肝",
+    "鸡肠",
+    "鸡肾",
+    "鸡胗",
+    "鸡胸",
+    "鸡脖",
+    "鸡脚",
+    "鸡腿",
+    "鸡菌",
+    "鸡蛋",
+    "鸡血",
+    "鸭君",
+    "鸭头",
+    "鸭子",
+    "鸭心",
+    "鸭掌",
+    "鸭爪",
+    "鸭翅",
+    "鸭肉",
+    "鸭肝",
+    "鸭肠",
+    "鸭肫",
+    "鸭胗",
+    "鸭脖",
+    "鸭脚",
+    "鸭舌",
+    "鸭蛋",
+    "鸭血",
+    "鸭郡",
+    "鸽子",
+    "鹅掌",
+    "鹅蛋",
+    "鹌鹑",
+    "麻糖",
+    "麻鸭",
+    "黄桃",
+    "黄瓜",
+    "黄豆",
+    "黄鱼",
+    "黄鳝",
+    "黑豆",
+    "黑鱼",
+    "黔鱼",
+    "龙眼",
+    "龙虾",
+    "龙骨",
+    "桃",
+    "梨",
+    "藕",
+    "虾",
+    "馍",
+    "馕"
+  ]
+}

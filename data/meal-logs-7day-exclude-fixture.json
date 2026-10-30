@@ -1,0 +1,3 @@
+{"uid":"u_muwyny8rrn2eie","logId":"log_fix_7d_spinach","date":"2026-10-07","meal":"dinner","dishNames":["清炒菠菜"],"ingredientNames":["菠菜"],"source":"manual","recommendationId":null,"requestId":null,"createdAt":{"$date":"2026-10-07T12:00:00.000Z"}}
+{"uid":"u_muwyny8rrn2eie","logId":"log_fix_7d_tofu","date":"2026-10-06","meal":"dinner","dishNames":["家常豆腐"],"ingredientNames":["北豆腐"],"source":"manual","recommendationId":null,"requestId":null,"createdAt":{"$date":"2026-10-06T12:00:00.000Z"}}
+{"uid":"u_muwyny8rrn2eie","logId":"log_fix_7d_bokchoy","date":"2026-10-05","meal":"dinner","dishNames":["蒜蓉小白菜"],"ingredientNames":["小白菜"],"source":"manual","recommendationId":null,"requestId":null,"createdAt":{"$date":"2026-10-05T12:00:00.000Z"}}

@@ -1,0 +1,2498 @@
+{
+  "city": "武汉",
+  "categoriesTaxonomy": "ingredients-all-by-category",
+  "scales": {
+    "small": {
+      "seasonal": {
+        "菜叶": [
+          {
+            "name": "蒜苔",
+            "displayName": "蒜苔"
+          }
+        ],
+        "水果": [
+          {
+            "name": "板栗",
+            "displayName": "板栗仁"
+          }
+        ],
+        "豆类": [
+          {
+            "name": "毛豆",
+            "displayName": "毛豆"
+          },
+          {
+            "name": "蚕豆",
+            "displayName": "蚕豆"
+          }
+        ],
+        "河鲜": [
+          {
+            "name": "小龙虾",
+            "displayName": "小龙虾"
+          },
+          {
+            "name": "大闸蟹",
+            "displayName": "大闸蟹"
+          }
+        ],
+        "海鲜": [
+          {
+            "name": "梭子蟹",
+            "displayName": "梭子蟹"
+          }
+        ]
+      },
+      "yearRound": {
+        "肉类": [
+          {
+            "name": "猪肋排",
+            "displayName": "排骨"
+          },
+          {
+            "name": "鸡翅",
+            "displayName": "鸡中翅"
+          },
+          {
+            "name": "牛肉",
+            "displayName": "牛肉"
+          },
+          {
+            "name": "鸡腿",
+            "displayName": "琵琶腿"
+          },
+          {
+            "name": "鸡胸",
+            "displayName": "鸡胸肉"
+          },
+          {
+            "name": "牛腩",
+            "displayName": "牛肋条"
+          },
+          {
+            "name": "鸡爪",
+            "displayName": "凤爪"
+          },
+          {
+            "name": "腊肠",
+            "displayName": "广味腊肠"
+          },
+          {
+            "name": "牛排",
+            "displayName": "牛排"
+          },
+          {
+            "name": "猪里脊",
+            "displayName": "小里脊"
+          },
+          {
+            "name": "猪爪",
+            "displayName": "猪蹄"
+          },
+          {
+            "name": "羊排",
+            "displayName": "羊排"
+          },
+          {
+            "name": "羊肉",
+            "displayName": "羊肉"
+          },
+          {
+            "name": "三线肉",
+            "displayName": "五花肉"
+          },
+          {
+            "name": "腊肉",
+            "displayName": "腊排骨"
+          },
+          {
+            "name": "乌鸡",
+            "displayName": "乌鸡"
+          },
+          {
+            "name": "牛尾",
+            "displayName": "牛尾"
+          },
+          {
+            "name": "牛腿肉",
+            "displayName": "牛前腿肉"
+          }
+        ],
+        "内脏": [
+          {
+            "name": "猪肝",
+            "displayName": "猪肝"
+          },
+          {
+            "name": "猪大肠",
+            "displayName": "猪大肠"
+          },
+          {
+            "name": "猪心",
+            "displayName": "猪心"
+          },
+          {
+            "name": "猪肚",
+            "displayName": "猪肚"
+          },
+          {
+            "name": "鸡杂",
+            "displayName": "鸡心"
+          },
+          {
+            "name": "鸡肾",
+            "displayName": "鸡腰子"
+          }
+        ],
+        "火锅": [
+          {
+            "name": "鸡蛋肠",
+            "displayName": "鸡蛋肠"
+          }
+        ],
+        "菜叶": [
+          {
+            "name": "白菜",
+            "displayName": "白菜"
+          },
+          {
+            "name": "菜花",
+            "displayName": "散花菜"
+          },
+          {
+            "name": "西蓝花",
+            "displayName": "西兰花"
+          },
+          {
+            "name": "娃娃菜",
+            "displayName": "娃娃菜"
+          },
+          {
+            "name": "包菜",
+            "displayName": "卷窝菜"
+          },
+          {
+            "name": "芹菜",
+            "displayName": "芹菜"
+          },
+          {
+            "name": "菠菜",
+            "displayName": "菠菜"
+          },
+          {
+            "name": "生菜",
+            "displayName": "球生菜"
+          },
+          {
+            "name": "韭菜",
+            "displayName": "土韭菜"
+          },
+          {
+            "name": "油菜",
+            "displayName": "小油菜"
+          },
+          {
+            "name": "油麦菜",
+            "displayName": "油麦菜"
+          }
+        ],
+        "瓜果": [
+          {
+            "name": "茄子",
+            "displayName": "白茄子"
+          },
+          {
+            "name": "南瓜",
+            "displayName": "南瓜"
+          },
+          {
+            "name": "番茄",
+            "displayName": "番茄"
+          },
+          {
+            "name": "秋葵",
+            "displayName": "秋葵"
+          },
+          {
+            "name": "青椒",
+            "displayName": "青椒"
+          },
+          {
+            "name": "丝瓜",
+            "displayName": "丝瓜"
+          },
+          {
+            "name": "冬瓜",
+            "displayName": "冬瓜"
+          },
+          {
+            "name": "苦瓜",
+            "displayName": "苦瓜"
+          },
+          {
+            "name": "西葫芦",
+            "displayName": "西葫芦"
+          }
+        ],
+        "根茎": [
+          {
+            "name": "土豆",
+            "displayName": "土豆"
+          },
+          {
+            "name": "莲藕",
+            "displayName": "粉藕"
+          },
+          {
+            "name": "红薯",
+            "displayName": "地瓜"
+          },
+          {
+            "name": "芦笋",
+            "displayName": "芦笋"
+          },
+          {
+            "name": "山药",
+            "displayName": "山药"
+          },
+          {
+            "name": "胡萝卜",
+            "displayName": "胡萝卜"
+          },
+          {
+            "name": "萝卜",
+            "displayName": "白萝卜"
+          }
+        ],
+        "豆类": [
+          {
+            "name": "红豆",
+            "displayName": "赤小豆"
+          },
+          {
+            "name": "豆角",
+            "displayName": "白豆角"
+          },
+          {
+            "name": "绿豆",
+            "displayName": "绿豆"
+          }
+        ],
+        "豆制品": [
+          {
+            "name": "豆腐",
+            "displayName": "内酯豆腐"
+          },
+          {
+            "name": "香干",
+            "displayName": "薄香干"
+          },
+          {
+            "name": "腐竹",
+            "displayName": "干腐竹"
+          },
+          {
+            "name": "豆腐皮",
+            "displayName": "干豆皮"
+          },
+          {
+            "name": "豆腐泡",
+            "displayName": "油豆泡"
+          },
+          {
+            "name": "素鸡",
+            "displayName": "素鸡"
+          }
+        ],
+        "主食": [
+          {
+            "name": "小米",
+            "displayName": "小米辣"
+          }
+        ],
+        "菌菇": [
+          {
+            "name": "金针菇",
+            "displayName": "金针菇"
+          },
+          {
+            "name": "杏鲍菇",
+            "displayName": "杏鲍菇"
+          },
+          {
+            "name": "平菇",
+            "displayName": "平菇"
+          },
+          {
+            "name": "茶树菇",
+            "displayName": "茶树菇"
+          }
+        ],
+        "鱼": [
+          {
+            "name": "鲈鱼",
+            "displayName": "鲈鱼"
+          },
+          {
+            "name": "带鱼",
+            "displayName": "带鱼"
+          },
+          {
+            "name": "鱼头",
+            "displayName": "鱼头"
+          },
+          {
+            "name": "鲫鱼",
+            "displayName": "鲫鱼"
+          },
+          {
+            "name": "鲑鱼",
+            "displayName": "三文鱼"
+          },
+          {
+            "name": "小黄鱼",
+            "displayName": "小黄鱼"
+          }
+        ],
+        "河鲜": [
+          {
+            "name": "河虾",
+            "displayName": "河虾"
+          },
+          {
+            "name": "牛蛙",
+            "displayName": "牛蛙"
+          }
+        ],
+        "海鲜": [
+          {
+            "name": "虾仁",
+            "displayName": "海虾仁"
+          },
+          {
+            "name": "太子蟹",
+            "displayName": "太子蟹"
+          },
+          {
+            "name": "虾",
+            "displayName": "基围虾"
+          },
+          {
+            "name": "沙甲",
+            "displayName": "花甲"
+          },
+          {
+            "name": "鲍鱼",
+            "displayName": "鲍鱼"
+          },
+          {
+            "name": "鱿鱼",
+            "displayName": "发鱿鱼"
+          },
+          {
+            "name": "扇贝",
+            "displayName": "扇贝"
+          },
+          {
+            "name": "海带",
+            "displayName": "海带"
+          },
+          {
+            "name": "紫菜",
+            "displayName": "紫菜"
+          },
+          {
+            "name": "濑尿虾",
+            "displayName": "濑尿虾"
+          }
+        ],
+        "蛋奶": [
+          {
+            "name": "鸡蛋",
+            "displayName": "鸡蛋"
+          },
+          {
+            "name": "鹌鹑蛋",
+            "displayName": "鹌鹑蛋"
+          },
+          {
+            "name": "松花蛋",
+            "displayName": "松花皮蛋"
+          }
+        ],
+        "调味": [
+          {
+            "name": "仔姜",
+            "displayName": "嫩仔姜"
+          },
+          {
+            "name": "剁椒",
+            "displayName": "剁椒酱"
+          },
+          {
+            "name": "大葱",
+            "displayName": "大葱"
+          },
+          {
+            "name": "姜",
+            "displayName": "生姜"
+          },
+          {
+            "name": "干葱头",
+            "displayName": "干葱仔"
+          },
+          {
+            "name": "桂皮",
+            "displayName": "桂皮"
+          }
+        ]
+      }
+    },
+    "medium": {
+      "seasonal": {
+        "菜叶": [
+          {
+            "name": "蒜苔",
+            "displayName": "蒜苔"
+          },
+          {
+            "name": "菜心",
+            "displayName": "菜心"
+          },
+          {
+            "name": "豌豆尖",
+            "displayName": "豌豆尖"
+          },
+          {
+            "name": "蒜苗",
+            "displayName": "大蒜叶"
+          }
+        ],
+        "根茎": [
+          {
+            "name": "茭白",
+            "displayName": "茭白"
+          },
+          {
+            "name": "菱角",
+            "displayName": "熟棱角"
+          }
+        ],
+        "水果": [
+          {
+            "name": "板栗",
+            "displayName": "板栗仁"
+          }
+        ],
+        "豆类": [
+          {
+            "name": "毛豆",
+            "displayName": "毛豆"
+          },
+          {
+            "name": "蚕豆",
+            "displayName": "蚕豆"
+          }
+        ],
+        "河鲜": [
+          {
+            "name": "小龙虾",
+            "displayName": "小龙虾"
+          },
+          {
+            "name": "大闸蟹",
+            "displayName": "大闸蟹"
+          }
+        ],
+        "海鲜": [
+          {
+            "name": "梭子蟹",
+            "displayName": "梭子蟹"
+          },
+          {
+            "name": "生蚝",
+            "displayName": "牡蛎肉"
+          },
+          {
+            "name": "文蛤",
+            "displayName": "文哈"
+          }
+        ]
+      },
+      "yearRound": {
+        "肉类": [
+          {
+            "name": "猪肋排",
+            "displayName": "排骨"
+          },
+          {
+            "name": "鸡翅",
+            "displayName": "鸡中翅"
+          },
+          {
+            "name": "牛肉",
+            "displayName": "牛肉"
+          },
+          {
+            "name": "鸡腿",
+            "displayName": "琵琶腿"
+          },
+          {
+            "name": "鸡胸",
+            "displayName": "鸡胸肉"
+          },
+          {
+            "name": "牛腩",
+            "displayName": "牛肋条"
+          },
+          {
+            "name": "鸡爪",
+            "displayName": "凤爪"
+          },
+          {
+            "name": "腊肠",
+            "displayName": "广味腊肠"
+          },
+          {
+            "name": "牛排",
+            "displayName": "牛排"
+          },
+          {
+            "name": "猪里脊",
+            "displayName": "小里脊"
+          },
+          {
+            "name": "猪爪",
+            "displayName": "猪蹄"
+          },
+          {
+            "name": "羊排",
+            "displayName": "羊排"
+          },
+          {
+            "name": "羊肉",
+            "displayName": "羊肉"
+          },
+          {
+            "name": "三线肉",
+            "displayName": "五花肉"
+          },
+          {
+            "name": "腊肉",
+            "displayName": "腊排骨"
+          },
+          {
+            "name": "乌鸡",
+            "displayName": "乌鸡"
+          },
+          {
+            "name": "牛尾",
+            "displayName": "牛尾"
+          },
+          {
+            "name": "牛腿肉",
+            "displayName": "牛前腿肉"
+          },
+          {
+            "name": "羊蝎子",
+            "displayName": "羊蝎子"
+          },
+          {
+            "name": "鸭翅",
+            "displayName": "鸭翅"
+          },
+          {
+            "name": "羊腿",
+            "displayName": "羊腿"
+          },
+          {
+            "name": "猪肘",
+            "displayName": "猪前肘"
+          },
+          {
+            "name": "乳鸽",
+            "displayName": "鸽子"
+          },
+          {
+            "name": "吊龙",
+            "displayName": "吊龙"
+          },
+          {
+            "name": "牛板腱",
+            "displayName": "牛板腱"
+          },
+          {
+            "name": "鸭脚",
+            "displayName": "无骨鸭掌"
+          },
+          {
+            "name": "牛筋",
+            "displayName": "水发牛筋"
+          },
+          {
+            "name": "鸭肉",
+            "displayName": "土鸭"
+          },
+          {
+            "name": "母鸡",
+            "displayName": "三黄鸡"
+          },
+          {
+            "name": "猪皮",
+            "displayName": "猪皮"
+          },
+          {
+            "name": "猪脊骨",
+            "displayName": "脊骨"
+          },
+          {
+            "name": "鸭脖",
+            "displayName": "鸭脖子"
+          },
+          {
+            "name": "猪棒骨",
+            "displayName": "棒骨"
+          },
+          {
+            "name": "熏肉",
+            "displayName": "熏猪蹄"
+          },
+          {
+            "name": "鸭锁骨",
+            "displayName": "鸭锁骨"
+          }
+        ],
+        "内脏": [
+          {
+            "name": "猪肝",
+            "displayName": "猪肝"
+          },
+          {
+            "name": "猪大肠",
+            "displayName": "猪大肠"
+          },
+          {
+            "name": "猪心",
+            "displayName": "猪心"
+          },
+          {
+            "name": "猪肚",
+            "displayName": "猪肚"
+          },
+          {
+            "name": "鸡杂",
+            "displayName": "鸡心"
+          },
+          {
+            "name": "鸡肾",
+            "displayName": "鸡腰子"
+          },
+          {
+            "name": "鸭胗",
+            "displayName": "鸭君"
+          },
+          {
+            "name": "猪红",
+            "displayName": "猪血"
+          },
+          {
+            "name": "牛肚",
+            "displayName": "牛肚"
+          },
+          {
+            "name": "鸭肠",
+            "displayName": "鸭肠"
+          },
+          {
+            "name": "猪舌",
+            "displayName": "猪舌"
+          }
+        ],
+        "火锅": [
+          {
+            "name": "鸡蛋肠",
+            "displayName": "鸡蛋肠"
+          }
+        ],
+        "菜叶": [
+          {
+            "name": "白菜",
+            "displayName": "白菜"
+          },
+          {
+            "name": "菜花",
+            "displayName": "散花菜"
+          },
+          {
+            "name": "西蓝花",
+            "displayName": "西兰花"
+          },
+          {
+            "name": "娃娃菜",
+            "displayName": "娃娃菜"
+          },
+          {
+            "name": "包菜",
+            "displayName": "卷窝菜"
+          },
+          {
+            "name": "芹菜",
+            "displayName": "芹菜"
+          },
+          {
+            "name": "菠菜",
+            "displayName": "菠菜"
+          },
+          {
+            "name": "生菜",
+            "displayName": "球生菜"
+          },
+          {
+            "name": "韭菜",
+            "displayName": "土韭菜"
+          },
+          {
+            "name": "油菜",
+            "displayName": "小油菜"
+          },
+          {
+            "name": "油麦菜",
+            "displayName": "油麦菜"
+          },
+          {
+            "name": "青菜",
+            "displayName": "小青菜"
+          },
+          {
+            "name": "紫包菜",
+            "displayName": "紫甘蓝"
+          },
+          {
+            "name": "韭黄",
+            "displayName": "韭黄"
+          },
+          {
+            "name": "香芹",
+            "displayName": "香芹"
+          },
+          {
+            "name": "茼蒿",
+            "displayName": "茼蒿"
+          },
+          {
+            "name": "香菜",
+            "displayName": "香菜"
+          },
+          {
+            "name": "杭白菜",
+            "displayName": "小白菜"
+          },
+          {
+            "name": "上海青",
+            "displayName": "上海青"
+          },
+          {
+            "name": "苦菊",
+            "displayName": "苦菊"
+          }
+        ],
+        "瓜果": [
+          {
+            "name": "茄子",
+            "displayName": "白茄子"
+          },
+          {
+            "name": "南瓜",
+            "displayName": "南瓜"
+          },
+          {
+            "name": "番茄",
+            "displayName": "番茄"
+          },
+          {
+            "name": "秋葵",
+            "displayName": "秋葵"
+          },
+          {
+            "name": "青椒",
+            "displayName": "青椒"
+          },
+          {
+            "name": "丝瓜",
+            "displayName": "丝瓜"
+          },
+          {
+            "name": "冬瓜",
+            "displayName": "冬瓜"
+          },
+          {
+            "name": "苦瓜",
+            "displayName": "苦瓜"
+          },
+          {
+            "name": "西葫芦",
+            "displayName": "西葫芦"
+          },
+          {
+            "name": "长茄子",
+            "displayName": "细茄子"
+          },
+          {
+            "name": "皱皮椒",
+            "displayName": "皱皮椒"
+          },
+          {
+            "name": "玉米",
+            "displayName": "玉米"
+          },
+          {
+            "name": "小米椒",
+            "displayName": "小米椒"
+          },
+          {
+            "name": "黄瓜",
+            "displayName": "黄瓜"
+          },
+          {
+            "name": "杭椒",
+            "displayName": "杭椒"
+          },
+          {
+            "name": "红椒",
+            "displayName": "红椒"
+          },
+          {
+            "name": "圆椒",
+            "displayName": "圆彩椒"
+          },
+          {
+            "name": "糯白玉米",
+            "displayName": "糯玉米"
+          }
+        ],
+        "根茎": [
+          {
+            "name": "土豆",
+            "displayName": "土豆"
+          },
+          {
+            "name": "莲藕",
+            "displayName": "粉藕"
+          },
+          {
+            "name": "红薯",
+            "displayName": "地瓜"
+          },
+          {
+            "name": "芦笋",
+            "displayName": "芦笋"
+          },
+          {
+            "name": "山药",
+            "displayName": "山药"
+          },
+          {
+            "name": "胡萝卜",
+            "displayName": "胡萝卜"
+          },
+          {
+            "name": "萝卜",
+            "displayName": "白萝卜"
+          },
+          {
+            "name": "紫薯",
+            "displayName": "紫薯"
+          },
+          {
+            "name": "莴笋",
+            "displayName": "莴笋"
+          },
+          {
+            "name": "香芋",
+            "displayName": "芋头"
+          },
+          {
+            "name": "百合",
+            "displayName": "百合"
+          },
+          {
+            "name": "蜜薯",
+            "displayName": "蜜薯"
+          }
+        ],
+        "水果": [
+          {
+            "name": "板栗肉",
+            "displayName": "板栗肉"
+          }
+        ],
+        "豆类": [
+          {
+            "name": "红豆",
+            "displayName": "赤小豆"
+          },
+          {
+            "name": "豆角",
+            "displayName": "白豆角"
+          },
+          {
+            "name": "绿豆",
+            "displayName": "绿豆"
+          },
+          {
+            "name": "豌豆",
+            "displayName": "豌豆"
+          },
+          {
+            "name": "豆芽",
+            "displayName": "黄豆芽"
+          },
+          {
+            "name": "绿豆芽",
+            "displayName": "绿豆芽"
+          },
+          {
+            "name": "豇豆",
+            "displayName": "豇豆"
+          },
+          {
+            "name": "黑豆",
+            "displayName": "黑豆"
+          }
+        ],
+        "豆制品": [
+          {
+            "name": "豆腐",
+            "displayName": "内酯豆腐"
+          },
+          {
+            "name": "香干",
+            "displayName": "薄香干"
+          },
+          {
+            "name": "腐竹",
+            "displayName": "干腐竹"
+          },
+          {
+            "name": "豆腐皮",
+            "displayName": "干豆皮"
+          },
+          {
+            "name": "豆腐泡",
+            "displayName": "油豆泡"
+          },
+          {
+            "name": "素鸡",
+            "displayName": "素鸡"
+          },
+          {
+            "name": "格子豆腐",
+            "displayName": "格子豆腐"
+          },
+          {
+            "name": "烤麸",
+            "displayName": "面筋"
+          },
+          {
+            "name": "油豆皮",
+            "displayName": "豆油皮"
+          },
+          {
+            "name": "豆干丝",
+            "displayName": "千张丝"
+          },
+          {
+            "name": "千张",
+            "displayName": "厚千张"
+          },
+          {
+            "name": "臭豆腐",
+            "displayName": "臭豆腐"
+          }
+        ],
+        "主食": [
+          {
+            "name": "小米",
+            "displayName": "小米辣"
+          },
+          {
+            "name": "粉丝",
+            "displayName": "粉丝"
+          }
+        ],
+        "菌菇": [
+          {
+            "name": "金针菇",
+            "displayName": "金针菇"
+          },
+          {
+            "name": "杏鲍菇",
+            "displayName": "杏鲍菇"
+          },
+          {
+            "name": "平菇",
+            "displayName": "平菇"
+          },
+          {
+            "name": "茶树菇",
+            "displayName": "茶树菇"
+          },
+          {
+            "name": "海鲜菇",
+            "displayName": "海鲜菇"
+          },
+          {
+            "name": "香菇",
+            "displayName": "香菇"
+          },
+          {
+            "name": "白玉菇",
+            "displayName": "白玉菇"
+          },
+          {
+            "name": "虫草菇",
+            "displayName": "虫草花"
+          }
+        ],
+        "鱼": [
+          {
+            "name": "鲈鱼",
+            "displayName": "鲈鱼"
+          },
+          {
+            "name": "带鱼",
+            "displayName": "带鱼"
+          },
+          {
+            "name": "鱼头",
+            "displayName": "鱼头"
+          },
+          {
+            "name": "鲫鱼",
+            "displayName": "鲫鱼"
+          },
+          {
+            "name": "鲑鱼",
+            "displayName": "三文鱼"
+          },
+          {
+            "name": "小黄鱼",
+            "displayName": "小黄鱼"
+          },
+          {
+            "name": "巴沙鱼",
+            "displayName": "巴沙鱼"
+          },
+          {
+            "name": "多宝鱼",
+            "displayName": "多宝鱼"
+          },
+          {
+            "name": "鳜鱼",
+            "displayName": "桂花鱼"
+          },
+          {
+            "name": "黑鱼",
+            "displayName": "黑鱼"
+          },
+          {
+            "name": "鳝鱼",
+            "displayName": "鳝鱼"
+          },
+          {
+            "name": "草鱼",
+            "displayName": "草鱼"
+          }
+        ],
+        "河鲜": [
+          {
+            "name": "河虾",
+            "displayName": "河虾"
+          },
+          {
+            "name": "牛蛙",
+            "displayName": "牛蛙"
+          },
+          {
+            "name": "田螺",
+            "displayName": "田螺"
+          },
+          {
+            "name": "罗氏虾",
+            "displayName": "罗氏虾"
+          },
+          {
+            "name": "泥鳅",
+            "displayName": "泥鳅"
+          }
+        ],
+        "海鲜": [
+          {
+            "name": "虾仁",
+            "displayName": "海虾仁"
+          },
+          {
+            "name": "太子蟹",
+            "displayName": "太子蟹"
+          },
+          {
+            "name": "虾",
+            "displayName": "基围虾"
+          },
+          {
+            "name": "沙甲",
+            "displayName": "花甲"
+          },
+          {
+            "name": "鲍鱼",
+            "displayName": "鲍鱼"
+          },
+          {
+            "name": "鱿鱼",
+            "displayName": "发鱿鱼"
+          },
+          {
+            "name": "扇贝",
+            "displayName": "扇贝"
+          },
+          {
+            "name": "海带",
+            "displayName": "海带"
+          },
+          {
+            "name": "紫菜",
+            "displayName": "紫菜"
+          },
+          {
+            "name": "濑尿虾",
+            "displayName": "濑尿虾"
+          },
+          {
+            "name": "龙虾",
+            "displayName": "龙虾"
+          },
+          {
+            "name": "蛏子",
+            "displayName": "蛏子"
+          },
+          {
+            "name": "虾皮",
+            "displayName": "干虾皮"
+          },
+          {
+            "name": "波士顿龙虾",
+            "displayName": "波士顿龙虾"
+          },
+          {
+            "name": "花螺",
+            "displayName": "花螺"
+          },
+          {
+            "name": "海带结",
+            "displayName": "海带结"
+          },
+          {
+            "name": "墨鱼干",
+            "displayName": "墨鱼干"
+          },
+          {
+            "name": "大带子",
+            "displayName": "大带子"
+          },
+          {
+            "name": "澳龙",
+            "displayName": "澳龙"
+          }
+        ],
+        "蛋奶": [
+          {
+            "name": "鸡蛋",
+            "displayName": "鸡蛋"
+          },
+          {
+            "name": "鹌鹑蛋",
+            "displayName": "鹌鹑蛋"
+          },
+          {
+            "name": "松花蛋",
+            "displayName": "松花皮蛋"
+          },
+          {
+            "name": "咸蛋",
+            "displayName": "咸鸭蛋"
+          },
+          {
+            "name": "海鸭蛋",
+            "displayName": "鸭蛋"
+          }
+        ],
+        "调味": [
+          {
+            "name": "仔姜",
+            "displayName": "嫩仔姜"
+          },
+          {
+            "name": "剁椒",
+            "displayName": "剁椒酱"
+          },
+          {
+            "name": "大葱",
+            "displayName": "大葱"
+          },
+          {
+            "name": "姜",
+            "displayName": "生姜"
+          },
+          {
+            "name": "干葱头",
+            "displayName": "干葱仔"
+          },
+          {
+            "name": "桂皮",
+            "displayName": "桂皮"
+          },
+          {
+            "name": "沙姜",
+            "displayName": "沙姜"
+          },
+          {
+            "name": "独蒜",
+            "displayName": "独头蒜"
+          },
+          {
+            "name": "紫苏",
+            "displayName": "紫苏"
+          },
+          {
+            "name": "罗勒",
+            "displayName": "九层塔"
+          },
+          {
+            "name": "胡椒",
+            "displayName": "胡椒"
+          },
+          {
+            "name": "花椒",
+            "displayName": "花椒"
+          }
+        ]
+      }
+    },
+    "large": {
+      "seasonal": {
+        "菜叶": [
+          {
+            "name": "蒜苔",
+            "displayName": "蒜苔"
+          },
+          {
+            "name": "菜心",
+            "displayName": "菜心"
+          },
+          {
+            "name": "豌豆尖",
+            "displayName": "豌豆尖"
+          },
+          {
+            "name": "蒜苗",
+            "displayName": "大蒜叶"
+          },
+          {
+            "name": "荠菜",
+            "displayName": "地菜"
+          },
+          {
+            "name": "芦蒿",
+            "displayName": "蒿子秆"
+          }
+        ],
+        "根茎": [
+          {
+            "name": "茭白",
+            "displayName": "茭白"
+          },
+          {
+            "name": "菱角",
+            "displayName": "熟棱角"
+          }
+        ],
+        "水果": [
+          {
+            "name": "板栗",
+            "displayName": "板栗仁"
+          }
+        ],
+        "豆类": [
+          {
+            "name": "毛豆",
+            "displayName": "毛豆"
+          },
+          {
+            "name": "蚕豆",
+            "displayName": "蚕豆"
+          }
+        ],
+        "菌菇": [
+          {
+            "name": "牛肝菌",
+            "displayName": "黑牛肝菌"
+          }
+        ],
+        "鱼": [
+          {
+            "name": "武昌鱼",
+            "displayName": "武昌鱼"
+          }
+        ],
+        "河鲜": [
+          {
+            "name": "小龙虾",
+            "displayName": "小龙虾"
+          },
+          {
+            "name": "大闸蟹",
+            "displayName": "大闸蟹"
+          }
+        ],
+        "海鲜": [
+          {
+            "name": "梭子蟹",
+            "displayName": "梭子蟹"
+          },
+          {
+            "name": "生蚝",
+            "displayName": "牡蛎肉"
+          },
+          {
+            "name": "文蛤",
+            "displayName": "文哈"
+          },
+          {
+            "name": "蚬子",
+            "displayName": "蚬子"
+          }
+        ]
+      },
+      "yearRound": {
+        "肉类": [
+          {
+            "name": "猪肋排",
+            "displayName": "排骨"
+          },
+          {
+            "name": "鸡翅",
+            "displayName": "鸡中翅"
+          },
+          {
+            "name": "牛肉",
+            "displayName": "牛肉"
+          },
+          {
+            "name": "鸡腿",
+            "displayName": "琵琶腿"
+          },
+          {
+            "name": "鸡胸",
+            "displayName": "鸡胸肉"
+          },
+          {
+            "name": "牛腩",
+            "displayName": "牛肋条"
+          },
+          {
+            "name": "鸡爪",
+            "displayName": "凤爪"
+          },
+          {
+            "name": "腊肠",
+            "displayName": "广味腊肠"
+          },
+          {
+            "name": "牛排",
+            "displayName": "牛排"
+          },
+          {
+            "name": "猪里脊",
+            "displayName": "小里脊"
+          },
+          {
+            "name": "猪爪",
+            "displayName": "猪蹄"
+          },
+          {
+            "name": "羊排",
+            "displayName": "羊排"
+          },
+          {
+            "name": "羊肉",
+            "displayName": "羊肉"
+          },
+          {
+            "name": "三线肉",
+            "displayName": "五花肉"
+          },
+          {
+            "name": "腊肉",
+            "displayName": "腊排骨"
+          },
+          {
+            "name": "乌鸡",
+            "displayName": "乌鸡"
+          },
+          {
+            "name": "牛尾",
+            "displayName": "牛尾"
+          },
+          {
+            "name": "牛腿肉",
+            "displayName": "牛前腿肉"
+          },
+          {
+            "name": "羊蝎子",
+            "displayName": "羊蝎子"
+          },
+          {
+            "name": "鸭翅",
+            "displayName": "鸭翅"
+          },
+          {
+            "name": "羊腿",
+            "displayName": "羊腿"
+          },
+          {
+            "name": "猪肘",
+            "displayName": "猪前肘"
+          },
+          {
+            "name": "乳鸽",
+            "displayName": "鸽子"
+          },
+          {
+            "name": "吊龙",
+            "displayName": "吊龙"
+          },
+          {
+            "name": "牛板腱",
+            "displayName": "牛板腱"
+          },
+          {
+            "name": "鸭脚",
+            "displayName": "无骨鸭掌"
+          },
+          {
+            "name": "牛筋",
+            "displayName": "水发牛筋"
+          },
+          {
+            "name": "鸭肉",
+            "displayName": "土鸭"
+          },
+          {
+            "name": "母鸡",
+            "displayName": "三黄鸡"
+          },
+          {
+            "name": "猪皮",
+            "displayName": "猪皮"
+          },
+          {
+            "name": "猪脊骨",
+            "displayName": "脊骨"
+          },
+          {
+            "name": "鸭脖",
+            "displayName": "鸭脖子"
+          },
+          {
+            "name": "猪棒骨",
+            "displayName": "棒骨"
+          },
+          {
+            "name": "熏肉",
+            "displayName": "熏猪蹄"
+          },
+          {
+            "name": "鸭锁骨",
+            "displayName": "鸭锁骨"
+          },
+          {
+            "name": "梅花肉",
+            "displayName": "梅花肉"
+          },
+          {
+            "name": "猪瘦肉",
+            "displayName": "猪瘦肉"
+          },
+          {
+            "name": "猪尾巴",
+            "displayName": "猪尾巴"
+          },
+          {
+            "name": "鸡架",
+            "displayName": "鸡架"
+          },
+          {
+            "name": "蹄膀",
+            "displayName": "蹄膀"
+          },
+          {
+            "name": "公鸡",
+            "displayName": "公鸡"
+          },
+          {
+            "name": "大鹅",
+            "displayName": "大鹅"
+          },
+          {
+            "name": "腊鸭",
+            "displayName": "腊鸭"
+          },
+          {
+            "name": "鸭头",
+            "displayName": "鸭头"
+          },
+          {
+            "name": "牛棒骨",
+            "displayName": "牛棒骨"
+          },
+          {
+            "name": "腊猪脚",
+            "displayName": "腊猪脚"
+          },
+          {
+            "name": "腊鸡腿",
+            "displayName": "腊鸡腿"
+          },
+          {
+            "name": "麻鸭",
+            "displayName": "麻鸭"
+          },
+          {
+            "name": "猪筒",
+            "displayName": "猪筒骨"
+          },
+          {
+            "name": "猪扇骨",
+            "displayName": "猪扇骨"
+          },
+          {
+            "name": "猪前腿肉",
+            "displayName": "猪前腿肉"
+          },
+          {
+            "name": "牛胸油",
+            "displayName": "牛胸油"
+          }
+        ],
+        "内脏": [
+          {
+            "name": "猪肝",
+            "displayName": "猪肝"
+          },
+          {
+            "name": "猪大肠",
+            "displayName": "猪大肠"
+          },
+          {
+            "name": "猪心",
+            "displayName": "猪心"
+          },
+          {
+            "name": "猪肚",
+            "displayName": "猪肚"
+          },
+          {
+            "name": "鸡杂",
+            "displayName": "鸡心"
+          },
+          {
+            "name": "鸡肾",
+            "displayName": "鸡腰子"
+          },
+          {
+            "name": "鸭胗",
+            "displayName": "鸭君"
+          },
+          {
+            "name": "猪红",
+            "displayName": "猪血"
+          },
+          {
+            "name": "牛肚",
+            "displayName": "牛肚"
+          },
+          {
+            "name": "鸭肠",
+            "displayName": "鸭肠"
+          },
+          {
+            "name": "猪舌",
+            "displayName": "猪舌"
+          },
+          {
+            "name": "鸭郡肝",
+            "displayName": "鸭郡肝"
+          },
+          {
+            "name": "猪腰",
+            "displayName": "猪腰"
+          },
+          {
+            "name": "鱼泡",
+            "displayName": "鱼泡"
+          },
+          {
+            "name": "猪脑",
+            "displayName": "猪脑"
+          },
+          {
+            "name": "鱼杂",
+            "displayName": "鱼杂"
+          }
+        ],
+        "火锅": [
+          {
+            "name": "鸡蛋肠",
+            "displayName": "鸡蛋肠"
+          }
+        ],
+        "菜叶": [
+          {
+            "name": "白菜",
+            "displayName": "白菜"
+          },
+          {
+            "name": "菜花",
+            "displayName": "散花菜"
+          },
+          {
+            "name": "西蓝花",
+            "displayName": "西兰花"
+          },
+          {
+            "name": "娃娃菜",
+            "displayName": "娃娃菜"
+          },
+          {
+            "name": "包菜",
+            "displayName": "卷窝菜"
+          },
+          {
+            "name": "芹菜",
+            "displayName": "芹菜"
+          },
+          {
+            "name": "菠菜",
+            "displayName": "菠菜"
+          },
+          {
+            "name": "生菜",
+            "displayName": "球生菜"
+          },
+          {
+            "name": "韭菜",
+            "displayName": "土韭菜"
+          },
+          {
+            "name": "油菜",
+            "displayName": "小油菜"
+          },
+          {
+            "name": "油麦菜",
+            "displayName": "油麦菜"
+          },
+          {
+            "name": "青菜",
+            "displayName": "小青菜"
+          },
+          {
+            "name": "紫包菜",
+            "displayName": "紫甘蓝"
+          },
+          {
+            "name": "韭黄",
+            "displayName": "韭黄"
+          },
+          {
+            "name": "香芹",
+            "displayName": "香芹"
+          },
+          {
+            "name": "茼蒿",
+            "displayName": "茼蒿"
+          },
+          {
+            "name": "香菜",
+            "displayName": "香菜"
+          },
+          {
+            "name": "杭白菜",
+            "displayName": "小白菜"
+          },
+          {
+            "name": "上海青",
+            "displayName": "上海青"
+          },
+          {
+            "name": "苦菊",
+            "displayName": "苦菊"
+          },
+          {
+            "name": "鸡毛菜",
+            "displayName": "鸡毛菜"
+          },
+          {
+            "name": "折耳根",
+            "displayName": "折耳根"
+          },
+          {
+            "name": "菜苔",
+            "displayName": "菜苔"
+          },
+          {
+            "name": "红薯尖",
+            "displayName": "红薯尖"
+          },
+          {
+            "name": "沙葱",
+            "displayName": "沙葱"
+          },
+          {
+            "name": "芝麻菜",
+            "displayName": "芝麻菜"
+          },
+          {
+            "name": "黄心菜",
+            "displayName": "黄心菜"
+          },
+          {
+            "name": "荷兰芹",
+            "displayName": "荷兰芹"
+          },
+          {
+            "name": "睡莲",
+            "displayName": "睡莲"
+          },
+          {
+            "name": "小茴香菜",
+            "displayName": "小茴香菜"
+          }
+        ],
+        "瓜果": [
+          {
+            "name": "茄子",
+            "displayName": "白茄子"
+          },
+          {
+            "name": "南瓜",
+            "displayName": "南瓜"
+          },
+          {
+            "name": "番茄",
+            "displayName": "番茄"
+          },
+          {
+            "name": "秋葵",
+            "displayName": "秋葵"
+          },
+          {
+            "name": "青椒",
+            "displayName": "青椒"
+          },
+          {
+            "name": "丝瓜",
+            "displayName": "丝瓜"
+          },
+          {
+            "name": "冬瓜",
+            "displayName": "冬瓜"
+          },
+          {
+            "name": "苦瓜",
+            "displayName": "苦瓜"
+          },
+          {
+            "name": "西葫芦",
+            "displayName": "西葫芦"
+          },
+          {
+            "name": "长茄子",
+            "displayName": "细茄子"
+          },
+          {
+            "name": "皱皮椒",
+            "displayName": "皱皮椒"
+          },
+          {
+            "name": "玉米",
+            "displayName": "玉米"
+          },
+          {
+            "name": "小米椒",
+            "displayName": "小米椒"
+          },
+          {
+            "name": "黄瓜",
+            "displayName": "黄瓜"
+          },
+          {
+            "name": "杭椒",
+            "displayName": "杭椒"
+          },
+          {
+            "name": "红椒",
+            "displayName": "红椒"
+          },
+          {
+            "name": "圆椒",
+            "displayName": "圆彩椒"
+          },
+          {
+            "name": "糯白玉米",
+            "displayName": "糯玉米"
+          },
+          {
+            "name": "红彩椒",
+            "displayName": "红彩椒"
+          },
+          {
+            "name": "青南瓜",
+            "displayName": "嫩南瓜"
+          },
+          {
+            "name": "绿茄子",
+            "displayName": "青茄子"
+          },
+          {
+            "name": "线椒",
+            "displayName": "青线椒"
+          },
+          {
+            "name": "瓠瓜",
+            "displayName": "瓠子瓜"
+          },
+          {
+            "name": "螺丝椒",
+            "displayName": "螺丝椒"
+          },
+          {
+            "name": "水果黄瓜",
+            "displayName": "水果黄瓜"
+          },
+          {
+            "name": "旱黄瓜",
+            "displayName": "旱黄瓜"
+          },
+          {
+            "name": "菜椒",
+            "displayName": "菜椒"
+          }
+        ],
+        "根茎": [
+          {
+            "name": "土豆",
+            "displayName": "土豆"
+          },
+          {
+            "name": "莲藕",
+            "displayName": "粉藕"
+          },
+          {
+            "name": "红薯",
+            "displayName": "地瓜"
+          },
+          {
+            "name": "芦笋",
+            "displayName": "芦笋"
+          },
+          {
+            "name": "山药",
+            "displayName": "山药"
+          },
+          {
+            "name": "胡萝卜",
+            "displayName": "胡萝卜"
+          },
+          {
+            "name": "萝卜",
+            "displayName": "白萝卜"
+          },
+          {
+            "name": "紫薯",
+            "displayName": "紫薯"
+          },
+          {
+            "name": "莴笋",
+            "displayName": "莴笋"
+          },
+          {
+            "name": "香芋",
+            "displayName": "芋头"
+          },
+          {
+            "name": "百合",
+            "displayName": "百合"
+          },
+          {
+            "name": "蜜薯",
+            "displayName": "蜜薯"
+          },
+          {
+            "name": "铁棍山药",
+            "displayName": "铁棍山药"
+          },
+          {
+            "name": "水果萝卜",
+            "displayName": "樱桃萝卜"
+          },
+          {
+            "name": "洋姜",
+            "displayName": "黑洋姜"
+          },
+          {
+            "name": "水笋",
+            "displayName": "水笋"
+          },
+          {
+            "name": "洋葱",
+            "displayName": "洋葱"
+          },
+          {
+            "name": "青萝卜",
+            "displayName": "青萝卜"
+          }
+        ],
+        "水果": [
+          {
+            "name": "板栗肉",
+            "displayName": "板栗肉"
+          },
+          {
+            "name": "青柠檬",
+            "displayName": "青柠檬"
+          }
+        ],
+        "豆类": [
+          {
+            "name": "红豆",
+            "displayName": "赤小豆"
+          },
+          {
+            "name": "豆角",
+            "displayName": "白豆角"
+          },
+          {
+            "name": "绿豆",
+            "displayName": "绿豆"
+          },
+          {
+            "name": "豌豆",
+            "displayName": "豌豆"
+          },
+          {
+            "name": "豆芽",
+            "displayName": "黄豆芽"
+          },
+          {
+            "name": "绿豆芽",
+            "displayName": "绿豆芽"
+          },
+          {
+            "name": "豇豆",
+            "displayName": "豇豆"
+          },
+          {
+            "name": "黑豆",
+            "displayName": "黑豆"
+          },
+          {
+            "name": "甜豆",
+            "displayName": "甜豆"
+          },
+          {
+            "name": "脆皮豆",
+            "displayName": "脆皮豆"
+          },
+          {
+            "name": "花生芽",
+            "displayName": "花生芽"
+          },
+          {
+            "name": "四季豆",
+            "displayName": "四季豆"
+          }
+        ],
+        "豆制品": [
+          {
+            "name": "豆腐",
+            "displayName": "内酯豆腐"
+          },
+          {
+            "name": "香干",
+            "displayName": "薄香干"
+          },
+          {
+            "name": "腐竹",
+            "displayName": "干腐竹"
+          },
+          {
+            "name": "豆腐皮",
+            "displayName": "干豆皮"
+          },
+          {
+            "name": "豆腐泡",
+            "displayName": "油豆泡"
+          },
+          {
+            "name": "素鸡",
+            "displayName": "素鸡"
+          },
+          {
+            "name": "格子豆腐",
+            "displayName": "格子豆腐"
+          },
+          {
+            "name": "烤麸",
+            "displayName": "面筋"
+          },
+          {
+            "name": "油豆皮",
+            "displayName": "豆油皮"
+          },
+          {
+            "name": "豆干丝",
+            "displayName": "千张丝"
+          },
+          {
+            "name": "千张",
+            "displayName": "厚千张"
+          },
+          {
+            "name": "臭豆腐",
+            "displayName": "臭豆腐"
+          },
+          {
+            "name": "素鲍鱼",
+            "displayName": "素鲍鱼"
+          },
+          {
+            "name": "脆皮豆腐",
+            "displayName": "脆皮豆腐"
+          },
+          {
+            "name": "魔芋豆腐",
+            "displayName": "魔芋豆腐"
+          },
+          {
+            "name": "干豆腐结",
+            "displayName": "千张结"
+          },
+          {
+            "name": "响铃卷",
+            "displayName": "响铃卷"
+          },
+          {
+            "name": "油炸干子",
+            "displayName": "油炸干子"
+          }
+        ],
+        "主食": [
+          {
+            "name": "小米",
+            "displayName": "小米辣"
+          },
+          {
+            "name": "粉丝",
+            "displayName": "粉丝"
+          }
+        ],
+        "菌菇": [
+          {
+            "name": "金针菇",
+            "displayName": "金针菇"
+          },
+          {
+            "name": "杏鲍菇",
+            "displayName": "杏鲍菇"
+          },
+          {
+            "name": "平菇",
+            "displayName": "平菇"
+          },
+          {
+            "name": "茶树菇",
+            "displayName": "茶树菇"
+          },
+          {
+            "name": "海鲜菇",
+            "displayName": "海鲜菇"
+          },
+          {
+            "name": "香菇",
+            "displayName": "香菇"
+          },
+          {
+            "name": "白玉菇",
+            "displayName": "白玉菇"
+          },
+          {
+            "name": "虫草菇",
+            "displayName": "虫草花"
+          },
+          {
+            "name": "木耳菜",
+            "displayName": "木耳菜"
+          },
+          {
+            "name": "蟹味菇",
+            "displayName": "蟹味菇"
+          }
+        ],
+        "鱼": [
+          {
+            "name": "鲈鱼",
+            "displayName": "鲈鱼"
+          },
+          {
+            "name": "带鱼",
+            "displayName": "带鱼"
+          },
+          {
+            "name": "鱼头",
+            "displayName": "鱼头"
+          },
+          {
+            "name": "鲫鱼",
+            "displayName": "鲫鱼"
+          },
+          {
+            "name": "鲑鱼",
+            "displayName": "三文鱼"
+          },
+          {
+            "name": "小黄鱼",
+            "displayName": "小黄鱼"
+          },
+          {
+            "name": "巴沙鱼",
+            "displayName": "巴沙鱼"
+          },
+          {
+            "name": "多宝鱼",
+            "displayName": "多宝鱼"
+          },
+          {
+            "name": "鳜鱼",
+            "displayName": "桂花鱼"
+          },
+          {
+            "name": "黑鱼",
+            "displayName": "黑鱼"
+          },
+          {
+            "name": "鳝鱼",
+            "displayName": "鳝鱼"
+          },
+          {
+            "name": "草鱼",
+            "displayName": "草鱼"
+          },
+          {
+            "name": "黄鱼",
+            "displayName": "黄鱼"
+          },
+          {
+            "name": "嘎鱼",
+            "displayName": "嘎鱼"
+          },
+          {
+            "name": "剥皮鱼",
+            "displayName": "剥皮鱼"
+          },
+          {
+            "name": "老虎斑",
+            "displayName": "老虎斑"
+          },
+          {
+            "name": "腊草鱼干",
+            "displayName": "腊草鱼干"
+          }
+        ],
+        "河鲜": [
+          {
+            "name": "河虾",
+            "displayName": "河虾"
+          },
+          {
+            "name": "牛蛙",
+            "displayName": "牛蛙"
+          },
+          {
+            "name": "田螺",
+            "displayName": "田螺"
+          },
+          {
+            "name": "罗氏虾",
+            "displayName": "罗氏虾"
+          },
+          {
+            "name": "泥鳅",
+            "displayName": "泥鳅"
+          },
+          {
+            "name": "甲鱼",
+            "displayName": "甲鱼"
+          },
+          {
+            "name": "钉螺",
+            "displayName": "钉螺"
+          },
+          {
+            "name": "青蛙",
+            "displayName": "青蛙"
+          }
+        ],
+        "海鲜": [
+          {
+            "name": "虾仁",
+            "displayName": "海虾仁"
+          },
+          {
+            "name": "太子蟹",
+            "displayName": "太子蟹"
+          },
+          {
+            "name": "虾",
+            "displayName": "基围虾"
+          },
+          {
+            "name": "沙甲",
+            "displayName": "花甲"
+          },
+          {
+            "name": "鲍鱼",
+            "displayName": "鲍鱼"
+          },
+          {
+            "name": "鱿鱼",
+            "displayName": "发鱿鱼"
+          },
+          {
+            "name": "扇贝",
+            "displayName": "扇贝"
+          },
+          {
+            "name": "海带",
+            "displayName": "海带"
+          },
+          {
+            "name": "紫菜",
+            "displayName": "紫菜"
+          },
+          {
+            "name": "濑尿虾",
+            "displayName": "濑尿虾"
+          },
+          {
+            "name": "龙虾",
+            "displayName": "龙虾"
+          },
+          {
+            "name": "蛏子",
+            "displayName": "蛏子"
+          },
+          {
+            "name": "虾皮",
+            "displayName": "干虾皮"
+          },
+          {
+            "name": "波士顿龙虾",
+            "displayName": "波士顿龙虾"
+          },
+          {
+            "name": "花螺",
+            "displayName": "花螺"
+          },
+          {
+            "name": "海带结",
+            "displayName": "海带结"
+          },
+          {
+            "name": "墨鱼干",
+            "displayName": "墨鱼干"
+          },
+          {
+            "name": "大带子",
+            "displayName": "大带子"
+          },
+          {
+            "name": "澳龙",
+            "displayName": "澳龙"
+          },
+          {
+            "name": "斑节虾",
+            "displayName": "九节虾"
+          },
+          {
+            "name": "帝王蟹",
+            "displayName": "帝王蟹"
+          },
+          {
+            "name": "血哈",
+            "displayName": "血哈"
+          },
+          {
+            "name": "白虾",
+            "displayName": "海白虾"
+          },
+          {
+            "name": "黄道蟹",
+            "displayName": "黄道蟹"
+          },
+          {
+            "name": "小青龙",
+            "displayName": "小青龙"
+          },
+          {
+            "name": "大蛤蛎",
+            "displayName": "大蛤蛎"
+          },
+          {
+            "name": "板蟹",
+            "displayName": "板蟹"
+          },
+          {
+            "name": "花龙",
+            "displayName": "花龙"
+          },
+          {
+            "name": "螃蟹",
+            "displayName": "螃蟹"
+          }
+        ],
+        "蛋奶": [
+          {
+            "name": "鸡蛋",
+            "displayName": "鸡蛋"
+          },
+          {
+            "name": "鹌鹑蛋",
+            "displayName": "鹌鹑蛋"
+          },
+          {
+            "name": "松花蛋",
+            "displayName": "松花皮蛋"
+          },
+          {
+            "name": "咸蛋",
+            "displayName": "咸鸭蛋"
+          },
+          {
+            "name": "海鸭蛋",
+            "displayName": "鸭蛋"
+          },
+          {
+            "name": "鹅蛋",
+            "displayName": "生鹅蛋"
+          },
+          {
+            "name": "鸽子蛋",
+            "displayName": "鸽子蛋"
+          }
+        ],
+        "调味": [
+          {
+            "name": "仔姜",
+            "displayName": "嫩仔姜"
+          },
+          {
+            "name": "剁椒",
+            "displayName": "剁椒酱"
+          },
+          {
+            "name": "大葱",
+            "displayName": "大葱"
+          },
+          {
+            "name": "姜",
+            "displayName": "生姜"
+          },
+          {
+            "name": "干葱头",
+            "displayName": "干葱仔"
+          },
+          {
+            "name": "桂皮",
+            "displayName": "桂皮"
+          },
+          {
+            "name": "沙姜",
+            "displayName": "沙姜"
+          },
+          {
+            "name": "独蒜",
+            "displayName": "独头蒜"
+          },
+          {
+            "name": "紫苏",
+            "displayName": "紫苏"
+          },
+          {
+            "name": "罗勒",
+            "displayName": "九层塔"
+          },
+          {
+            "name": "胡椒",
+            "displayName": "胡椒"
+          },
+          {
+            "name": "花椒",
+            "displayName": "花椒"
+          },
+          {
+            "name": "葱",
+            "displayName": "小葱"
+          },
+          {
+            "name": "蒜",
+            "displayName": "大蒜"
+          },
+          {
+            "name": "蒜米",
+            "displayName": "蒜泥"
+          },
+          {
+            "name": "薄荷",
+            "displayName": "薄荷"
+          },
+          {
+            "name": "迷迭香",
+            "displayName": "迷迭香"
+          },
+          {
+            "name": "香茅",
+            "displayName": "柠檬叶"
+          }
+        ]
+      }
+    }
+  },
+  "_meta": {
+    "builtAt": "2026-10-28T08:54:57.488847Z",
+    "popularitySource": [
+      "xiachufang-category-results.cleaned.json",
+      "xiachufang-search-results.cleaned.json"
+    ],
+    "unmapped": [
+      "空心菜",
+      "红苋菜",
+      "猪后",
+      "猪耳朵",
+      "胖头鱼",
+      "腿肉",
+      "鸡胗",
+      "鸡菌"
+    ],
+    "displayNameRule": "first local shelf name per canonical"
+  }
+}
