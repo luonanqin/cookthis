@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
-# 与 miniprogram/pages/mine/mine.js AVOID_OPTIONS 一致（不含 lamb/other）
+# 空文件种子；与 miniprogram/pages/mine/mine.js AVOID_OPTIONS 一致（不含 lamb/other）
 AVOID_VOCAB = [
     {"id": "pork", "label": "猪肉类"},
     {"id": "seafood", "label": "海鲜"},
@@ -16,16 +17,62 @@ AVOID_VOCAB = [
 
 AVOID_IDS = {x["id"] for x in AVOID_VOCAB}
 
+_G_ID = re.compile(r"^g(\d+)$")
+
+
+def vocab_ids(vocab: list) -> set[str]:
+    return {str(x.get("id") or "") for x in (vocab or []) if x.get("id")}
+
+
+def next_g_id(vocab: list) -> str:
+    nmax = 0
+    for x in vocab or []:
+        m = _G_ID.match(str(x.get("id") or ""))
+        if m:
+            nmax = max(nmax, int(m.group(1)))
+    return f"g{nmax + 1}"
+
+
+def add_avoid_group(
+    vocab: list, members: dict, label: str
+) -> tuple[list, dict, str]:
+    label = str(label or "").strip()
+    if not label:
+        raise ValueError("label required")
+    vocab = [dict(x) for x in (vocab or [])]
+    members = {k: list(v) for k, v in (members or {}).items()}
+    if any(str(x.get("label") or "") == label for x in vocab):
+        raise ValueError("duplicate label")
+    nid = next_g_id(vocab)
+    vocab.append({"id": nid, "label": label})
+    members.setdefault(nid, [])
+    return vocab, members, nid
+
+
+def remove_avoid_group(vocab: list, members: dict, code: str) -> tuple[list, dict]:
+    code = str(code or "").strip()
+    vocab = [dict(x) for x in (vocab or [])]
+    members = {k: list(v) for k, v in (members or {}).items()}
+    if not any(x.get("id") == code for x in vocab):
+        raise KeyError(code)
+    vocab = [x for x in vocab if x.get("id") != code]
+    members.pop(code, None)
+    return vocab, members
+
 
 def ensure_avoid_fields(major_minor: dict) -> dict:
     """若缺则写入空 avoidVocab / avoidMembers；原地改并返回同一 dict。"""
     if not isinstance(major_minor.get("avoidVocab"), list) or not major_minor["avoidVocab"]:
         major_minor["avoidVocab"] = [dict(x) for x in AVOID_VOCAB]
     if not isinstance(major_minor.get("avoidMembers"), dict):
-        major_minor["avoidMembers"] = {x["id"]: [] for x in AVOID_VOCAB}
+        major_minor["avoidMembers"] = {
+            str(x["id"]): [] for x in major_minor["avoidVocab"] if x.get("id")
+        }
     else:
-        for x in AVOID_VOCAB:
-            major_minor["avoidMembers"].setdefault(x["id"], [])
+        for x in major_minor["avoidVocab"]:
+            i = x.get("id")
+            if i:
+                major_minor["avoidMembers"].setdefault(str(i), [])
     return major_minor
 
 
@@ -48,10 +95,18 @@ def canons_for_category(editor_doc: dict, category: str) -> list[str]:
     return out
 
 
-def add_member(avoid_members: dict, code: str, name: str) -> dict:
+def add_member(
+    avoid_members: dict,
+    code: str,
+    name: str,
+    *,
+    allowed_ids: set[str] | None = None,
+) -> dict:
     """幂等 append；原地改 avoid_members。"""
+    ids = allowed_ids if allowed_ids is not None else AVOID_IDS
     name = str(name or "").strip()
-    if not name or code not in AVOID_IDS:
+    code = str(code or "").strip()
+    if not name or code not in ids:
         return avoid_members
     lst = avoid_members.setdefault(code, [])
     if name not in lst:
@@ -91,12 +146,21 @@ def canonical_of(surface: str, aliases: dict) -> str:
     return _alias_surface_to_canon(aliases).get(s, s)
 
 
-def bootstrap_from_builtin(builtin_list: list, aliases: dict) -> dict[str, list[str]]:
+def _resolve_ids(vocab: list | None) -> set[str]:
+    if vocab is not None:
+        return vocab_ids(vocab)
+    return set(AVOID_IDS)
+
+
+def bootstrap_from_builtin(
+    builtin_list: list, aliases: dict, vocab: list | None = None
+) -> dict[str, list[str]]:
     """
-    对每个 builtin 条目的每个 tag∈六码，把 canonical 名加入对应 list（去重）。
-    忽略 lamb 等词表外 tag。
+    对每个 builtin 条目的每个 tag∈词表，把 canonical 名加入对应 list（去重）。
+    忽略词表外 tag（如 lamb）。
     """
-    members: dict[str, list[str]] = {x["id"]: [] for x in AVOID_VOCAB}
+    ids = _resolve_ids(vocab)
+    members: dict[str, list[str]] = {i: [] for i in ids}
     for row in builtin_list or []:
         name = str((row or {}).get("name") or "").strip()
         if not name:
@@ -107,21 +171,25 @@ def bootstrap_from_builtin(builtin_list: list, aliases: dict) -> dict[str, list[
         canon = canonical_of(name, aliases)
         for tag in tags:
             t = str(tag or "").strip()
-            if t in AVOID_IDS:
-                add_member(members, t, canon)
+            if t in ids:
+                add_member(members, t, canon, allowed_ids=ids)
     return members
 
 
 def export_avoid_tags(
-    builtin_list: list, avoid_members: dict, aliases: dict
+    builtin_list: list,
+    avoid_members: dict,
+    aliases: dict,
+    vocab: list | None = None,
 ) -> tuple[list, dict[str, Any]]:
     """
     全量重算每条 builtin 的 avoidTags（含别名表面名）。
     返回 (new_list, report) report: updated, cleared, missingInBuiltin
     """
+    ids = _resolve_ids(vocab)
     surface_to_codes: dict[str, set[str]] = {}
     all_canons: list[str] = []
-    for code in AVOID_IDS:
+    for code in ids:
         for canon in (avoid_members or {}).get(code) or []:
             n = str(canon or "").strip()
             if not n:
@@ -135,7 +203,6 @@ def export_avoid_tags(
             for s in surfaces:
                 surface_to_codes.setdefault(s, set()).add(code)
 
-    # builtin 中出现的表面名（用于 missing）
     hit_surfaces: set[str] = set()
     new_list: list = []
     updated = 0
@@ -157,7 +224,6 @@ def export_avoid_tags(
         item["avoidTags"] = codes
         new_list.append(item)
 
-    # missing：底稿 canon 在 builtin 任何 name 或别名表面都未命中
     missing: list[str] = []
     seen_miss: set[str] = set()
     for canon in all_canons:
