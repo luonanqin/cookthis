@@ -26,8 +26,10 @@ python3 tools/alias-editor/server.py
 
 ## 忌口 Tab
 
-- 数据：`ingredients-major-minor.json` 的 `avoidVocab` / `avoidMembers`
-- 「从 builtin 灌入」：按现有 avoidTags 反填（忽略词表外如 lamb）
+- 数据：`ingredients-major-minor.json` 的 `avoidVocab` / `avoidMembers`（词表以文件为准；代码六码仅空文件种子）
+- 「+ 忌口组」：只填中文名，自动分配 `id`（`gN`）；chip 上 × 确认后整组删除（含成员）
+- 保存成员时**不**把词表打回硬编码六码；小程序「我的」偏好词表暂不动
+- 「从 builtin 灌入」：按**当前**词表 ids 反填（忽略词表外如 lamb）；不重置自定义 vocab
 - 「导出到 builtin」：按底稿全量重算 avoidTags（别名表面名一并打标）；不写云库
 - 导入云库仍走现有 ingredients 导入脚本
 - 「同步全量」在忌口态同样可用：补池内新名，不自动进忌口组
