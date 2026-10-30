@@ -231,6 +231,15 @@
       color: #fff;
       border-color: var(--accent);
     }
+    .avoid-code .x {
+      margin-left: 6px;
+      opacity: 0.7;
+      font-weight: 600;
+    }
+    .avoid-code.add-group {
+      border-style: dashed;
+      color: var(--muted);
+    }
     .avoid-pool, .avoid-members {
       min-height: 72px;
       border: 1px dashed var(--line);
@@ -282,7 +291,7 @@
   <div id="avoid-pane" class="pane layout" hidden>
     <nav id="avoid-nav"></nav>
     <main>
-      <p class="hint">选品类 → 选忌口组 → 从通用名池拖入组成员（即时写盘）。同一名可进多个忌口组。导出到 builtin 会全量重算 avoidTags（别名表面名一并打标）；不写云库。</p>
+      <p class="hint">选品类 → 选忌口组 → 在通用名池<strong>点击</strong>加入当前组，在组成员里<strong>点击</strong>移除（也可拖拽）。可用「+ 忌口组」增组、chip 上 × 删组（含成员）。同一名可进多个忌口组。偏好页词表暂不动。导出到 builtin 会按当前词表全量重算 avoidTags；不写云库。</p>
       <div class="avoid-codes" id="avoid-codes"></div>
       <h2>通用名池（本分类）</h2>
       <div class="avoid-pool chips" id="avoid-pool"></div>
@@ -390,6 +399,52 @@
       });
     }
 
+    async function createAvoidGroup() {
+      const label = prompt('新忌口组名称（中文）');
+      if (label == null) return;
+      try {
+        const r = await fetch('/api/avoid/vocab', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ label }),
+        });
+        const body = await r.json();
+        if (!r.ok) throw new Error(body.error || r.statusText);
+        avoidVocab = body.avoidVocab || [];
+        avoidMembers = body.avoidMembers || {};
+        currentAvoidCode = body.id;
+        renderAvoidCodes();
+        renderAvoidPool();
+        renderAvoidMembers();
+        setStatus('已新增忌口组: ' + (label || '').trim(), 'ok');
+      } catch (e) {
+        setStatus('新增失败: ' + e.message, 'err');
+      }
+    }
+
+    async function deleteAvoidGroup(id, label) {
+      const n = (avoidMembers[id] || []).length;
+      if (!confirm('删除「' + label + '」及其 ' + n + ' 个成员？')) return;
+      try {
+        const r = await fetch('/api/avoid/vocab?id=' + encodeURIComponent(id), {
+          method: 'DELETE',
+        });
+        const body = await r.json();
+        if (!r.ok) throw new Error(body.error || r.statusText);
+        avoidVocab = body.avoidVocab || [];
+        avoidMembers = body.avoidMembers || {};
+        if (currentAvoidCode === id) {
+          currentAvoidCode = avoidVocab[0] ? avoidVocab[0].id : null;
+        }
+        renderAvoidCodes();
+        renderAvoidPool();
+        renderAvoidMembers();
+        setStatus('已删除忌口组: ' + label, 'ok');
+      } catch (e) {
+        setStatus('删除失败: ' + e.message, 'err');
+      }
+    }
+
     function renderAvoidCodes() {
       $avoidCodes.innerHTML = '';
       avoidVocab.forEach((v) => {
@@ -397,7 +452,18 @@
         b.type = 'button';
         b.className = 'avoid-code' + (v.id === currentAvoidCode ? ' active' : '');
         const n = (avoidMembers[v.id] || []).length;
-        b.textContent = v.label + (n ? ` (${n})` : '');
+        const lab = document.createElement('span');
+        lab.textContent = v.label + (n ? ` (${n})` : '');
+        const x = document.createElement('span');
+        x.className = 'x';
+        x.textContent = '×';
+        x.title = '删除忌口组';
+        x.onclick = (e) => {
+          e.stopPropagation();
+          deleteAvoidGroup(v.id, v.label);
+        };
+        b.appendChild(lab);
+        b.appendChild(x);
         b.onclick = () => {
           currentAvoidCode = v.id;
           renderAvoidCodes();
@@ -406,14 +472,23 @@
         };
         $avoidCodes.appendChild(b);
       });
+      const addBtn = document.createElement('button');
+      addBtn.type = 'button';
+      addBtn.className = 'avoid-code add-group';
+      addBtn.textContent = '+ 忌口组';
+      addBtn.onclick = () => createAvoidGroup();
+      $avoidCodes.appendChild(addBtn);
     }
 
     function makeAvoidPoolChip(name, inCurrent) {
       const chip = document.createElement('span');
       chip.className = 'chip' + (inCurrent ? ' in-current' : '');
       chip.textContent = name;
+      chip.title = inCurrent ? '已在当前忌口组' : '点击加入当前忌口组';
       chip.draggable = true;
+      let localDragged = false;
       chip.addEventListener('dragstart', (e) => {
+        localDragged = true;
         avoidDragName = name;
         e.dataTransfer.setData('text/plain', name);
         e.dataTransfer.effectAllowed = 'copy';
@@ -422,6 +497,18 @@
         avoidDragName = null;
         $avoidMembers.classList.remove('drag-over');
         $avoidPool.classList.remove('drag-over');
+        setTimeout(() => {
+          localDragged = false;
+        }, 0);
+      });
+      chip.addEventListener('click', async () => {
+        if (localDragged) return;
+        if (inCurrent) return;
+        try {
+          await addAvoidMember(name);
+        } catch (err) {
+          setStatus('加入失败: ' + err.message, 'err');
+        }
       });
       return chip;
     }
@@ -441,20 +528,12 @@
       list.forEach((name) => {
         const chip = document.createElement('span');
         chip.className = 'chip';
+        chip.textContent = name;
+        chip.title = '点击移出当前忌口组';
         chip.draggable = true;
-        const label = document.createElement('span');
-        label.textContent = name;
-        const x = document.createElement('span');
-        x.className = 'x';
-        x.textContent = '×';
-        x.title = '移出';
-        x.onclick = async (e) => {
-          e.stopPropagation();
-          await removeAvoidMember(name);
-        };
-        chip.appendChild(label);
-        chip.appendChild(x);
+        let localDragged = false;
         chip.addEventListener('dragstart', (e) => {
+          localDragged = true;
           avoidDragName = name;
           e.dataTransfer.setData('text/plain', name);
           e.dataTransfer.effectAllowed = 'move';
@@ -463,6 +542,17 @@
           avoidDragName = null;
           $avoidPool.classList.remove('drag-over');
           $avoidMembers.classList.remove('drag-over');
+          setTimeout(() => {
+            localDragged = false;
+          }, 0);
+        });
+        chip.addEventListener('click', async () => {
+          if (localDragged) return;
+          try {
+            await removeAvoidMember(name);
+          } catch (err) {
+            setStatus('移出失败: ' + err.message, 'err');
+          }
         });
         $avoidMembers.appendChild(chip);
       });
