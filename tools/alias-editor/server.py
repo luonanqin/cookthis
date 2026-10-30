@@ -16,7 +16,7 @@ import socket
 import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 ROOT = Path(__file__).resolve().parents[2]
 CATALOG = ROOT / "data" / "catalog"
@@ -31,10 +31,13 @@ HOST, PORT = "0.0.0.0", 8765
 
 from avoid_tags import (  # noqa: E402
     AVOID_VOCAB,
+    add_avoid_group,
     bootstrap_from_builtin,
     canons_for_category,
     ensure_avoid_fields,
     export_avoid_tags,
+    remove_avoid_group,
+    vocab_ids,
 )
 
 
@@ -203,10 +206,9 @@ def write_major_minor(doc: dict) -> None:
     )
 
 
-def _validate_avoid_members(avoid_members: object) -> str | None:
+def _validate_avoid_members(avoid_members: object, allowed: set[str]) -> str | None:
     if not isinstance(avoid_members, dict):
         return "avoidMembers must be object"
-    allowed = {x["id"] for x in AVOID_VOCAB}
     for code, names in avoid_members.items():
         if code not in allowed:
             return f"unknown avoid code: {code}"
@@ -215,9 +217,9 @@ def _validate_avoid_members(avoid_members: object) -> str | None:
     return None
 
 
-def _members_all_empty(avoid_members: dict) -> bool:
-    for x in AVOID_VOCAB:
-        names = avoid_members.get(x["id"]) or []
+def _members_all_empty(avoid_members: dict, allowed: set[str]) -> bool:
+    for i in allowed:
+        names = avoid_members.get(i) or []
         if names:
             return False
     return True
@@ -464,17 +466,17 @@ class Handler(BaseHTTPRequestHandler):
             self._json(400, {"error": "need JSON object"})
             return
         avoid_members = body.get("avoidMembers")
-        err = _validate_avoid_members(avoid_members)
-        if err:
-            self._json(400, {"error": err})
-            return
         try:
             mm = load_major_minor()
-            # 保留 categories / aliasMap / version 等，只更新忌口字段
-            mm["avoidVocab"] = [dict(x) for x in AVOID_VOCAB]
+            ensure_avoid_fields(mm)
+            allowed = vocab_ids(mm.get("avoidVocab") or [])
+            err = _validate_avoid_members(avoid_members, allowed)
+            if err:
+                self._json(400, {"error": err})
+                return
+            # 只更新 members，不改 avoidVocab
             mm["avoidMembers"] = {
-                x["id"]: list((avoid_members or {}).get(x["id"]) or [])
-                for x in AVOID_VOCAB
+                i: list((avoid_members or {}).get(i) or []) for i in allowed
             }
             write_major_minor(mm)
         except Exception as e:
@@ -485,6 +487,44 @@ class Handler(BaseHTTPRequestHandler):
             {
                 "ok": True,
                 "avoidMembers": mm["avoidMembers"],
+                "avoidVocab": mm.get("avoidVocab"),
+                "path": str(MAJOR_MINOR_PATH),
+            },
+        )
+
+    def do_DELETE(self) -> None:
+        path = urlparse(self.path).path
+        parsed = urlparse(self.path)
+        if path != "/api/avoid/vocab":
+            self._json(404, {"error": "not found"})
+            return
+        qs = parse_qs(parsed.query or "")
+        ids = qs.get("id") or []
+        code = (ids[0] if ids else "").strip()
+        if not code:
+            self._json(400, {"error": "id required"})
+            return
+        try:
+            mm = load_major_minor()
+            ensure_avoid_fields(mm)
+            vocab, members = remove_avoid_group(
+                mm.get("avoidVocab") or [], mm.get("avoidMembers") or {}, code
+            )
+            mm["avoidVocab"] = vocab
+            mm["avoidMembers"] = members
+            write_major_minor(mm)
+        except KeyError:
+            self._json(404, {"error": f"unknown avoid code: {code}"})
+            return
+        except Exception as e:
+            self._json(500, {"error": str(e)})
+            return
+        self._json(
+            200,
+            {
+                "ok": True,
+                "avoidVocab": vocab,
+                "avoidMembers": members,
                 "path": str(MAJOR_MINOR_PATH),
             },
         )
@@ -492,14 +532,55 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:
         path = urlparse(self.path).path
         parsed = urlparse(self.path)
+        if path == "/api/avoid/vocab":
+            length = int(self.headers.get("Content-Length") or 0)
+            raw = self.rfile.read(length)
+            try:
+                body = json.loads(raw.decode("utf-8")) if raw else {}
+            except json.JSONDecodeError as e:
+                self._json(400, {"error": str(e)})
+                return
+            if not isinstance(body, dict):
+                self._json(400, {"error": "need JSON object"})
+                return
+            try:
+                mm = load_major_minor()
+                ensure_avoid_fields(mm)
+                vocab, members, nid = add_avoid_group(
+                    mm.get("avoidVocab") or [],
+                    mm.get("avoidMembers") or {},
+                    body.get("label") or "",
+                )
+                mm["avoidVocab"] = vocab
+                mm["avoidMembers"] = members
+                write_major_minor(mm)
+            except ValueError as e:
+                self._json(400, {"error": str(e)})
+                return
+            except Exception as e:
+                self._json(500, {"error": str(e)})
+                return
+            self._json(
+                200,
+                {
+                    "ok": True,
+                    "id": nid,
+                    "avoidVocab": vocab,
+                    "avoidMembers": members,
+                    "path": str(MAJOR_MINOR_PATH),
+                },
+            )
+            return
         if path == "/api/avoid/bootstrap":
             force = "force=1" in (parsed.query or "") or "force=true" in (
                 parsed.query or ""
             )
             try:
                 mm = load_major_minor()
+                ensure_avoid_fields(mm)
                 members = mm.get("avoidMembers") or {}
-                if not force and not _members_all_empty(members):
+                allowed = vocab_ids(mm.get("avoidVocab") or [])
+                if not force and not _members_all_empty(members, allowed):
                     self._json(
                         409,
                         {
@@ -512,8 +593,8 @@ class Handler(BaseHTTPRequestHandler):
                 if isinstance(aliases.get("_meta"), dict):
                     aliases = {k: v for k, v in aliases.items() if k != "_meta"}
                 builtin = _load_list_json(BUILTIN_PATH)
-                filled = bootstrap_from_builtin(builtin, aliases)
-                mm["avoidVocab"] = [dict(x) for x in AVOID_VOCAB]
+                vocab = mm.get("avoidVocab") or list(AVOID_VOCAB)
+                filled = bootstrap_from_builtin(builtin, aliases, vocab=vocab)
                 mm["avoidMembers"] = filled
                 write_major_minor(mm)
             except Exception as e:
@@ -524,12 +605,16 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/avoid/export":
             try:
                 mm = load_major_minor()
+                ensure_avoid_fields(mm)
                 aliases = _load_json(ALIASES_PATH)
                 if isinstance(aliases.get("_meta"), dict):
                     aliases = {k: v for k, v in aliases.items() if k != "_meta"}
                 builtin = _load_list_json(BUILTIN_PATH)
                 new_list, report = export_avoid_tags(
-                    builtin, mm.get("avoidMembers") or {}, aliases
+                    builtin,
+                    mm.get("avoidMembers") or {},
+                    aliases,
+                    vocab=mm.get("avoidVocab") or list(AVOID_VOCAB),
                 )
                 BUILTIN_PATH.write_text(
                     json.dumps(new_list, ensure_ascii=False, indent=2) + "\n",
