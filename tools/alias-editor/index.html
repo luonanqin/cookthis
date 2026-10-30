@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>别名 / 忌口编辑</title>
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --ink: #1c1917;
+      --muted: #78716c;
+      --card: #fffdf9;
+      --line: #e7e5e4;
+      --accent: #0f766e;
+      --canon: #b45309;
+      --drop: #ccfbf1;
+      --recent: #fef3c7;
+      --recent-line: #d97706;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font: 14px/1.45 "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+    }
+    header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+      background: var(--card);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+    header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+    header .status { color: var(--muted); font-size: 12px; }
+    header .status.ok { color: var(--accent); }
+    header .status.err { color: #b91c1c; }
+    button {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font: inherit;
+    }
+    button:hover { border-color: var(--accent); color: var(--accent); }
+    button.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .layout { display: flex; min-height: calc(100vh - 52px); }
+    nav {
+      width: 160px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--line);
+      background: var(--card);
+      padding: 8px;
+      overflow: auto;
+    }
+    nav button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      margin-bottom: 4px;
+      border: none;
+      background: transparent;
+      padding: 8px 10px;
+    }
+    nav button.active {
+      background: var(--drop);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    nav button.has-recent::after {
+      content: " ·改";
+      color: var(--recent-line);
+      font-weight: 600;
+      font-size: 11px;
+    }
+    main { flex: 1; padding: 12px 16px; overflow: auto; }
+    .toolbar { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+    #groups {
+      column-count: 3;
+      column-gap: 10px;
+    }
+    .group {
+      display: flex;
+      align-items: flex-start;
+      gap: 4px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 4px 6px;
+      margin-bottom: 6px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+      height: auto;
+    }
+    #groups .group.drag-over { outline: 2px dashed var(--accent); background: var(--drop); }
+    #groups .group.recent {
+      background: var(--recent);
+      border-color: var(--recent-line);
+      box-shadow: inset 3px 0 0 var(--recent-line);
+    }
+    #groups .group .chips { flex: 1; min-width: 0; }
+    #groups .group .btn-x {
+      flex-shrink: 0;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      padding: 0 2px;
+      line-height: 1.2;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    #groups .group .btn-x:hover { color: #b91c1c; }
+    .chips { display: flex; flex-wrap: wrap; gap: 4px; align-content: flex-start; }
+    .chip {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: 1px 8px;
+      line-height: 1.35;
+      font-size: 13px;
+      cursor: grab;
+      user-select: none;
+    }
+    .chip.canon {
+      border-color: var(--canon);
+      color: var(--canon);
+      font-weight: 600;
+    }
+    .chip.empty {
+      border-style: dashed;
+      color: var(--muted);
+      cursor: default;
+    }
+    .chip:active { cursor: grabbing; }
+    .chip.drag-over { outline: 2px solid var(--accent); background: var(--drop); }
+    .ungrouped {
+      display: block;
+      height: auto;
+      margin-bottom: 14px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--card);
+      padding: 6px 8px 8px;
+    }
+    .ungrouped.drag-over { outline: 2px dashed var(--accent); background: var(--drop); }
+    .ungrouped h2 {
+      font-size: 12px;
+      margin: 0 0 6px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .hint { color: var(--muted); font-size: 12px; margin: 0 0 8px; }
+    #ctx-menu {
+      position: fixed;
+      z-index: 100;
+      min-width: 160px;
+      max-width: 240px;
+      max-height: min(70vh, 420px);
+      display: none;
+      flex-direction: column;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(28, 25, 23, 0.14);
+      padding: 4px 0;
+      overflow: hidden;
+    }
+    #ctx-menu.open { display: flex; }
+    #ctx-menu .ctx-label {
+      flex-shrink: 0;
+      padding: 6px 10px 4px;
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    #ctx-menu .ctx-list {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      padding: 0 4px 4px;
+    }
+    #ctx-menu button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: none;
+      background: transparent;
+      border-radius: 4px;
+      padding: 7px 10px;
+      margin: 0;
+    }
+    #ctx-menu button:hover {
+      background: var(--drop);
+      color: var(--accent);
+    }
+
+    .tabs { display: flex; gap: 4px; }
+    .tabs button.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .pane[hidden] { display: none !important; }
+    .avoid-codes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 12px;
+    }
+    .avoid-code {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+    .avoid-code.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .avoid-pool, .avoid-members {
+      min-height: 72px;
+      border: 1px dashed var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      background: var(--card);
+      margin-bottom: 12px;
+    }
+    .avoid-pool.drag-over, .avoid-members.drag-over {
+      outline: 2px dashed var(--accent);
+      background: var(--drop);
+    }
+    .chip.in-current { opacity: 0.45; }
+    .chip .x {
+      margin-left: 6px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>食材编辑</h1>
+    <div class="tabs" role="tablist">
+      <button type="button" id="tab-alias" class="active" data-mode="alias">别名</button>
+      <button type="button" id="tab-avoid" data-mode="avoid">忌口</button>
+    </div>
+    <span id="status" class="status">加载中…</span>
+    <span style="flex:1"></span>
+    <button type="button" id="btn-avoid-bootstrap" hidden title="按 builtin 现有 avoidTags 反填六码成员">从 builtin 灌入</button>
+    <button type="button" id="btn-avoid-export" hidden title="按底稿全量重算 builtin avoidTags">导出到 builtin</button>
+    <button type="button" id="btn-sync" title="按最新 ingredients-all 刷新品类，并把新名字补进未分组（不动已有别名组）">同步全量</button>
+    <button type="button" id="btn-reset" title="从 aliases.json 重新初始化（会覆盖当前编辑！）">重置初始化</button>
+  </header>
+  <div id="alias-pane" class="pane layout">
+    <nav id="nav"></nav>
+    <main>
+      <p class="hint">组内：点击别名，或把别名拖到通用名上 / 拖回本组 → 互换为通用名。跨组：拖到别的分组或「未分组」。右键分组 → 整组移到其他品类；右键未分组芯片 → 移到其他品类的未分组。改动自动保存并写回品类表（finish_review / 同步全量会保留）。琥珀色＝最近改的那一组（临时置顶）。</p>
+      <section class="ungrouped" id="ungrouped-zone" data-drop="ungrouped">
+        <h2>未分组（本分类）</h2>
+        <div class="chips" id="ungrouped"></div>
+      </section>
+      <div class="toolbar">
+        <button type="button" class="primary" id="btn-new-group">＋ 新建分组</button>
+      </div>
+      <div id="groups"></div>
+    </main>
+  </div>
+  <div id="avoid-pane" class="pane layout" hidden>
+    <nav id="avoid-nav"></nav>
+    <main>
+      <p class="hint">选品类 → 选忌口组 → 从通用名池拖入组成员（即时写盘）。同一名可进多个忌口组。导出到 builtin 会全量重算 avoidTags（别名表面名一并打标）；不写云库。</p>
+      <div class="avoid-codes" id="avoid-codes"></div>
+      <h2>通用名池（本分类）</h2>
+      <div class="avoid-pool chips" id="avoid-pool"></div>
+      <h2>当前忌口组成员</h2>
+      <div class="avoid-members chips" id="avoid-members"></div>
+    </main>
+  </div>
+  <div id="ctx-menu" role="menu" hidden></div>
+  <script>
+    let data = null;
+    let currentCat = null;
+    let dragPayload = null; // { name, fromCat, fromKind: 'group'|'ungrouped', groupId? }
+    let didDrag = false;
+    let mode = 'alias'; // 'alias' | 'avoid'
+    let avoidVocab = [];
+    let avoidMembers = {};
+    let canonsByCategory = {};
+    let currentAvoidCode = null;
+    let avoidDragName = null;
+
+    const $status = document.getElementById('status');
+    const $nav = document.getElementById('nav');
+    const $groups = document.getElementById('groups');
+    const $ungrouped = document.getElementById('ungrouped');
+    const $ungroupedZone = document.getElementById('ungrouped-zone');
+    const $ctx = document.getElementById('ctx-menu');
+    const $aliasPane = document.getElementById('alias-pane');
+    const $avoidPane = document.getElementById('avoid-pane');
+    const $avoidNav = document.getElementById('avoid-nav');
+    const $avoidCodes = document.getElementById('avoid-codes');
+    const $avoidPool = document.getElementById('avoid-pool');
+    const $avoidMembers = document.getElementById('avoid-members');
+    const $btnReset = document.getElementById('btn-reset');
+    const $btnBootstrap = document.getElementById('btn-avoid-bootstrap');
+    const $btnExport = document.getElementById('btn-avoid-export');
+
+    function setStatus(text, cls) {
+      $status.textContent = text;
+      $status.className = 'status' + (cls ? ' ' + cls : '');
+    }
+
+    function setMode(next) {
+      mode = next === 'avoid' ? 'avoid' : 'alias';
+      document.getElementById('tab-alias').classList.toggle('active', mode === 'alias');
+      document.getElementById('tab-avoid').classList.toggle('active', mode === 'avoid');
+      $aliasPane.hidden = mode !== 'alias';
+      $avoidPane.hidden = mode !== 'avoid';
+      $btnReset.hidden = mode !== 'alias';
+      $btnBootstrap.hidden = mode !== 'avoid';
+      $btnExport.hidden = mode !== 'avoid';
+      if (mode === 'avoid') {
+        loadAvoid().catch((e) => setStatus('忌口加载失败: ' + e.message, 'err'));
+      }
+    }
+
+    async function loadAvoid() {
+      const res = await fetch('/api/avoid');
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error || res.statusText);
+      avoidVocab = body.avoidVocab || [];
+      avoidMembers = body.avoidMembers || {};
+      canonsByCategory = body.canonsByCategory || {};
+      if (!currentAvoidCode && avoidVocab.length) currentAvoidCode = avoidVocab[0].id;
+      if (!currentCat) {
+        currentCat = Object.keys(data.categories || {})[0] || null;
+      }
+      renderAvoidNav();
+      renderAvoidCodes();
+      renderAvoidPool();
+      renderAvoidMembers();
+      setStatus('忌口已加载', 'ok');
+    }
+
+    async function putAvoidMembers() {
+      const res = await fetch('/api/avoid', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ avoidMembers }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error || res.statusText);
+      avoidMembers = body.avoidMembers || avoidMembers;
+      setStatus('忌口已保存', 'ok');
+    }
+
+    function currentMemberSet() {
+      const list = (avoidMembers[currentAvoidCode] || []);
+      return new Set(list);
+    }
+
+    function renderAvoidNav() {
+      const cats = Object.keys((data && data.categories) || {});
+      $avoidNav.innerHTML = '';
+      cats.forEach((cat) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = cat;
+        if (cat === currentCat) b.classList.add('active');
+        b.onclick = () => {
+          currentCat = cat;
+          renderAvoidNav();
+          renderAvoidPool();
+        };
+        $avoidNav.appendChild(b);
+      });
+    }
+
+    function renderAvoidCodes() {
+      $avoidCodes.innerHTML = '';
+      avoidVocab.forEach((v) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'avoid-code' + (v.id === currentAvoidCode ? ' active' : '');
+        const n = (avoidMembers[v.id] || []).length;
+        b.textContent = v.label + (n ? ` (${n})` : '');
+        b.onclick = () => {
+          currentAvoidCode = v.id;
+          renderAvoidCodes();
+          renderAvoidPool();
+          renderAvoidMembers();
+        };
+        $avoidCodes.appendChild(b);
+      });
+    }
+
+    function makeAvoidPoolChip(name, inCurrent) {
+      const chip = document.createElement('span');
+      chip.className = 'chip' + (inCurrent ? ' in-current' : '');
+      chip.textContent = name;
+      chip.draggable = true;
+      chip.addEventListener('dragstart', (e) => {
+        avoidDragName = name;
+        e.dataTransfer.setData('text/plain', name);
+        e.dataTransfer.effectAllowed = 'copy';
+      });
+      chip.addEventListener('dragend', () => {
+        avoidDragName = null;
+        $avoidMembers.classList.remove('drag-over');
+        $avoidPool.classList.remove('drag-over');
+      });
+      return chip;
+    }
+
+    function renderAvoidPool() {
+      $avoidPool.innerHTML = '';
+      const pool = canonsByCategory[currentCat] || [];
+      const inCur = currentMemberSet();
+      pool.forEach((name) => {
+        $avoidPool.appendChild(makeAvoidPoolChip(name, inCur.has(name)));
+      });
+    }
+
+    function renderAvoidMembers() {
+      $avoidMembers.innerHTML = '';
+      const list = avoidMembers[currentAvoidCode] || [];
+      list.forEach((name) => {
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.draggable = true;
+        const label = document.createElement('span');
+        label.textContent = name;
+        const x = document.createElement('span');
+        x.className = 'x';
+        x.textContent = '×';
+        x.title = '移出';
+        x.onclick = async (e) => {
+          e.stopPropagation();
+          await removeAvoidMember(name);
+        };
+        chip.appendChild(label);
+        chip.appendChild(x);
+        chip.addEventListener('dragstart', (e) => {
+          avoidDragName = name;
+          e.dataTransfer.setData('text/plain', name);
+          e.dataTransfer.effectAllowed = 'move';
+        });
+        chip.addEventListener('dragend', () => {
+          avoidDragName = null;
+          $avoidPool.classList.remove('drag-over');
+          $avoidMembers.classList.remove('drag-over');
+        });
+        $avoidMembers.appendChild(chip);
+      });
+    }
+
+    async function addAvoidMember(name) {
+      if (!currentAvoidCode || !name) return;
+      const list = avoidMembers[currentAvoidCode] || (avoidMembers[currentAvoidCode] = []);
+      if (!list.includes(name)) list.push(name);
+      await putAvoidMembers();
+      renderAvoidCodes();
+      renderAvoidPool();
+      renderAvoidMembers();
+    }
+
+    async function removeAvoidMember(name) {
+      if (!currentAvoidCode || !name) return;
+      avoidMembers[currentAvoidCode] = (avoidMembers[currentAvoidCode] || []).filter((n) => n !== name);
+      await putAvoidMembers();
+      renderAvoidCodes();
+      renderAvoidPool();
+      renderAvoidMembers();
+    }
+
+    function bindAvoidDrops() {
+      $avoidMembers.addEventListener('dragover', (e) => {
+        if (!avoidDragName) return;
+        e.preventDefault();
+        $avoidMembers.classList.add('drag-over');
+      });
+      $avoidMembers.addEventListener('dragleave', () => $avoidMembers.classList.remove('drag-over'));
+      $avoidMembers.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        $avoidMembers.classList.remove('drag-over');
+        const name = avoidDragName || e.dataTransfer.getData('text/plain');
+        try {
+          await addAvoidMember(name);
+        } catch (err) {
+          setStatus('加入失败: ' + err.message, 'err');
+        }
+      });
+      $avoidPool.addEventListener('dragover', (e) => {
+        if (!avoidDragName) return;
+        e.preventDefault();
+        $avoidPool.classList.add('drag-over');
+      });
+      $avoidPool.addEventListener('dragleave', () => $avoidPool.classList.remove('drag-over'));
+      $avoidPool.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        $avoidPool.classList.remove('drag-over');
+        const name = avoidDragName || e.dataTransfer.getData('text/plain');
+        try {
+          await removeAvoidMember(name);
+        } catch (err) {
+          setStatus('移出失败: ' + err.message, 'err');
+        }
+      });
+    }
+
+    async function load() {
+      const res = await fetch('/api/data');
+      data = await res.json();
+      const cats = Object.keys(data.categories || {});
+      currentCat = cats[0] || null;
+      renderNav();
+      renderCat();
+      setStatus('已加载', 'ok');
+    }
+
+    async function save() {
+      setStatus('保存中…');
+      try {
+        const res = await fetch('/api/data', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        if (!res.ok) throw new Error(await res.text());
+        setStatus('已保存 ' + new Date().toLocaleTimeString(), 'ok');
+      } catch (e) {
+        setStatus('保存失败: ' + e.message, 'err');
+      }
+    }
+
+    function isRecentGroup(g) {
+      return Boolean(g && g.touchedAt);
+    }
+
+    function clearAllTouched(exceptId) {
+      for (const bucket of Object.values(data.categories || {})) {
+        for (const g of bucket.groups || []) {
+          if (exceptId && g.id === exceptId) continue;
+          if (g.touchedAt) delete g.touchedAt;
+        }
+      }
+    }
+
+    function touchGroup(g) {
+      if (!g) return;
+      clearAllTouched(g.id);
+      g.touchedAt = Date.now();
+    }
+
+    function catHasRecent(cat) {
+      const groups = (data.categories[cat] || {}).groups || [];
+      return groups.some((g) => isRecentGroup(g));
+    }
+
+    function renderNav() {
+      $nav.innerHTML = '';
+      for (const cat of Object.keys(data.categories || {})) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = cat;
+        if (cat === currentCat) b.classList.add('active');
+        if (catHasRecent(cat)) b.classList.add('has-recent');
+        b.onclick = () => {
+          currentCat = cat;
+          renderNav();
+          renderCat();
+        };
+        $nav.appendChild(b);
+      }
+    }
+
+    function catBucket() {
+      return data.categories[currentCat];
+    }
+
+    function pinyinKey(s) {
+      return String(s || '\uffff');
+    }
+
+    function sortGroupsByPinyin(groups) {
+      return [...(groups || [])].sort((a, b) => {
+        const ra = isRecentGroup(a) ? 0 : 1;
+        const rb = isRecentGroup(b) ? 0 : 1;
+        if (ra !== rb) return ra - rb;
+        const ka = pinyinKey(a.canon || (a.aliases && a.aliases[0]) || '');
+        const kb = pinyinKey(b.canon || (b.aliases && b.aliases[0]) || '');
+        return ka.localeCompare(kb, 'zh-CN', { sensitivity: 'base' });
+      });
+    }
+
+    function renderCat() {
+      const bucket = catBucket();
+      if (!bucket) return;
+      $groups.innerHTML = '';
+      sortGroupsByPinyin(bucket.groups).forEach((g) => {
+        $groups.appendChild(renderGroup(g));
+      });
+      $ungrouped.innerHTML = '';
+      [...(bucket.ungrouped || [])]
+        .sort((a, b) => a.localeCompare(b, 'zh-CN', { sensitivity: 'base' }))
+        .forEach((name) => {
+          $ungrouped.appendChild(makeChip(name, false, {
+            fromKind: 'ungrouped',
+          }));
+        });
+    }
+
+    function hideCtxMenu() {
+      $ctx.classList.remove('open');
+      $ctx.hidden = true;
+      $ctx.innerHTML = '';
+    }
+
+    function otherCategories() {
+      return Object.keys(data.categories || {}).filter((c) => c !== currentCat);
+    }
+
+    function placeCtxMenu(clientX, clientY) {
+      $ctx.hidden = false;
+      $ctx.classList.add('open');
+      const pad = 8;
+      const w = $ctx.offsetWidth;
+      const h = $ctx.offsetHeight;
+      let left = clientX;
+      let top = clientY;
+      if (left + w > window.innerWidth - pad) left = window.innerWidth - w - pad;
+      if (top + h > window.innerHeight - pad) top = window.innerHeight - h - pad;
+      if (left < pad) left = pad;
+      if (top < pad) top = pad;
+      $ctx.style.left = left + 'px';
+      $ctx.style.top = top + 'px';
+    }
+
+    function showMoveMenu(clientX, clientY, action) {
+      const cats = otherCategories();
+      if (!cats.length) {
+        setStatus('没有其他品类可移动', 'err');
+        return;
+      }
+      hideCtxMenu();
+      const label = document.createElement('div');
+      label.className = 'ctx-label';
+      label.textContent =
+        action.kind === 'group'
+          ? '整组移动到…'
+          : `「${action.name}」移到…的无分组`;
+      $ctx.appendChild(label);
+      const list = document.createElement('div');
+      list.className = 'ctx-list';
+      cats.forEach((cat) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.setAttribute('role', 'menuitem');
+        btn.textContent = cat;
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          hideCtxMenu();
+          if (action.kind === 'group') moveGroupToCategory(action.groupId, cat);
+          else moveUngroupedToCategory(action.name, cat);
+        };
+        list.appendChild(btn);
+      });
+      $ctx.appendChild(list);
+      placeCtxMenu(clientX, clientY);
+    }
+
+    function ensureBucket(cat) {
+      if (!data.categories[cat]) {
+        data.categories[cat] = { groups: [], ungrouped: [] };
+      }
+      const b = data.categories[cat];
+      b.groups = b.groups || [];
+      b.ungrouped = b.ungrouped || [];
+      return b;
+    }
+
+    function moveGroupToCategory(groupId, toCat) {
+      if (!toCat || toCat === currentCat) return;
+      const from = catBucket();
+      if (!from) return;
+      const idx = (from.groups || []).findIndex((x) => x.id === groupId);
+      if (idx < 0) return;
+      const [g] = from.groups.splice(idx, 1);
+      const dest = ensureBucket(toCat);
+      dest.groups.push(g);
+      touchGroup(g);
+      renderNav();
+      renderCat();
+      save();
+      setStatus(`已整组移到「${toCat}」`, 'ok');
+    }
+
+    function moveUngroupedToCategory(name, toCat) {
+      if (!name || !toCat || toCat === currentCat) return;
+      const from = catBucket();
+      if (!from) return;
+      from.ungrouped = (from.ungrouped || []).filter((n) => n !== name);
+      const dest = ensureBucket(toCat);
+      if (!dest.ungrouped.includes(name)) dest.ungrouped.push(name);
+      dest.ungrouped.sort((a, b) => a.localeCompare(b, 'zh-CN', { sensitivity: 'base' }));
+      // 若名字已在目标某组里，不重复塞进无分组
+      const inDestGroup = (dest.groups || []).some((g) => {
+        if (g.canon === name) return true;
+        return (g.aliases || []).includes(name);
+      });
+      if (inDestGroup) {
+        dest.ungrouped = dest.ungrouped.filter((n) => n !== name);
+      }
+      clearAllTouched();
+      renderNav();
+      renderCat();
+      save();
+      setStatus(`已将「${name}」移到「${toCat}」无分组`, 'ok');
+    }
+
+    function renderGroup(g) {
+      const el = document.createElement('div');
+      el.className = 'group' + (isRecentGroup(g) ? ' recent' : '');
+      el.dataset.drop = 'group';
+      el.dataset.groupId = g.id;
+      el.title = (isRecentGroup(g) ? '最近改动 · 临时置顶。' : '') + '右键：整组移到其他品类';
+
+      const chips = document.createElement('div');
+      chips.className = 'chips';
+      if (g.canon) {
+        chips.appendChild(makeChip(g.canon, true, { fromKind: 'group', groupId: g.id }));
+      } else {
+        const ph = document.createElement('span');
+        ph.className = 'chip empty';
+        ph.textContent = '拖入…';
+        chips.appendChild(ph);
+      }
+      (g.aliases || []).forEach((a) => {
+        chips.appendChild(makeChip(a, false, { fromKind: 'group', groupId: g.id }));
+      });
+      el.appendChild(chips);
+
+      const del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'btn-x';
+      del.title = '解散到无分组';
+      del.textContent = '×';
+      del.onclick = (e) => {
+        e.stopPropagation();
+        dissolveGroup(g.id);
+      };
+      el.appendChild(del);
+
+      el.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        showMoveMenu(e.clientX, e.clientY, { kind: 'group', groupId: g.id });
+      });
+
+      bindDropTarget(el, (payload) => onDropToGroup(g.id, payload));
+      return el;
+    }
+
+    function makeChip(name, isCanon, meta) {
+      const chip = document.createElement('span');
+      chip.className = 'chip' + (isCanon ? ' canon' : '');
+      chip.textContent = name;
+      chip.draggable = true;
+      chip.dataset.name = name;
+      if (meta.groupId) chip.dataset.groupId = meta.groupId;
+      if (meta.fromKind === 'ungrouped') {
+        chip.title = '右键：移到其他品类的无分组；可拖进分组';
+      } else {
+        chip.title = isCanon
+          ? '通用名 · 可拖走；把别名拖到我上面可交换；右键移整组'
+          : '点击或拖到通用名上 → 设为通用名；右键移整组';
+      }
+      chip.addEventListener('dragstart', (e) => {
+        didDrag = true;
+        dragPayload = {
+          name,
+          fromCat: currentCat,
+          fromKind: meta.fromKind,
+          groupId: meta.groupId || null,
+        };
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', name);
+        e.stopPropagation();
+      });
+      chip.addEventListener('dragend', () => {
+        dragPayload = null;
+        document.querySelectorAll('.drag-over').forEach((n) => n.classList.remove('drag-over'));
+        setTimeout(() => { didDrag = false; }, 0);
+      });
+      // 组内芯片也可作放置目标：拖到某芯片上 → 该芯片成为通用名（与原通用名交换）
+      if (meta.fromKind === 'group' && meta.groupId) {
+        chip.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          chip.classList.add('drag-over');
+        });
+        chip.addEventListener('dragleave', () => chip.classList.remove('drag-over'));
+        chip.addEventListener('drop', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          chip.classList.remove('drag-over');
+          const payload = dragPayload;
+          if (!payload) return;
+          if (payload.groupId !== meta.groupId) {
+            onDropToGroup(meta.groupId, payload);
+            return;
+          }
+          if (payload.name === name) return;
+          const g = catBucket().groups.find((x) => x.id === meta.groupId);
+          if (!g) return;
+          // 别名拖到通用名（或组内别处）→ 别名升为通用名；通用名拖到某别名上 → 该别名升为通用名
+          if (payload.name === g.canon) setCanon(meta.groupId, name);
+          else setCanon(meta.groupId, payload.name);
+        });
+        chip.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          showMoveMenu(e.clientX, e.clientY, { kind: 'group', groupId: meta.groupId });
+        });
+      }
+      if (meta.fromKind === 'ungrouped') {
+        chip.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          showMoveMenu(e.clientX, e.clientY, { kind: 'ungrouped', name });
+        });
+      }
+      if (!isCanon && meta.fromKind === 'group') {
+        chip.addEventListener('click', (e) => {
+          if (didDrag) return;
+          e.preventDefault();
+          setCanon(meta.groupId, name);
+        });
+      }
+      return chip;
+    }
+
+    function bindDropTarget(el, handler) {
+      el.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        el.classList.add('drag-over');
+      });
+      el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+      el.addEventListener('drop', (e) => {
+        e.preventDefault();
+        el.classList.remove('drag-over');
+        const payload = dragPayload || {
+          name: e.dataTransfer.getData('text/plain'),
+          fromCat: currentCat,
+          fromKind: 'ungrouped',
+          groupId: null,
+        };
+        if (!payload.name) return;
+        handler(payload);
+      });
+    }
+
+    function removeFromSource(payload) {
+      const bucket = data.categories[payload.fromCat];
+      if (!bucket) return;
+      if (payload.fromKind === 'ungrouped') {
+        bucket.ungrouped = (bucket.ungrouped || []).filter((n) => n !== payload.name);
+        return;
+      }
+      const g = (bucket.groups || []).find((x) => x.id === payload.groupId);
+      if (!g) return;
+      if (g.canon === payload.name) {
+        if ((g.aliases || []).length) {
+          g.canon = g.aliases.shift();
+        } else {
+          bucket.groups = bucket.groups.filter((x) => x.id !== g.id);
+        }
+      } else {
+        g.aliases = (g.aliases || []).filter((n) => n !== payload.name);
+        if (!g.canon && !(g.aliases || []).length) {
+          bucket.groups = bucket.groups.filter((x) => x.id !== g.id);
+        } else if (g.canon && !(g.aliases || []).length) {
+          bucket.ungrouped = bucket.ungrouped || [];
+          if (!bucket.ungrouped.includes(g.canon)) bucket.ungrouped.push(g.canon);
+          bucket.ungrouped.sort();
+          bucket.groups = bucket.groups.filter((x) => x.id !== g.id);
+        }
+      }
+    }
+
+    function onDropToGroup(groupId, payload) {
+      // 同组内拖到分组空白处：把拖动的那项设为通用名（与原通用名交换）
+      if (payload.fromCat === currentCat && payload.fromKind === 'group' && payload.groupId === groupId) {
+        if (payload.name) setCanon(groupId, payload.name);
+        return;
+      }
+      removeFromSource(payload);
+      const bucket = catBucket();
+      const g = bucket.groups.find((x) => x.id === groupId);
+      if (!g) return;
+      if (!g.canon) {
+        g.canon = payload.name;
+        g.aliases = g.aliases || [];
+      } else if (g.canon !== payload.name && !(g.aliases || []).includes(payload.name)) {
+        g.aliases = g.aliases || [];
+        g.aliases.push(payload.name);
+      }
+      touchGroup(g);
+      renderNav();
+      renderCat();
+      save();
+    }
+
+    function onDropToUngrouped(payload) {
+      if (payload.fromCat === currentCat && payload.fromKind === 'ungrouped') return;
+      const srcBucket = data.categories[payload.fromCat];
+      const srcGroup =
+        payload.fromKind === 'group' && srcBucket
+          ? (srcBucket.groups || []).find((x) => x.id === payload.groupId)
+          : null;
+      removeFromSource(payload);
+      // 拖出到无分组：高亮仍留在来源组（若组还在）
+      if (srcGroup && (srcBucket.groups || []).some((x) => x.id === srcGroup.id)) {
+        touchGroup(srcGroup);
+      } else {
+        clearAllTouched();
+      }
+      const bucket = catBucket();
+      bucket.ungrouped = bucket.ungrouped || [];
+      if (!bucket.ungrouped.includes(payload.name)) {
+        bucket.ungrouped.push(payload.name);
+        bucket.ungrouped.sort();
+      }
+      renderNav();
+      renderCat();
+      save();
+    }
+
+    function setCanon(groupId, name) {
+      const g = catBucket().groups.find((x) => x.id === groupId);
+      if (!g || g.canon === name) return;
+      const old = g.canon;
+      g.aliases = (g.aliases || []).filter((n) => n !== name);
+      g.aliases.unshift(old);
+      g.canon = name;
+      touchGroup(g);
+      renderNav();
+      renderCat();
+      save();
+    }
+
+    function dissolveGroup(groupId) {
+      const bucket = catBucket();
+      const g = bucket.groups.find((x) => x.id === groupId);
+      if (!g) return;
+      const names = [g.canon, ...(g.aliases || [])].filter(Boolean);
+      bucket.groups = bucket.groups.filter((x) => x.id !== groupId);
+      bucket.ungrouped = bucket.ungrouped || [];
+      names.forEach((n) => {
+        if (!bucket.ungrouped.includes(n)) bucket.ungrouped.push(n);
+      });
+      bucket.ungrouped.sort();
+      clearAllTouched();
+      renderNav();
+      renderCat();
+      save();
+    }
+
+    function newGroup() {
+      const bucket = catBucket();
+      const id = Math.random().toString(16).slice(2, 12);
+      const g = { id, canon: null, aliases: [], touchedAt: Date.now() };
+      bucket.groups = bucket.groups || [];
+      bucket.groups.push(g);
+      renderNav();
+      renderCat();
+      save();
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    bindDropTarget($ungroupedZone, onDropToUngrouped);
+
+    document.addEventListener('click', (e) => {
+      if ($ctx.contains(e.target)) return;
+      hideCtxMenu();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') hideCtxMenu();
+    });
+    document.addEventListener(
+      'scroll',
+      (e) => {
+        if ($ctx.contains(e.target)) return;
+        hideCtxMenu();
+      },
+      true
+    );
+    // 菜单内滚轮只滚列表，不带动页面、也不因 scroll 关掉菜单
+    $ctx.addEventListener(
+      'wheel',
+      (e) => {
+        const list = $ctx.querySelector('.ctx-list');
+        if (!list) return;
+        e.preventDefault();
+        e.stopPropagation();
+        list.scrollTop += e.deltaY;
+      },
+      { passive: false }
+    );
+
+    document.getElementById('tab-alias').onclick = () => setMode('alias');
+    document.getElementById('tab-avoid').onclick = () => setMode('avoid');
+    bindAvoidDrops();
+
+    $btnBootstrap.onclick = async () => {
+      const has = Object.values(avoidMembers || {}).some((arr) => (arr || []).length);
+      let url = '/api/avoid/bootstrap';
+      if (has) {
+        if (!confirm('已有忌口成员。确认后将 force 覆盖六码列表（从 builtin 反填）？')) return;
+        url += '?force=1';
+      }
+      setStatus('灌入中…');
+      try {
+        const res = await fetch(url, { method: 'POST' });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error || res.statusText);
+        avoidMembers = body.avoidMembers || {};
+        renderAvoidCodes();
+        renderAvoidPool();
+        renderAvoidMembers();
+        setStatus('已从 builtin 灌入', 'ok');
+      } catch (e) {
+        setStatus('灌入失败: ' + e.message, 'err');
+      }
+    };
+
+    $btnExport.onclick = async () => {
+      if (!confirm('将按当前忌口底稿全量重算 ingredients-builtin.json 的 avoidTags？\n（非六码标签如 lamb 会被清空）')) return;
+      setStatus('导出中…');
+      try {
+        const res = await fetch('/api/avoid/export', { method: 'POST' });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error || res.statusText);
+        const r = body.report || {};
+        const miss = (r.missingInBuiltin || []).slice(0, 20).join('、') || '无';
+        alert(
+          `updated=${r.updated || 0}\ncleared=${r.cleared || 0}\nmissing(前20)=${miss}`
+        );
+        setStatus(`已导出 builtin：updated ${r.updated || 0}`, 'ok');
+      } catch (e) {
+        setStatus('导出失败: ' + e.message, 'err');
+      }
+    };
+
+    // 支持拖到空的 groups 区新建？用按钮即可
+    document.getElementById('btn-new-group').onclick = newGroup;
+    document.getElementById('btn-sync').onclick = async () => {
+      setStatus('同步中…');
+      try {
+        const res = await fetch('/api/sync-catalog');
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error || res.statusText);
+        data = body.data;
+        const s = body.stats || {};
+        if (!currentCat || !data.categories[currentCat]) {
+          currentCat = Object.keys(data.categories || {})[0] || null;
+        }
+        renderNav();
+        renderCat();
+        if (mode === 'avoid') {
+          await loadAvoid();
+        }
+        setStatus(
+          `已同步全量：+${s.added_ungrouped || 0} 未分组，挪 ${s.moved_ungrouped || 0}，删未分组 ${s.removed_ungrouped || 0}（别名组未动）`,
+          'ok'
+        );
+      } catch (e) {
+        setStatus('同步失败: ' + e.message, 'err');
+      }
+    };
+    document.getElementById('btn-reset').onclick = async () => {
+      if (!confirm('用 aliases.json 覆盖当前 aliases-editor.json？\n网页上未导回的拖拽分组都会丢失。')) return;
+      if (!confirm('再次确认：真的要重置初始化？此操作不可撤销。')) return;
+      const res = await fetch('/api/reset');
+      data = await res.json();
+      currentCat = Object.keys(data.categories || {})[0] || null;
+      renderNav();
+      renderCat();
+      setStatus('已重置', 'ok');
+    };
+
+    load().catch((e) => setStatus('加载失败: ' + e.message, 'err'));
+  </script>
+</body>
+</html>
