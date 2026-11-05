@@ -1,4 +1,5 @@
 const { callCloud } = require('./cloud.js')
+const { COOK_SKILL_VALUES } = require('../utils/cookSkill.js')
 
 const KEY = 'cookthis_user'
 
@@ -19,6 +20,20 @@ function patchUser(partial) {
   const next = Object.assign({}, cur, partial || {})
   setUser(next)
   return next
+}
+
+function storedCookSkill(value) {
+  return COOK_SKILL_VALUES.includes(value) ? value : null
+}
+
+function storedProbeCounts(counts) {
+  if (!counts || typeof counts !== 'object' || Array.isArray(counts)) return null
+  const n = (value) => {
+    const x = Number(value)
+    if (!Number.isFinite(x) || x <= 0) return 0
+    return Math.min(5, Math.floor(x))
+  }
+  return { easy: n(counts.easy), home: n(counts.home), advanced: n(counts.advanced) }
 }
 
 function hasCuisineStance(prefs) {
@@ -52,6 +67,8 @@ function ensureLogin(opts) {
       cuisinePrefsConfirmedAt: user.cuisinePrefsConfirmedAt || null,
       // 与 auth 一致：缺字段按已完成；仅显式 false 才引导
       onboardingDone: user.onboardingDone == null ? true : !!user.onboardingDone,
+      cookSkill: storedCookSkill(user.cookSkill),
+      cookSkillProbeCounts: storedProbeCounts(user.cookSkillProbeCounts),
       profileLiteSkipped: !!user.profileLiteSkipped,
       profileLitePromptedAt: user.profileLitePromptedAt || null,
       defaultPeopleCount: members.length,

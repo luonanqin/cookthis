@@ -5,6 +5,25 @@ const cloud = require('wx-server-sdk')
 const { buildDefaultNickname } = require('./nickname.js')
 const { pickDefaultAvatar } = require('./defaultAvatar.js')
 
+// Keep in sync with COOK_SKILL_VALUES in cloudfunctions/_shared/cookSkill.js
+const COOK_SKILL_VALUES = ['beginner', 'home', 'skilled']
+
+function readCookSkill(user) {
+  const value = user && user.cookSkill
+  return COOK_SKILL_VALUES.includes(value) ? value : null
+}
+
+function readProbeCounts(user) {
+  const counts = user && user.cookSkillProbeCounts
+  if (!counts || typeof counts !== 'object' || Array.isArray(counts)) return null
+  const n = (value) => {
+    const x = Number(value)
+    if (!Number.isFinite(x) || x <= 0) return 0
+    return Math.min(5, Math.floor(x))
+  }
+  return { easy: n(counts.easy), home: n(counts.home), advanced: n(counts.advanced) }
+}
+
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 
@@ -74,6 +93,8 @@ exports.main = async (event) => {
       cuisinePrefsConfirmedAt: user.cuisinePrefsConfirmedAt || null,
       // legacy users without the field are treated as already onboarded
       onboardingDone: user.onboardingDone == null ? true : !!user.onboardingDone,
+      cookSkill: readCookSkill(user),
+      cookSkillProbeCounts: readProbeCounts(user),
       profileLiteSkipped: !!user.profileLiteSkipped,
       profileLitePromptedAt: user.profileLitePromptedAt || null,
       defaultPeopleCount: members.length,
@@ -144,6 +165,8 @@ exports.main = async (event) => {
     cuisinePrefs: {},
     cuisinePrefsConfirmedAt: null,
     onboardingDone: false,
+    cookSkill: null,
+    cookSkillProbeCounts: null,
     profileLiteSkipped: false,
     profileLitePromptedAt: null,
     defaultPeopleCount: 0,
