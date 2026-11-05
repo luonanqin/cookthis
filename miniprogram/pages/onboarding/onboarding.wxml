@@ -1,4 +1,6 @@
-<view class="wrap {{typeScaleClass}}">
+<view class="page {{typeScaleClass}}">
+  <page-header title="开始设置" subtitle="先记下家里几口人、忌口和口味" show-back="{{false}}" />
+  <view class="wrap">
   <view class="progress">步骤 {{step + 1}} / {{steps.length}} · {{steps[step]}}</view>
 
   <block wx:if="{{step === 0}}">
@@ -227,18 +229,22 @@
   <view class="footer">
     <button
       wx:if="{{step > 0}}"
-      size="mini"
-      class="btn-outline"
+      class="btn-outline footer-secondary"
       disabled="{{busy}}"
       bindtap="onSkip"
     >跳过</button>
-    <button size="mini" class="btn-outline" wx:if="{{step > 0}}" bindtap="onBackStep">上一步</button>
     <button
-      size="mini"
+      wx:if="{{step > 0}}"
+      class="btn-outline footer-secondary"
+      bindtap="onBackStep"
+    >上一步</button>
+    <button
       type="primary"
+      class="footer-primary"
       loading="{{busy}}"
       disabled="{{busy}}"
       bindtap="onNext"
     >{{step >= steps.length - 1 ? '完成' : '下一步'}}</button>
+  </view>
   </view>
 </view>

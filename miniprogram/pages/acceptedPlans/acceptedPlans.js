@@ -126,6 +126,8 @@ Page({
     loading: false,
     loadingMore: false,
     hint: HINT,
+    headerHeight: 140,
+    metaStickyTop: 172,
     showTip: false,
     tipStep: 1,
     tipText: '可点击记录已吃',
@@ -133,6 +135,24 @@ Page({
     tipBubbleTop: 120,
     tipBubbleLeft: 28,
     tipOwnListKey: ''
+  },
+
+  onHeaderHeight(e) {
+    const height = e && e.detail && e.detail.height
+    if (!height) return
+    let hintH = 32
+    try {
+      const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync()
+      hintH = Math.ceil((64 / 750) * (sys.windowWidth || 375))
+    } catch (err) {}
+    const metaStickyTop = height + hintH
+    if (
+      height === this.data.headerHeight &&
+      metaStickyTop === this.data.metaStickyTop
+    ) {
+      return
+    }
+    this.setData({ headerHeight: height, metaStickyTop })
   },
 
   _loadGen: 0,
@@ -490,14 +510,14 @@ Page({
           }
         }
         return {
-          title: shareCardTitle(dishes) || '买菜做什么 · 方案',
+          title: shareCardTitle(dishes) || '买菜没烦恼 · 方案',
           path:
             '/pages/sharedPlan/sharedPlan?shareId=' +
             encodeURIComponent(shareId || '')
         }
       })
       .catch(() => ({
-        title: '买菜做什么',
+        title: '买菜没烦恼',
         path: '/pages/index/index'
       }))
   }

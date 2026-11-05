@@ -1,4 +1,6 @@
 <view class="page {{typeScaleClass}}">
+  <page-header title="方案分享" subtitle="朋友分享给你的菜" />
+  <view class="page-body">
   <view wx:if="{{loading}}" class="empty">加载中…</view>
 
   <view wx:elif="{{invalid}}" class="empty">
@@ -27,14 +29,16 @@
       <view class="section-title">用料</view>
       <view class="group" wx:for="{{ingredientGroups}}" wx:key="category">
         <view class="group-label">{{item.category}}</view>
-        <view class="pair-row" wx:for="{{item.rows}}" wx:for-item="row" wx:key="index">
-          <view class="cell" wx:for="{{row}}" wx:for-item="cell" wx:key="name">
+        <view class="pair-row" wx:for="{{item.rows}}" wx:for-item="row" wx:key="rowKey">
+          <view class="cell" wx:for="{{row.cells}}" wx:for-item="cell" wx:key="name">
             <text class="name">{{cell.displayName}}</text>
           </view>
         </view>
       </view>
     </view>
   </block>
+
+  </view>
 
   <view class="footer" wx:if="{{!loading && !invalid}}">
     <button

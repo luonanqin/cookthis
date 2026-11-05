@@ -52,13 +52,8 @@ function householdTotal(counts) {
   return c.adult + c.child + c.elder
 }
 
-// Short list: vocab codes matching ingredients.avoidTags / 忌口词表
-const PARTY_AVOID_OPTIONS = [
-  { id: 'pork', label: '猪肉类' },
-  { id: 'seafood', label: '海鲜' },
-  { id: 'coriander', label: '香菜' },
-  { id: 'offal', label: '内脏' }
-]
+// 与家庭忌口词表一致（含新增组）；硬排除靠 ingredients.avoidTags
+const { AVOID_OPTIONS: PARTY_AVOID_OPTIONS } = require('../../utils/avoidOptions.js')
 
 const DAILY_SLOT_PRESETS = [
   {
@@ -188,6 +183,7 @@ Page({
   data: {
     loading: true,
     error: '',
+    holdBlank: false,
     submitting: false,
     seasonal: [],
     yearRound: [],
@@ -200,6 +196,7 @@ Page({
     manuals: [],
     manualInput: '',
     count: 0,
+    seasonalCount: 0,
     yearRoundCount: 0,
 
     mealTypeOptions: MEAL_TYPE_OPTIONS,
@@ -529,7 +526,7 @@ Page({
       : {}
     const manuals = preserveSelection ? this.data.manuals || [] : []
 
-    this.setData({ loading: true, error: '', listEmpty: false })
+    this.setData({ loading: true, error: '', holdBlank: false, listEmpty: false })
     const user = getUser() || {}
     const familyAvoids = user.familyAvoids || []
     const scale = user.marketScaleEffective || 'medium'
@@ -561,6 +558,7 @@ Page({
         this.setData({
           loading: false,
           error: '',
+          holdBlank: false,
           seasonal,
           yearRound,
           seasonalGroups: groupByCategory(seasonal),
@@ -578,6 +576,14 @@ Page({
       })
       .catch((err) => {
         console.error(err)
+        const code = err && err.error
+        const busy =
+          code === 'RATE_LIMITED' || code === 'INGREDIENTS_DAILY_LIMIT'
+        if (busy) {
+          this.setData({ loading: false, error: '', holdBlank: true })
+          wx.showToast({ title: '请求太频繁，请稍后再试', icon: 'none' })
+          return
+        }
         const msg =
           (err && (err.errMsg || err.message || err.error)) || '加载失败'
         this.setData({ loading: false, error: String(msg), listEmpty: false })
@@ -654,6 +660,7 @@ Page({
     const mc = (manuals || []).length
     return {
       count: sc + yc + mc,
+      seasonalCount: sc,
       yearRoundCount: yc
     }
   },

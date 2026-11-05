@@ -7,7 +7,8 @@ module.exports = Behavior({
   data: {
     typeScaleClass: '',
     largeText: false,
-    typeScaleLabel: '大字版'
+    // 圆钮上显示：未放大时「大」，已放大时「小」
+    typeScaleLabel: '大'
   },
 
   lifetimes: {
@@ -28,7 +29,7 @@ module.exports = Behavior({
       this.setData({
         largeText: large,
         typeScaleClass: large ? 'large-text' : '',
-        typeScaleLabel: large ? '小字版' : '大字版'
+        typeScaleLabel: large ? '小' : '大'
       })
     },
 

@@ -72,11 +72,21 @@ function groupDishesByMeatVeg(dishes) {
   const groups = []
   for (const k of MEAT_VEG_ORDER) {
     if (buckets[k].length) {
-      groups.push({ type: k, label: MEAT_VEG_LABELS[k], dishes: buckets[k] })
+      groups.push({
+        type: k,
+        label: MEAT_VEG_LABELS[k],
+        dishes: buckets[k],
+        namesText: buckets[k].map((d) => d.name).filter(Boolean).join('、')
+      })
     }
   }
   if (buckets.other.length) {
-    groups.push({ type: 'other', label: '其他', dishes: buckets.other })
+    groups.push({
+      type: 'other',
+      label: '其他',
+      dishes: buckets.other,
+      namesText: buckets.other.map((d) => d.name).filter(Boolean).join('、')
+    })
   }
   return groups
 }
@@ -87,11 +97,17 @@ function decoratePlans(plans, selectedNames) {
       plan: p,
       selectedNames
     })
-    const meals = (p.meals || []).map((m) =>
-      Object.assign({}, m, {
+    const meals = (p.meals || []).map((m, mi) => {
+      const slot = m && m.slot
+      const mealKey =
+        (slot && (slot.meal || slot.label)) != null
+          ? String(slot.meal || slot.label)
+          : 'm' + mi
+      return Object.assign({}, m, {
+        mealKey,
         dishGroups: groupDishesByMeatVeg(m.dishes)
       })
-    )
+    })
     return Object.assign({}, p, {
       meals,
       ingredientTipText: summary.tipText || '',
@@ -562,14 +578,14 @@ Page({
           ;(m.dishes || []).forEach((d) => dishes.push({ name: d.name }))
         })
         return {
-          title: shareCardTitle(dishes) || '买菜做什么 · 方案',
+          title: shareCardTitle(dishes) || '买菜没烦恼 · 方案',
           path:
             '/pages/sharedPlan/sharedPlan?shareId=' +
             encodeURIComponent(shareId || '')
         }
       })
       .catch(() => ({
-        title: '买菜做什么',
+        title: '买菜没烦恼',
         path: '/pages/index/index'
       }))
   },

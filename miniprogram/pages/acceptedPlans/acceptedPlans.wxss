@@ -1,22 +1,31 @@
 .page {
-  padding: 0 28rpx 80rpx;
+  padding: 0;
   box-sizing: border-box;
   min-height: 100vh;
   background: var(--color-bg);
 }
 
-/* 顶栏小字长期吸顶；定高，供 meta 精确贴齐，避免缝里露下层 */
+/* 提示条改为 fixed 后，去掉顶 padding，避免与占位叠出空隙 */
+.page-body {
+  padding-top: 0;
+}
+
+/* 提示条固定在页眉下方，避免 sticky 上滑窜位 */
 .hint-bar {
-  position: sticky;
-  top: 0;
-  z-index: 12;
-  margin: 0 -28rpx;
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 99;
   height: 64rpx;
-  padding: 0 28rpx;
+  padding: 0 32rpx;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   background: var(--color-bg);
+}
+
+.hint-bar-spacer {
+  height: 64rpx;
 }
 
 .hint {
@@ -44,6 +53,7 @@
   padding: 0 24rpx 24rpx;
   margin-bottom: 20rpx;
   border: 1rpx solid var(--color-border);
+  /* sticky meta 需要 visible；圆角由 meta 顶部自行承接 */
   overflow: visible;
 }
 
@@ -51,10 +61,9 @@
   padding-bottom: 20rpx;
 }
 
-/* 方案描述：未滚完本卡菜品时吸顶（贴齐 hint-bar 底边） */
+/* 方案描述：未滚完本卡菜品时吸顶（贴齐 hint-bar 底边；top 由内联写入） */
 .meta {
   position: sticky;
-  top: 64rpx;
   z-index: 8;
   margin: 0 -24rpx 0;
   padding: 16rpx 24rpx 12rpx;
@@ -62,24 +71,35 @@
   color: var(--color-text-secondary);
   line-height: 1.4;
   background: var(--color-surface);
-  border-radius: 0;
+  /* 盖住卡片顶边时仍保持圆角，避免外框变直角 */
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
 }
 
 .meta-own,
 .meta-shared {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12rpx;
 }
 
-.meta-text {
+.meta-info {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.meta-time,
+.meta-scene {
+  display: block;
+  line-height: 1.4;
 }
 
 .badge {
   flex-shrink: 0;
+  align-self: center;
   padding: 2rpx 12rpx;
   font-size: var(--fs-xs);
   line-height: 1.4;
@@ -90,8 +110,16 @@
 
 .card-share {
   flex-shrink: 0;
+  align-self: center;
   margin: 0 !important;
+  padding: 0 !important;
+  width: 64rpx !important;
+  height: 64rpx !important;
+  min-width: 64rpx !important;
+  min-height: 64rpx !important;
   font-weight: 400 !important;
+  background: transparent !important;
+  border: none !important;
 }
 
 .card-share::after {
@@ -159,9 +187,19 @@
 
 .sheet-chip-text {
   flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.ate-tag {
+  flex-shrink: 0;
+  margin-left: 6rpx;
+  font-size: var(--fs-xxs, 20rpx);
+  color: var(--color-text-secondary);
+  line-height: 1.2;
+  font-weight: 400;
 }
 
 /* tips 蒙层：不可点关；仅首菜热区可点 */
@@ -210,4 +248,12 @@
   z-index: 25;
   margin: 0;
   box-shadow: 0 0 0 6rpx rgba(255, 255, 255, 0.95), 0 8rpx 24rpx rgba(26, 26, 26, 0.2);
+}
+
+/* Icon assets */
+.card-share {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1 !important;
 }

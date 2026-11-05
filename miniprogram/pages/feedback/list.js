@@ -117,16 +117,50 @@ Page({
     items: [],
     nextCursor: null,
     loading: false,
-    loadingMore: false
+    loadingMore: false,
+    headerHeight: 140,
+    composerHeight: 220
   },
 
   _loadGen: 0,
   _epoch: 0,
   _measureTimer: null,
+  _composerMeasureTimer: null,
+
+  onHeaderHeight(e) {
+    const height = e && e.detail && e.detail.height
+    if (!height || height === this.data.headerHeight) return
+    this.setData({ headerHeight: height }, () => this._measureComposer())
+  },
+
+  _measureComposer() {
+    if (this._composerMeasureTimer) {
+      clearTimeout(this._composerMeasureTimer)
+      this._composerMeasureTimer = null
+    }
+    this._composerMeasureTimer = setTimeout(() => {
+      this._composerMeasureTimer = null
+      const query = wx.createSelectorQuery()
+      query.select('.composer').boundingClientRect()
+      query.exec((res) => {
+        const rect = res && res[0]
+        if (!rect || !rect.height) return
+        const next = Math.ceil(rect.height)
+        if (next !== this.data.composerHeight) {
+          this.setData({ composerHeight: next })
+        }
+      })
+    }, 16)
+  },
 
   onShow() {
     this.applyTypeScale()
     this.refreshList()
+    this._measureComposer()
+  },
+
+  onReady() {
+    this._measureComposer()
   },
 
   onReachBottom() {
@@ -137,6 +171,10 @@ Page({
     if (this._measureTimer) {
       clearTimeout(this._measureTimer)
       this._measureTimer = null
+    }
+    if (this._composerMeasureTimer) {
+      clearTimeout(this._composerMeasureTimer)
+      this._composerMeasureTimer = null
     }
   },
 

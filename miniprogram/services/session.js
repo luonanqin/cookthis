@@ -1,4 +1,5 @@
 const { callCloud } = require('./cloud.js')
+const { prefetchCatalog } = require('./catalogCache.js')
 
 const KEY = 'cookthis_user'
 
@@ -77,11 +78,24 @@ function ensureLogin(opts) {
       }
       const prevCuisineStance = hasCuisineStance(prev.cuisinePrefs)
       const slimCuisineStance = hasCuisineStance(slim.cuisinePrefs)
-      if (prevCuisineStance && !slimCuisineStance) {
+      // 云端已是「都还行」（已确认且无喜欢/不喜欢）→ 以云端为准，勿用本地旧喜欢盖回去
+      const slimCuisineOk =
+        !!slim.cuisinePrefsConfirmedAt && !slimCuisineStance
+      const prevCuisineOk =
+        !!prev.cuisinePrefsConfirmedAt && !prevCuisineStance
+      if (slimCuisineOk) {
+        slim.cuisinePrefs = {}
+      } else if (prevCuisineOk && slimCuisineStance) {
+        // 本地刚存「都还行」，auth 仍带回旧喜欢/不喜欢
+        slim.cuisinePrefs = {}
+        slim.cuisinePrefsConfirmedAt =
+          prev.cuisinePrefsConfirmedAt || true
+      } else if (prevCuisineStance && !slimCuisineStance) {
+        // auth 空档偶发：本地有喜欢/不喜欢则暂留
         slim.cuisinePrefs = prev.cuisinePrefs || {}
       }
       if (
-        (prev.cuisinePrefsConfirmedAt || prevCuisineStance) &&
+        (prev.cuisinePrefsConfirmedAt || prevCuisineStance || prevCuisineOk) &&
         !slim.cuisinePrefsConfirmedAt &&
         !hasCuisineStance(slim.cuisinePrefs)
       ) {
@@ -90,6 +104,10 @@ function ensureLogin(opts) {
       }
     }
     setUser(slim)
+    // #5：登录后预拉别名 / 当前城货架（失败静默）
+    try {
+      prefetchCatalog(slim)
+    } catch (e) {}
     return slim
   })
 }

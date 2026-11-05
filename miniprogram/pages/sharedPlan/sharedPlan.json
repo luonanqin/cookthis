@@ -1,3 +1,7 @@
 {
-  "navigationBarTitleText": "方案分享"
+  "navigationBarTitleText": "方案分享",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "page-header": "/components/page-header/page-header"
+  }
 }

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import socket
+import subprocess
 import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -25,6 +26,7 @@ ALIASES_PATH = CATALOG / "aliases.json"
 BY_CAT_PATH = CATALOG / "ingredients-all-by-category.json"
 MAJOR_MINOR_PATH = CATALOG / "ingredients-major-minor.json"
 BUILTIN_PATH = CATALOG / "ingredients-builtin.json"
+RECIPES_BUILTIN_PATH = CATALOG / "recipes-builtin.json"
 STATIC_DIR = Path(__file__).resolve().parent
 # 0.0.0.0：本机 + 局域网可访问
 HOST, PORT = "0.0.0.0", 8765
@@ -38,6 +40,12 @@ from avoid_tags import (  # noqa: E402
     export_avoid_tags,
     remove_avoid_group,
     vocab_ids,
+)
+from city_recipes import (  # noqa: E402
+    group_by_city,
+    load_recipes,
+    set_recipe_cities,
+    write_recipes,
 )
 
 
@@ -448,13 +456,27 @@ class Handler(BaseHTTPRequestHandler):
                 },
             )
             return
+        if path == "/api/city-recipes":
+            try:
+                recipes = load_recipes(RECIPES_BUILTIN_PATH)
+                by_city = group_by_city(recipes)
+            except Exception as e:
+                self._json(500, {"error": str(e)})
+                return
+            self._json(
+                200,
+                {
+                    "byCity": by_city,
+                    "path": str(RECIPES_BUILTIN_PATH),
+                    "cityCount": len(by_city),
+                    "recipeCount": sum(len(v) for v in by_city.values()),
+                },
+            )
+            return
         self._json(404, {"error": "not found"})
 
     def do_PUT(self) -> None:
         path = urlparse(self.path).path
-        if path != "/api/avoid":
-            self._json(404, {"error": "not found"})
-            return
         length = int(self.headers.get("Content-Length") or 0)
         raw = self.rfile.read(length)
         try:
@@ -464,6 +486,40 @@ class Handler(BaseHTTPRequestHandler):
             return
         if not isinstance(body, dict):
             self._json(400, {"error": "need JSON object"})
+            return
+
+        if path == "/api/city-recipes":
+            recipe_id = str(body.get("id") or "").strip()
+            cities = body.get("cities")
+            if not recipe_id:
+                self._json(400, {"error": "id required"})
+                return
+            if not isinstance(cities, list):
+                self._json(400, {"error": "cities must be list"})
+                return
+            try:
+                recipes = load_recipes(RECIPES_BUILTIN_PATH)
+                updated = set_recipe_cities(recipes, recipe_id, cities)
+                if updated is None:
+                    self._json(404, {"error": f"recipe not found: {recipe_id}"})
+                    return
+                write_recipes(RECIPES_BUILTIN_PATH, recipes)
+            except Exception as e:
+                self._json(500, {"error": str(e)})
+                return
+            self._json(
+                200,
+                {
+                    "ok": True,
+                    "recipe": updated,
+                    "byCity": group_by_city(recipes),
+                    "path": str(RECIPES_BUILTIN_PATH),
+                },
+            )
+            return
+
+        if path != "/api/avoid":
+            self._json(404, {"error": "not found"})
             return
         avoid_members = body.get("avoidMembers")
         try:
@@ -532,6 +588,38 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:
         path = urlparse(self.path).path
         parsed = urlparse(self.path)
+        if path == "/api/city-recipes/export-import":
+            script = ROOT / "scripts" / "import-recipes.js"
+            try:
+                proc = subprocess.run(
+                    ["node", str(script)],
+                    cwd=str(ROOT),
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+            except Exception as e:
+                self._json(500, {"error": str(e)})
+                return
+            if proc.returncode != 0:
+                self._json(
+                    500,
+                    {
+                        "error": "import-recipes failed",
+                        "stdout": (proc.stdout or "")[-2000:],
+                        "stderr": (proc.stderr or "")[-2000:],
+                    },
+                )
+                return
+            self._json(
+                200,
+                {
+                    "ok": True,
+                    "stdout": (proc.stdout or "").strip(),
+                    "importPath": str(CATALOG / "recipes-for-import.json"),
+                },
+            )
+            return
         if path == "/api/avoid/vocab":
             length = int(self.headers.get("Content-Length") or 0)
             raw = self.rfile.read(length)

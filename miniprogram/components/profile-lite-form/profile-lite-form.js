@@ -1,11 +1,4 @@
-const LITE_AVOID_OPTIONS = [
-  { id: 'pork', label: '猪肉类' },
-  { id: 'seafood', label: '海鲜' },
-  { id: 'coriander', label: '香菜' },
-  { id: 'offal', label: '内脏' },
-  { id: 'peanut', label: '花生' },
-  { id: 'dairy', label: '乳制品' }
-]
+const { AVOID_OPTIONS: LITE_AVOID_OPTIONS } = require('../../utils/avoidOptions.js')
 
 Component({
   properties: {

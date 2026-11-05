@@ -1,16 +1,52 @@
 page {
-  --color-primary: #3a8a5f;
-  --color-primary-pressed: #2f7350;
-  --color-primary-soft: #eaf4ee;
-  --color-bg: #f6f9f7;
-  --color-surface: #ffffff;
-  --color-text: #1a1a1a;
-  --color-text-secondary: #5f6e66;
-  --color-border: #dde8e2;
-  --color-mask: rgba(26, 26, 26, 0.4);
-  --radius-btn: 16rpx;
-  --radius-sheet: 24rpx;
-  --radius-card: 16rpx;
+  /* Design System tokens (暖奶油 + 菜场绿) */
+  --ds-color-canvas: #fcf9f2;
+  --ds-color-header: #fefcf7;
+  --ds-color-surface: #fffefa;
+  --ds-color-surface-soft: #f7f4ec;
+  --ds-color-forest: #0a2b26;
+  --ds-color-text: #27332e;
+  --ds-color-text-secondary: #748078;
+  --ds-color-text-muted: #a1afaa;
+  --ds-color-primary: #527f55;
+  --ds-color-primary-pressed: #426b47;
+  --ds-color-selected: #edf5e3;
+  --ds-color-coral: #ec947d;
+  --ds-color-coral-soft: #fbe6e1;
+  --ds-color-border: #e7e5dc;
+  --ds-color-mask: rgba(20, 37, 31, 0.42);
+
+  --ds-radius-control: 8rpx;
+  --ds-radius-chip: 16rpx;
+  --ds-radius-tile: 18rpx;
+  --ds-radius-card: 24rpx;
+  --ds-radius-dialog: 28rpx;
+  --ds-radius-pill: 999rpx;
+
+  /* Legacy aliases → DS（页面继续用 --color-* 不致全量改名） */
+  --color-primary: var(--ds-color-primary);
+  --color-primary-pressed: var(--ds-color-primary-pressed);
+  --color-primary-soft: var(--ds-color-selected);
+  --color-bg: var(--ds-color-canvas);
+  --color-header: var(--ds-color-header);
+  --color-surface: var(--ds-color-surface);
+  --color-surface-soft: var(--ds-color-surface-soft);
+  --color-forest: var(--ds-color-forest);
+  --color-text: var(--ds-color-text);
+  --color-text-secondary: var(--ds-color-text-secondary);
+  --color-text-muted: var(--ds-color-text-muted);
+  --color-coral: var(--ds-color-coral);
+  --color-coral-soft: var(--ds-color-coral-soft);
+  --color-border: var(--ds-color-border);
+  --color-mask: var(--ds-color-mask);
+
+  --radius-btn: 20rpx;
+  --radius-sheet: var(--ds-radius-dialog);
+  --radius-card: var(--ds-radius-card);
+  --radius-chip: var(--ds-radius-chip);
+  --radius-tile: var(--ds-radius-tile);
+  --radius-pill: var(--ds-radius-pill);
+  --radius-control: var(--ds-radius-control);
 
   /* Type scale (normal) */
   --fs-xxs: 20rpx;
@@ -22,11 +58,15 @@ page {
   --fs-title: 32rpx;
   --fs-lead: 36rpx;
   --fs-brand: 52rpx;
+  --fs-page-title: 48rpx;
+  --fs-caption: var(--fs-sm);
 
   background: var(--color-bg);
   color: var(--color-text);
   font-size: var(--fs-body);
   line-height: 1.5;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', sans-serif;
 }
 
 /* Large type: put class on page root wrapper (inherits to descendants) */
@@ -40,6 +80,7 @@ page {
   --fs-title: 40rpx;
   --fs-lead: 44rpx;
   --fs-brand: 64rpx;
+  --fs-page-title: 56rpx;
   font-size: var(--fs-body);
 }
 
@@ -73,6 +114,20 @@ button.btn-outline {
 
 button.btn-outline::after {
   border: none !important;
+}
+
+button.btn-coral {
+  background: var(--color-coral) !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+button.btn-coral::after {
+  border: none !important;
+}
+
+button.btn-coral.button-hover {
+  background: #d9826c !important;
 }
 
 button[size='mini'] {
@@ -237,3 +292,57 @@ button.btn-outline.button-hover {
   margin-right: 12rpx;
   color: var(--color-primary);
 }
+
+/* 内页主体：页眉下内容区通用间距 */
+.page-body {
+  padding: 24rpx 32rpx calc(48rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+/* 内页底栏主按钮：对齐「我的偏好」（居中 360rpx）；mini 多按钮底栏除外 */
+.footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  padding: 16rpx 32rpx calc(16rpx + env(safe-area-inset-bottom));
+  background: var(--color-surface);
+  border-top: 1rpx solid var(--color-border);
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer > button:not([size='mini']) {
+  margin: 0 !important;
+  width: 360rpx !important;
+  height: 88rpx !important;
+  padding: 0 !important;
+  line-height: 1.2 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+}
+
+.surface-card {
+  background: var(--color-surface);
+  border: 1rpx solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 28rpx 24rpx;
+  box-sizing: border-box;
+  box-shadow: 0 4rpx 20rpx rgba(39, 51, 46, 0.05);
+}
+
+/* Shared image icon utilities */
+.ui-icon {
+  display: block;
+  flex-shrink: 0;
+}
+
+.ui-icon--xs { width: 30rpx; height: 30rpx; }
+.ui-icon--sm { width: 40rpx; height: 40rpx; }
+.ui-icon--md { width: 52rpx; height: 52rpx; }
+.ui-icon--lg { width: 64rpx; height: 64rpx; }

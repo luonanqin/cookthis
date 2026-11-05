@@ -1,9 +1,13 @@
 .page {
-  /* 左右不给悬浮钮留白，避免方案卡被挤窄；底部留给 footer + 圆钮滚动余量 */
-  padding: 24rpx 28rpx 180rpx;
+  padding: 0;
   box-sizing: border-box;
   min-height: 100vh;
   background: var(--color-bg);
+}
+
+.recommend-body {
+  /* 底栏 + 右侧悬浮钮滚动余量 */
+  padding-bottom: calc(180rpx + env(safe-area-inset-bottom));
 }
 
 .scroll-end-pad {
@@ -11,14 +15,29 @@
 }
 
 .scene-bar {
-  margin-bottom: 12rpx;
+  margin-bottom: 16rpx;
   padding: 16rpx 20rpx;
-  background: rgba(46, 125, 50, 0.08);
+  background: var(--color-primary-soft);
   border-radius: var(--radius-card);
   color: var(--color-text);
   font-size: var(--fs-md);
   line-height: 1.4;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.scene-bar-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.scene-bar-edit {
+  flex-shrink: 0;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--color-primary);
 }
 
 .profile-banner {
@@ -48,129 +67,172 @@
 .plan {
   background: var(--color-surface);
   border-radius: var(--radius-card);
-  padding: 28rpx;
+  padding: 24rpx;
   margin-bottom: 20rpx;
   border: 1rpx solid var(--color-border);
+  box-shadow: 0 4rpx 20rpx rgba(39, 51, 46, 0.05);
 }
 
 .plan-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16rpx;
-  margin-bottom: 12rpx;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
 }
 
 .plan-title {
   flex: 1;
   min-width: 0;
-  font-weight: 600;
+  font-size: var(--fs-lead);
+  font-weight: 700;
   color: var(--color-text);
+  line-height: 1.3;
 }
 
 .plan-actions {
   flex-shrink: 0;
   display: flex;
+  flex-direction: row;
   align-items: center;
-  gap: 12rpx;
+  gap: 8rpx;
 }
 
 .plan-share {
   margin: 0 !important;
-  flex-shrink: 0;
-  font-weight: 400 !important;
-}
-
-.plan-share::after {
+  width: 56rpx !important;
+  min-width: 56rpx !important;
+  height: 56rpx !important;
+  padding: 0 !important;
+  background: transparent !important;
   border: none !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  line-height: 1 !important;
 }
 
 .plan-accept {
-  flex-shrink: 0;
-  margin: 0;
+  margin: 0 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  height: 56rpx !important;
+  padding: 0 16rpx !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 6rpx;
+  line-height: 1.2 !important;
+  font-size: var(--fs-sm) !important;
+  font-weight: 600 !important;
+  border-radius: var(--radius-btn) !important;
 }
 
-.kind {
-  font-weight: 400;
-  color: var(--color-primary);
-  font-size: var(--fs-sm);
+.plan-share::after,
+.plan-accept::after {
+  border: none !important;
 }
 
-.meal {
-  margin-top: 18rpx;
+.meal + .meal {
+  margin-top: 20rpx;
 }
 
 .meal-label {
-  color: var(--color-text-secondary);
+  display: inline-block;
+  margin-bottom: 12rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 8rpx;
+  background: var(--color-primary-soft);
+  color: var(--color-forest);
   font-size: var(--fs-sm);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.dish-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  min-height: 52rpx;
   margin-bottom: 10rpx;
 }
 
-.dish-group {
-  display: flex;
-  align-items: flex-start;
-  gap: 12rpx;
+.dish-row:last-child {
+  margin-bottom: 0;
 }
 
-.dish-group + .dish-group {
-  margin-top: 12rpx;
-}
-
-.group-label {
+.type-badge {
   flex-shrink: 0;
-  width: 36rpx;
-  font-size: var(--fs-sm);
-  line-height: 1.55;
-  color: var(--color-primary);
-  font-weight: 600;
-  padding-top: 2rpx;
-}
-
-/* 分类名右侧两列；窄屏自动收成一列 */
-.dish-grid {
-  flex: 1;
-  min-width: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240rpx, 1fr));
-  column-gap: 8rpx;
-  row-gap: 6rpx;
-}
-
-.dish {
-  display: flex;
-  align-items: baseline;
-  min-width: 0;
-  font-size: var(--fs-body);
-  line-height: 1.55;
-  color: var(--color-text);
-  padding-right: 8rpx;
+  min-width: 44rpx;
+  height: 44rpx;
+  padding: 0 8rpx;
   box-sizing: border-box;
+  border-radius: 10rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
 }
 
-.dish-mark {
-  flex-shrink: 0;
-  width: 28rpx;
-  color: var(--color-primary);
-  opacity: 0.55;
-  font-weight: 700;
+.type-meat {
+  background: #fbe6e1;
+  color: #c56a55;
+}
+
+.type-veg {
+  background: #edf5e3;
+  color: #527f55;
+}
+
+.type-soup {
+  background: #f8efd8;
+  color: #b8893a;
+}
+
+.type-other {
+  background: var(--color-surface-soft, #f3f1ea);
+  color: var(--color-text-secondary);
 }
 
 .dish-name {
   flex: 1;
   min-width: 0;
-  word-break: break-all;
+  font-size: var(--fs-body);
+  color: var(--color-text);
+  font-weight: 500;
+  line-height: 1.45;
+  word-break: break-word;
 }
 
 .plan-ings {
-  margin-top: 16rpx;
-  text-align: left;
+  margin-top: 18rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx dashed var(--color-border);
+  display: flex;
+  align-items: flex-start;
+  gap: 10rpx;
+}
+
+.plan-ings-icon {
+  width: 32rpx;
+  height: 32rpx;
+  flex-shrink: 0;
+  margin-top: 2rpx;
+}
+
+.plan-ings-text {
+  flex: 1;
+  min-width: 0;
   font-size: var(--fs-sm);
   color: var(--color-text-secondary);
   line-height: 1.5;
 }
 
-/* 右下角悬浮圆钮：与方案卡内「去买菜」左对齐
-   卡片内容右缘 = 页边距 28 + 卡内边距 28；列宽约等于 mini「去买菜」 */
 .fab-stack {
   position: fixed;
   right: 56rpx;
@@ -246,13 +308,6 @@
 }
 
 .footer {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 16rpx 28rpx calc(16rpx + env(safe-area-inset-bottom));
-  background: var(--color-surface);
-  border-top: 1rpx solid var(--color-border);
   z-index: 12;
 }
 

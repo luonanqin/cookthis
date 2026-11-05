@@ -1,8 +1,12 @@
 .page {
-  padding: 24rpx 28rpx 280rpx;
+  padding: 0;
   box-sizing: border-box;
   min-height: 100vh;
   background: var(--color-bg);
+}
+
+.shopping-body {
+  padding-bottom: calc(200rpx + env(safe-area-inset-bottom));
 }
 
 .banner {
@@ -74,17 +78,22 @@
   display: flex;
   align-items: center;
   background: var(--color-surface);
-  border-radius: var(--radius-card);
+  border-radius: var(--radius-tile);
   padding: 20rpx 16rpx;
   border: 1rpx solid var(--color-border);
   box-sizing: border-box;
+}
+
+.cell.bought {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary);
 }
 
 .check {
   width: 36rpx;
   height: 36rpx;
   border: 2rpx solid var(--color-border);
-  border-radius: 8rpx;
+  border-radius: var(--radius-control);
   margin-right: 12rpx;
   text-align: center;
   line-height: 32rpx;
@@ -140,20 +149,14 @@
 }
 
 .footer {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
   z-index: 110;
-  padding: 16rpx 28rpx calc(16rpx + env(safe-area-inset-bottom));
-  background: var(--color-surface);
-  border-top: 1rpx solid var(--color-border);
-  display: flex;
   flex-direction: column;
   gap: 12rpx;
 }
 
 .recipe-entry {
+  width: 360rpx;
+  box-sizing: border-box;
   text-align: center;
   padding: 20rpx 16rpx;
   border-radius: var(--radius-card);
@@ -241,4 +244,37 @@
   font-size: var(--fs-md);
   color: var(--color-text-secondary);
   line-height: 1.5;
+}
+
+/* Icon assets */
+.banner-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.banner-share {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+}
+
+.banner-share-icon {
+  width: 28rpx;
+  height: 28rpx;
+  filter: brightness(0) invert(1);
+}
+
+.group-label {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.shopping-group-icon {
+  width: 36rpx;
+  height: 36rpx;
 }

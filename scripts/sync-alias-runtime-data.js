@@ -10,8 +10,7 @@ const { flattenShelfNameOrder } = require('../cloudfunctions/_shared/aliasMatch.
 
 const aliasJsonTargets = [
   'cloudfunctions/_shared/data/aliases.json',
-  'cloudfunctions/recommend/data/aliases.json',
-  'miniprogram/data/aliases.json'
+  'cloudfunctions/recommend/data/aliases.json'
 ]
 
 function ensureDir(p) {
@@ -33,13 +32,12 @@ aliasJsonTargets.forEach((rel) => {
   console.log('wrote', rel)
 })
 
-// 小程序 require('.json') 常打包失败（同 holidays）；额外写 .js
-const aliasesJsRel = 'miniprogram/data/aliases.js'
-writeJsModule(path.join(root, aliasesJsRel), aliasesObj)
-console.log('wrote', aliasesJsRel)
+// 小程序侧改为登录后拉 catalog；别名/货架进云函数 catalog 包
+const catalogAliasesJs = 'cloudfunctions/catalog/data/aliases.js'
+ensureDir(path.join(root, 'cloudfunctions/catalog/data'))
+writeJsModule(path.join(root, catalogAliasesJs), aliasesObj)
+console.log('wrote', catalogAliasesJs)
 
-const shelfOut = path.join(root, 'miniprogram/data/city-shelves')
-ensureDir(shelfOut)
 const shelvesMap = {}
 for (const ent of fs.readdirSync(citiesDir, { withFileTypes: true })) {
   if (!ent.isDirectory()) continue
@@ -47,12 +45,10 @@ for (const ent of fs.readdirSync(citiesDir, { withFileTypes: true })) {
     fs.readFileSync(path.join(citiesDir, ent.name, 'ingredients.json'), 'utf8')
   )
   const order = flattenShelfNameOrder(doc)
-  const dest = path.join(shelfOut, ent.name + '.json')
-  fs.writeFileSync(dest, JSON.stringify(order) + '\n')
   shelvesMap[ent.name] = order
   console.log('shelf', ent.name, order.length)
 }
 
-const shelvesJsRel = 'miniprogram/data/city-shelves.js'
-writeJsModule(path.join(root, shelvesJsRel), shelvesMap)
-console.log('wrote', shelvesJsRel)
+const catalogShelvesJs = 'cloudfunctions/catalog/data/city-shelves.js'
+writeJsModule(path.join(root, catalogShelvesJs), shelvesMap)
+console.log('wrote', catalogShelvesJs)

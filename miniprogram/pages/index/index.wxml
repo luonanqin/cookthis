@@ -1,71 +1,95 @@
 <view class="root {{typeScaleClass}}">
-  <view class="wrap">
-    <view class="hero">
-      <view class="pot" aria-hidden="true">
-        <view class="steam"></view>
-        <view class="steam mid"></view>
-        <view class="steam"></view>
-        <view class="pot-body"></view>
-      </view>
-      <view class="brand">买菜做什么</view>
-      <view class="rule"></view>
+  <view class="home">
+    <!-- 主视觉贴顶：整图等比缩放不裁切；底部波浪做过渡 -->
+    <view class="home-hero">
+      <image
+        class="home-hero__img"
+        src="/assets/images/home-market-hero.jpg"
+        mode="widthFix"
+        aria-label="买菜没烦恼，从菜场到餐桌让每天吃饭更简单"
+      />
+      <view class="home-hero__wave" aria-hidden="true"></view>
     </view>
 
-    <button
-      class="btn-main"
-      type="primary"
-      disabled="{{busy}}"
-      bindtap="goMarket"
-    >今天菜场有什么</button>
-    <button class="btn-outline" bindtap="goRecord">记一下吃了什么</button>
-    <button class="btn-outline btn-type-scale" bindtap="onToggleTypeScale">{{typeScaleLabel}}</button>
-    <view class="link-row">
-      <view class="link" hover-class="tap-hover" hover-stay-time="80" bindtap="goAcceptedPlans">已选菜品</view>
-      <view class="link link-mine" hover-class="tap-hover" hover-stay-time="80" bindtap="goMine">
-        <text>我的偏好</text>
-        <view wx:if="{{profileGapCount > 0}}" class="link-badge">{{profileGapCount}}</view>
-      </view>
-      <view class="link link-feedback" hover-class="tap-hover" hover-stay-time="80" bindtap="goFeedback">
-        <text>建议反馈</text>
-        <view wx:if="{{feedbackHasUnread}}" class="link-dot"></view>
-      </view>
-    </view>
-    <view
-      class="link link-dev"
-      hover-class="tap-hover"
-      hover-stay-time="80"
-      bindtap="onResetPreferenceTest"
-    >重置偏好（测试）</view>
+    <view class="home-body">
+      <image class="home-question-image" src="/assets/images/home-question-title.webp" mode="aspectFit" aria-label="不知道今天买什么菜？" />
+      <view class="home-sub">选好食材，回家做饭</view>
 
-    <view wx:if="{{showMarketScaleDebug}}" class="dev-scale-panel">
-      <view class="dev-scale-title">菜场规模（测试）</view>
-      <view class="dev-scale-status">{{marketScaleDebugStatus}}</view>
-      <view class="dev-scale-actions">
-        <view
-          class="link link-dev"
-          hover-class="tap-hover"
-          hover-stay-time="80"
-          bindtap="onDebugMarketScaleClear"
-        >清规模状态</view>
-        <view
-          class="link link-dev"
-          hover-class="tap-hover"
-          hover-stay-time="80"
-          bindtap="onDebugMarketScaleReadyRelocate"
-        >设为可再弹</view>
-        <view
-          class="link link-dev"
-          hover-class="tap-hover"
-          hover-stay-time="80"
-          bindtap="onDebugMarketScaleClearSession"
-        >清会话已弹</view>
-        <view
-          class="link link-dev"
-          hover-class="tap-hover"
-          hover-stay-time="80"
-          bindtap="onDebugToggleForceNoLocation"
-        >{{debugForceNoLocationLabel}}</view>
+      <view class="home-cta-row">
+        <button class="btn-outline home-cta-side" bindtap="goRecord"><image class="ui-icon home-secondary-icon" src="/assets/images/icons/home-notebook-green.png" mode="aspectFit" aria-hidden="true"/><text>记一下</text></button>
+        <button
+          class="btn-main home-cta-side"
+          type="primary"
+          disabled="{{busy}}"
+          bindtap="goMarket"
+        ><image class="ui-icon home-cta-icon" src="/assets/images/icons/home-basket-white.png" mode="aspectFit" aria-hidden="true"/><text>今日菜场</text></button>
       </view>
+
+      <view class="home-nav">
+        <view class="home-nav-card" hover-class="tap-hover" hover-stay-time="80" bindtap="goAcceptedPlans">
+          <view class="home-nav-icon-wrap home-nav-icon-wrap--crate"><image class="ui-icon home-nav-icon" src="/assets/images/icons/home-vegetable-crate.png" mode="aspectFit" aria-hidden="true"/></view><view class="home-nav-title">已选菜品</view>
+        </view>
+        <view class="home-nav-card home-nav-mine" hover-class="tap-hover" hover-stay-time="80" bindtap="goMine">
+          <view class="home-nav-icon-wrap home-nav-icon-wrap--heart"><image class="ui-icon home-nav-icon" src="/assets/images/icons/home-heart-coral.png" mode="aspectFit" aria-hidden="true"/></view><view class="home-nav-title">我的偏好</view>
+          <view wx:if="{{profileGapCount > 0}}" class="link-badge">{{profileGapCount}}</view>
+        </view>
+        <view class="home-nav-card home-nav-feedback" hover-class="tap-hover" hover-stay-time="80" bindtap="goFeedback">
+          <view class="home-nav-icon-wrap home-nav-icon-wrap--chat"><image class="ui-icon home-nav-icon" src="/assets/images/icons/feedback-other.png" mode="aspectFit" aria-hidden="true"/></view><view class="home-nav-title">建议反馈</view>
+          <view wx:if="{{feedbackHasUnread}}" class="link-dot"></view>
+        </view>
+      </view>
+
+      <view
+        class="home-type-scale"
+        hover-class="tap-hover"
+        hover-stay-time="80"
+        bindtap="onToggleTypeScale"
+        aria-role="button"
+        aria-label="{{largeText ? '切换为小字' : '切换为大字'}}"
+      >
+        <text class="home-type-scale__glyph">{{typeScaleLabel}}</text>
+      </view>
+
+      <!-- 首页底部测试区暂隐；需要时把 showHomeDevTools 设为 true -->
+      <block wx:if="{{showHomeDevTools}}">
+        <view
+          class="link link-dev"
+          hover-class="tap-hover"
+          hover-stay-time="80"
+          bindtap="onResetPreferenceTest"
+        >重置偏好（测试）</view>
+
+        <view wx:if="{{showMarketScaleDebug}}" class="dev-scale-panel">
+          <view class="dev-scale-title">菜场规模（测试）</view>
+          <view class="dev-scale-status">{{marketScaleDebugStatus}}</view>
+          <view class="dev-scale-actions">
+            <view
+              class="link link-dev"
+              hover-class="tap-hover"
+              hover-stay-time="80"
+              bindtap="onDebugMarketScaleClear"
+            >清规模状态</view>
+            <view
+              class="link link-dev"
+              hover-class="tap-hover"
+              hover-stay-time="80"
+              bindtap="onDebugMarketScaleReadyRelocate"
+            >设为可再弹</view>
+            <view
+              class="link link-dev"
+              hover-class="tap-hover"
+              hover-stay-time="80"
+              bindtap="onDebugMarketScaleClearSession"
+            >清会话已弹</view>
+            <view
+              class="link link-dev"
+              hover-class="tap-hover"
+              hover-stay-time="80"
+              bindtap="onDebugToggleForceNoLocation"
+            >{{debugForceNoLocationLabel}}</view>
+          </view>
+        </view>
+      </block>
     </view>
   </view>
 

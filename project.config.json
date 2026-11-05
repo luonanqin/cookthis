@@ -29,7 +29,12 @@
   "condition": {},
   "simulatorPluginLibVersion": {},
   "packOptions": {
-    "ignore": [],
+    "ignore": [
+      { "type": "file", "value": "data/aliases.js" },
+      { "type": "file", "value": "data/aliases.json" },
+      { "type": "file", "value": "data/city-shelves.js" },
+      { "type": "folder", "value": "data/city-shelves" }
+    ],
     "include": []
   },
   "editorSetting": {}

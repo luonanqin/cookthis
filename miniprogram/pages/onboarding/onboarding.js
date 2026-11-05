@@ -15,14 +15,7 @@ const {
 const { tapFeedback } = require('../../utils/haptic.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 
-const AVOID_OPTIONS = [
-  { id: 'pork', label: '猪肉类' },
-  { id: 'seafood', label: '海鲜' },
-  { id: 'offal', label: '内脏' },
-  { id: 'coriander', label: '香菜' },
-  { id: 'peanut', label: '花生' },
-  { id: 'dairy', label: '乳制品' }
-]
+const { AVOID_OPTIONS } = require('../../utils/avoidOptions.js')
 
 const FORM_OPTIONS = [
   { id: 'hotpot', label: '火锅' },

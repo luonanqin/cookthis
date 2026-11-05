@@ -1,4 +1,7 @@
 {
   "navigationBarTitleText": "购买清单",
-  "usingComponents": {}
+  "usingComponents": {
+    "page-header": "/components/page-header/page-header"
+  },
+  "navigationStyle": "custom"
 }

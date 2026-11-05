@@ -2,6 +2,9 @@
 
 仓库根目录执行（除非另行注明）。按用途分组，方便查找。
 
+**catalog 文件字段说明**（食材/菜谱/别名/热度/分档等）：  
+[`docs/superpowers/specs/2026-11-05-catalog数据字典.md`](../docs/superpowers/specs/2026-11-05-catalog数据字典.md)
+
 ---
 
 ## 菜场规模（热度 + 分城分档名单）
@@ -56,6 +59,91 @@ node scripts/sync-alias-runtime-data.js
 
 ---
 
+## 忌口（词表 + 食材 avoidTags）
+
+忌口**分组底稿**在 `tools/alias-editor` 忌口 Tab，落盘到 `ingredients-major-minor.json`；食材上的标签写在 `ingredients-builtin.json` 的 `avoidTags`；小程序勾选列表与云函数 sanitize 白名单由脚本从底稿同步。
+
+| 脚本 / 工具 | 作用 |
+|-------------|------|
+| `tools/alias-editor`（忌口 Tab） | 增删忌口组、点选通用名进组；即时写 `avoidVocab` / `avoidMembers` |
+| 编辑器「导出到 builtin」 | 按底稿全量重算 `ingredients-builtin.json` 的 `avoidTags`（别名表面名一并打标） |
+| `sync-avoid-options.js` | 从 `avoidVocab` 写 `miniprogram/utils/avoidOptions.js`，并改 `cloudfunctions/profile` 的 `AVOID_CODES` |
+| `import-ingredients.js` | 校验 builtin → 写出云库导入 JSONL（含 `avoidTags`） |
+
+**改词表或组成员后上线：**
+
+```bash
+# 1) 网页忌口 Tab 改完 → 点「导出到 builtin」（勿只改 major-minor 忘导出）
+# 2) 同步偏好词表（UI + profile 白名单）
+node scripts/sync-avoid-options.js
+# 3) 生成云库导入文件
+node scripts/import-ingredients.js
+```
+
+然后：
+
+1. 云开发 → 数据库 → 集合 `ingredients` → 导入 `data/catalog/ingredients-for-import.json`（冲突选覆盖或先清空；**不要**选 `ingredients-builtin.json`）
+2. **重新上传部署**云函数 `profile`（否则新 code 保存会被滤掉）
+3. 重新编译预览小程序（「我的」/ 引导 / 确认页 / 轻量层读 `avoidOptions.js`）
+
+| 文件 | 角色 |
+|------|------|
+| `data/catalog/ingredients-major-minor.json` | 忌口真源：`avoidVocab` + `avoidMembers` |
+| `data/catalog/ingredients-builtin.json` | 食材主数据；`avoidTags` 由编辑器导出写入 |
+| `miniprogram/utils/avoidOptions.js` | 小程序忌口勾选项（sync 生成） |
+| `cloudfunctions/profile/index.js` → `AVOID_CODES` | 保存 `familyAvoids` / 成员 `avoids` 时白名单（sync 改写） |
+| `data/catalog/ingredients-for-import.json` | 云库导入用 JSON Lines |
+
+设计见 `docs/superpowers/specs/2026-10-31-忌口组增删-design.md`、`docs/superpowers/specs/2026-10-30-忌口avoidTags人工编辑-design.md`。
+
+---
+
+## 全量食材 → builtin（补缺失名）
+
+`import-ingredients.js` **只读** `ingredients-builtin.json`。全量名若只写在 `ingredients-all*.json` / 别名编辑器里，不会出现在云库导入文件。用本脚本把缺失名追加进 builtin：
+
+| 脚本 | 作用 |
+|------|------|
+| `sync-builtin-from-all-catalog.js` | 对照 all / by-category / aliases-editor，把 builtin 里没有的名称补进去 |
+
+**对照规则：**
+
+- 补行品类以 `ingredients-all-by-category.json` 为准；编辑器表面名（canon / ungrouped）若不在 by-category，仍按编辑器品类补入并告警
+- `ingredients-all.json` 与 by-category 名称集合不一致时告警（不阻断）
+- **不改**已有 builtin 行（含分城 `cities` 条目）；仅追加 `cities: []` 的新行
+- `调味` → `kind: seasoning`；其余 → `kind: main` + `availability: year_round`
+
+```bash
+node scripts/sync-builtin-from-all-catalog.js --dry-run   # 只看将补多少
+node scripts/sync-builtin-from-all-catalog.js             # 写回 ingredients-builtin.json
+node scripts/import-ingredients.js                        # 再生成云库 JSONL
+```
+
+单测：`node --test scripts/tests/sync-builtin-from-all-catalog.test.js`
+
+---
+
+## 下厨房菜谱 → recipes-builtin
+
+把清洗菜名 / 用料灌进下厨房 cleaned 结果，并合并进 `recipes-builtin.json`（策略 C：同名覆盖，旧菜保留；写入前按菜名去重，保留食材更多的一条）。
+
+| 脚本 | 作用 |
+|------|------|
+| `merge-xiachufang-dishes-into-recipes.js` | 改写 `xiachufang-category-results.cleaned.json` + 合并 `recipes-builtin.json` |
+
+**输入：** `review-titles-over-6.txt`、`dish-ingredients.txt`、现有 `recipes-builtin.json` / `ingredients-builtin.json` / `aliases.json` / `ingredients-all-by-category.json`
+
+```bash
+node scripts/merge-xiachufang-dishes-into-recipes.js
+node scripts/import-recipes.js
+# → 云库集合 recipes 导入 recipes-for-import.json
+```
+
+单测：`node --test scripts/tests/merge-xiachufang-dishes.test.js`  
+设计见 `docs/superpowers/specs/2026-11-04-下厨房菜谱灌入builtin-design.md`。
+
+---
+
 ## 云库导入（食材 / 菜谱）
 
 | 脚本 | 作用 |
@@ -73,6 +161,10 @@ node scripts/import-recipes.js
 
 云开发控制台导入时选 **`*-for-import.json`（JSON Lines）**，不要选 `*-builtin.json`（数组会报错）。
 
+食材导入会带上当前 builtin 里的 `avoidTags`；**只改忌口**时仍须先走上一节「导出到 builtin + sync-avoid-options」，再跑本脚本导入。
+
+若新增的是全量/编辑器里的新名、尚未进 builtin：先跑上一节 `sync-builtin-from-all-catalog.js`，再 `import-ingredients.js`。
+
 ---
 
 ## 运营反馈
@@ -89,6 +181,20 @@ FEEDBACK_ADMIN_KEY=xxx node scripts/reply-feedback.js <feedbackId> <回复正文
 
 ---
 
+## 固定维护数据：何时跑哪条线
+
+| 你改了什么 | 跑什么 | 再部署 / 导入 |
+|------------|--------|----------------|
+| 别名分组（alias-editor「别名」Tab） | `export-aliases-from-editor.py` → `sync-alias-runtime-data.js` | 部署 `recommend` |
+| 忌口组或组成员（「忌口」Tab） | 编辑器「导出到 builtin」→ `sync-avoid-options.js` → `import-ingredients.js` | 导入 `ingredients`；部署 `profile`；编译小程序 |
+| 城市货架 / 热度 → 菜场分档 | `build-ingredient-popularity.py` → `build-city-ingredients-by-scale.py` → `sync-city-scale-to-cloud.js` | 部署 `ingredients` |
+| 仅菜谱 builtin | `import-recipes.js` | 导入 `recipes` |
+| 下厨房清洗菜+用料灌入 builtin | `merge-xiachufang-dishes-into-recipes.js` → `import-recipes.js` | 导入 `recipes` |
+| 仅食材非忌口字段（名/品类等）已写进 builtin | `import-ingredients.js` | 导入 `ingredients`（若词表也变了，仍要 `sync-avoid-options`） |
+| 全量/编辑器有新名，builtin 还缺 | `sync-builtin-from-all-catalog.js` → `import-ingredients.js` | 导入 `ingredients` |
+
+---
+
 ## 速查命令
 
 ```bash
@@ -102,7 +208,12 @@ python3 scripts/build-ingredient-popularity.py && \
 python3 scripts/export-aliases-from-editor.py && node scripts/sync-alias-runtime-data.js
 # → 部署 recommend
 
-# 云库导入文件
+# 忌口词表 + 食材标签上线（导出 builtin 在网页完成后再跑）
+node scripts/sync-avoid-options.js && node scripts/import-ingredients.js
+# → 导入 ingredients；部署 profile；编译小程序
+
+# 全量名补进 builtin 后再生成云库导入文件
+node scripts/sync-builtin-from-all-catalog.js
 node scripts/import-ingredients.js
 node scripts/import-recipes.js
 ```

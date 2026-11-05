@@ -1,7 +1,10 @@
 <view class="page {{typeScaleClass}}">
-  <view class="hint-bar">
+  <page-header title="已选菜品" bind:heightchange="onHeaderHeight" />
+  <view class="page-body">
+  <view class="hint-bar" style="top: {{headerHeight}}px;">
     <view class="hint">{{hint}}</view>
   </view>
+  <view class="hint-bar-spacer" aria-hidden="true"></view>
 
   <view wx:if="{{loading && !items.length}}" class="empty">加载中…</view>
   <view wx:elif="{{!items.length}}" class="empty">还没有采纳过方案</view>
@@ -16,8 +19,11 @@
       data-share-id="{{item.shareId}}"
       bindtap="onOpenShared"
     >
-      <view class="meta meta-shared">
-        <text class="meta-text">{{item.timeText}} · {{item.sceneSummary}}</text>
+      <view class="meta meta-shared" style="top: {{metaStickyTop}}px;">
+        <view class="meta-info">
+          <text class="meta-time">{{item.timeText}}</text>
+          <text class="meta-scene">{{item.sceneSummary}}</text>
+        </view>
         <text class="badge">{{item.badge || '分享'}}</text>
       </view>
       <view class="dish-names">
@@ -30,16 +36,20 @@
 
     <!-- 自产：已吃 chip + 分享 -->
     <view wx:else class="card">
-      <view class="meta meta-own">
-        <text class="meta-text">{{item.timeText}} · {{item.sceneSummary}}</text>
+      <view class="meta meta-own" style="top: {{metaStickyTop}}px;">
+        <view class="meta-info">
+          <text class="meta-time">{{item.timeText}}</text>
+          <text class="meta-scene">{{item.sceneSummary}}</text>
+        </view>
         <button
-          class="card-share btn-outline"
+          class="card-share"
           size="mini"
           open-type="share"
           data-recommendation-id="{{item.recommendationId}}"
           data-entry="accepted"
           hover-class="tap-hover"
-        >分享</button>
+          aria-label="分享"
+        ><image class="ui-icon ui-icon--md" src="/assets/images/icons/share-export-green.png" mode="aspectFit" aria-hidden="true"/></button>
       </view>
       <view class="chips">
         <view
@@ -57,6 +67,7 @@
         >
           <text class="check">{{d.ate ? '✓' : ''}}</text>
           <text class="sheet-chip-text">{{d.name}}</text>
+          <text wx:if="{{d.ate}}" class="ate-tag">吃过</text>
         </view>
       </view>
     </view>
@@ -84,6 +95,8 @@
     >
       <text class="check">{{tipSpot.ate ? '✓' : ''}}</text>
       <text class="sheet-chip-text">{{tipSpot.name}}</text>
+      <text wx:if="{{tipSpot.ate}}" class="ate-tag">吃过</text>
     </view>
+  </view>
   </view>
 </view>

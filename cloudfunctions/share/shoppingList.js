@@ -37,15 +37,19 @@ function categoryLabel(category) {
 }
 
 /**
- * 将 items 两两一行。
+ * 将 items 两两一行（带 rowKey，供 wx:key；勿直接用数组当 key）。
  * @param {{ name: string }[]} items
- * @returns {{ name: string }[][]}
+ * @returns {Array<{ rowKey: string, cells: { name: string }[] }>}
  */
 function pairRows(items) {
   const list = Array.isArray(items) ? items : []
   const rows = []
   for (let i = 0; i < list.length; i += 2) {
-    rows.push(list.slice(i, i + 2))
+    const cells = list.slice(i, i + 2)
+    const rowKey =
+      cells.map((c) => (c && c.name != null ? String(c.name) : '')).join('|') ||
+      'r' + i
+    rows.push({ rowKey, cells })
   }
   return rows
 }

@@ -24,9 +24,14 @@ function groupDishesByMeal(dishes) {
 }
 
 function pairRows(items) {
+  const list = Array.isArray(items) ? items : []
   const rows = []
-  for (let i = 0; i < items.length; i += 2) {
-    rows.push(items.slice(i, i + 2))
+  for (let i = 0; i < list.length; i += 2) {
+    const cells = list.slice(i, i + 2)
+    const rowKey =
+      cells.map((c) => (c && c.name != null ? String(c.name) : '')).join('|') ||
+      'r' + i
+    rows.push({ rowKey, cells })
   }
   return rows
 }

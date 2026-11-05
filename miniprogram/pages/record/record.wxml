@@ -1,4 +1,6 @@
 <view class="page {{typeScaleClass}}">
+  <page-header title="记一下" subtitle="吃过了就记一下，下次换换口味" />
+  <view class="page-body">
   <view class="label">吃过的菜（逗号或换行分隔）</view>
   <textarea
     class="input"
@@ -30,6 +32,7 @@
     <view wx:if="{{loadingMore}}" class="empty">加载更多…</view>
     <view wx:elif="{{!nextCursor && items.length}}" class="empty">没有更多了</view>
   </block>
+  </view>
 
   <view class="footer">
     <button class="btn-outline" hover-class="button-hover" bindtap="onBack">返回</button>

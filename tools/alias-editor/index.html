@@ -53,14 +53,22 @@
       color: #fff;
       border-color: var(--accent);
     }
-    .layout { display: flex; min-height: calc(100vh - 52px); }
+    .layout {
+      display: flex;
+      height: calc(100vh - 52px);
+      min-height: 0;
+      overflow: hidden;
+    }
     nav {
       width: 160px;
       flex-shrink: 0;
       border-right: 1px solid var(--line);
       background: var(--card);
       padding: 8px;
-      overflow: auto;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
     }
     nav button {
       display: block;
@@ -82,7 +90,15 @@
       font-weight: 600;
       font-size: 11px;
     }
-    main { flex: 1; padding: 12px 16px; overflow: auto; }
+    main {
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+      padding: 12px 16px;
+      overflow: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
     .toolbar { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
     #groups {
       column-count: 3;
@@ -266,11 +282,13 @@
     <div class="tabs" role="tablist">
       <button type="button" id="tab-alias" class="active" data-mode="alias">别名</button>
       <button type="button" id="tab-avoid" data-mode="avoid">忌口</button>
+      <button type="button" id="tab-city" data-mode="city">城菜</button>
     </div>
     <span id="status" class="status">加载中…</span>
     <span style="flex:1"></span>
     <button type="button" id="btn-avoid-bootstrap" hidden title="按 builtin 现有 avoidTags 反填六码成员">从 builtin 灌入</button>
     <button type="button" id="btn-avoid-export" hidden title="按底稿全量重算 builtin avoidTags">导出到 builtin</button>
+    <button type="button" id="btn-city-export" hidden title="根据当前 recipes-builtin 生成 recipes-for-import.json">导出 for-import</button>
     <button type="button" id="btn-sync" title="按最新 ingredients-all 刷新品类，并把新名字补进未分组（不动已有别名组）">同步全量</button>
     <button type="button" id="btn-reset" title="从 aliases.json 重新初始化（会覆盖当前编辑！）">重置初始化</button>
   </header>
@@ -299,18 +317,53 @@
       <div class="avoid-members chips" id="avoid-members"></div>
     </main>
   </div>
+  <div id="city-pane" class="pane layout" hidden>
+    <nav id="city-nav"></nav>
+    <main>
+      <p class="hint">只列 <code>cities</code> 非空的菜。点菜名 → 改为全国可见（清空 cities，写回 recipes-builtin）；「已改全国」里再点可撤销（本页会话内记住原城市）。改完点「导出 for-import」再导云库。</p>
+      <section class="ungrouped" id="city-promoted-zone">
+        <h2>已改全国（本页可撤销）</h2>
+        <div class="chips" id="city-promoted"></div>
+      </section>
+      <h2 id="city-list-title">本城带城菜</h2>
+      <div class="chips" id="city-list"></div>
+    </main>
+  </div>
   <div id="ctx-menu" role="menu" hidden></div>
   <script>
     let data = null;
     let currentCat = null;
     let dragPayload = null; // { name, fromCat, fromKind: 'group'|'ungrouped', groupId? }
     let didDrag = false;
-    let mode = 'alias'; // 'alias' | 'avoid'
+    let mode = 'alias'; // 'alias' | 'avoid' | 'city'
     let avoidVocab = [];
     let avoidMembers = {};
     let canonsByCategory = {};
     let currentAvoidCode = null;
     let avoidDragName = null;
+    let cityByCity = {};
+    let currentCity = null;
+    const CITY_UNDO_KEY = 'cookthis_city_recipe_undo_v1';
+    /** @type {Map<string, {id:string,name:string,cities:string[],mainIngredients:string[],meatVeg?:string}>} */
+    let cityUndo = new Map();
+
+    function loadCityUndo() {
+      try {
+        const raw = localStorage.getItem(CITY_UNDO_KEY);
+        if (!raw) return;
+        const obj = JSON.parse(raw);
+        cityUndo = new Map(Object.entries(obj || {}));
+      } catch (_) {
+        cityUndo = new Map();
+      }
+    }
+
+    function saveCityUndo() {
+      try {
+        const obj = Object.fromEntries(cityUndo.entries());
+        localStorage.setItem(CITY_UNDO_KEY, JSON.stringify(obj));
+      } catch (_) {}
+    }
 
     const $status = document.getElementById('status');
     const $nav = document.getElementById('nav');
@@ -320,13 +373,20 @@
     const $ctx = document.getElementById('ctx-menu');
     const $aliasPane = document.getElementById('alias-pane');
     const $avoidPane = document.getElementById('avoid-pane');
+    const $cityPane = document.getElementById('city-pane');
     const $avoidNav = document.getElementById('avoid-nav');
     const $avoidCodes = document.getElementById('avoid-codes');
     const $avoidPool = document.getElementById('avoid-pool');
     const $avoidMembers = document.getElementById('avoid-members');
+    const $cityNav = document.getElementById('city-nav');
+    const $cityList = document.getElementById('city-list');
+    const $cityPromoted = document.getElementById('city-promoted');
+    const $cityListTitle = document.getElementById('city-list-title');
     const $btnReset = document.getElementById('btn-reset');
     const $btnBootstrap = document.getElementById('btn-avoid-bootstrap');
     const $btnExport = document.getElementById('btn-avoid-export');
+    const $btnCityExport = document.getElementById('btn-city-export');
+    const $btnSync = document.getElementById('btn-sync');
 
     function setStatus(text, cls) {
       $status.textContent = text;
@@ -334,16 +394,165 @@
     }
 
     function setMode(next) {
-      mode = next === 'avoid' ? 'avoid' : 'alias';
+      mode = next === 'avoid' ? 'avoid' : next === 'city' ? 'city' : 'alias';
       document.getElementById('tab-alias').classList.toggle('active', mode === 'alias');
       document.getElementById('tab-avoid').classList.toggle('active', mode === 'avoid');
+      document.getElementById('tab-city').classList.toggle('active', mode === 'city');
       $aliasPane.hidden = mode !== 'alias';
       $avoidPane.hidden = mode !== 'avoid';
+      $cityPane.hidden = mode !== 'city';
       $btnReset.hidden = mode !== 'alias';
+      $btnSync.hidden = mode === 'city';
       $btnBootstrap.hidden = mode !== 'avoid';
       $btnExport.hidden = mode !== 'avoid';
+      $btnCityExport.hidden = mode !== 'city';
       if (mode === 'avoid') {
         loadAvoid().catch((e) => setStatus('忌口加载失败: ' + e.message, 'err'));
+      }
+      if (mode === 'city') {
+        loadCityRecipes().catch((e) => setStatus('城菜加载失败: ' + e.message, 'err'));
+      }
+    }
+
+    async function loadCityRecipes() {
+      loadCityUndo();
+      const res = await fetch('/api/city-recipes');
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error || res.statusText);
+      cityByCity = body.byCity || {};
+      // 若某条又被加回城市列表，从「已改全国」里清掉
+      for (const id of [...cityUndo.keys()]) {
+        let stillCity = false;
+        for (const list of Object.values(cityByCity)) {
+          if ((list || []).some((r) => r.id === id)) {
+            stillCity = true;
+            break;
+          }
+        }
+        if (stillCity) cityUndo.delete(id);
+      }
+      saveCityUndo();
+      const cities = Object.keys(cityByCity);
+      if (!currentCity || !cityByCity[currentCity]) {
+        currentCity = cities[0] || null;
+      }
+      renderCityNav();
+      renderCityMain();
+      const promotedN = cityUndo.size;
+      setStatus(
+        `城菜 ${body.recipeCount || 0} 条 / ${body.cityCount || 0} 城` +
+          (promotedN ? `；已改全国 ${promotedN}` : '') +
+          '（点芯片改全国）',
+        'ok'
+      );
+    }
+
+    function renderCityNav() {
+      $cityNav.innerHTML = '';
+      for (const city of Object.keys(cityByCity)) {
+        const n = (cityByCity[city] || []).length;
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = `${city} (${n})`;
+        if (city === currentCity) b.classList.add('active');
+        b.onclick = () => {
+          currentCity = city;
+          renderCityNav();
+          renderCityMain();
+        };
+        $cityNav.appendChild(b);
+      }
+    }
+
+    function renderCityMain() {
+      $cityListTitle.textContent = currentCity
+        ? `本城带城菜 · ${currentCity}`
+        : '本城带城菜';
+      $cityList.innerHTML = '';
+      const list = (currentCity && cityByCity[currentCity]) || [];
+      for (const r of list) {
+        $cityList.appendChild(makeCityChip(r, false));
+      }
+      $cityPromoted.innerHTML = '';
+      const promoted = [...cityUndo.values()].sort((a, b) =>
+        String(a.name).localeCompare(String(b.name), 'zh')
+      );
+      for (const r of promoted) {
+        $cityPromoted.appendChild(makeCityChip(r, true));
+      }
+    }
+
+    function makeCityChip(r, isPromoted) {
+      const el = document.createElement('span');
+      el.className = 'chip' + (isPromoted ? ' canon' : '');
+      const mains = (r.mainIngredients || []).slice(0, 3).join('、');
+      el.textContent = mains ? `${r.name}（${mains}）` : r.name;
+      el.title = isPromoted
+        ? `已全国可见；原城 ${(r.cities || []).join('、') || '无'}；点击撤销`
+        : `城市 ${(r.cities || []).join('、')}；点击改为全国可见`;
+      el.onclick = () => {
+        if (isPromoted) undoPromoteCityRecipe(r.id);
+        else promoteCityRecipe(r);
+      };
+      return el;
+    }
+
+    async function promoteCityRecipe(r) {
+      if (!r || !r.id) return;
+      if (!cityUndo.has(r.id)) {
+        cityUndo.set(r.id, {
+          id: r.id,
+          name: r.name,
+          cities: (r.cities || []).slice(),
+          mainIngredients: (r.mainIngredients || []).slice(),
+          meatVeg: r.meatVeg
+        });
+        saveCityUndo();
+      }
+      setStatus('保存中…');
+      try {
+        const res = await fetch('/api/city-recipes', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: r.id, cities: [] })
+        });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error || res.statusText);
+        cityByCity = body.byCity || {};
+        if (currentCity && !(cityByCity[currentCity] || []).length) {
+          currentCity = Object.keys(cityByCity)[0] || null;
+        }
+        renderCityNav();
+        renderCityMain();
+        setStatus(`已改全国：${r.name}`, 'ok');
+      } catch (e) {
+        cityUndo.delete(r.id);
+        saveCityUndo();
+        setStatus('保存失败: ' + e.message, 'err');
+      }
+    }
+
+    async function undoPromoteCityRecipe(id) {
+      const prev = cityUndo.get(id);
+      if (!prev) return;
+      setStatus('撤销中…');
+      try {
+        const res = await fetch('/api/city-recipes', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, cities: prev.cities || [] })
+        });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error || res.statusText);
+        cityUndo.delete(id);
+        saveCityUndo();
+        cityByCity = body.byCity || {};
+        if (prev.cities && prev.cities[0]) currentCity = prev.cities[0];
+        renderCityNav();
+        renderCityMain();
+        setStatus(`已恢复城限制：${prev.name}`, 'ok');
+      } catch (e) {
+        setStatus('撤销失败: ' + e.message, 'err');
       }
     }
 
@@ -1120,7 +1329,21 @@
 
     document.getElementById('tab-alias').onclick = () => setMode('alias');
     document.getElementById('tab-avoid').onclick = () => setMode('avoid');
+    document.getElementById('tab-city').onclick = () => setMode('city');
     bindAvoidDrops();
+
+    $btnCityExport.onclick = async () => {
+      setStatus('导出 for-import 中…');
+      try {
+        const res = await fetch('/api/city-recipes/export-import', { method: 'POST' });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error || body.stderr || res.statusText);
+        setStatus('已生成 recipes-for-import.json，可导入云库 recipes', 'ok');
+        alert(body.stdout || 'ok');
+      } catch (e) {
+        setStatus('导出失败: ' + e.message, 'err');
+      }
+    };
 
     $btnBootstrap.onclick = async () => {
       const has = Object.values(avoidMembers || {}).some((arr) => (arr || []).length);

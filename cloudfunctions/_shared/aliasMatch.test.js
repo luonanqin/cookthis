@@ -140,6 +140,6 @@ describe('aliasMatch', () => {
     assert.equal(out[0].items[0].checkKey, '鸡爪')
     assert.equal(out[0].items[0].displayName, '鸡脚')
     assert.equal(out[0].items[0].secondaryName, '鸡爪 凤爪 鸡爪子')
-    assert.equal(out[0].rows[0].length, 1)
+    assert.equal(out[0].rows[0].cells.length, 1)
   })
 })

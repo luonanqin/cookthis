@@ -1,19 +1,31 @@
 .page {
-  padding: 0 28rpx 80rpx;
+  padding: 0;
   box-sizing: border-box;
   min-height: 100vh;
   background: var(--color-bg);
 }
 
+/* 写建议区改为 fixed 贴页眉，避免 sticky 上滑窜位 */
+.page-body {
+  padding-top: 0;
+}
+
 .composer {
-  position: sticky;
-  top: 0;
-  z-index: 12;
-  margin: 0 -28rpx 20rpx;
-  padding: 20rpx 28rpx 16rpx;
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  padding: 20rpx 32rpx 16rpx;
   box-sizing: border-box;
   background: var(--color-bg);
   border-bottom: 1rpx solid var(--color-border);
+}
+
+.composer-spacer {
+  width: 100%;
+  margin-bottom: 20rpx;
+  box-sizing: border-box;
+  pointer-events: none;
 }
 
 .chips {
@@ -27,7 +39,7 @@
   padding: 10rpx 20rpx;
   background: var(--color-surface);
   border: 1rpx solid var(--color-border);
-  border-radius: 12rpx;
+  border-radius: var(--radius-chip);
   font-size: var(--fs-sm);
   color: var(--color-text);
 }
@@ -226,4 +238,46 @@
   justify-content: flex-end;
   font-size: var(--fs-sm);
   color: var(--color-primary);
+}
+
+/* Icon assets */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.feedback-chip-icon {
+  width: 34rpx;
+  height: 34rpx;
+}
+
+.card-head-left {
+  align-items: center;
+}
+
+.cat-line {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.feedback-card-icon {
+  width: 32rpx;
+  height: 32rpx;
+}
+
+.reply-head {
+  align-items: center;
+}
+
+.reply-admin {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.admin-icon {
+  width: 34rpx;
+  height: 34rpx;
 }

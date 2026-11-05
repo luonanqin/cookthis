@@ -110,8 +110,8 @@ describe('buildShoppingList', () => {
 
   it('pairRows packs two items per row', () => {
     assert.deepEqual(pairRows([{ name: 'a' }, { name: 'b' }, { name: 'c' }]), [
-      [{ name: 'a' }, { name: 'b' }],
-      [{ name: 'c' }]
+      { rowKey: 'a|b', cells: [{ name: 'a' }, { name: 'b' }] },
+      { rowKey: 'c', cells: [{ name: 'c' }] }
     ])
   })
 })

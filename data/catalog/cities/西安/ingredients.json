@@ -256,7 +256,6 @@
       "豌豆尖",
       "豌豆苗",
       "贝贝南瓜",
-      "软浆叶",
       "辣椒",
       "迷迭香",
       "酸菜",
@@ -350,8 +349,8 @@
   "_meta": {
     "source": "products.jsonl",
     "raw_after": 1245,
-    "kept": 872,
+    "kept": 871,
     "split_glued": 7,
-    "unique": 339
+    "unique": 338
   }
 }

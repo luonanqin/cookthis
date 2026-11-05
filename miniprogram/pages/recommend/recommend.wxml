@@ -1,5 +1,7 @@
 <page-meta page-style="{{showQuickLite ? 'overflow: hidden;' : ''}}" />
 <view class="page {{typeScaleClass}}">
+  <page-header title="推荐方案" subtitle="根据食材和要求进行搭配" />
+  <view class="page-body recommend-body">
   <view
     wx:if="{{showProfileBanner}}"
     class="profile-banner"
@@ -16,19 +18,24 @@
   </view>
 
   <block wx:else>
-    <view wx:if="{{sceneSummary}}" class="scene-bar">{{sceneSummary}}</view>
+    <view wx:if="{{sceneSummary}}" class="scene-bar">
+      <image class="ui-icon ui-icon--sm" src="/assets/images/icons/group-people.png" mode="aspectFit" aria-hidden="true"/>
+      <text class="scene-bar-text">{{sceneSummary}}</text>
+      <text class="scene-bar-edit" hover-class="tap-hover" hover-stay-time="80" bindtap="onBack">修改 ></text>
+    </view>
     <view class="plan" wx:for="{{plans}}" wx:key="planIndex">
       <view class="plan-head">
-        <view class="plan-title">方案 {{item.planIndex + 1}}<text wx:if="{{item.planKind && item.planKind !== 'home'}}" class="kind"> · {{item.planKind}}</text></view>
+        <view class="plan-title">方案 {{item.planIndex + 1}}</view>
         <view class="plan-actions">
           <button
-            class="plan-share btn-outline"
+            class="plan-share"
             size="mini"
             open-type="share"
             data-plan-index="{{item.planIndex}}"
             data-entry="recommend"
             hover-class="tap-hover"
-          >分享</button>
+            aria-label="分享"
+          ><image class="ui-icon ui-icon--md" src="/assets/images/icons/share-export-green.png" mode="aspectFit" aria-hidden="true"/></button>
           <button
             size="mini"
             type="primary"
@@ -36,41 +43,40 @@
             disabled="{{busy}}"
             data-plan-index="{{item.planIndex}}"
             bindtap="onAccept"
-          >去买菜</button>
+          ><image class="ui-icon ui-icon--xs" src="/assets/images/icons/cart-white.png" mode="aspectFit" aria-hidden="true"/><text>去买菜</text></button>
         </view>
       </view>
-      <view class="meal" wx:for="{{item.meals}}" wx:for-item="meal" wx:key="slot">
-        <view class="meal-label">{{meal.slot.label || meal.slot.meal}}</view>
-        <view class="dish-group" wx:for="{{meal.dishGroups}}" wx:for-item="group" wx:key="type">
-          <view class="group-label">{{group.label}}</view>
-          <view class="dish-grid">
-            <view class="dish" wx:for="{{group.dishes}}" wx:for-item="dish" wx:key="recipeId">
-              <text class="dish-mark">·</text><text class="dish-name">{{dish.name}}</text>
-            </view>
-          </view>
+      <view class="meal" wx:for="{{item.meals}}" wx:for-item="meal" wx:key="mealKey">
+        <view wx:if="{{item.meals.length > 1}}" class="meal-label">{{meal.slot.label || meal.slot.meal}}</view>
+        <view class="dish-row" wx:for="{{meal.dishGroups}}" wx:for-item="group" wx:key="type">
+          <text class="type-badge type-{{group.type}}">{{group.label}}</text>
+          <text class="dish-name">{{group.namesText}}</text>
         </view>
       </view>
-      <view wx:if="{{item.ingredientTipText}}" class="plan-ings">{{item.ingredientTipText}}</view>
+      <view wx:if="{{item.ingredientTipText}}" class="plan-ings">
+        <image class="plan-ings-icon" src="/assets/images/icons/basket-green-outline.png" mode="aspectFit" aria-hidden="true"/>
+        <text class="plan-ings-text">{{item.ingredientTipText}}</text>
+      </view>
     </view>
-    <!-- 滚到底时把末卡「去买菜 / 食材」顶到悬浮钮上方 -->
     <view class="scroll-end-pad"></view>
   </block>
+  </view>
 
   <view class="fab-stack {{fabDimmed ? 'fab-dimmed' : ''}}" wx:if="{{!empty}}">
     <button
       class="fab fab-swap"
-      disabled="{{busy}}"
+      disabled="{{busy || fabDimmed}}"
       bindtap="onSwap"
     >换一批</button>
     <button
       class="fab fab-reject"
-      disabled="{{busy}}"
+      disabled="{{busy || fabDimmed}}"
       bindtap="onRejectOpen"
     >不行</button>
   </view>
 
   <view class="footer">
-    <button class="btn-outline" bindtap="onBack">返回改场景</button>
+    <button class="btn-outline" bindtap="onBack">返回</button>
   </view>
 
   <view

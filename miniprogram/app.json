@@ -12,14 +12,18 @@
     "pages/feedback/list"
   ],
   "window": {
-    "navigationBarTitleText": "买菜做什么",
-    "navigationBarBackgroundColor": "#f6f9f7",
+    "navigationStyle": "custom",
+    "navigationBarTitleText": "买菜没烦恼",
+    "navigationBarBackgroundColor": "#FCF9F2",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#f6f9f7"
+    "backgroundColor": "#FCF9F2"
   },
   "style": "v2",
+  "lazyCodeLoading": "requiredComponents",
   "sitemapLocation": "sitemap.json",
-  "requiredPrivateInfos": ["getLocation"],
+  "requiredPrivateInfos": [
+    "getLocation"
+  ],
   "permission": {
     "scope.userLocation": {
       "desc": "用于判断是否靠近此前菜场，以便询问菜场规模"

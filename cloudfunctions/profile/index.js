@@ -10,12 +10,34 @@ const {
 } = require('./members.js')
 // Vendored: keep in sync with cloudfunctions/_shared/marketScale.js
 const { effectiveFromChoice, appendHistory } = require('./marketScale.js')
+// Vendored: keep in sync with cloudfunctions/_shared/accessGuard.js
+const { checkCityChange } = require('./accessGuard.js')
+
+/**
+ * #4：写城市前校验冷却 / 日上限。首次设城与同城不计入。
+ * @returns {{ ok: true, city?: string, accessGuard?: object } | { ok: false, error: string }}
+ */
+function gateCityWrite(user, eventCity) {
+  if (typeof eventCity !== 'string') return { ok: true }
+  const next = eventCity.trim()
+  if (!next) return { ok: true }
+  const r = checkCityChange(
+    user && user.accessGuard,
+    user && user.city,
+    next,
+    Date.now()
+  )
+  if (!r.ok) return { ok: false, error: r.error }
+  const out = { ok: true, city: next }
+  if (r.countChange && r.next) out.accessGuard = r.next
+  return out
+}
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 const _ = db.command
 
-const AVOID_CODES = ['pork', 'seafood', 'offal', 'coriander', 'peanut', 'dairy', 'other']
+const AVOID_CODES = ['pork', 'g1', 'g2', 'g8', 'g9', 'g11', 'offal', 'g7', 'seafood', 'g3', 'g4', 'g5', 'g6', 'g10', 'dairy']
 const FORM_TAGS = ['hotpot', 'noodle', 'dumpling']
 const FORM_VALUES = ['prefer', 'neutral', 'avoid']
 const MARKET_SCALE_CHOICES = ['small', 'medium', 'large', 'default_medium']
@@ -216,13 +238,14 @@ async function handleUpdateFamily(event, uid, user) {
     )
   }
   if (event.cuisinePrefsNoPreference === true) {
-    // 「都还行」：清空喜欢/不喜欢，记已表态
-    patch.cuisinePrefs = {}
+    // 「都还行」：整体替换为空对象（勿写 {}，云库会合并保留旧 key）
+    patch.cuisinePrefs = _.set({})
     patch.cuisinePrefsConfirmedAt = db.serverDate()
   } else if (event.cuisinePrefs && typeof event.cuisinePrefs === 'object') {
-    patch.cuisinePrefs = sanitizeCuisinePrefs(event.cuisinePrefs)
-    const hasStance = Object.keys(patch.cuisinePrefs).some(
-      (k) => patch.cuisinePrefs[k] === 'prefer' || patch.cuisinePrefs[k] === 'avoid'
+    const nextCuisine = sanitizeCuisinePrefs(event.cuisinePrefs)
+    patch.cuisinePrefs = _.set(nextCuisine)
+    const hasStance = Object.keys(nextCuisine).some(
+      (k) => nextCuisine[k] === 'prefer' || nextCuisine[k] === 'avoid'
     )
     if (hasStance) {
       patch.cuisinePrefsConfirmedAt = db.serverDate()
@@ -239,7 +262,12 @@ async function handleUpdateFamily(event, uid, user) {
       soup: Number(event.defaultCombo.soup) || 0
     }
   }
-  if (typeof event.city === 'string') patch.city = event.city
+  if (typeof event.city === 'string') {
+    const cityGate = gateCityWrite(user, event.city)
+    if (!cityGate.ok) return { ok: false, error: cityGate.error }
+    if (cityGate.city != null) patch.city = cityGate.city
+    if (cityGate.accessGuard) patch.accessGuard = cityGate.accessGuard
+  }
   if (typeof event.cookBudget === 'string') patch.cookBudget = event.cookBudget
   if (Object.keys(patch).length === 0) {
     return { ok: false, error: 'NO_FIELDS' }
@@ -252,14 +280,31 @@ async function handleUpdateFamily(event, uid, user) {
     patch.familyAvoidsNone != null ? !!patch.familyAvoidsNone : !!user.familyAvoidsNone
   const nextAvoids =
     patch.familyAvoids != null ? patch.familyAvoids : user.familyAvoids || []
+  const cuisineUpdated = Object.prototype.hasOwnProperty.call(patch, 'cuisinePrefs')
+  let nextCuisinePrefs = user.cuisinePrefs || {}
+  if (cuisineUpdated) {
+    if (event.cuisinePrefsNoPreference === true) {
+      nextCuisinePrefs = {}
+    } else if (event.cuisinePrefs && typeof event.cuisinePrefs === 'object') {
+      nextCuisinePrefs = sanitizeCuisinePrefs(event.cuisinePrefs)
+    }
+  }
+  const nextCuisineConfirmed = cuisineUpdated
+    ? event.cuisinePrefsNoPreference === true ||
+      Object.keys(nextCuisinePrefs).some(
+        (k) => nextCuisinePrefs[k] === 'prefer' || nextCuisinePrefs[k] === 'avoid'
+      )
+    : !!user.cuisinePrefsConfirmedAt
   return {
     ok: true,
-    updated: Object.keys(patch).filter((k) => k !== 'updatedAt'),
+    updated: Object.keys(patch).filter((k) => k !== 'updatedAt' && k !== 'accessGuard'),
     familyAvoidsNone: nextNone,
     familyAvoids: nextAvoids,
     familyAvoidsConfirmedAt: patch.familyAvoidsConfirmedAt
       ? true
-      : !!user.familyAvoidsConfirmedAt
+      : !!user.familyAvoidsConfirmedAt,
+    cuisinePrefs: nextCuisinePrefs,
+    cuisinePrefsConfirmedAt: nextCuisineConfirmed ? true : null
   }
 }
 
@@ -351,7 +396,14 @@ async function handleCompleteOnboarding(event, uid, user) {
       soup: Number(event.defaultCombo.soup) || 0
     }
   }
-  const city = typeof event.city === 'string' ? event.city : user.city || null
+  let city = user.city || null
+  let cityAccessGuard = null
+  if (typeof event.city === 'string' && event.city.trim()) {
+    const cityGate = gateCityWrite(user, event.city)
+    if (!cityGate.ok) return { ok: false, error: cityGate.error }
+    city = cityGate.city
+    cityAccessGuard = cityGate.accessGuard || null
+  }
   const cookBudget =
     typeof event.cookBudget === 'string' ? event.cookBudget : user.cookBudget || 'about30'
   const cuisineNoPref = event && event.cuisinePrefsNoPreference === true
@@ -378,7 +430,8 @@ async function handleCompleteOnboarding(event, uid, user) {
     familyAvoids,
     familyAvoidsNone: !!familyAvoidsNone,
     dishFormPrefs,
-    cuisinePrefs,
+    // 对象字段须 _.set，否则云库合并、旧菜系清不掉
+    cuisinePrefs: _.set(cuisinePrefs),
     defaultPeopleCount: memberInputs.length,
     defaultCombo,
     city,
@@ -396,6 +449,7 @@ async function handleCompleteOnboarding(event, uid, user) {
   } else {
     userPatch.cuisinePrefsConfirmedAt = _.remove()
   }
+  if (cityAccessGuard) userPatch.accessGuard = cityAccessGuard
   await db.collection('users').doc(user._id).update({ data: userPatch })
 
   try {
@@ -483,9 +537,9 @@ async function clearPreferenceProfile(uid, user) {
       familyAvoids: [],
       familyAvoidsNone: false,
       familyAvoidsConfirmedAt: _.remove(),
-      cuisinePrefs: {},
+      cuisinePrefs: _.set({}),
       cuisinePrefsConfirmedAt: _.remove(),
-      dishFormPrefs: {},
+      dishFormPrefs: _.set({}),
       profileLiteSkipped: false,
       profileLitePromptedAt: _.remove(),
       city: '',
@@ -521,7 +575,10 @@ async function handleSaveProfileLite(event, uid, user) {
     )
   }
   if (typeof event.city === 'string' && event.city.trim()) {
-    patch.city = event.city.trim()
+    const cityGate = gateCityWrite(user, event.city)
+    if (!cityGate.ok) return { ok: false, error: cityGate.error }
+    if (cityGate.city != null) patch.city = cityGate.city
+    if (cityGate.accessGuard) patch.accessGuard = cityGate.accessGuard
   }
   await db.collection('users').doc(user._id).update({ data: patch })
   return {
@@ -556,7 +613,10 @@ async function handleConfirmFamilyAvoidsNone(event, uid, user) {
     updatedAt: db.serverDate()
   }
   if (event && typeof event.city === 'string' && event.city.trim()) {
-    data.city = event.city.trim()
+    const cityGate = gateCityWrite(user, event.city)
+    if (!cityGate.ok) return { ok: false, error: cityGate.error }
+    if (cityGate.city != null) data.city = cityGate.city
+    if (cityGate.accessGuard) data.accessGuard = cityGate.accessGuard
   }
   await db.collection('users').doc(user._id).update({ data })
   return {

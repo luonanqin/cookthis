@@ -33,7 +33,7 @@
 1. 用**微信开发者工具**打开本仓库**根目录**（含 `project.config.json` 的目录）。
 2. **开通云开发**并创建环境；在 `project.config.json` 填真实小程序 `appid`；在 `miniprogram/app.js` 的 `wx.cloud.init` 里填 `env`（取消注释并换成你的环境 ID）。
 3. 本地单测（可选随时跑）：仓库根目录 `npm test`。
-4. 仓库脚本（别名同步、云库导入、下厨房清洗等）说明见 **[`scripts/README.md`](scripts/README.md)**。
+4. 仓库脚本（别名同步、云库导入、下厨房清洗等）说明见 **[`scripts/README.md`](scripts/README.md)**。catalog 本地文件字段（食材/菜谱/别名/热度/分档）见 **[`docs/superpowers/specs/2026-11-05-catalog数据字典.md`](docs/superpowers/specs/2026-11-05-catalog数据字典.md)**；云库食材/菜谱语义见 [`docs/superpowers/specs/2026-10-02-详细设计-主数据与菜谱.md`](docs/superpowers/specs/2026-10-02-详细设计-主数据与菜谱.md)。
 
 云函数若内置了 `_shared` 副本，上传时只打包**各自函数目录**即可。改纯逻辑后请同步：
 
@@ -70,7 +70,7 @@
 
 1. **上传并部署**云函数：`cloudfunctions/auth`、`cloudfunctions/ingredients`（云端安装依赖）。
 2. **建集合**：`users`、`user_identities`、`ingredients`。权限建议：仅管理端可写，业务读写走云函数。`user_identities` 建议复合唯一索引：`provider` + `providerUserId`。
-3. **导入食材**：对集合 `ingredients` 导入 `data/catalog/ingredients-for-import.json`（**JSON Lines**，每行一条且带 `_id`）。**不要**导入 `ingredients-builtin.json`（数组格式会失败）。需要重生成时：`node scripts/import-ingredients.js`。若集合里已有数据（含上次导入到一半失败留下的文档），先清空集合或选冲突覆盖，否则会报 `E11000 duplicate key`。
+3. **导入食材**：对集合 `ingredients` 导入 `data/catalog/ingredients-for-import.json`（**JSON Lines**，每行一条且带 `_id`）。**不要**导入 `ingredients-builtin.json`（数组格式会失败）。需要重生成时：`node scripts/import-ingredients.js`。若集合里已有数据（含上次导入到一半失败留下的文档），先清空集合或选冲突覆盖，否则会报 `E11000 duplicate key`。忌口标签随食材文档的 `avoidTags` 一并导入；改过 `avoidVocab` 后另跑 `node scripts/sync-avoid-options.js`，并**重新部署**云函数 `profile`（sanitize 白名单），小程序侧才会显示新忌口组。
 
 做完以上即可对照下方「Slice 1 验收清单」点验。**此阶段不需要** `recommend`、`recipes`、`recommendations`。
 

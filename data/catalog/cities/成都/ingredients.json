@@ -230,7 +230,6 @@
       "猪梅花",
       "猪瘦肉",
       "猪皮",
-      "猪筒",
       "猪肉",
       "猪肋排",
       "猪肘子",
@@ -292,8 +291,8 @@
   "_meta": {
     "source": "products.jsonl",
     "raw_after": 991,
-    "kept": 499,
+    "kept": 498,
     "split_glued": 1,
-    "unique": 281
+    "unique": 280
   }
 }

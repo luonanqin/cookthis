@@ -1,3 +1,7 @@
 {
-  "navigationBarTitleText": "开始设置"
+  "navigationBarTitleText": "开始设置",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "page-header": "/components/page-header/page-header"
+  }
 }

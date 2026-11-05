@@ -1,5 +1,7 @@
 <view class="page {{typeScaleClass}}">
-  <view class="composer">
+  <page-header title="建议反馈" subtitle="想听听您的想法" bind:heightchange="onHeaderHeight" />
+  <view class="page-body">
+  <view class="composer" style="top: {{headerHeight}}px;">
     <view class="chips">
       <view
         wx:for="{{categories}}"
@@ -8,7 +10,13 @@
         data-id="{{item.id}}"
         hover-class="tap-hover"
         bindtap="onPickCategory"
-      >{{item.label}}</view>
+      >
+        <image wx:if="{{item.id === 'recipe'}}" class="ui-icon feedback-chip-icon" src="/assets/images/icons/soup-bowl.png" mode="aspectFit" aria-hidden="true"/>
+        <image wx:elif="{{item.id === 'ingredient'}}" class="ui-icon feedback-chip-icon" src="/assets/images/icons/leafy-vegetables.png" mode="aspectFit" aria-hidden="true"/>
+        <image wx:elif="{{item.id === 'feature'}}" class="ui-icon feedback-chip-icon" src="/assets/images/icons/feedback-feature.png" mode="aspectFit" aria-hidden="true"/>
+        <image wx:else class="ui-icon feedback-chip-icon" src="/assets/images/icons/feedback-other.png" mode="aspectFit" aria-hidden="true"/>
+        <text>{{item.label}}</text>
+      </view>
     </view>
     <textarea
       class="composer-input"
@@ -24,6 +32,7 @@
       </view>
     </view>
   </view>
+  <view class="composer-spacer" style="height: {{composerHeight}}px;" aria-hidden="true"></view>
 
   <view wx:if="{{loading && !items.length}}" class="empty">加载中…</view>
   <view wx:elif="{{!items.length}}" class="empty">还没有反馈，写一条试试</view>
@@ -32,6 +41,10 @@
     <view class="card" data-id="{{item.id}}" hover-class="tap-hover" bindtap="onCardTap">
       <view class="card-head">
         <view class="card-head-left">
+          <image wx:if="{{item.category === 'recipe'}}" class="ui-icon feedback-card-icon" src="/assets/images/icons/soup-bowl.png" mode="aspectFit" aria-hidden="true"/>
+          <image wx:elif="{{item.category === 'ingredient'}}" class="ui-icon feedback-card-icon" src="/assets/images/icons/leafy-vegetables.png" mode="aspectFit" aria-hidden="true"/>
+          <image wx:elif="{{item.category === 'feature'}}" class="ui-icon feedback-card-icon" src="/assets/images/icons/feedback-feature.png" mode="aspectFit" aria-hidden="true"/>
+          <image wx:else class="ui-icon feedback-card-icon" src="/assets/images/icons/feedback-other.png" mode="aspectFit" aria-hidden="true"/>
           <text class="cat">{{item.categoryLabel}}</text>
           <text class="time">{{item.timeText}}</text>
         </view>
@@ -57,7 +70,7 @@
 
       <view wx:if="{{item.replyText}}" class="block reply-block">
         <view class="reply-head">
-          <text class="reply-label">管理员</text>
+          <view class="reply-admin"><image class="ui-icon admin-icon" src="/assets/images/icons/admin-user.png" mode="aspectFit" aria-hidden="true"/><text class="reply-label">管理员</text></view>
           <text wx:if="{{item.replyTimeText}}" class="time">{{item.replyTimeText}}</text>
         </view>
         <view class="clip {{item.replyExpanded ? 'expanded' : ''}}">
@@ -80,4 +93,5 @@
 
   <view wx:if="{{loadingMore}}" class="more">加载中…</view>
   <view wx:elif="{{items.length && !nextCursor && !loading}}" class="more muted">没有更多了</view>
+  </view>
 </view>

@@ -34,6 +34,13 @@ python3 tools/alias-editor/server.py
 - 导入云库仍走现有 ingredients 导入脚本
 - 「同步全量」在忌口态同样可用：补池内新名，不自动进忌口组
 
+## 城菜 Tab
+
+- 数据：`recipes-builtin.json` 中 `cities` 非空的菜（按城导航）
+- 点击芯片 → 清空 `cities`（全国可见），写回 builtin；上方「已改全国」再点可撤销（记在浏览器 localStorage，刷新仍在）
+- 「导出 for-import」：跑 `scripts/import-recipes.js` 生成 `recipes-for-import.json`，再手工导入云库 `recipes`
+- 本期不支持改多城列表 / 改用料
+
 ## 导回 aliases.json（供云函数 / 小程序）
 
 确认编辑稿后：

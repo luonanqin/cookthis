@@ -12,6 +12,7 @@ const {
   RELOCATE_COOLDOWN_MS
 } = require('../../utils/marketScale.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
+const { getNavMetrics } = require('../../utils/navBar.js')
 
 /** 同一小程序会话内规模半屏最多一次（模块级，随 App 进程存活） */
 let marketScaleSessionShown = false
@@ -90,6 +91,8 @@ Page({
   behaviors: [typeScaleBehavior],
 
   data: {
+    statusBarHeight: 20,
+    navBarHeight: 44,
     showConfirm: false,
     showMarketScale: false,
     marketScaleTitle: '',
@@ -106,14 +109,20 @@ Page({
     recommendationId: null,
     profileGapCount: 0,
     feedbackHasUnread: false,
+    showHomeDevTools: false,
     showMarketScaleDebug: false,
     marketScaleDebugStatus: '',
     debugForceNoLocationLabel: '模拟无定位：关'
   },
 
   onLoad(query) {
+    const nav = getNavMetrics()
     this._maybeOpenFeedback(query)
-    this.setData({ showMarketScaleDebug: isNonReleaseEnv() })
+    this.setData({
+      statusBarHeight: nav.statusBarHeight,
+      navBarHeight: nav.navBarHeight
+      // 测试入口暂隐：需要时改为 showHomeDevTools: true, showMarketScaleDebug: isNonReleaseEnv()
+    })
   },
 
   onShow() {

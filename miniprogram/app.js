@@ -1,15 +1,18 @@
 const { ensureLogin } = require('./services/session.js')
 const { track, flush } = require('./utils/track.js')
 const typeScale = require('./utils/typeScale.js')
+const { getNavMetrics } = require('./utils/navBar.js')
 
 App({
   globalData: {
     user: null,
     onboardingTipShown: false,
-    largeText: false
+    largeText: false,
+    navMetrics: null
   },
   onLaunch() {
     this.globalData.largeText = typeScale.isLarge()
+    this.globalData.navMetrics = getNavMetrics()
     if (!wx.cloud) {
       console.error('请使用支持云开发的基础库')
       return

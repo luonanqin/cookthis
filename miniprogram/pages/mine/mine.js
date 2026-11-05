@@ -1,5 +1,9 @@
 const { ensureLogin, getUser, patchUser } = require('../../services/session.js')
 const { callCloud } = require('../../services/cloud.js')
+const {
+  clearShelfCache,
+  prefetchCatalog
+} = require('../../services/catalogCache.js')
 const { track } = require('../../utils/track.js')
 const { tapFeedback } = require('../../utils/haptic.js')
 const {
@@ -37,14 +41,7 @@ function normalizeDefaultCombo(combo) {
   return out
 }
 
-const AVOID_OPTIONS = [
-  { id: 'pork', label: '猪肉类' },
-  { id: 'seafood', label: '海鲜' },
-  { id: 'offal', label: '内脏' },
-  { id: 'coriander', label: '香菜' },
-  { id: 'peanut', label: '花生' },
-  { id: 'dairy', label: '乳制品' }
-]
+const { AVOID_OPTIONS } = require('../../utils/avoidOptions.js')
 
 const FORM_OPTIONS = [
   { id: 'hotpot', label: '火锅' },
@@ -137,6 +134,18 @@ function profileViewFromUser(user) {
   }
 }
 
+function formatAvoidDisplay(avoids) {
+  const labels = (avoids || [])
+    .map((id) => {
+      const hit = AVOID_OPTIONS.find((o) => o.id === id)
+      return hit ? hit.label : id
+    })
+    .filter(Boolean)
+  if (!labels.length) return '无忌口'
+  if (labels.length <= 2) return labels.join('、')
+  return labels.slice(0, 2).join('、') + '…'
+}
+
 function shapeMembers(list) {
   return (list || []).map((m) => {
     const ageBand = normalizeAgeBand(m.ageBand) || '26_40'
@@ -149,14 +158,7 @@ function shapeMembers(list) {
       avoids,
       ageLabel: AGE_LABEL[ageBand] || ageBand,
       tasteLabel: TASTE_LABEL[m.taste] || m.taste || '适中',
-      avoidLabel: avoids.length
-        ? avoids
-            .map((id) => {
-              const hit = AVOID_OPTIONS.find((o) => o.id === id)
-              return hit ? hit.label : id
-            })
-            .join('、')
-        : '无'
+      avoidLabel: formatAvoidDisplay(avoids)
     }
   })
 }
@@ -253,11 +255,16 @@ Page({
     const cached = getUser()
     if (cached) this.applyProfile(cached)
 
+    const gen = (this._profileLoadGen || 0) + 1
+    this._profileLoadGen = gen
     ensureLogin()
       .then((user) => {
+        // 保存后或二次 onShow 会使 gen 前进；丢弃过期 login，避免旧菜系盖掉「都还行」
+        if (gen !== this._profileLoadGen) return
         this.applyProfile(user)
       })
       .catch((err) => {
+        if (gen !== this._profileLoadGen) return
         console.error(err)
         if (!cached) wx.showToast({ title: '登录失败', icon: 'none' })
       })
@@ -265,7 +272,10 @@ Page({
 
   /** 成员增删改后刷新：走 auth 带回最新 members */
   refreshFromAuth() {
+    const gen = (this._profileLoadGen || 0) + 1
+    this._profileLoadGen = gen
     return ensureLogin().then((user) => {
+      if (gen !== this._profileLoadGen) return
       this.applyProfile(user)
     })
   },
@@ -346,8 +356,26 @@ Page({
   onRegionChange(e) {
     const region = e.detail.value || []
     const city = region[1] || region[0] || ''
-    this.setData({ region, city })
-    this._syncGapMarks()
+    const next = String(city || '').trim()
+    const prevCity = String(this.data.city || '').trim()
+    // 首次选城不弹；真实换城：确认后才写入草稿（仍需点保存）
+    if (!prevCity || !next || next === prevCity) {
+      this.setData({ region, city: next || city })
+      this._syncGapMarks()
+      return
+    }
+    wx.showModal({
+      title: '确认更换城市',
+      content:
+        '确定换成「' + next + '」？本周最多可换城 2 次，保存后生效。',
+      confirmText: '确定',
+      cancelText: '取消',
+      success: (res) => {
+        if (!res.confirm) return
+        this.setData({ region, city: next })
+        this._syncGapMarks()
+      }
+    })
   },
 
   onComboPick(e) {
@@ -459,31 +487,92 @@ Page({
           (k) => this.data.editAvoidChecked[k]
         )
     const editingMemberId = this.data.editingMemberId
+    const ageBand = this.data.editAgeBand
+    const taste = this.data.editTaste
+    const tempId =
+      editingMemberId ||
+      'm_tmp_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
+    const shaped = shapeMembers([
+      {
+        memberId: tempId,
+        name,
+        ageBand,
+        taste,
+        avoids
+      }
+    ])[0]
+
+    // 先关弹层、立刻渲染列表，再异步落库
+    const members = (this.data.members || []).slice()
+    if (editingMemberId) {
+      const idx = members.findIndex((m) => m.memberId === editingMemberId)
+      if (idx >= 0) members[idx] = shaped
+      else members.push(shaped)
+    } else {
+      members.push(shaped)
+    }
+    const summary = summarizeHousehold(members)
+    const next = {
+      showMemberEditor: false,
+      members,
+      householdLabel: summary.label
+    }
+    Object.assign(next, gapMarksFromState(Object.assign({}, this.data, next)))
+    tapFeedback()
+    this.setData(next)
+    patchUser({
+      members: members.map((m) => ({
+        memberId: m.memberId,
+        name: m.name,
+        ageBand: m.ageBand,
+        taste: m.taste,
+        avoids: m.avoids || []
+      })),
+      defaultPeopleCount: members.length
+    })
+
     const payload = editingMemberId
       ? {
           action: 'updateMember',
           memberId: editingMemberId,
           name,
-          ageBand: this.data.editAgeBand,
-          taste: this.data.editTaste,
+          ageBand,
+          taste,
           avoids
         }
       : {
           action: 'addMember',
           name,
-          ageBand: this.data.editAgeBand,
-          taste: this.data.editTaste,
+          ageBand,
+          taste,
           avoids
         }
-    tapFeedback()
     callCloud('profile', payload)
-      .then(() => {
+      .then((res) => {
         track(editingMemberId ? 'member_update' : 'member_add', {})
-        this.setData({ showMemberEditor: false })
+        if (!editingMemberId && res && res.memberId) {
+          const list = (this.data.members || []).slice()
+          const i = list.findIndex((m) => m.memberId === tempId)
+          if (i >= 0) {
+            list[i] = Object.assign({}, list[i], { memberId: res.memberId })
+            this.setData({ members: list })
+            patchUser({
+              members: list.map((m) => ({
+                memberId: m.memberId,
+                name: m.name,
+                ageBand: m.ageBand,
+                taste: m.taste,
+                avoids: m.avoids || []
+              })),
+              defaultPeopleCount: list.length
+            })
+          }
+        }
         return this.refreshFromAuth()
       })
       .catch((err) => {
         wx.showToast({ title: (err && err.error) || '保存失败', icon: 'none' })
+        return this.refreshFromAuth()
       })
   },
 
@@ -512,6 +601,7 @@ Page({
     if (this.data.busy) return
     tapFeedback('heavy')
     this.setData({ busy: true })
+    const prevCity = String(((getUser() || {}).city) || '').trim()
     const noneAvoid =
       this._draftFamilyAvoidsNone != null
         ? !!this._draftFamilyAvoidsNone
@@ -536,6 +626,8 @@ Page({
     if (cuisineOk) patch.cuisinePrefsNoPreference = true
     callCloud('profile', Object.assign({ action: 'updateFamily' }, patch))
       .then((res) => {
+        // 作废进行中的 onShow login，防止旧 auth 在保存后把菜系打回喜欢/不喜欢
+        this._profileLoadGen = (this._profileLoadGen || 0) + 1
         const savedNone =
           res && typeof res.familyAvoidsNone === 'boolean'
             ? res.familyAvoidsNone
@@ -543,6 +635,16 @@ Page({
         const savedAvoids =
           res && Array.isArray(res.familyAvoids) ? res.familyAvoids : patch.familyAvoids
         // 只写本地缓存再返回；勿在此处 ensureLogin，避免旧 auth 盖掉刚保存的表态
+        const savedCuisine =
+          res && res.cuisinePrefs && typeof res.cuisinePrefs === 'object'
+            ? res.cuisinePrefs
+            : cuisinePrefs
+        const savedCuisineConfirmed =
+          res && res.cuisinePrefsConfirmedAt != null
+            ? !!res.cuisinePrefsConfirmedAt
+            : cuisineOk || cuisineHasStance
+              ? true
+              : null
         const next = patchUser(
           Object.assign({}, patch, {
             familyAvoidsNone: savedNone,
@@ -553,11 +655,20 @@ Page({
                 ? true
                 : null,
             city: patch.city || '',
-            cuisinePrefs,
-            cuisinePrefsConfirmedAt: cuisineOk || cuisineHasStance ? true : null,
+            cuisinePrefs: savedCuisine,
+            cuisinePrefsConfirmedAt: savedCuisineConfirmed,
             defaultCombo
           })
         )
+        const nextCity = String(next.city || '').trim()
+        if (prevCity && nextCity && prevCity !== nextCity) {
+          clearShelfCache(prevCity)
+        }
+        if (nextCity) {
+          try {
+            prefetchCatalog(next)
+          } catch (e) {}
+        }
         if (cuisineOk) {
           track('cuisine_prefs_no_preference', { source: 'mine' })
         }
@@ -586,10 +697,12 @@ Page({
       })
       .catch((err) => {
         const code = err && err.error
-        const title =
-          code === 'UNKNOWN_ACTION'
-            ? '云函数过旧，请重新部署 profile'
-            : code || '保存失败'
+        let title = code || '保存失败'
+        if (code === 'UNKNOWN_ACTION') {
+          title = '云函数过旧，请重新部署 profile'
+        } else if (code === 'CITY_CHANGE_WEEKLY_LIMIT') {
+          title = '本周换城已达上限（2次）'
+        }
         wx.showToast({ title, icon: 'none' })
         this.setData({ busy: false })
       })

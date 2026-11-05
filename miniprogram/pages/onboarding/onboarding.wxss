@@ -1,14 +1,18 @@
 /* 与 pages/mine/mine.wxss 偏好区视觉对齐；家庭成员步另含页内展开/收起 */
 
+.page {
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
 .wrap {
-  padding: 48rpx 32rpx calc(160rpx + env(safe-area-inset-bottom));
+  padding: 24rpx 32rpx calc(160rpx + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   align-items: stretch;
   gap: 24rpx;
   box-sizing: border-box;
   background: var(--color-bg);
-  min-height: 100vh;
 }
 
 .progress {
@@ -21,10 +25,10 @@
 }
 
 .section-title {
-  font-size: var(--fs-body);
+  font-size: var(--fs-lead);
   font-weight: 600;
   margin-bottom: 12rpx;
-  color: var(--color-text);
+  color: var(--color-forest);
 }
 
 .hint,
@@ -287,34 +291,37 @@
   color: var(--color-primary);
 }
 
+/* 引导底栏：多按钮均分宽度，高度与全站一致，避免挤出屏 */
 .footer {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 20;
-  padding: 16rpx 32rpx calc(16rpx + env(safe-area-inset-bottom));
-  background: var(--color-surface);
-  border-top: 1rpx solid var(--color-border);
-  box-sizing: border-box;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 16rpx;
-  flex-wrap: wrap;
+  justify-content: stretch;
+  gap: 12rpx;
+  flex-wrap: nowrap;
 }
 
-.footer button {
-  margin: 0;
-  flex: 0 0 auto;
+.footer > button {
+  margin: 0 !important;
+  flex: 1 1 0 !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: 88rpx !important;
+  padding: 0 12rpx !important;
+  line-height: 1.2 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  font-size: var(--fs-body) !important;
+  font-weight: 600 !important;
+  border-radius: var(--radius-btn) !important;
 }
 
-.footer button[size='mini'] {
-  min-width: 140rpx;
+.footer-primary {
+  flex: 1.15 1 0 !important;
 }
 
-.btn-outline {
-  background: var(--color-surface) !important;
-  color: var(--color-text) !important;
-  border: 1rpx solid var(--color-border);
+/* 仅「下一步」时与其他页单主按钮同宽 */
+.footer > button:only-child {
+  flex: 0 0 360rpx !important;
+  width: 360rpx !important;
 }

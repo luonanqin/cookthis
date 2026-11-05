@@ -1,22 +1,39 @@
-  <view class="wrap {{typeScaleClass}}">
-  <image class="avatar" src="{{avatarSrc}}" mode="aspectFill" />
-  <text class="nickname">{{nickname}}</text>
+<view class="page {{typeScaleClass}}">
+  <page-header
+    title="我的偏好"
+    subtitle="完整偏好可以更准确地推荐好菜"
+  />
+  <view class="wrap">
+  <view class="profile-row">
+    <image class="avatar" src="{{avatarSrc}}" mode="aspectFill" />
+    <text class="nickname">{{nickname}}</text>
+  </view>
 
   <view class="section" id="secMembers">
-    <view class="section-title {{gapMembersOpen ? 'section-title-gap' : ''}}">家庭成员</view>
-    <view class="household">{{householdLabel}}</view>
+    <view class="section-head">
+      <view class="section-title section-title-row {{gapMembersOpen ? 'section-title-gap' : ''}}"><image class="ui-icon ui-icon--sm" src="/assets/images/icons/group-people.png" mode="aspectFit" aria-hidden="true"/><text>家庭成员</text></view>
+      <text class="section-aside">{{householdLabel}}</text>
+    </view>
     <view class="member-card" wx:for="{{members}}" wx:key="memberId">
       <view class="member-main" data-id="{{item.memberId}}" bindtap="openEditMember">
         <text class="member-name">{{item.name}}</text>
-        <text class="member-meta">{{item.ageLabel}} · {{item.tasteLabel}} · 忌口{{item.avoidLabel}}</text>
+        <text class="member-sep" aria-hidden="true">|</text>
+        <text class="member-cell">{{item.ageLabel}}</text>
+        <text class="member-sep" aria-hidden="true">|</text>
+        <text class="member-cell">{{item.tasteLabel}}</text>
+        <text class="member-sep" aria-hidden="true">|</text>
+        <text class="member-cell member-cell--avoid">{{item.avoidLabel}}</text>
       </view>
       <text class="member-del" data-id="{{item.memberId}}" catchtap="removeMember">删</text>
     </view>
-    <view class="link-inline" bindtap="openAddMember">＋ 添加家庭成员</view>
+    <view class="link-inline member-add" bindtap="openAddMember">＋ 添加家庭成员</view>
   </view>
 
   <view class="section" id="secCombo">
-    <view class="section-title">日常搭配</view>
+    <view class="section-head">
+      <view class="section-title section-title-row"><image class="ui-icon ui-icon--sm" src="/assets/images/icons/soup-bowl.png" mode="aspectFit" aria-hidden="true"/><text>日常搭配</text></view>
+      <text class="section-aside">每餐基础搭配，推荐更合适</text>
+    </view>
     <view class="combo-row">
       <picker mode="selector" range="{{comboRange}}" value="{{meatIndex}}" data-field="meat" bindchange="onComboPick">
         <view class="picker-cell">荤 {{defaultCombo.meat}}</view>
@@ -31,13 +48,16 @@
   </view>
 
   <view class="section" id="secAvoids">
-    <view class="section-title {{gapAvoidsOpen ? 'section-title-gap' : ''}}">家庭忌口</view>
+    <view class="section-head">
+      <view class="section-title section-title-row {{gapAvoidsOpen ? 'section-title-gap' : ''}}"><image class="ui-icon ui-icon--sm" src="/assets/images/icons/leafy-vegetables.png" mode="aspectFit" aria-hidden="true"/><text>家庭忌口</text></view>
+      <text class="section-aside">选择后将避开相关食材</text>
+    </view>
     <view class="chips">
       <view
         class="chip {{noneAvoidChecked ? 'on' : ''}}"
         data-id="none"
         bindtap="onToggleAvoid"
-      >无</view>
+      >无忌口</view>
       <view
         class="chip {{familyAvoidChecked[item.id] ? 'on' : ''}}"
         wx:for="{{avoidOptions}}"
@@ -49,15 +69,20 @@
   </view>
 
   <view class="section" id="secCity">
-    <view class="section-title {{gapCityOpen ? 'section-title-gap' : ''}}">所在城市</view>
-    <view class="hint">仅用于匹配当地常见食材</view>
+    <view class="section-head">
+      <view class="section-title section-title-row {{gapCityOpen ? 'section-title-gap' : ''}}"><image class="ui-icon ui-icon--sm" src="/assets/images/icons/location-pin-green.png" mode="aspectFit" aria-hidden="true"/><text>所在城市</text></view>
+      <text class="section-aside">用于匹配当地常见食材</text>
+    </view>
     <picker mode="region" level="city" value="{{region}}" bindchange="onRegionChange">
-      <view class="picker-row">{{city || '点此选择城市匹配当地食材'}}</view>
+      <view class="picker-row">{{city || '点此选择城市'}}</view>
     </picker>
   </view>
 
   <view class="section" id="secCuisine">
-    <view class="section-title {{gapCuisineOpen ? 'section-title-gap' : ''}}">菜系偏好</view>
+    <view class="section-head">
+      <view class="section-title section-title-row {{gapCuisineOpen ? 'section-title-gap' : ''}}"><image class="ui-icon ui-icon--sm" src="/assets/images/icons/soup-bowl.png" mode="aspectFit" aria-hidden="true"/><text>菜系偏好</text></view>
+      <text class="section-aside">选择喜欢的菜系更合口味</text>
+    </view>
     <view class="chips">
       <view
         class="chip {{cuisineOkChecked ? 'on' : ''}}"
@@ -87,7 +112,10 @@
   </view>
 
   <view class="section">
-    <view class="section-title">菜式偏好</view>
+    <view class="section-head">
+      <view class="section-title section-title-row"><image class="ui-icon ui-icon--sm" src="/assets/images/icons/notebook-green.png" mode="aspectFit" aria-hidden="true"/><text>菜式偏好</text></view>
+      <text class="section-aside">按菜式再细化口味</text>
+    </view>
     <view class="form-row" wx:for="{{formOptions}}" wx:key="id">
       <text class="form-name">{{item.label}}</text>
       <radio-group
@@ -104,7 +132,7 @@
           <radio
             value="{{v.id}}"
             checked="{{dishFormPrefs[item.id] === v.id}}"
-            color="#3a8a5f"
+            color="#527F55"
           />
           <text>{{v.label}}</text>
         </label>
@@ -172,7 +200,7 @@
           class="chip {{editAvoidsNone ? 'on' : ''}}"
           data-id="none"
           bindtap="onEditAvoid"
-        >无</view>
+        >无忌口</view>
         <view
           class="chip {{editAvoidChecked[item.id] ? 'on' : ''}}"
           wx:for="{{avoidOptions}}"
@@ -186,5 +214,6 @@
         <button size="mini" type="primary" bindtap="saveMember">确定</button>
       </view>
     </view>
+  </view>
   </view>
 </view>

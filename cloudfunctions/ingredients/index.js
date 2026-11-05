@@ -12,6 +12,11 @@ const {
   normalizeCategory,
   needsCategoryMigration
 } = require('./categoryTaxonomy.js')
+// Vendored: keep in sync with cloudfunctions/_shared/accessGuard.js
+const {
+  resolveIngredientsCity,
+  consumeIngredientsCall
+} = require('./accessGuard.js')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
@@ -203,13 +208,24 @@ exports.main = async (event) => {
   const openid = wxContext.OPENID
   if (!openid) return { ok: false, error: 'NO_OPENID' }
 
-  let city = (event && event.city) || null
-  let user = null
-  if (!city || !(event && event.scale)) {
-    user = await loadUserForOpenid(openid)
-    if (!city) city = (user && user.city) || null
-  }
+  // #1：城市只信账号；#3：按 uid 日上限 + 弱间隔
+  const user = await loadUserForOpenid(openid)
+  if (!user || !user._id) return { ok: false, error: 'NO_USER' }
 
+  const nowMs = Date.now()
+  const consumed = consumeIngredientsCall(user.accessGuard, nowMs)
+  if (!consumed.ok) return { ok: false, error: consumed.error }
+  await db.collection('users').doc(user._id).update({
+    data: {
+      accessGuard: consumed.next,
+      updatedAt: db.serverDate()
+    }
+  })
+
+  const city = resolveIngredientsCity({
+    eventCity: event && event.city,
+    userCity: user.city
+  })
   const scale = resolveScale(event && event.scale, user)
   const cityKey = normalizeCityKey(city)
   const scaleDoc = loadCityScaleDoc(cityKey)
