@@ -15,6 +15,7 @@ const {
 } = require('../../utils/members.js')
 const { COMBO_RANGE, indexOfValue } = require('../../utils/formRanges.js')
 const { computeProfileGaps } = require('../../utils/profileGaps.js')
+const { retakeLinkLabel } = require('../../utils/cookSkillRetake.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 
 function resolveAvatar(url) {
@@ -130,6 +131,7 @@ function profileViewFromUser(user) {
     soupIndex: indexOfValue(COMBO_RANGE, defaultCombo.soup, 0),
     city: p.city || '',
     region: [],
+    cookSkillRetakeLabel: retakeLinkLabel(p.cookSkill),
     nickname: p.nickname || '',
     avatarSrc: resolveAvatar(p.avatarUrl),
     members,
@@ -224,7 +226,8 @@ Page({
     gapMembersOpen: false,
     gapAvoidsOpen: false,
     gapCityOpen: false,
-    gapCuisineOpen: false
+    gapCuisineOpen: false,
+    cookSkillRetakeLabel: retakeLinkLabel(null)
   },
 
   applyProfile(user) {
@@ -593,6 +596,12 @@ Page({
         wx.showToast({ title, icon: 'none' })
         this.setData({ busy: false })
       })
+  },
+
+  goCookSkillProbe() {
+    if (this.data.busy) return
+    tapFeedback()
+    wx.navigateTo({ url: '/pages/cookSkillProbe/cookSkillProbe' })
   },
 
   goOnboarding() {

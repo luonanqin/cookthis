@@ -112,6 +112,15 @@
     </view>
   </view>
 
+  <view class="section" id="secCookSkill">
+    <view
+      class="link-inline"
+      hover-class="tap-hover"
+      hover-stay-time="80"
+      bindtap="goCookSkillProbe"
+    >{{cookSkillRetakeLabel}}</view>
+  </view>
+
   <view class="link reset-link" hover-class="tap-hover" hover-stay-time="80" bindtap="goOnboarding">重新设置偏好</view>
 
   <view class="footer">

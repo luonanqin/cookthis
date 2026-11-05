@@ -4,6 +4,7 @@
     "pages/sharedPlan/sharedPlan",
     "pages/onboarding/onboarding",
     "pages/mine/mine",
+    "pages/cookSkillProbe/cookSkillProbe",
     "pages/confirm/confirm",
     "pages/recommend/recommend",
     "pages/shopping/shopping",
