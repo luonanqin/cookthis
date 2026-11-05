@@ -14,6 +14,7 @@ const {
 } = require('../../utils/members.js')
 const { tapFeedback } = require('../../utils/haptic.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
+const { PROBE_DISHES, deriveCookSkill } = require('../../utils/cookSkill.js')
 
 const AVOID_OPTIONS = [
   { id: 'pork', label: '猪肉类' },
@@ -69,8 +70,34 @@ TASTES.forEach((x) => {
   TASTE_LABEL[x.id] = x.label
 })
 
-/** 与「我的」画像区块顺序对齐 */
-const STEPS = ['家庭成员', '日常搭配', '家庭忌口', '所在城市', '菜系偏好', '菜式偏好']
+/** 与「我的」画像区块顺序对齐；做饭水平仅引导，插在城市与菜系之间 */
+const STEPS = ['家庭成员', '日常搭配', '家庭忌口', '所在城市', '做饭水平', '菜系偏好', '菜式偏好']
+
+const PROBE_GROUP_META = [
+  { id: 'easy', title: '轻松上手' },
+  { id: 'home', title: '家常水平' },
+  { id: 'advanced', title: '进阶一点' }
+]
+
+function buildProbeGroups() {
+  return PROBE_GROUP_META.map((group) => ({
+    id: group.id,
+    title: group.title,
+    dishes: PROBE_DISHES.filter((dish) => dish.group === group.id).map((dish) => ({
+      id: dish.id,
+      name: dish.name
+    }))
+  }))
+}
+
+function probeCountsFromChecked(checked) {
+  const counts = { easy: 0, home: 0, advanced: 0 }
+  const on = checked || {}
+  PROBE_DISHES.forEach((dish) => {
+    if (on[dish.id]) counts[dish.group] += 1
+  })
+  return counts
+}
 
 let _keySeq = 0
 function nextKey() {
@@ -161,7 +188,10 @@ Page({
     soupIndex: indexOfValue(COMBO_RANGE, 0, 0),
     city: '',
     region: [],
-    busy: false
+    busy: false,
+    probeGroups: buildProbeGroups(),
+    probeChecked: {},
+    probeCounts: { easy: 0, home: 0, advanced: 0 }
   },
 
   onLoad(query) {
@@ -173,6 +203,9 @@ Page({
       expandedKey: first.key
     })
     this._restart = !!(query && (query.restart === '1' || query.restart === 'true'))
+    this._cookSkillSkipped = false
+    this._pendingCookSkill = undefined
+    this._pendingCounts = undefined
     track('onboarding_start', { restart: !!this._restart })
     track('onboarding_step', { step: 0 })
     this._refreshHouseholdPreview()
@@ -427,6 +460,60 @@ Page({
     this.setData({ region, city })
   },
 
+  onToggleProbeDish(e) {
+    const id = e.currentTarget.dataset.id
+    if (!id) return
+    const probeChecked = Object.assign({}, this.data.probeChecked)
+    probeChecked[id] = !probeChecked[id]
+    this.setData({
+      probeChecked,
+      probeCounts: probeCountsFromChecked(probeChecked)
+    })
+  },
+
+  _isProbeStep(step) {
+    return (this.data.steps || [])[step] === '做饭水平'
+  },
+
+  _trackProbeStepShow(step) {
+    if (!this._isProbeStep(step)) return
+    track('onboarding_cook_skill_step', {})
+  },
+
+  /** 探针步「下一步」：定档并暂存，完成引导时一并写入 */
+  _stashCookSkillFromProbe() {
+    const counts = probeCountsFromChecked(this.data.probeChecked)
+    this._cookSkillSkipped = false
+    this._pendingCookSkill = deriveCookSkill(counts)
+    this._pendingCounts = counts
+    this.setData({ probeCounts: counts })
+  },
+
+  /** 探针步「跳过」：不写 cookSkill */
+  _skipCookSkillProbe() {
+    this._cookSkillSkipped = true
+    this._pendingCookSkill = undefined
+    this._pendingCounts = undefined
+  },
+
+  _cookSkillFinishFields() {
+    const skipped = !!this._cookSkillSkipped
+    return {
+      cookSkill: skipped ? undefined : this._pendingCookSkill,
+      cookSkillSkipped: skipped,
+      cookSkillProbeCounts: skipped ? undefined : this._pendingCounts
+    }
+  },
+
+  _cookSkillDoneProps() {
+    const fields = this._cookSkillFinishFields()
+    return {
+      cookSkill: fields.cookSkill,
+      cookSkillSkipped: fields.cookSkillSkipped,
+      probeCounts: fields.cookSkillProbeCounts
+    }
+  },
+
   onNext() {
     tapFeedback()
     const step = this.data.step
@@ -434,6 +521,7 @@ Page({
     if (step === 0) {
       if (!this._ensureAllComplete()) return
     }
+    if (this._isProbeStep(step)) this._stashCookSkillFromProbe()
     if (step >= last) {
       this.finish()
       return
@@ -442,6 +530,7 @@ Page({
     if (next === 1) this._refreshHouseholdPreview()
     this.setData({ step: next })
     track('onboarding_step', { step: next })
+    this._trackProbeStepShow(next)
   },
 
   onBackStep() {
@@ -450,6 +539,7 @@ Page({
     const next = this.data.step - 1
     this.setData({ step: next })
     track('onboarding_step', { step: next })
+    this._trackProbeStepShow(next)
   },
 
   cloudErrorTitle(err) {
@@ -467,6 +557,7 @@ Page({
     // 第一步家庭成员必填，不可跳过
     if (step <= 0) return
     tapFeedback()
+    if (this._isProbeStep(step)) this._skipCookSkillProbe()
     const last = this.data.steps.length - 1
     if (step >= last) {
       this.finish({ allowPartial: true })
@@ -476,6 +567,7 @@ Page({
     if (next === 1) this._refreshHouseholdPreview()
     this.setData({ step: next })
     track('onboarding_step', { step: next, skipped: true })
+    this._trackProbeStepShow(next)
   },
 
   /**
@@ -511,11 +603,11 @@ Page({
         resetProfile: !!this._restart
       })
         .then(() => {
-          track('onboarding_done', {
+          track('onboarding_done', Object.assign({
             skipped: true,
             restart: !!this._restart,
             emptySkip: true
-          })
+          }, this._cookSkillDoneProps()))
           return ensureLogin()
         })
         .then(() => this._leaveOnboardingDone())
@@ -538,13 +630,16 @@ Page({
         soup: this.data.soup
       },
       city: this.data.city || null,
-      members
+      members,
+      cookSkill: this._cookSkillSkipped ? undefined : this._pendingCookSkill,
+      cookSkillSkipped: !!this._cookSkillSkipped,
+      cookSkillProbeCounts: this._cookSkillSkipped ? undefined : this._pendingCounts
     })
       .then(() => {
-        track('onboarding_done', {
+        track('onboarding_done', Object.assign({
           memberCount: members.length,
           partial: allowPartial
-        })
+        }, this._cookSkillDoneProps()))
         return ensureLogin()
       })
       .then(() => this._leaveOnboardingDone())
