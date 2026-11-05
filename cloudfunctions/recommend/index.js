@@ -364,7 +364,8 @@ function rebuildPlans(user, doc, excludedDishIds) {
     diners: doc._diners || [],
     recentIngredientDays: doc._recentIngredientDays || {},
     maxPlans: 3,
-    sessionSeed
+    sessionSeed,
+    cookSkill: user.cookSkill
   })
   const unc = buildUnconventionalPlan({
     recipes: doc._recipes,
@@ -455,7 +456,8 @@ async function handleCreate(event, uid, user) {
       diners,
       recentIngredientDays: recent.recentIngredientDays || {},
       maxPlans: 3,
-      sessionSeed
+      sessionSeed,
+      cookSkill: user.cookSkill
     })
     const unc = buildUnconventionalPlan({
       recipes,

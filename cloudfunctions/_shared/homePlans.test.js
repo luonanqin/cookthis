@@ -1231,3 +1231,78 @@ describe('buildHomePlans alias matching', () => {
     assert.ok(names.includes('红烧鸡爪'))
   })
 })
+
+describe('cookSkill difficulty in buildHomePlans', () => {
+  const advanced = {
+    id: 'a',
+    name: '清蒸鱼',
+    enabled: true,
+    meatVeg: 'meat',
+    mainIngredients: ['鱼'],
+    dishForms: ['steam'],
+    minutes: 30,
+    difficulty: 'advanced'
+  }
+  const easy = {
+    id: 'b',
+    name: '番茄炒蛋',
+    enabled: true,
+    meatVeg: 'veg',
+    mainIngredients: ['鸡蛋'],
+    dishForms: ['stir_fry'],
+    minutes: 10,
+    difficulty: 'easy'
+  }
+
+  function planDishNames(result) {
+    const names = []
+    for (const p of (result && result.plans) || []) {
+      for (const m of p.meals || []) {
+        for (const d of m.dishes || []) names.push(d.name)
+      }
+    }
+    return names
+  }
+
+  it('beginner hard-blocks advanced difficulty', () => {
+    const result = buildHomePlans({
+      recipes: [advanced, easy],
+      selectedNames: ['鱼', '鸡蛋'],
+      cookSkill: 'beginner',
+      scene: {
+        mealType: 'daily',
+        combo: { meat: 1, veg: 1, soup: 0 },
+        mealSlots: [{ meal: 'dinner', label: '晚饭' }]
+      },
+      maxPlans: 1
+    })
+    // selectedNames cover both; beginner must not be served 清蒸鱼
+    assert.ok(!planDishNames(result).includes('清蒸鱼'))
+  })
+
+  it('unset cookSkill does not hard-block advanced', () => {
+    const result = buildHomePlans({
+      recipes: [advanced, easy],
+      selectedNames: ['鱼', '鸡蛋'],
+      scene: {
+        mealType: 'daily',
+        combo: { meat: 1, veg: 1, soup: 0 },
+        mealSlots: [{ meal: 'dinner', label: '晚饭' }]
+      },
+      maxPlans: 1
+    })
+    assert.ok(planDishNames(result).includes('清蒸鱼'))
+  })
+
+  it('home soft-penalizes advanced over easy', () => {
+    const ctxHome = {
+      downranked: new Set(),
+      memberAvoids: new Set(),
+      recentIngredientDays: {},
+      ingredientsByName: undefined,
+      cuisinePrefs: {},
+      cookSkillEffective: 'home'
+    }
+    assert.ok(softPenalty(advanced, ctxHome) > softPenalty(easy, ctxHome))
+  })
+})
