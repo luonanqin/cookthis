@@ -28,7 +28,8 @@
     "enabled": true,
     "cuisineTags": [
       "home_style"
-    ]
+    ],
+    "difficulty": "home"
   },
   {
     "seasonings": [
@@ -171,7 +172,8 @@
     "meatVeg": "meat",
     "cuisineTags": [
       "home_style"
-    ]
+    ],
+    "difficulty": "easy"
   },
   {
     "id": "rcp_garlic_bok_choy",
@@ -520,7 +522,8 @@
     "enabled": true,
     "cuisineTags": [
       "home_style"
-    ]
+    ],
+    "difficulty": "home"
   },
   {
     "id": "rcp_pork_dumpling",
@@ -634,7 +637,8 @@
     "meatVeg": "veg",
     "cuisineTags": [
       "home_style"
-    ]
+    ],
+    "difficulty": "easy"
   },
   {
     "seasonings": [
@@ -1211,7 +1215,8 @@
     "meatVeg": "meat",
     "cuisineTags": [
       "home_style"
-    ]
+    ],
+    "difficulty": "advanced"
   },
   {
     "seasonings": [
@@ -1243,7 +1248,8 @@
     "meatVeg": "meat",
     "cuisineTags": [
       "sichuan"
-    ]
+    ],
+    "difficulty": "advanced"
   },
   {
     "seasonings": [
@@ -1277,7 +1283,8 @@
     "meatVeg": "meat",
     "cuisineTags": [
       "sichuan"
-    ]
+    ],
+    "difficulty": "home"
   },
   {
     "seasonings": [
@@ -1834,7 +1841,8 @@
     "meatVeg": "meat",
     "cuisineTags": [
       "shanghai"
-    ]
+    ],
+    "difficulty": "advanced"
   },
   {
     "seasonings": [
@@ -2274,7 +2282,8 @@
     "meatVeg": "meat",
     "cuisineTags": [
       "sichuan"
-    ]
+    ],
+    "difficulty": "home"
   },
   {
     "seasonings": [
@@ -3090,7 +3099,8 @@
     "meatVeg": "meat",
     "cuisineTags": [
       "cantonese"
-    ]
+    ],
+    "difficulty": "advanced"
   },
   {
     "seasonings": [
@@ -14087,7 +14097,8 @@
     "enabled": true,
     "cuisineTags": [
       "home_style"
-    ]
+    ],
+    "difficulty": "home"
   },
   {
     "id": "rcp_xf_bf103a48d1",

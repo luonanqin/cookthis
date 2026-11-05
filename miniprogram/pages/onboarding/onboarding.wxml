@@ -168,6 +168,26 @@
 
   <block wx:elif="{{step === 4}}">
     <view class="section">
+      <view class="section-title">哪些菜你做得来？</view>
+      <view class="hint">做过的，或没做过但觉得简单的，都勾上就行</view>
+      <block wx:for="{{probeGroups}}" wx:key="id">
+        <view class="sub">{{item.title}}</view>
+        <view class="chips">
+          <view
+            class="chip {{probeChecked[dish.id] ? 'on' : ''}}"
+            wx:for="{{item.dishes}}"
+            wx:for-item="dish"
+            wx:key="id"
+            data-id="{{dish.id}}"
+            bindtap="onToggleProbeDish"
+          >{{dish.name}}</view>
+        </view>
+      </block>
+    </view>
+  </block>
+
+  <block wx:elif="{{step === 5}}">
+    <view class="section">
       <view class="section-title">菜系偏好</view>
       <view class="chips">
         <view

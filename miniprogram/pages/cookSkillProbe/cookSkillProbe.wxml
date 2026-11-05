@@ -1,0 +1,37 @@
+<view class="wrap {{typeScaleClass}}">
+  <view class="section">
+    <view class="section-title">哪些菜你做得来？</view>
+    <view class="hint">做过的，或没做过但觉得简单的，都勾上就行</view>
+    <block wx:for="{{probeGroups}}" wx:key="id">
+      <view class="sub">{{item.title}}</view>
+      <view class="chips">
+        <view
+          class="chip {{probeChecked[dish.id] ? 'on' : ''}}"
+          wx:for="{{item.dishes}}"
+          wx:for-item="dish"
+          wx:key="id"
+          data-id="{{dish.id}}"
+          hover-class="tap-hover"
+          hover-stay-time="80"
+          bindtap="onToggleProbeDish"
+        >{{dish.name}}</view>
+      </view>
+    </block>
+  </view>
+
+  <view class="footer">
+    <button
+      size="mini"
+      class="btn-outline"
+      disabled="{{busy}}"
+      bindtap="onCancel"
+    >取消</button>
+    <button
+      size="mini"
+      type="primary"
+      loading="{{busy}}"
+      disabled="{{busy}}"
+      bindtap="onSubmit"
+    >提交</button>
+  </view>
+</view>

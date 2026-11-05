@@ -12,6 +12,12 @@ const {
 const { effectiveFromChoice, appendHistory } = require('./marketScale.js')
 // Vendored: keep in sync with cloudfunctions/_shared/accessGuard.js
 const { checkCityChange } = require('./accessGuard.js')
+const {
+  onboardingCookSkillPatch,
+  planSaveCookSkillProbe,
+  storedCookSkill,
+  storedProbeCounts
+} = require('./cookSkillPersist.js')
 
 /**
  * #4：写城市前校验冷却 / 日上限。首次设城与同城不计入。
@@ -143,6 +149,8 @@ async function handleGet(uid) {
       cuisinePrefs: user.cuisinePrefs || {},
       cuisinePrefsConfirmedAt: user.cuisinePrefsConfirmedAt || null,
       onboardingDone: !!user.onboardingDone,
+      cookSkill: storedCookSkill(user.cookSkill),
+      cookSkillProbeCounts: storedProbeCounts(user.cookSkillProbeCounts),
       profileLiteSkipped: !!user.profileLiteSkipped,
       profileLitePromptedAt: user.profileLitePromptedAt || null,
       householdSummary: household.label,
@@ -413,6 +421,8 @@ async function handleCompleteOnboarding(event, uid, user) {
   const cuisineHasStance = Object.keys(cuisinePrefs).some(
     (k) => cuisinePrefs[k] === 'prefer' || cuisinePrefs[k] === 'avoid'
   )
+  // 跳过该步不写 cookSkill，也不要写成 null（否则会清掉已有档）。合法档才写；有 counts 一并写。
+  const cookSkillPatch = onboardingCookSkillPatch(event)
 
   // 优先 members[]；兼容旧客户端 selfMember
   let memberInputs = []
@@ -437,7 +447,8 @@ async function handleCompleteOnboarding(event, uid, user) {
     city,
     cookBudget,
     onboardingDone: true,
-    updatedAt: now
+    updatedAt: now,
+    ...cookSkillPatch
   }
   if (familyAvoidsNone || familyAvoids.length > 0) {
     userPatch.familyAvoidsConfirmedAt = now
@@ -704,6 +715,29 @@ async function handleDebugMarketScale(event, uid, user) {
   }
 }
 
+/**
+ * 重测。skipped/取消不改已有 cookSkill。
+ * 否则 cookSkill 以服务端 deriveCookSkill(counts) 为准。
+ */
+async function handleSaveCookSkillProbe(event, uid, user) {
+  const plan = planSaveCookSkillProbe(event)
+  if (!plan.ok || plan.unchanged) return plan
+  const now = db.serverDate()
+  await db.collection('users').doc(user._id).update({
+    data: {
+      cookSkill: plan.cookSkill,
+      cookSkillProbeAt: now,
+      cookSkillProbeCounts: plan.cookSkillProbeCounts,
+      updatedAt: now
+    }
+  })
+  return {
+    ok: true,
+    cookSkill: plan.cookSkill,
+    cookSkillProbeCounts: plan.cookSkillProbeCounts
+  }
+}
+
 async function handleConfirmCuisineNoPreference(uid, user) {
   await db.collection('users').doc(user._id).update({
     data: {
@@ -741,11 +775,12 @@ exports.main = async (event) => {
   if (action === 'resetPreferenceTest') return handleResetPreferenceTest(uid, user)
   if (action === 'setMarketScale') return handleSetMarketScale(event, uid, user)
   if (action === 'debugMarketScale') return handleDebugMarketScale(event, uid, user)
+  if (action === 'saveCookSkillProbe') return handleSaveCookSkillProbe(event, uid, user)
   console.warn('profile UNKNOWN_ACTION', action)
   return {
     ok: false,
     error: 'UNKNOWN_ACTION',
-    hint: '请重新上传并部署云函数 profile（需含 saveProfileLite / skipProfileLite / confirmFamilyAvoidsNone / confirmCuisineNoPreference / setMarketScale / debugMarketScale）',
+    hint: '请重新上传并部署云函数 profile（需含 saveProfileLite / skipProfileLite / confirmFamilyAvoidsNone / confirmCuisineNoPreference / setMarketScale / debugMarketScale / saveCookSkillProbe）',
     action: action || null
   }
 }

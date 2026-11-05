@@ -10,6 +10,12 @@ const {
 } = require('./cuisinePrefs.js')
 const { dinerSoftPenalty } = require('./members.js')
 const { expandNames } = require('./aliasMatch.js')
+const {
+  effectiveCookSkill,
+  inferDifficulty,
+  difficultyHardBlocked,
+  difficultySoftPenalty
+} = require('./cookSkill.js')
 
 function lookupIngredient(ingredientsByName, name, aliasIndex) {
   if (!ingredientsByName) return undefined
@@ -347,6 +353,7 @@ function softPenalty(recipe, ctx) {
   }
   score += computeFreshPenalty(recipe.mainIngredients || [], ctx.recentIngredientDays)
   score += cuisineSoftDelta(recipe, ctx.cuisinePrefs || {})
+  score += difficultySoftPenalty(ctx.cookSkillEffective, inferDifficulty(recipe))
   return score
 }
 
@@ -428,7 +435,8 @@ function buildHomePlans(input) {
     recentIngredientNames = [],
     recentIngredientDays = null,
     maxPlans = 3,
-    sessionSeed = ''
+    sessionSeed = '',
+    cookSkill = null
   } = input || {}
 
   const combo = (scene && scene.combo) || { meat: 0, veg: 0, soup: 0 }
@@ -450,6 +458,7 @@ function buildHomePlans(input) {
   const selectedExpanded = aliasIndex
     ? expandNames(selectedNames, aliasIndex)
     : new Set(selectedNames)
+  const skill = effectiveCookSkill(cookSkill)
 
   const candidates = []
   for (const recipe of recipes) {
@@ -460,6 +469,7 @@ function buildHomePlans(input) {
     const tags = recipeAvoidTags(recipe, ingredientsByName, aliasIndex)
     if (intersects(tags, avoids)) continue
     if (recipeBlockedByCuisine(recipe, cuisinePrefs)) continue
+    if (difficultyHardBlocked(skill, inferDifficulty(recipe))) continue
     candidates.push(recipe)
   }
 
@@ -475,7 +485,8 @@ function buildHomePlans(input) {
     recentIngredientDays: recentDays,
     ingredientsByName,
     cuisinePrefs,
-    aliasIndex
+    aliasIndex,
+    cookSkillEffective: skill
   }
   const seedBase = hashSessionSeed(sessionSeed)
   for (const key of Object.keys(buckets)) {
