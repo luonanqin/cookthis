@@ -80,6 +80,17 @@ function inferDifficulty(recipe) {
 }
 
 /**
+ * 拉菜谱 get 的 difficulty _.in 列表。仅 beginner 收窄为 easy+home（硬排除 advanced 前移到查询）。
+ * home / skilled / 未填 → null（不加 difficulty 条件）。
+ * @param {string|null|undefined} userCookSkill
+ * @returns {['easy','home']|null}
+ */
+function recipeDifficultyInFilter(userCookSkill) {
+  if (effectiveCookSkill(userCookSkill) === 'beginner') return ['easy', 'home']
+  return null
+}
+
+/**
  * beginner × advanced 硬排除。其余通过。
  * @param {string} skill 应为 effectiveCookSkill 的结果
  * @param {string} difficulty
@@ -112,6 +123,7 @@ module.exports = {
   deriveCookSkill,
   effectiveCookSkill,
   inferDifficulty,
+  recipeDifficultyInFilter,
   difficultyHardBlocked,
   difficultySoftPenalty
 }

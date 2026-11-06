@@ -13,6 +13,7 @@ const {
   deriveCookSkill,
   effectiveCookSkill,
   inferDifficulty,
+  recipeDifficultyInFilter,
   difficultyHardBlocked,
   difficultySoftPenalty
 } = require('./cookSkill.js')
@@ -158,6 +159,20 @@ describe('inferDifficulty', () => {
     assert.equal(inferDifficulty({ minutes: 'soon', dishForms: ['stir_fry'] }), 'home')
     assert.equal(inferDifficulty({ difficulty: 'hard', minutes: 30 }), 'home')
     assert.equal(inferDifficulty(null), 'home')
+  })
+})
+
+describe('recipeDifficultyInFilter', () => {
+  it('returns easy+home only for beginner so get can exclude advanced', () => {
+    assert.deepEqual(recipeDifficultyInFilter('beginner'), ['easy', 'home'])
+  })
+
+  it('returns null for home, skilled, and unset (no difficulty where clause)', () => {
+    assert.equal(recipeDifficultyInFilter('home'), null)
+    assert.equal(recipeDifficultyInFilter('skilled'), null)
+    assert.equal(recipeDifficultyInFilter(undefined), null)
+    assert.equal(recipeDifficultyInFilter(null), null)
+    assert.equal(recipeDifficultyInFilter(''), null)
   })
 })
 

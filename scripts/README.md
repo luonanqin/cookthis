@@ -144,6 +144,24 @@ node scripts/import-recipes.js
 
 ---
 
+## 菜谱 difficulty 回填
+
+| 脚本 | 作用 |
+|------|------|
+| `backfill-recipe-difficulty.js` | 给 `recipes-builtin.json` 补 `difficulty`（默认 dry-run） |
+
+```bash
+node scripts/backfill-recipe-difficulty.js                                    # 只看报告
+node scripts/backfill-recipe-difficulty.js --apply-probe-names --apply-inferred # 空白写入（不覆盖已有）
+node scripts/import-recipes.js                                                # 再生成 for-import
+```
+
+`--apply-probe-names`：探针菜名精确匹配优先；`--apply-inferred`：其余空白用与运行时相同的 `inferDifficulty`。人工改过的档不会被再次覆盖。
+
+导入云库后，若 beginner 推荐拉池报缺索引：集合 `recipes` 建**普通**复合索引 `cities` ASC + `difficulty` ASC（勿勾唯一）。详见设计 §4.1 / 根目录 `README.md`「Slice 15 准备」。
+
+---
+
 ## 云库导入（食材 / 菜谱）
 
 | 脚本 | 作用 |

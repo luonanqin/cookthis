@@ -64,6 +64,8 @@
 
 部署 `recommend`（含 `listAccepted`）前，请在云开发控制台为集合 `recommendations` 创建复合索引：`uid`、`accepted`、`acceptedAt`（与 `orderBy acceptedAt desc` 分页查询一致）。
 
+Slice 15（做饭能力）部署后，集合 `recipes` 另需普通复合索引：`cities` ASC + `difficulty` ASC（勿勾唯一；新手拉池 `where` 同时带这两字段）。细节见设计 §4.1 与下方「Slice 15 准备」。
+
 ---
 
 ## Slice 1 准备（登录 + 食材确认）
@@ -279,10 +281,19 @@
 
 假定 **Slice 2、Slice 6 准备已完成**（能出家常推荐；能走完整引导 / 「我的」）。再补：
 
-1. **重新部署**云函数：`profile`（`completeOnboarding` / `saveCookSkillProbe` 写 `cookSkill` + `cookSkillProbeDishIds`；包内须含 `cookSkill.js` + `cookSkillPersist.js`）、`auth`（登录回包 `cookSkill` / `cookSkillProbeDishIds`）、`recommend`（`homePlans` 难度硬排 + 软分；包内须含 `cookSkill.js`）。
-2. **重导菜谱**（建议）：集合 `recipes` 导入更新后的 `data/catalog/recipes-for-import.json`（探针同名菜带显式 `difficulty`）。冲突选覆盖或先清空。本地若改过 builtin：`node scripts/backfill-recipe-difficulty.js --apply-probe-names` 后再按 [`scripts/README.md`](scripts/README.md) 生成导入文件。
-3. 小程序：引导步「做饭水平」；「我的」城市与菜系之间内嵌 15 选并可回填；`utils/cookSkill.js`。
-4. 本地：`npm test`（含 `cookSkill` / `homePlans` 难度用例）。
+1. **重新部署**云函数：`profile`（`completeOnboarding` / `saveCookSkillProbe` 写 `cookSkill` + `cookSkillProbeDishIds`；包内须含 `cookSkill.js` + `cookSkillPersist.js`）、`auth`（登录回包 `cookSkill` / `cookSkillProbeDishIds`）、`recommend`（拉池 difficulty 过滤 + `homePlans` 硬排/软分；包内须含 `cookSkill.js`）。
+2. **重导菜谱**（建议）：集合 `recipes` 导入更新后的 `data/catalog/recipes-for-import.json`（**全量带 `difficulty`**）。冲突选覆盖或先清空。本地若改过 builtin：`node scripts/backfill-recipe-difficulty.js --apply-probe-names --apply-inferred` 后再 `node scripts/import-recipes.js`（见 [`scripts/README.md`](scripts/README.md)）。
+3. **复合索引**（云开发 → 数据库 → `recipes` → 索引；控制台按报错补齐亦可）：
+
+   | 索引 | 字段 | 唯一？ | 用途 |
+   |------|------|--------|------|
+   | `cities_difficulty`（名称可自定） | `cities` ASC、`difficulty` ASC | **否** | beginner 拉池：`cities` + `difficulty ∈ ['easy','home']` |
+
+   - 非 beginner 仍只按 `cities` 查，不依赖本索引，但 beginner 路径必用。  
+   - 仅建 `difficulty` 单字段不够。  
+   - 文档无 `difficulty` 时 `_.in` 匹配不到该行。细则：[`docs/superpowers/specs/2026-11-05-做饭能力与菜品难度-design.md`](docs/superpowers/specs/2026-11-05-做饭能力与菜品难度-design.md) §4.1。
+4. 小程序：引导步「做饭水平」；「我的」城市与菜系之间内嵌 15 选并可回填；`utils/cookSkill.js`。
+5. 本地：`npm test`（含 `cookSkill` / `homePlans` 难度用例）。
 
 无新集合（字段写在 `users` / `recipes`）。做完即可对照下方「Slice 15 验收清单」。
 
@@ -596,7 +607,7 @@
 
 ## 本切片验收清单（Slice 15）
 
-**状态：待点验**（需重发 `profile` / `auth` / `recommend`；建议重导带 `difficulty` 的菜谱）
+**状态：待点验**（需重发 `profile` / `auth` / `recommend`；重导带 `difficulty` 的菜谱；建 `recipes` 索引 `cities`+`difficulty`）
 
 **自动化：**
 
@@ -613,7 +624,7 @@
 
 **本切片不验：** 自报三档 chip、成员级做饭能力、行为校准改档、做饭时间预算与难度联动、非常规（火锅/面/饺）方案的难度过滤、向用户展示档位结论文案。
 
-**部署提醒：** `profile` + `auth` + `recommend` 同发；菜谱 JSONL 与 builtin 探针 `difficulty` 一致再导入。
+**部署提醒：** `profile` + `auth` + `recommend` 同发；菜谱 JSONL 全量含 `difficulty` 再导入；集合 `recipes` 建普通复合索引 `cities` ASC + `difficulty` ASC（勿唯一）。
 
 ---
 

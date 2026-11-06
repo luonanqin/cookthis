@@ -34,6 +34,8 @@ const {
 } = require('./recipePool.js')
 // Vendored: keep in sync with cloudfunctions/_shared/suggestCombo.js
 const { suggestPartyCombo } = require('./suggestCombo.js')
+// Vendored: keep in sync with cloudfunctions/_shared/cookSkill.js
+const { recipeDifficultyInFilter } = require('./cookSkill.js')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
@@ -141,6 +143,13 @@ async function loadIngredientsCached() {
   return _ingredientsLoading
 }
 
+function recipeListWhere(cities, cookSkill) {
+  const where = { cities }
+  const difficultyIn = recipeDifficultyInFilter(cookSkill)
+  if (difficultyIn) where.difficulty = _.in(difficultyIn)
+  return where
+}
+
 async function queryRecipesPage(where, skip, limit) {
   let q = db.collection('recipes').where(where)
   if (skip > 0) q = q.skip(skip)
@@ -150,9 +159,10 @@ async function queryRecipesPage(where, skip, limit) {
 
 /**
  * 城内优先再补全国，凑满一批（默认 50），跳过 excludeIds。
+ * beginner：get 时 difficulty ∈ easy|home（与硬排除一致）；内存侧仍保留兜底硬排。
  * @returns {{ recipes: object[], exhausted: boolean }}
  */
-async function loadRecipeBatch({ city, excludeIds }) {
+async function loadRecipeBatch({ city, excludeIds, cookSkill }) {
   const exclude = excludeIds || []
   const cityKey =
     city && String(city).trim() ? String(city).trim() : null
@@ -161,7 +171,7 @@ async function loadRecipeBatch({ city, excludeIds }) {
   if (cityKey) {
     for (let page = 0; page < RECIPE_MAX_PAGES; page++) {
       const rows = await queryRecipesPage(
-        { cities: cityKey },
+        recipeListWhere(cityKey, cookSkill),
         page * RECIPE_PAGE,
         RECIPE_PAGE
       )
@@ -181,7 +191,7 @@ async function loadRecipeBatch({ city, excludeIds }) {
   let nationalEnded = false
   for (let page = 0; page < RECIPE_MAX_PAGES; page++) {
     const rows = await queryRecipesPage(
-      { cities: [] },
+      recipeListWhere([], cookSkill),
       page * RECIPE_PAGE,
       RECIPE_PAGE
     )
@@ -244,7 +254,15 @@ function mergeRecipeBatch(list, ids, batchRecipes) {
  * 组不出方案或池已被 exclude 耗尽时，按批续拉（最多 extraBatches 次）。
  * @param {boolean} [alreadyExhausted]
  */
-async function refillRecipePool(city, poolIds, recipes, buildOnce, extraBatches, alreadyExhausted) {
+async function refillRecipePool(
+  city,
+  poolIds,
+  recipes,
+  buildOnce,
+  extraBatches,
+  alreadyExhausted,
+  cookSkill
+) {
   let ids = Array.isArray(poolIds) ? poolIds.slice() : []
   let list = Array.isArray(recipes) ? recipes.slice() : []
   let exhausted = !!alreadyExhausted
@@ -254,7 +272,7 @@ async function refillRecipePool(city, poolIds, recipes, buildOnce, extraBatches,
   for (let i = 0; i < maxExtra; i++) {
     if ((built.plans || []).length > 0) break
     if (exhausted) break
-    const batch = await loadRecipeBatch({ city, excludeIds: ids })
+    const batch = await loadRecipeBatch({ city, excludeIds: ids, cookSkill })
     exhausted = batch.exhausted
     if (!(batch.recipes || []).length) break
     const merged = mergeRecipeBatch(list, ids, batch.recipes)
@@ -427,7 +445,7 @@ async function handleCreate(event, uid, user) {
 
   const city = user.city || null
   const [batch, ingredientsByName, recent, members] = await Promise.all([
-    loadRecipeBatch({ city, excludeIds: [] }),
+    loadRecipeBatch({ city, excludeIds: [], cookSkill: user.cookSkill }),
     loadIngredientsCached(),
     loadRecentMealSignals(uid),
     loadMembers(uid)
@@ -488,7 +506,8 @@ async function handleCreate(event, uid, user) {
       recipes,
       buildOnce,
       RECIPE_REFILL_MAX,
-      recipePoolExhausted
+      recipePoolExhausted,
+      user.cookSkill
     )
     recipes = refilled.recipes
     recipePoolIds = refilled.recipePoolIds
@@ -544,7 +563,7 @@ async function handleSwapOrReject(event, uid, user, kind) {
   const [poolRecipes, ingredientsByName, recent, members] = await Promise.all([
     recipePoolIds.length
       ? loadRecipesByIds(recipePoolIds)
-      : loadRecipeBatch({ city, excludeIds: [] }).then((b) => {
+      : loadRecipeBatch({ city, excludeIds: [], cookSkill: user.cookSkill }).then((b) => {
           recipePoolExhausted = b.exhausted
           recipePoolIds = (b.recipes || []).map(recipeDocId).filter(Boolean)
           return b.recipes || []
@@ -607,7 +626,11 @@ async function handleSwapOrReject(event, uid, user, kind) {
   ) {
     // 池耗尽时先拉下一批再组；组空时也续拉
     if (isRecipePoolExhausted(recipePoolIds, excluded)) {
-      const batch = await loadRecipeBatch({ city, excludeIds: recipePoolIds })
+      const batch = await loadRecipeBatch({
+        city,
+        excludeIds: recipePoolIds,
+        cookSkill: user.cookSkill
+      })
       recipePoolExhausted = batch.exhausted
       const merged = mergeRecipeBatch(recipes, recipePoolIds, batch.recipes)
       recipes = merged.list
@@ -621,7 +644,8 @@ async function handleSwapOrReject(event, uid, user, kind) {
         recipes,
         buildOnce,
         RECIPE_REFILL_MAX,
-        recipePoolExhausted
+        recipePoolExhausted,
+        user.cookSkill
       )
       recipes = refilled.recipes
       recipePoolIds = refilled.recipePoolIds

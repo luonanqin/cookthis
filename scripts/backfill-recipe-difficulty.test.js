@@ -10,6 +10,8 @@ const {
   parseArgs,
   planProbeBackfill,
   applyProbeBackfill,
+  planInferredBackfill,
+  applyInferredBackfill,
   summarizeInferred,
   runBackfill
 } = require('./backfill-recipe-difficulty.js')
@@ -33,20 +35,31 @@ function fixtureRecipes() {
 describe('parseArgs', () => {
   it('defaults to dry-run', () => {
     assert.deepEqual(parseArgs(['node', 'backfill-recipe-difficulty.js']), {
-      applyProbeNames: false
+      applyProbeNames: false,
+      applyInferred: false
     })
   })
 
-  it('accepts --apply-probe-names', () => {
+  it('accepts --apply-probe-names and --apply-inferred', () => {
     assert.deepEqual(parseArgs(['node', 'backfill-recipe-difficulty.js', '--apply-probe-names']), {
-      applyProbeNames: true
+      applyProbeNames: true,
+      applyInferred: false
     })
+    assert.deepEqual(
+      parseArgs([
+        'node',
+        'backfill-recipe-difficulty.js',
+        '--apply-probe-names',
+        '--apply-inferred'
+      ]),
+      { applyProbeNames: true, applyInferred: true }
+    )
   })
 
-  it('rejects flags that would apply inferred difficulty', () => {
+  it('rejects unknown flags', () => {
     assert.throws(
-      () => parseArgs(['node', 'backfill-recipe-difficulty.js', '--apply-inferred']),
-      /unknown argument: --apply-inferred/
+      () => parseArgs(['node', 'backfill-recipe-difficulty.js', '--apply-all']),
+      /unknown argument: --apply-all/
     )
   })
 })
@@ -87,6 +100,30 @@ describe('applyProbeBackfill', () => {
   })
 })
 
+describe('applyInferredBackfill', () => {
+  it('fills blanks with inferDifficulty and never overwrites', () => {
+    const recipes = fixtureRecipes()
+    const plan = planInferredBackfill(recipes, inferDifficulty)
+    assert.deepEqual(
+      plan.toWrite.map((row) => [row.id, row.difficulty]),
+      [
+        ['a', 'easy'],
+        ['a2', 'home'],
+        ['c', 'easy'],
+        ['d', 'easy']
+      ]
+    )
+
+    const result = applyInferredBackfill(recipes, inferDifficulty)
+    assert.equal(result.written, 4)
+    assert.equal(recipes[0].difficulty, 'easy')
+    assert.equal(recipes[1].difficulty, 'home')
+    assert.equal(recipes[2].difficulty, 'home')
+    assert.equal(recipes[3].difficulty, 'easy')
+    assert.equal(recipes[4].difficulty, 'easy')
+  })
+})
+
 describe('summarizeInferred', () => {
   it('counts fallback difficulty without writing it', () => {
     const recipes = fixtureRecipes()
@@ -112,6 +149,7 @@ describe('runBackfill', () => {
       const result = runBackfill({
         recipesPath: file,
         applyProbeNames: false,
+        applyInferred: false,
         probeDishes: PROBES,
         inferDifficulty
       })
@@ -137,6 +175,7 @@ describe('runBackfill', () => {
       const result = runBackfill({
         recipesPath: file,
         applyProbeNames: true,
+        applyInferred: false,
         probeDishes: PROBES,
         inferDifficulty
       })
@@ -149,6 +188,34 @@ describe('runBackfill', () => {
       assert.equal(Object.hasOwn(after[3], 'difficulty'), false)
       assert.equal(Object.hasOwn(after[4], 'difficulty'), false)
       assert.match(result.report, /inferred difficulties were not written/)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('apply-probe-names+apply-inferred fills every blank; probe wins over infer', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'backfill-difficulty-'))
+    const file = path.join(dir, 'recipes-builtin.json')
+    fs.writeFileSync(file, JSON.stringify(fixtureRecipes(), null, 2) + '\n')
+
+    try {
+      const result = runBackfill({
+        recipesPath: file,
+        applyProbeNames: true,
+        applyInferred: true,
+        probeDishes: PROBES,
+        inferDifficulty
+      })
+      const after = JSON.parse(fs.readFileSync(file, 'utf8'))
+      assert.equal(result.written, 4)
+      assert.match(result.report, /mode: apply-probe-names\+apply-inferred/)
+      assert.equal(after[0].difficulty, 'easy')
+      // a2: minutes 25 would infer home, but probe name 番茄炒蛋 → easy
+      assert.equal(after[1].difficulty, 'easy')
+      assert.equal(after[2].difficulty, 'home')
+      assert.equal(after[3].difficulty, 'easy')
+      assert.equal(after[4].difficulty, 'easy')
+      assert.match(result.report, /after counts: easy=4 home=1 advanced=0 missing=0/)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }

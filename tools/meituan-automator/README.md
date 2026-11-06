@@ -79,6 +79,23 @@ MEITUAN_OCR_ENGINE=tesseract .venv/bin/python run_screenshot_pipeline.py
 .venv/bin/python run_screenshot_pipeline.py --local                      # inbox 全部
 ```
 
+## 录屏停稳抽帧 + 批 OCR
+
+手机美团滑菜单时录屏（滑—停—滑—停）。视频解码使用 OpenCV（opencv-python-headless），不调用 ffmpeg 命令行；macOS 上预期通过 AVFoundation 读取手机 H.264。事后：
+
+```bash
+cd tools/meituan-automator
+.venv/bin/pip install -r requirements.txt
+.venv/bin/python extract_still_frames.py /path/to/record.mp4
+# 默认写出 screenshots_inbox/_from_video/{视频名}/frame_XXXX.jpg
+# 停稳阈值默认 >0.2s；帧内容不去重
+
+.venv/bin/python ocr_video_frames.py screenshots_inbox/_from_video/{视频名}
+# → 同目录 ocr_raw.jsonl（每帧）+ dishes.txt（清洗后保序去重）
+```
+
+可选：`extract_still_frames.py --min-still 0.2 --diff-threshold 2.5 --out DIR`
+
 ## 食材大全（城货架 / 全量 / 别名）
 
 1. 清洗：`.venv/bin/python clean_city_products.py`  
