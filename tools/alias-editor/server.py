@@ -47,6 +47,11 @@ from city_recipes import (  # noqa: E402
     set_recipe_cities,
     write_recipes,
 )
+from recipe_difficulty import (  # noqa: E402
+    apply_difficulty_changes,
+    counts_by_difficulty,
+    group_by_difficulty,
+)
 
 
 def _lan_ips() -> list[str]:
@@ -473,6 +478,22 @@ class Handler(BaseHTTPRequestHandler):
                 },
             )
             return
+        if path == "/api/recipe-difficulty":
+            try:
+                recipes = load_recipes(RECIPES_BUILTIN_PATH)
+                by = group_by_difficulty(recipes)
+            except Exception as e:
+                self._json(500, {"error": str(e)})
+                return
+            self._json(
+                200,
+                {
+                    "byDifficulty": by,
+                    "counts": counts_by_difficulty(by),
+                    "path": str(RECIPES_BUILTIN_PATH),
+                },
+            )
+            return
         self._json(404, {"error": "not found"})
 
     def do_PUT(self) -> None:
@@ -513,6 +534,36 @@ class Handler(BaseHTTPRequestHandler):
                     "ok": True,
                     "recipe": updated,
                     "byCity": group_by_city(recipes),
+                    "path": str(RECIPES_BUILTIN_PATH),
+                },
+            )
+            return
+
+        if path == "/api/recipe-difficulty":
+            changes = body.get("changes")
+            if not isinstance(changes, dict) or not changes:
+                self._json(400, {"error": "changes object required"})
+                return
+            try:
+                recipes = load_recipes(RECIPES_BUILTIN_PATH)
+                updated, missing = apply_difficulty_changes(recipes, changes)
+                if updated:
+                    write_recipes(RECIPES_BUILTIN_PATH, recipes)
+                by = group_by_difficulty(recipes)
+            except ValueError as e:
+                self._json(400, {"error": str(e)})
+                return
+            except Exception as e:
+                self._json(500, {"error": str(e)})
+                return
+            self._json(
+                200,
+                {
+                    "ok": True,
+                    "updated": updated,
+                    "missing": missing,
+                    "byDifficulty": by,
+                    "counts": counts_by_difficulty(by),
                     "path": str(RECIPES_BUILTIN_PATH),
                 },
             )
@@ -585,40 +636,46 @@ class Handler(BaseHTTPRequestHandler):
             },
         )
 
+    def _run_import_recipes(self) -> None:
+        script = ROOT / "scripts" / "import-recipes.js"
+        try:
+            proc = subprocess.run(
+                ["node", str(script)],
+                cwd=str(ROOT),
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        except Exception as e:
+            self._json(500, {"error": str(e)})
+            return
+        if proc.returncode != 0:
+            self._json(
+                500,
+                {
+                    "error": "import-recipes failed",
+                    "stdout": (proc.stdout or "")[-2000:],
+                    "stderr": (proc.stderr or "")[-2000:],
+                },
+            )
+            return
+        self._json(
+            200,
+            {
+                "ok": True,
+                "stdout": (proc.stdout or "").strip(),
+                "importPath": str(CATALOG / "recipes-for-import.json"),
+            },
+        )
+
     def do_POST(self) -> None:
         path = urlparse(self.path).path
         parsed = urlparse(self.path)
-        if path == "/api/city-recipes/export-import":
-            script = ROOT / "scripts" / "import-recipes.js"
-            try:
-                proc = subprocess.run(
-                    ["node", str(script)],
-                    cwd=str(ROOT),
-                    capture_output=True,
-                    text=True,
-                    check=False,
-                )
-            except Exception as e:
-                self._json(500, {"error": str(e)})
-                return
-            if proc.returncode != 0:
-                self._json(
-                    500,
-                    {
-                        "error": "import-recipes failed",
-                        "stdout": (proc.stdout or "")[-2000:],
-                        "stderr": (proc.stderr or "")[-2000:],
-                    },
-                )
-                return
-            self._json(
-                200,
-                {
-                    "ok": True,
-                    "stdout": (proc.stdout or "").strip(),
-                    "importPath": str(CATALOG / "recipes-for-import.json"),
-                },
-            )
+        if path in (
+            "/api/city-recipes/export-import",
+            "/api/recipe-difficulty/export-import",
+        ):
+            self._run_import_recipes()
             return
         if path == "/api/avoid/vocab":
             length = int(self.headers.get("Content-Length") or 0)
