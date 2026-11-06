@@ -325,6 +325,10 @@
       flex-wrap: wrap;
       justify-content: flex-end;
     }
+    .diff-dirty-actions button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
     @media (max-width: 1100px) {
       .diff-grid { grid-template-columns: repeat(2, 1fr); }
     }
@@ -431,6 +435,8 @@
     let diffDraft = new Map();
     let pendingNav = null;
     let pendingMode = null;
+    let diffSaving = false;
+    let diffLoadSeq = 0;
 
     function loadCityUndo() {
       try {
@@ -465,6 +471,9 @@
     const $btnDiffConfirm = document.getElementById('btn-diff-confirm');
     const $btnDiffExport = document.getElementById('btn-diff-export');
     const $diffDirtyDialog = document.getElementById('diff-dirty-dialog');
+    const $diffDirtySave = document.getElementById('diff-dirty-save');
+    const $diffDirtyDiscard = document.getElementById('diff-dirty-discard');
+    const $diffDirtyCancel = document.getElementById('diff-dirty-cancel');
     const $avoidNav = document.getElementById('avoid-nav');
     const $avoidCodes = document.getElementById('avoid-codes');
     const $avoidPool = document.getElementById('avoid-pool');
@@ -535,7 +544,15 @@
     }
 
     function syncDiffConfirmEnabled() {
-      $btnDiffConfirm.disabled = diffDraft.size === 0;
+      $btnDiffConfirm.disabled = diffSaving || diffDraft.size === 0;
+    }
+
+    function setDiffSaving(locked) {
+      diffSaving = locked;
+      $diffDirtySave.disabled = locked;
+      $diffDirtyDiscard.disabled = locked;
+      $diffDirtyCancel.disabled = locked;
+      syncDiffConfirmEnabled();
     }
 
     function effectiveShownDifficulty(row) {
@@ -597,8 +614,10 @@
     }
 
     async function loadDifficulty() {
+      const seq = ++diffLoadSeq;
       const res = await fetch('/api/recipe-difficulty');
       const body = await res.json();
+      if (seq !== diffLoadSeq || mode !== 'difficulty') return;
       if (!res.ok) throw new Error(body.error || res.statusText);
       applyDifficultyPayload(body);
       renderDiffNav();
@@ -612,7 +631,9 @@
     }
 
     async function confirmDifficulty() {
+      if (diffSaving) return false;
       if (!diffDraft.size) return true;
+      setDiffSaving(true);
       setStatus('保存难度中…');
       try {
         const res = await fetch('/api/recipe-difficulty', {
@@ -626,13 +647,14 @@
         applyDifficultyPayload(body);
         renderDiffNav();
         renderDiffGrid();
-        syncDiffConfirmEnabled();
         const n = (body.updated || []).length;
         setStatus(`已确认 ${n} 道难度`, 'ok');
         return true;
       } catch (e) {
         setStatus('确认失败: ' + e.message, 'err');
         return false;
+      } finally {
+        setDiffSaving(false);
       }
     }
 
@@ -1590,23 +1612,30 @@
       }
     };
 
-    document.getElementById('diff-dirty-save').onclick = async () => {
+    $diffDirtySave.onclick = async () => {
+      if (diffSaving) return;
       const ok = await confirmDifficulty();
       if (!ok) return;
       runPendingDiffSwitch();
     };
-    document.getElementById('diff-dirty-discard').onclick = () => {
+    $diffDirtyDiscard.onclick = () => {
+      if (diffSaving) return;
       diffDraft.clear();
       syncDiffConfirmEnabled();
       renderDiffGrid();
       runPendingDiffSwitch();
     };
-    document.getElementById('diff-dirty-cancel').onclick = () => {
+    $diffDirtyCancel.onclick = () => {
+      if (diffSaving) return;
       pendingNav = null;
       pendingMode = null;
       $diffDirtyDialog.close();
     };
-    $diffDirtyDialog.addEventListener('cancel', () => {
+    $diffDirtyDialog.addEventListener('cancel', (e) => {
+      if (diffSaving) {
+        e.preventDefault();
+        return;
+      }
       pendingNav = null;
       pendingMode = null;
     });
