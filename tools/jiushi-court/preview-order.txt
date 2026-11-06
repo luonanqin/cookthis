@@ -1,0 +1,61 @@
+POST https://jsapp.jussyun.com/jiushi-core/voucher/preview-order HTTP/1.1
+content-type: application/json
+token: pg3btihQeQPrINbj9W0j3eW2mCGs42dt7YyGupt1jg7SooCL/ddp0D1Thq1YsEEikTVR+Fa1kWEemzBGJ+lyGN3V7IgvQ1Sdyn9lPEPj01I
+os_type: android
+device_type: iPhone 13<iPhone14,5>
+os_version: 
+fullmobile: 13641723359
+gw_channel: api
+app_id: 0ff444f417de34c1352af3b3ffc30348
+js_sign: NzQ0NDkzNWIwYWYwNmMyYWYyZGMwZmQ2ODM1YmFjYTg=
+Accept-Charset: UTF-8
+referer: https://9000000000000001.jsapp-intranet.jussyun.com/9000000000000001/1.0.263.0/index.html#packageAgency/VenueSubmit/VenueSubmit
+Cookie: cdn_sec_tc=3b53e08b17934595430532967eb7b67fbc69675aec60896d0923693df1; acw_tc=0a05730c17934595430741370e6b6f75981f698d98ad375c262cad65285947
+User-Agent: Mozilla/5.0 (Linux; Android 12; 23013RK75C Build/W528JS; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/95.0.4638.74 Safari/537.36 UCBS/Chrome/95.0.4638.74 AlipayDefined AriverApp(mPaaSClient/10.2.8) MiniProgram
+Content-Length: 54
+Host: jsapp.jussyun.com
+Connection: Keep-Alive
+
+{
+    "itemId": "59",
+    "sceneType": "VENUE",
+    "orderAmount": 6000
+}
+
+HTTP/1.1 200 OK
+Server: ESA
+Content-Type: application/json
+Content-Length: 128
+Connection: keep-alive
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+x-frame-options: SAMEORIGIN
+referrer-policy: same-origin
+expect-ct: max-age=86400, enforce
+Strict-Transport-Security: max-age=15552000
+strict-transport-security: max-age=15552000
+strict-transport-security: max-age=31536000
+date: Sat, 31 Oct 2026 15:21:15 GMT
+vary: Accept-Encoding, Origin
+vary: Origin
+via: ens-cache14.l2eo166-17[48,0,DP], ens-cache18.cn4516[64,0,DP], ens-cache18.cn4516[64,0], ens-cache10.cn4516[74,0,ER], ens-cache31.cn4516[75,0], ens-cache31.cn4516[75,0]
+x-site-cache-status: DYNAMIC
+x-ratelimit-limit: 1400
+x-ratelimit-remaining: 1399
+access-control-allow-origin: *
+access-control-allow-methods: *
+access-control-allow-headers: *
+access-control-max-age: 5
+access-control-expose-headers: *
+timing-allow-origin: *, *
+eagleid: 6f01a43317934600750667024e, 6f01a43317934600750667024e, 6f01a43317934600750667024e
+
+{
+    "data": {
+        "enableFlowList": [],
+        "unableFlowList": []
+    },
+    "rtnCode": "10000",
+    "rtnMessage": "成功",
+    "traceId": "AC109CD317934600751133593"
+}

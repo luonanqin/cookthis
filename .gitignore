@@ -4,6 +4,9 @@ miniprogram_npm/
 *.log
 .superpowers/
 .worktrees/
+.manus/
+.vscode/
+design-archive/
 project.private.config.json
 
 .venv/

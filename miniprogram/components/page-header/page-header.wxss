@@ -1,0 +1,91 @@
+.page-header-host {
+  width: 100%;
+}
+
+/* 全页吸顶：固定在视口顶部 */
+.page-header {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 100;
+  background: var(--color-header);
+  box-sizing: border-box;
+}
+
+.page-header__inner {
+  position: relative;
+  overflow: hidden;
+  /* 紧凑页眉，少占屏高；状态栏另计 */
+  min-height: 200rpx;
+  box-sizing: border-box;
+  background: var(--color-header);
+}
+
+.page-header__art {
+  position: absolute;
+  right: 0;
+  /* heightFix：高度铺满插画区，宽度按比例缩放，整图不裁切 */
+  width: auto;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.page-header__bar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  padding-left: 4rpx;
+  box-sizing: border-box;
+}
+
+.page-header__back,
+.page-header__back-spacer {
+  width: 96rpx;
+  height: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.page-header__back {
+  border-radius: 50%;
+  background: rgba(255, 254, 250, 0.86);
+}
+
+.page-header__back-icon {
+  width: 64rpx;
+  height: 64rpx;
+}
+
+.page-header__content {
+  position: relative;
+  z-index: 1;
+  width: 54%;
+  max-width: 420rpx;
+  padding: 0 0 16rpx 36rpx;
+  box-sizing: border-box;
+}
+
+.page-header__title {
+  font-size: 44rpx;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--color-forest);
+  letter-spacing: 1rpx;
+}
+
+.page-header__subtitle {
+  margin-top: 6rpx;
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+}
+
+.page-header-spacer {
+  width: 100%;
+  box-sizing: border-box;
+  pointer-events: none;
+}

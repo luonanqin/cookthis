@@ -1,0 +1,38 @@
+<view class="page-header-host">
+  <view class="page-header" style="padding-top: {{padTop}}px;">
+    <view class="page-header__inner">
+      <image
+        class="page-header__art"
+        src="/assets/images/inner-header-market-with-board.webp"
+        mode="heightFix"
+        style="top: {{navBarHeight}}px; height: calc(100% - {{navBarHeight}}px);"
+        aria-hidden="true"
+      />
+      <view class="page-header__bar" style="min-height: {{navBarHeight}}px;">
+        <view
+          wx:if="{{showBack}}"
+          class="page-header__back"
+          hover-class="tap-hover"
+          hover-stay-time="80"
+          bindtap="onBack"
+          aria-role="button"
+          aria-label="返回"
+        >
+          <image
+            class="page-header__back-icon"
+            src="/assets/images/icons/arrow-left-green.png"
+            mode="aspectFit"
+            aria-hidden="true"
+          />
+        </view>
+        <view wx:else class="page-header__back-spacer"></view>
+      </view>
+      <view class="page-header__content">
+        <view class="page-header__title">{{title}}</view>
+        <view wx:if="{{subtitle}}" class="page-header__subtitle">{{subtitle}}</view>
+      </view>
+    </view>
+  </view>
+  <!-- 占位，避免 fixed 后下方内容上顶 -->
+  <view class="page-header-spacer" style="height: {{spacerHeight}}px;" aria-hidden="true"></view>
+</view>

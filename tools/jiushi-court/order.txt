@@ -1,0 +1,65 @@
+POST https://jsapp.jussyun.com/jiushi-core/venue/bookVenue/v2 HTTP/1.1
+wToken: 0003_A1929E345234FA97466E4D75F5C06A2A8B7097AD07D42D124CB1054DEFE5C7F037011A29FB49E5DC70B50F44EE272512F6E62B15D6D9al6/l1HaoiRirGl0789POYUdJx2LGTEzOMP4tWPl4DivclDz99Bu8fglzLMgsEsSAn058CRnshKhbaDJJsJWwH149fnOyWKhcsyftA3KWhLvDJSiTBxMnhyHmB4Whgf9oKEbCqODHcLzs/KAUahnCd+2A6oClhpiUC/wpjtQPRScD3hNVB/eESQfAqK5MNjSMEKJUvwhuCgro3Dg1Ir6+uhhKepek4CFzF9nil5RQZWD82vO4oowouTOdXMwttQ6LkApjBGKHNuymUVViPnmpOYXvtryaHk3A0Cpeh0AZUMkbBmvSzJ09k2nOiQcnMO5zRmpGLNGL9Jrr0S0ot5sDlEhrMBuG1qwyeBF144X63urgEIvxtQhMepZPF7/zwAQFXtuVPUOG+L/D7JtjIcSM4ukRyUCPhi5uQahmePNG+WnyUniSIeFD7vbA8AEoRbcKrnby+m4G++BtOPOcrtyyUDH3qSlcSM6AVLOpXyrxD5DCxnaVcD61GapRYQpMOjqNzVshicgVQ4GmDlRAj0klGUMM1TlFUY5woLZPf0RSNE=_MDEySEpMTjZ2SWdFYVdReDF6YkZHTUp4NEhmN2VhS2M0aDVtSDY5dHZja1pRaXhUMjNMLW5MTDlWVTRkQlo4TEZqYnotMXpwbjU0OXFEUEl4a05Ga213ZVNOY2hERVlnZUVLUkQ5WF85bmY1QXwwNU5pdnU3QnZQYTBEdDUwUnd4UFhTc2RtSXdKeXBmZXJnTHkzWGc0WWl4LTVxakhybWFvRVhkTHNVcmY4Z0U2ZGtuUmhyZzRwYlFVX1lhelFrelZ2ZmVnZ0xJSGdaNzZLZS1MUnRHLXVYZWhzeEJ0NG4wX3ZBRXE4NnRvUG5lUEJqRjRONXJSZ2tCUWpSdXptUktwSUlBcEFoanRCOXhsRFBIZmMwbks4ZDJueE5GOE93UjVXY09Rdk43TTlQOG11bWFRVGNRYzIxcmtEUEJiVi1FTEd6cDQwcWRRMkNWMFlUa1dTNnpkQV9lMzdCS2pWbngwNnpaaHFOa3Z2cnVIZnJmRXRyQnFlVGNOYUE5R2Z0S3RfXzJMOHZCd0pmUVNhbEpGRHZBdjBSS0FNfDBhMDU3MzFjMTc5MzQ2MTIwMDA2MDI1MzZlN2EwOHw=
+Host: jsapp.jussyun.com
+ali_sign_whash: ccf2260267038301e5d5278e5263936cd7e09190412a878fa99c3b0ba995358c
+token: pg3btihQeQPrINbj9W0j3eW2mCGs42dt7YyGupt1jg7SooCL/ddp0D1Thq1YsEEikTVR+Fa1kWEemzBGJ+lyGN3V7IgvQ1Sdyn9lPEPj01I
+access-key: 
+deviceId: 6165731d650f443f1a2b3c
+device_type: 23013RK75C
+os_version: 12
+os_type: android
+app_version: 1.7.6
+version: 1.7.6
+fullmobile: 13641723359
+app_id: 0ff444f417de34c1352af3b3ffc30348
+gw_channel: api
+js_sign: MjhlNmRlMTI5M2U2MTNkYWMyZWU1Y2ZhYzM3YmZjNDY=
+Content-Type: application/json
+Content-Length: 529
+Connection: Keep-Alive
+Accept-Encoding: gzip
+Cookie: cdn_sec_tc=3b53e09717934595361871228e23fad66d0afdc7f3a0dec595f0ee9139; acw_tc=0a05837d17934595363842869e5f4a01e6dd73ada34f1ee0b6636228cd9a81
+User-Agent: okhttp/4.10.0
+
+{
+    "ciphertext": "MtkvBUe/nN8UjbXSNBam2SJ6vnLjpBkv2BFml164CJ1YMadAzANP/wYLKm+M7SY8L+l3D8X53w1rfoMibwvPWV/EoKfSfgxK2aU0cWL5BEQ6KiJ/r4a7JunpfBDlTUOjXSF0CIMTgQwHJ50Do4mojPBG937nOr0jqg0MK9qK04PbhBaPPnrsH/3OdSUyWsVDHx7YKc/Rv9yUXQvJsG0Ps4lyO/EsxCL5mqHggks7ApOljMgcQefseoN+JX3KZCs1zd/kJqWCOkf4UtG+vwOayEw7P943GmGFul7fgdN5q8717UJAmCqcFGAaUPzRWH+sbr/Q22DybRRr7Job9X074C4ZQrU3h+uf9V6cqBOlfCZWbTe9ue1M39hnzOSAngojJoHVF66D+XvIHJr0zBRNAoexeJmph9pRKjtf7kyzywzao1Htlnmiuc/OUFLYZ5mrNtupH6740wTt5f6C6e2lx5gQeW047UfPijcE/2ZH7UYocvEZ8pOy/Q+WCwPAgsCf"
+}
+
+HTTP/1.1 200 OK
+Server: ESA
+Content-Type: application/json
+Transfer-Encoding: chunked
+Connection: keep-alive
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+x-frame-options: SAMEORIGIN
+referrer-policy: same-origin
+expect-ct: max-age=86400, enforce
+Strict-Transport-Security: max-age=15552000
+strict-transport-security: max-age=15552000
+strict-transport-security: max-age=31536000
+date: Sat, 31 Oct 2026 15:40:04 GMT
+vary: Accept-Encoding, Origin
+vary: Origin
+via: ens-cache76.l2eo166-17[300,0,DP], ens-cache6.cn4502[331,0,DP], ens-cache6.cn4502[341,0], ens-cache22.cn4502[349,0,ER], ens-cache2.cn4502[389,0], ens-cache2.cn4502[499,0]
+x-site-cache-status: DYNAMIC
+x-ratelimit-limit: 1400
+x-ratelimit-remaining: 1399
+access-control-allow-origin: *
+access-control-allow-methods: *
+access-control-allow-headers: *
+access-control-max-age: 5
+access-control-expose-headers: *
+timing-allow-origin: *, *
+eagleid: df6f1b1617934612043161998e, df6f1b1617934612043161998e, df6f1b1617934612043161998e
+
+{
+    "data": {
+        "orderId": "20261031234004643603036261540129",
+        "orderState": "PAY_WAIT",
+        "unifiedPayOrderId": "20261031234004102011187428772"
+    },
+    "rtnCode": "10000",
+    "rtnMessage": "成功",
+    "traceId": "AC109A0C17934612046378005"
+}
