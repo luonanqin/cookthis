@@ -46,7 +46,7 @@ python3 tools/alias-editor/server.py
 - 数据：`recipes-builtin.json` 的 `difficulty`（easy / home / advanced）
 - 左栏三档浏览；右侧三列展示菜名、主料、三档按钮
 - 点选只进草稿；「确认修改」才写 builtin
-- 有未确认草稿时切档/切 Tab 会弹窗：保存 / 放弃 / 取消
+- 有未确认草稿时切档/切 Tab 会弹窗：保存并切换 / 放弃并切换 / 取消
 - 「导出 for-import」：生成 `recipes-for-import.json`（有草稿时先处理草稿）；再手工导云库
 
 ## 导回 aliases.json（供云函数 / 小程序）
