@@ -274,6 +274,63 @@
       color: var(--muted);
       font-weight: 600;
     }
+
+    .diff-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .diff-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .diff-name { font-weight: 600; }
+    .diff-mains {
+      color: var(--muted);
+      font-size: 12px;
+      margin: 4px 0 8px;
+      min-height: 1.35em;
+    }
+    .diff-levels { display: flex; gap: 4px; flex-wrap: wrap; }
+    .diff-levels button.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    #btn-diff-confirm:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    #btn-diff-confirm:disabled:hover {
+      border-color: var(--accent);
+      color: #fff;
+    }
+    #diff-dirty-dialog {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 16px 18px;
+      max-width: 360px;
+      color: var(--ink);
+      background: var(--card);
+    }
+    #diff-dirty-dialog::backdrop {
+      background: rgba(28, 25, 23, 0.35);
+    }
+    #diff-dirty-dialog p { margin: 0 0 12px; }
+    .diff-dirty-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    @media (max-width: 1100px) {
+      .diff-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 700px) {
+      .diff-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -283,12 +340,15 @@
       <button type="button" id="tab-alias" class="active" data-mode="alias">别名</button>
       <button type="button" id="tab-avoid" data-mode="avoid">忌口</button>
       <button type="button" id="tab-city" data-mode="city">城菜</button>
+      <button type="button" id="tab-difficulty" data-mode="difficulty">难度</button>
     </div>
     <span id="status" class="status">加载中…</span>
     <span style="flex:1"></span>
     <button type="button" id="btn-avoid-bootstrap" hidden title="按 builtin 现有 avoidTags 反填六码成员">从 builtin 灌入</button>
     <button type="button" id="btn-avoid-export" hidden title="按底稿全量重算 builtin avoidTags">导出到 builtin</button>
     <button type="button" id="btn-city-export" hidden title="根据当前 recipes-builtin 生成 recipes-for-import.json">导出 for-import</button>
+    <button type="button" class="primary" id="btn-diff-confirm" hidden disabled title="将草稿难度写入 recipes-builtin">确认修改</button>
+    <button type="button" id="btn-diff-export" hidden title="根据当前 recipes-builtin 生成 recipes-for-import.json">导出 for-import</button>
     <button type="button" id="btn-sync" title="按最新 ingredients-all 刷新品类，并把新名字补进未分组（不动已有别名组）">同步全量</button>
     <button type="button" id="btn-reset" title="从 aliases.json 重新初始化（会覆盖当前编辑！）">重置初始化</button>
   </header>
@@ -329,13 +389,28 @@
       <div class="chips" id="city-list"></div>
     </main>
   </div>
+  <div id="diff-pane" class="pane layout" hidden>
+    <nav id="diff-nav"></nav>
+    <main>
+      <p class="hint">左栏按已落盘难度分档。点选三档只进草稿（高亮待改档），确认后才写回 recipes-builtin。有草稿时切档或切 Tab 会询问是否保存。</p>
+      <div id="diff-grid" class="diff-grid"></div>
+    </main>
+  </div>
+  <dialog id="diff-dirty-dialog">
+    <p>有未保存的难度修改，是否保存？</p>
+    <div class="diff-dirty-actions">
+      <button type="button" id="diff-dirty-save">保存并切换</button>
+      <button type="button" id="diff-dirty-discard">放弃并切换</button>
+      <button type="button" id="diff-dirty-cancel">取消</button>
+    </div>
+  </dialog>
   <div id="ctx-menu" role="menu" hidden></div>
   <script>
     let data = null;
     let currentCat = null;
     let dragPayload = null; // { name, fromCat, fromKind: 'group'|'ungrouped', groupId? }
     let didDrag = false;
-    let mode = 'alias'; // 'alias' | 'avoid' | 'city'
+    let mode = 'alias'; // 'alias' | 'avoid' | 'city' | 'difficulty'
     let avoidVocab = [];
     let avoidMembers = {};
     let canonsByCategory = {};
@@ -346,6 +421,16 @@
     const CITY_UNDO_KEY = 'cookthis_city_recipe_undo_v1';
     /** @type {Map<string, {id:string,name:string,cities:string[],mainIngredients:string[],meatVeg?:string}>} */
     let cityUndo = new Map();
+    const DIFF_ORDER = ['easy', 'home', 'advanced'];
+    const DIFF_LABELS = { easy: '轻松上手', home: '家常水平', advanced: '进阶一点' };
+    const DIFF_SHORT = { easy: '轻松', home: '家常', advanced: '进阶' };
+    let diffBy = { easy: [], home: [], advanced: [] };
+    let diffCounts = { easy: 0, home: 0, advanced: 0 };
+    let currentDiff = 'easy';
+    /** @type {Map<string, string>} */
+    let diffDraft = new Map();
+    let pendingNav = null;
+    let pendingMode = null;
 
     function loadCityUndo() {
       try {
@@ -374,6 +459,12 @@
     const $aliasPane = document.getElementById('alias-pane');
     const $avoidPane = document.getElementById('avoid-pane');
     const $cityPane = document.getElementById('city-pane');
+    const $diffPane = document.getElementById('diff-pane');
+    const $diffNav = document.getElementById('diff-nav');
+    const $diffGrid = document.getElementById('diff-grid');
+    const $btnDiffConfirm = document.getElementById('btn-diff-confirm');
+    const $btnDiffExport = document.getElementById('btn-diff-export');
+    const $diffDirtyDialog = document.getElementById('diff-dirty-dialog');
     const $avoidNav = document.getElementById('avoid-nav');
     const $avoidCodes = document.getElementById('avoid-codes');
     const $avoidPool = document.getElementById('avoid-pool');
@@ -393,25 +484,170 @@
       $status.className = 'status' + (cls ? ' ' + cls : '');
     }
 
-    function setMode(next) {
-      mode = next === 'avoid' ? 'avoid' : next === 'city' ? 'city' : 'alias';
+    function resolveMode(next) {
+      if (next === 'avoid' || next === 'city' || next === 'difficulty') return next;
+      return 'alias';
+    }
+
+    function applyMode(next) {
+      mode = resolveMode(next);
       document.getElementById('tab-alias').classList.toggle('active', mode === 'alias');
       document.getElementById('tab-avoid').classList.toggle('active', mode === 'avoid');
       document.getElementById('tab-city').classList.toggle('active', mode === 'city');
+      document.getElementById('tab-difficulty').classList.toggle('active', mode === 'difficulty');
       $aliasPane.hidden = mode !== 'alias';
       $avoidPane.hidden = mode !== 'avoid';
       $cityPane.hidden = mode !== 'city';
+      $diffPane.hidden = mode !== 'difficulty';
       $btnReset.hidden = mode !== 'alias';
-      $btnSync.hidden = mode === 'city';
+      $btnSync.hidden = mode === 'city' || mode === 'difficulty';
       $btnBootstrap.hidden = mode !== 'avoid';
       $btnExport.hidden = mode !== 'avoid';
       $btnCityExport.hidden = mode !== 'city';
+      $btnDiffConfirm.hidden = mode !== 'difficulty';
+      $btnDiffExport.hidden = mode !== 'difficulty';
       if (mode === 'avoid') {
         loadAvoid().catch((e) => setStatus('忌口加载失败: ' + e.message, 'err'));
       }
       if (mode === 'city') {
         loadCityRecipes().catch((e) => setStatus('城菜加载失败: ' + e.message, 'err'));
       }
+      if (mode === 'difficulty') {
+        loadDifficulty().catch((e) => setStatus('难度加载失败: ' + e.message, 'err'));
+      }
+    }
+
+    function setMode(next) {
+      const resolved = resolveMode(next);
+      if (mode === 'difficulty' && resolved !== 'difficulty' && diffDraft.size > 0) {
+        pendingNav = null;
+        pendingMode = resolved;
+        $diffDirtyDialog.showModal();
+        return;
+      }
+      applyMode(resolved);
+    }
+
+    function applyDifficultyPayload(body) {
+      diffBy = (body && body.byDifficulty) || { easy: [], home: [], advanced: [] };
+      diffCounts = (body && body.counts) || { easy: 0, home: 0, advanced: 0 };
+      if (!DIFF_ORDER.includes(currentDiff)) currentDiff = 'easy';
+    }
+
+    function syncDiffConfirmEnabled() {
+      $btnDiffConfirm.disabled = diffDraft.size === 0;
+    }
+
+    function effectiveShownDifficulty(row) {
+      return diffDraft.has(row.id) ? diffDraft.get(row.id) : row.difficulty;
+    }
+
+    function renderDiffNav() {
+      $diffNav.innerHTML = '';
+      for (const lv of DIFF_ORDER) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = `${DIFF_LABELS[lv]} ${diffCounts[lv] || 0}`;
+        if (lv === currentDiff) b.classList.add('active');
+        b.onclick = () => requestDiffNav(lv);
+        $diffNav.appendChild(b);
+      }
+    }
+
+    function requestDiffNav(next) {
+      if (next === currentDiff) return;
+      if (diffDraft.size > 0) {
+        pendingMode = null;
+        pendingNav = next;
+        $diffDirtyDialog.showModal();
+        return;
+      }
+      currentDiff = next;
+      renderDiffNav();
+      renderDiffGrid();
+    }
+
+    function renderDiffGrid() {
+      const list = diffBy[currentDiff] || [];
+      $diffGrid.innerHTML = '';
+      for (const row of list) {
+        const card = document.createElement('div');
+        card.className = 'diff-card';
+        const shown = effectiveShownDifficulty(row);
+        const mains = (row.mainIngredients || []).join('、') || '（无主料）';
+        card.innerHTML = '<div class="diff-name"></div><div class="diff-mains"></div><div class="diff-levels"></div>';
+        card.querySelector('.diff-name').textContent = row.name || row.id;
+        card.querySelector('.diff-mains').textContent = mains;
+        const levels = card.querySelector('.diff-levels');
+        for (const lv of DIFF_ORDER) {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.textContent = DIFF_SHORT[lv];
+          if (shown === lv) b.classList.add('active');
+          b.addEventListener('click', () => {
+            if (lv === row.difficulty) diffDraft.delete(row.id);
+            else diffDraft.set(row.id, lv);
+            syncDiffConfirmEnabled();
+            renderDiffGrid();
+          });
+          levels.appendChild(b);
+        }
+        $diffGrid.appendChild(card);
+      }
+    }
+
+    async function loadDifficulty() {
+      const res = await fetch('/api/recipe-difficulty');
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error || res.statusText);
+      applyDifficultyPayload(body);
+      renderDiffNav();
+      renderDiffGrid();
+      syncDiffConfirmEnabled();
+      const total = DIFF_ORDER.reduce((n, k) => n + (diffCounts[k] || 0), 0);
+      setStatus(
+        `难度 ${total} 道 · 轻松 ${diffCounts.easy || 0} / 家常 ${diffCounts.home || 0} / 进阶 ${diffCounts.advanced || 0}`,
+        'ok'
+      );
+    }
+
+    async function confirmDifficulty() {
+      if (!diffDraft.size) return true;
+      setStatus('保存难度中…');
+      try {
+        const res = await fetch('/api/recipe-difficulty', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ changes: Object.fromEntries(diffDraft) }),
+        });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error || res.statusText);
+        diffDraft.clear();
+        applyDifficultyPayload(body);
+        renderDiffNav();
+        renderDiffGrid();
+        syncDiffConfirmEnabled();
+        const n = (body.updated || []).length;
+        setStatus(`已确认 ${n} 道难度`, 'ok');
+        return true;
+      } catch (e) {
+        setStatus('确认失败: ' + e.message, 'err');
+        return false;
+      }
+    }
+
+    function runPendingDiffSwitch() {
+      const nav = pendingNav;
+      const nextMode = pendingMode;
+      pendingNav = null;
+      pendingMode = null;
+      if ($diffDirtyDialog.open) $diffDirtyDialog.close();
+      if (nav) {
+        currentDiff = nav;
+        renderDiffNav();
+        renderDiffGrid();
+      }
+      if (nextMode) applyMode(nextMode);
     }
 
     async function loadCityRecipes() {
@@ -1330,7 +1566,50 @@
     document.getElementById('tab-alias').onclick = () => setMode('alias');
     document.getElementById('tab-avoid').onclick = () => setMode('avoid');
     document.getElementById('tab-city').onclick = () => setMode('city');
+    document.getElementById('tab-difficulty').onclick = () => setMode('difficulty');
     bindAvoidDrops();
+
+    $btnDiffConfirm.onclick = () => {
+      confirmDifficulty();
+    };
+
+    $btnDiffExport.onclick = async () => {
+      if (diffDraft.size > 0) {
+        alert('有未保存的难度修改，请先确认或放弃后再导出。');
+        return;
+      }
+      setStatus('导出 for-import 中…');
+      try {
+        const res = await fetch('/api/recipe-difficulty/export-import', { method: 'POST' });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error || body.stderr || res.statusText);
+        setStatus('已生成 recipes-for-import.json，可导入云库 recipes', 'ok');
+        alert(body.stdout || 'ok');
+      } catch (e) {
+        setStatus('导出失败: ' + e.message, 'err');
+      }
+    };
+
+    document.getElementById('diff-dirty-save').onclick = async () => {
+      const ok = await confirmDifficulty();
+      if (!ok) return;
+      runPendingDiffSwitch();
+    };
+    document.getElementById('diff-dirty-discard').onclick = () => {
+      diffDraft.clear();
+      syncDiffConfirmEnabled();
+      renderDiffGrid();
+      runPendingDiffSwitch();
+    };
+    document.getElementById('diff-dirty-cancel').onclick = () => {
+      pendingNav = null;
+      pendingMode = null;
+      $diffDirtyDialog.close();
+    };
+    $diffDirtyDialog.addEventListener('cancel', () => {
+      pendingNav = null;
+      pendingMode = null;
+    });
 
     $btnCityExport.onclick = async () => {
       setStatus('导出 for-import 中…');
