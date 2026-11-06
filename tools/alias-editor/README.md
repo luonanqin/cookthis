@@ -41,6 +41,14 @@ python3 tools/alias-editor/server.py
 - 「导出 for-import」：跑 `scripts/import-recipes.js` 生成 `recipes-for-import.json`，再手工导入云库 `recipes`
 - 本期不支持改多城列表 / 改用料
 
+## 难度 Tab
+
+- 数据：`recipes-builtin.json` 的 `difficulty`（easy / home / advanced）
+- 左栏三档浏览；右侧三列展示菜名、主料、三档按钮
+- 点选只进草稿；「确认修改」才写 builtin
+- 有未确认草稿时切档/切 Tab 会弹窗：保存 / 放弃 / 取消
+- 「导出 for-import」：生成 `recipes-for-import.json`（有草稿时先处理草稿）；再手工导云库
+
 ## 导回 aliases.json（供云函数 / 小程序）
 
 确认编辑稿后：
