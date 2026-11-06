@@ -24,11 +24,30 @@
   margin-top: 12rpx;
 }
 
+.section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-bottom: 16rpx;
+}
+
 .section-title {
   font-size: var(--fs-lead);
   font-weight: 600;
-  margin-bottom: 12rpx;
+  margin-bottom: 0;
   color: var(--color-forest);
+  flex-shrink: 0;
+}
+
+.section-aside {
+  flex: 1;
+  min-width: 0;
+  margin-top: 4rpx;
+  text-align: right;
+  font-size: var(--fs-caption);
+  line-height: 1.35;
+  color: var(--color-text-secondary, #888);
 }
 
 .hint,
@@ -291,9 +310,9 @@
   color: var(--color-primary);
 }
 
-/* 引导底栏：多按钮均分宽度，高度与全站一致，避免挤出屏 */
+/* 引导底栏：多按钮均分宽度，高度与全站一致；单按钮时居中 */
 .footer {
-  justify-content: stretch;
+  justify-content: center;
   gap: 12rpx;
   flex-wrap: nowrap;
 }

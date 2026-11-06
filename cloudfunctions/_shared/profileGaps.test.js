@@ -10,14 +10,22 @@ describe('computeProfileGaps', () => {
     membersCount: 0,
     city: '',
     cuisinePrefs: {},
-    cuisinePrefsConfirmedAt: null
+    cuisinePrefsConfirmedAt: null,
+    cookSkillProbeDishIds: []
   }
 
   it('all open for empty skip-onboarding style user', () => {
     const g = computeProfileGaps(base)
-    assert.deepEqual(g.gaps, ['family_avoids', 'members', 'city', 'cuisine'])
+    assert.deepEqual(g.gaps, [
+      'family_avoids',
+      'members',
+      'city',
+      'cook_skill',
+      'cuisine'
+    ])
     assert.equal(g.recommendBanner, true)
     assert.equal(g.anyOpen, true)
+    assert.equal(g.cookSkillOpen, true)
   })
 
   it('skip lite does not close family_avoids (still open with empty avoids)', () => {
@@ -51,12 +59,20 @@ describe('computeProfileGaps', () => {
     assert.equal(g.cuisineOpen, false)
   })
 
+  it('probe dish ids close cook_skill gap', () => {
+    const g = computeProfileGaps(
+      Object.assign({}, base, { cookSkillProbeDishIds: ['easy-1'] })
+    )
+    assert.equal(g.cookSkillOpen, false)
+    assert.ok(!g.gaps.includes('cook_skill'))
+  })
+
   it('members and city', () => {
     const g = computeProfileGaps(
       Object.assign({}, base, { membersCount: 1, city: '杭州市', familyAvoidsNone: true })
     )
     assert.equal(g.membersOpen, false)
     assert.equal(g.cityOpen, false)
-    assert.deepEqual(g.gaps, ['cuisine'])
+    assert.deepEqual(g.gaps, ['cook_skill', 'cuisine'])
   })
 })

@@ -24,6 +24,39 @@ function readProbeCounts(user) {
   return { easy: n(counts.easy), home: n(counts.home), advanced: n(counts.advanced) }
 }
 
+/** 探针勾选 id；非法项丢弃。与 profile/cookSkillPersist.sanitizeProbeDishIds 词表对齐。 */
+const PROBE_DISH_ID_SET = new Set([
+  'easy-1',
+  'easy-2',
+  'easy-3',
+  'easy-4',
+  'easy-5',
+  'home-1',
+  'home-2',
+  'home-3',
+  'home-4',
+  'home-5',
+  'advanced-1',
+  'advanced-2',
+  'advanced-3',
+  'advanced-4',
+  'advanced-5'
+])
+
+function readProbeDishIds(user) {
+  const ids = user && user.cookSkillProbeDishIds
+  if (!Array.isArray(ids)) return []
+  const out = []
+  const seen = new Set()
+  for (let i = 0; i < ids.length; i++) {
+    const id = ids[i]
+    if (typeof id !== 'string' || !PROBE_DISH_ID_SET.has(id) || seen.has(id)) continue
+    seen.add(id)
+    out.push(id)
+  }
+  return out
+}
+
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 
@@ -95,6 +128,7 @@ exports.main = async (event) => {
       onboardingDone: user.onboardingDone == null ? true : !!user.onboardingDone,
       cookSkill: readCookSkill(user),
       cookSkillProbeCounts: readProbeCounts(user),
+      cookSkillProbeDishIds: readProbeDishIds(user),
       profileLiteSkipped: !!user.profileLiteSkipped,
       profileLitePromptedAt: user.profileLitePromptedAt || null,
       defaultPeopleCount: members.length,
@@ -167,6 +201,7 @@ exports.main = async (event) => {
     onboardingDone: false,
     cookSkill: null,
     cookSkillProbeCounts: null,
+    cookSkillProbeDishIds: [],
     profileLiteSkipped: false,
     profileLitePromptedAt: null,
     defaultPeopleCount: 0,

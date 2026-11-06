@@ -80,6 +80,28 @@
   color: #e54d42;
 }
 
+.title-warn {
+  color: #e54d42 !important;
+}
+
+.title-pulse {
+  display: inline-block;
+  animation: title-flash 0.45s ease 2;
+}
+
+@keyframes title-flash {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(0.88);
+  }
+  65% {
+    transform: scale(1.06);
+  }
+}
+
 .hint,
 .sub {
   color: var(--color-text-secondary, #888);

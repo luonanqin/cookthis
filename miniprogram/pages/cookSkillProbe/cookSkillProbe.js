@@ -39,7 +39,13 @@ Page({
   onSubmit() {
     if (this._submitting || this._settled) return
     const plan = retakeCloudCall('submit', this.data.probeChecked)
-    if (!plan.payload) return
+    if (!plan.payload) {
+      wx.showToast({
+        title: plan.error === 'EMPTY_PROBE' ? '请至少勾选一道' : '请先勾选',
+        icon: 'none'
+      })
+      return
+    }
     tapFeedback()
     this._submitting = true
     this.setData({ busy: true })

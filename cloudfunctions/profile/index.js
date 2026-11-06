@@ -14,6 +14,7 @@ const { effectiveFromChoice, appendHistory } = require('./marketScale.js')
 const { checkCityChange } = require('./accessGuard.js')
 const {
   onboardingCookSkillPatch,
+  storedProbeDishIds,
   planSaveCookSkillProbe,
   storedCookSkill,
   storedProbeCounts
@@ -151,6 +152,7 @@ async function handleGet(uid) {
       onboardingDone: !!user.onboardingDone,
       cookSkill: storedCookSkill(user.cookSkill),
       cookSkillProbeCounts: storedProbeCounts(user.cookSkillProbeCounts),
+      cookSkillProbeDishIds: storedProbeDishIds(user.cookSkillProbeDishIds) || [],
       profileLiteSkipped: !!user.profileLiteSkipped,
       profileLitePromptedAt: user.profileLitePromptedAt || null,
       householdSummary: household.label,
@@ -421,8 +423,10 @@ async function handleCompleteOnboarding(event, uid, user) {
   const cuisineHasStance = Object.keys(cuisinePrefs).some(
     (k) => cuisinePrefs[k] === 'prefer' || cuisinePrefs[k] === 'avoid'
   )
-  // 跳过该步不写 cookSkill，也不要写成 null（否则会清掉已有档）。合法档才写；有 counts 一并写。
-  const cookSkillPatch = onboardingCookSkillPatch(event)
+  // 跳过该步：显式清档，避免重走引导后旧 dishIds 回填成「默认勾了」。
+  // 未跳过：合法档才写；字段省略时不写成 null（以免误清已有档）。
+  const cookSkillSkipped = event && event.cookSkillSkipped === true
+  const cookSkillPatch = cookSkillSkipped ? {} : onboardingCookSkillPatch(event)
 
   // 优先 members[]；兼容旧客户端 selfMember
   let memberInputs = []
@@ -449,6 +453,12 @@ async function handleCompleteOnboarding(event, uid, user) {
     onboardingDone: true,
     updatedAt: now,
     ...cookSkillPatch
+  }
+  if (cookSkillSkipped) {
+    userPatch.cookSkill = _.remove()
+    userPatch.cookSkillProbeCounts = _.remove()
+    userPatch.cookSkillProbeDishIds = _.remove()
+    userPatch.cookSkillProbeAt = _.remove()
   }
   if (familyAvoidsNone || familyAvoids.length > 0) {
     userPatch.familyAvoidsConfirmedAt = now
@@ -556,6 +566,10 @@ async function clearPreferenceProfile(uid, user) {
       city: '',
       defaultCombo: { meat: 1, veg: 1, soup: 0 },
       defaultPeopleCount: 0,
+      cookSkill: _.remove(),
+      cookSkillProbeCounts: _.remove(),
+      cookSkillProbeDishIds: _.remove(),
+      cookSkillProbeAt: _.remove(),
       updatedAt: db.serverDate()
     }
   })
@@ -723,18 +737,21 @@ async function handleSaveCookSkillProbe(event, uid, user) {
   const plan = planSaveCookSkillProbe(event)
   if (!plan.ok || plan.unchanged) return plan
   const now = db.serverDate()
-  await db.collection('users').doc(user._id).update({
-    data: {
-      cookSkill: plan.cookSkill,
-      cookSkillProbeAt: now,
-      cookSkillProbeCounts: plan.cookSkillProbeCounts,
-      updatedAt: now
-    }
-  })
+  const data = {
+    cookSkill: plan.cookSkill,
+    cookSkillProbeAt: now,
+    cookSkillProbeCounts: plan.cookSkillProbeCounts,
+    updatedAt: now
+  }
+  if (Array.isArray(plan.cookSkillProbeDishIds)) {
+    data.cookSkillProbeDishIds = plan.cookSkillProbeDishIds
+  }
+  await db.collection('users').doc(user._id).update({ data })
   return {
     ok: true,
     cookSkill: plan.cookSkill,
-    cookSkillProbeCounts: plan.cookSkillProbeCounts
+    cookSkillProbeCounts: plan.cookSkillProbeCounts,
+    cookSkillProbeDishIds: plan.cookSkillProbeDishIds || []
   }
 }
 

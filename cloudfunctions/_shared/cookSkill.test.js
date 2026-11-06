@@ -4,6 +4,7 @@ const { describe, it } = require('node:test')
 const assert = require('node:assert/strict')
 const {
   PROBE_THRESHOLD,
+  PROBE_GROUP_SIZE,
   COOK_SKILL_VALUES,
   DIFFICULTY_VALUES,
   COMPLEX_DISH_FORMS,
@@ -18,33 +19,43 @@ const {
 
 const PROBE_NAMES = [
   '凉拌黄瓜',
-  '蒜蓉西兰花',
   '番茄炒蛋',
-  '蒸蛋羹',
   '青菜豆腐汤',
+  '清炒小白菜',
+  '蚝油生菜',
+  '青椒炒肉',
+  '酸辣土豆丝',
+  '肉末蒸蛋',
   '鱼香肉丝',
   '麻婆豆腐',
   '红烧茄子',
   '土豆烧肉',
-  '西红柿鸡蛋面',
+  '回锅肉',
+  '可乐鸡翅',
+  '香菇滑鸡',
+  '小炒黄牛肉',
   '红烧肉',
   '糖醋排骨',
   '清蒸鱼',
   '宫保鸡丁',
-  '水煮鱼'
+  '剁椒鱼头',
+  '啤酒鸭',
+  '水煮牛肉',
+  '蒜蓉粉丝蒸鲍鱼'
 ]
 
 describe('probe constants', () => {
-  it('locks threshold, skill, difficulty, complex forms, and soft penalty', () => {
-    assert.equal(PROBE_THRESHOLD, 3)
+  it('locks threshold, group size, skill, difficulty, complex forms, and soft penalty', () => {
+    assert.equal(PROBE_THRESHOLD, 5)
+    assert.equal(PROBE_GROUP_SIZE, 8)
     assert.deepEqual(COOK_SKILL_VALUES, ['beginner', 'home', 'skilled'])
     assert.deepEqual(DIFFICULTY_VALUES, ['easy', 'home', 'advanced'])
     assert.deepEqual(COMPLEX_DISH_FORMS, ['steam', 'hotpot', 'dumpling', 'bake'])
     assert.equal(DIFFICULTY_SOFT_PENALTY, 20)
   })
 
-  it('lists 15 probe dishes in fixed group order with matching difficulty', () => {
-    assert.equal(PROBE_DISHES.length, 15)
+  it('lists 24 probe dishes in fixed group order with matching difficulty', () => {
+    assert.equal(PROBE_DISHES.length, 24)
     assert.deepEqual(
       PROBE_DISHES.map((d) => d.name),
       PROBE_NAMES
@@ -52,9 +63,9 @@ describe('probe constants', () => {
     assert.deepEqual(
       PROBE_DISHES.map((d) => d.group),
       [
-        'easy', 'easy', 'easy', 'easy', 'easy',
-        'home', 'home', 'home', 'home', 'home',
-        'advanced', 'advanced', 'advanced', 'advanced', 'advanced'
+        'easy', 'easy', 'easy', 'easy', 'easy', 'easy', 'easy', 'easy',
+        'home', 'home', 'home', 'home', 'home', 'home', 'home', 'home',
+        'advanced', 'advanced', 'advanced', 'advanced', 'advanced', 'advanced', 'advanced', 'advanced'
       ]
     )
     for (const dish of PROBE_DISHES) {
@@ -68,20 +79,21 @@ describe('probe constants', () => {
 })
 
 describe('deriveCookSkill', () => {
-  it('returns skilled when advanced reaches the threshold, ahead of home', () => {
-    assert.equal(deriveCookSkill({ easy: 0, home: 0, advanced: 3 }), 'skilled')
-    assert.equal(deriveCookSkill({ easy: 5, home: 5, advanced: 3 }), 'skilled')
-    assert.equal(deriveCookSkill({ advanced: 5 }), 'skilled')
+  it('returns skilled when advanced exceeds 4 (≥5), ahead of home', () => {
+    assert.equal(deriveCookSkill({ easy: 0, home: 0, advanced: 5 }), 'skilled')
+    assert.equal(deriveCookSkill({ easy: 8, home: 8, advanced: 5 }), 'skilled')
+    assert.equal(deriveCookSkill({ advanced: 8 }), 'skilled')
+    assert.equal(deriveCookSkill({ easy: 8, home: 8, advanced: 4 }), 'home')
   })
 
-  it('returns home when home reaches the threshold and advanced does not', () => {
-    assert.equal(deriveCookSkill({ easy: 5, home: 3, advanced: 2 }), 'home')
-    assert.equal(deriveCookSkill({ home: 3 }), 'home')
-    assert.equal(deriveCookSkill({ advanced: '2', home: '3' }), 'home')
+  it('returns home when home exceeds 4 and advanced does not', () => {
+    assert.equal(deriveCookSkill({ easy: 8, home: 5, advanced: 4 }), 'home')
+    assert.equal(deriveCookSkill({ home: 5 }), 'home')
+    assert.equal(deriveCookSkill({ advanced: '4', home: '5' }), 'home')
   })
 
-  it('returns beginner below both thresholds, including zero checks', () => {
-    assert.equal(deriveCookSkill({ easy: 5, home: 2, advanced: 2 }), 'beginner')
+  it('returns beginner at or below 4 in both home and advanced, including zero checks', () => {
+    assert.equal(deriveCookSkill({ easy: 8, home: 4, advanced: 4 }), 'beginner')
     assert.equal(deriveCookSkill({ easy: 0, home: 0, advanced: 0 }), 'beginner')
     assert.equal(deriveCookSkill({}), 'beginner')
     assert.equal(deriveCookSkill(null), 'beginner')

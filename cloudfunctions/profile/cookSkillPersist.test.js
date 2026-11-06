@@ -10,25 +10,27 @@ const {
 } = require('./cookSkillPersist.js')
 
 describe('onboardingCookSkillPatch', () => {
-  it('does not write cookSkill when the step is skipped, even if a skill is sent', () => {
+  it('returns empty patch when the step is skipped, even if a skill is sent', () => {
     const patch = onboardingCookSkillPatch({
       cookSkillSkipped: true,
       cookSkill: 'skilled',
-      cookSkillProbeCounts: { easy: 0, home: 0, advanced: 5 }
+      cookSkillProbeCounts: { easy: 0, home: 0, advanced: 5 },
+      cookSkillProbeDishIds: ['advanced-1']
     })
-    assert.equal(Object.prototype.hasOwnProperty.call(patch, 'cookSkill'), false)
-    assert.deepEqual(patch.cookSkillProbeCounts, { easy: 0, home: 0, advanced: 5 })
+    assert.deepEqual(patch, {})
   })
 
   it('writes a valid cookSkill and counts, and ignores an invalid skill', () => {
     assert.deepEqual(
       onboardingCookSkillPatch({
         cookSkill: 'beginner',
-        cookSkillProbeCounts: { easy: 1, home: 0, advanced: 0 }
+        cookSkillProbeCounts: { easy: 1, home: 0, advanced: 0 },
+        cookSkillProbeDishIds: ['easy-1']
       }),
       {
         cookSkill: 'beginner',
-        cookSkillProbeCounts: { easy: 1, home: 0, advanced: 0 }
+        cookSkillProbeCounts: { easy: 1, home: 0, advanced: 0 },
+        cookSkillProbeDishIds: ['easy-1']
       }
     )
     const invalid = onboardingCookSkillPatch({ cookSkill: 'expert' })
@@ -54,32 +56,49 @@ describe('planSaveCookSkillProbe', () => {
   })
 
   it('stores the server-derived skill, not the client value', () => {
+    const dishIds = [
+      'advanced-1',
+      'advanced-2',
+      'advanced-3',
+      'advanced-4',
+      'advanced-5'
+    ]
     const plan = planSaveCookSkillProbe({
       cookSkill: 'beginner',
-      counts: { easy: 5, home: 5, advanced: 3 }
+      counts: { easy: 5, home: 5, advanced: 5 },
+      dishIds
     })
     assert.equal(plan.ok, true)
     assert.equal(plan.cookSkill, 'skilled')
-    assert.deepEqual(plan.cookSkillProbeCounts, { easy: 5, home: 5, advanced: 3 })
+    assert.deepEqual(plan.cookSkillProbeCounts, { easy: 0, home: 0, advanced: 5 })
+    assert.deepEqual(plan.cookSkillProbeDishIds, dishIds)
   })
 
-  it('derives home and beginner from counts, including all zeros', () => {
+  it('derives home and beginner from counts when dishIds omitted', () => {
     assert.equal(
-      planSaveCookSkillProbe({ counts: { easy: 5, home: 3, advanced: 2 } }).cookSkill,
+      planSaveCookSkillProbe({ counts: { easy: 5, home: 5, advanced: 4 } }).cookSkill,
       'home'
     )
     assert.equal(
-      planSaveCookSkillProbe({ counts: { easy: 0, home: 0, advanced: 0 } }).cookSkill,
+      planSaveCookSkillProbe({ counts: { easy: 2, home: 0, advanced: 0 } }).cookSkill,
       'beginner'
     )
   })
 
-  it('refuses to write when counts are missing', () => {
+  it('refuses empty probe and missing counts', () => {
     assert.deepEqual(planSaveCookSkillProbe({ cookSkill: 'home' }), {
       ok: false,
       error: 'INVALID_COUNTS'
     })
     assert.deepEqual(planSaveCookSkillProbe({ counts: null }), {
+      ok: false,
+      error: 'INVALID_COUNTS'
+    })
+    assert.deepEqual(planSaveCookSkillProbe({ counts: { easy: 0, home: 0, advanced: 0 } }), {
+      ok: false,
+      error: 'EMPTY_PROBE'
+    })
+    assert.deepEqual(planSaveCookSkillProbe({ dishIds: [] }), {
       ok: false,
       error: 'INVALID_COUNTS'
     })

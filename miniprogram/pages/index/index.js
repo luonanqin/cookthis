@@ -197,7 +197,8 @@ Page({
       membersCount: members.length,
       city: u.city,
       cuisinePrefs: u.cuisinePrefs,
-      cuisinePrefsConfirmedAt: u.cuisinePrefsConfirmedAt
+      cuisinePrefsConfirmedAt: u.cuisinePrefsConfirmedAt,
+      cookSkillProbeDishIds: u.cookSkillProbeDishIds
     })
     const profileGapCount = (gaps.gaps || []).length
     this.setData({ profileGapCount })
@@ -602,7 +603,7 @@ Page({
     wx.showModal({
       title: '重置偏好（测试）',
       content:
-        '清空忌口/菜系表态、所在城市、菜式偏好，并删除全部家庭成员；不改家庭引导是否完成。重置后红点应为 4。确定？',
+        '清空忌口/菜系表态、所在城市、菜式偏好、做饭水平，并删除全部家庭成员；不改家庭引导是否完成。重置后红点应为 5。确定？',
       confirmText: '重置',
       success: (res) => {
         if (!res.confirm) return

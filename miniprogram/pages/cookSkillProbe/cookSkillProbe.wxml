@@ -1,7 +1,9 @@
 <view class="wrap {{typeScaleClass}}">
   <view class="section">
-    <view class="section-title">哪些菜你做得来？</view>
-    <view class="hint">做过的，或没做过但觉得简单的，都勾上就行</view>
+    <view class="section-head">
+      <view class="section-title">做饭水平</view>
+      <text class="section-aside">选择会做或者没做过但觉得简单的</text>
+    </view>
     <block wx:for="{{probeGroups}}" wx:key="id">
       <view class="sub">{{item.title}}</view>
       <view class="chips">

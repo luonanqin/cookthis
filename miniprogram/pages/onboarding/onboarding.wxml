@@ -138,7 +138,7 @@
 
   <block wx:elif="{{step === 2}}">
     <view class="section">
-      <view class="section-title">家庭忌口</view>
+      <view class="section-title {{warnFamilyAvoids ? 'title-warn' : ''}} {{warnFamilyAvoids && warnPulse ? 'title-pulse' : ''}}">家庭忌口</view>
       <view class="chips">
         <view
           class="chip {{noneAvoidChecked ? 'on' : ''}}"
@@ -158,8 +158,10 @@
 
   <block wx:elif="{{step === 3}}">
     <view class="section">
-      <view class="section-title">所在城市</view>
-      <view class="hint">仅用于匹配当地常见食材</view>
+      <view class="section-head">
+        <view class="section-title {{warnCity ? 'title-warn' : ''}} {{warnCity && warnPulse ? 'title-pulse' : ''}}">所在城市</view>
+        <text class="section-aside">仅用于匹配当地常见食材</text>
+      </view>
       <picker mode="region" level="city" value="{{region}}" bindchange="onRegionChange">
         <view class="picker-row">{{city || '点此选择城市匹配当地食材'}}</view>
       </picker>
@@ -168,8 +170,10 @@
 
   <block wx:elif="{{step === 4}}">
     <view class="section">
-      <view class="section-title">哪些菜你做得来？</view>
-      <view class="hint">做过的，或没做过但觉得简单的，都勾上就行</view>
+      <view class="section-head">
+        <view class="section-title {{warnCookSkill ? 'title-warn' : ''}} {{warnCookSkill && warnPulse ? 'title-pulse' : ''}}">做饭水平</view>
+        <text class="section-aside">选择会做或者没做过但觉得简单的</text>
+      </view>
       <block wx:for="{{probeGroups}}" wx:key="id">
         <view class="sub">{{item.title}}</view>
         <view class="chips">
@@ -188,7 +192,7 @@
 
   <block wx:elif="{{step === 5}}">
     <view class="section">
-      <view class="section-title">菜系偏好</view>
+      <view class="section-title {{warnCuisine ? 'title-warn' : ''}} {{warnCuisine && warnPulse ? 'title-pulse' : ''}}">菜系偏好</view>
       <view class="chips">
         <view
           class="chip {{cuisineOkChecked ? 'on' : ''}}"
@@ -218,6 +222,7 @@
     </view>
   </block>
 
+  <!-- 菜式偏好：暂隐藏，后期再开。恢复：STEPS 加回「菜式偏好」，并取消本段注释
   <block wx:else>
     <view class="section">
       <view class="section-title">菜式偏好</view>
@@ -245,6 +250,7 @@
       </view>
     </view>
   </block>
+  -->
 
   <view class="footer">
     <button

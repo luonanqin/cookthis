@@ -19,7 +19,12 @@ const {
 } = require('../../utils/members.js')
 const { COMBO_RANGE, indexOfValue } = require('../../utils/formRanges.js')
 const { computeProfileGaps } = require('../../utils/profileGaps.js')
-const { retakeLinkLabel } = require('../../utils/cookSkillRetake.js')
+const {
+  buildProbeGroups,
+  probeCountsFromChecked,
+  dishIdsFromChecked,
+  probeCheckedFromDishIds
+} = require('../../utils/cookSkillRetake.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 
 function resolveAvatar(url) {
@@ -44,6 +49,7 @@ function normalizeDefaultCombo(combo) {
 
 const { AVOID_OPTIONS } = require('../../utils/avoidOptions.js')
 
+/** 菜式偏好：UI 暂隐藏，词表与保存字段仍保留，后期恢复区块即可 */
 const FORM_OPTIONS = [
   { id: 'hotpot', label: '火锅' },
   { id: 'noodle', label: '面条' },
@@ -112,6 +118,7 @@ function profileViewFromUser(user) {
   const members = shapeMembers(p.members || [])
   const summary = summarizeHousehold(members)
   const defaultCombo = normalizeDefaultCombo(p.defaultCombo)
+  const probeChecked = probeCheckedFromDishIds(p.cookSkillProbeDishIds)
   return {
     familyAvoids,
     familyAvoidChecked,
@@ -128,7 +135,8 @@ function profileViewFromUser(user) {
     soupIndex: indexOfValue(COMBO_RANGE, defaultCombo.soup, 0),
     city: p.city || '',
     region: [],
-    cookSkillRetakeLabel: retakeLinkLabel(p.cookSkill),
+    probeChecked,
+    warnPulse: false,
     nickname: p.nickname || '',
     avatarSrc: resolveAvatar(p.avatarUrl),
     members,
@@ -176,12 +184,14 @@ function gapMarksFromState(state) {
     cuisinePrefs: s.cuisinePrefs || {},
     cuisinePrefsConfirmedAt: s.cuisineOkChecked
       ? true
-      : s.cuisinePrefsConfirmedAt || null
+      : s.cuisinePrefsConfirmedAt || null,
+    cookSkillProbeDishIds: dishIdsFromChecked(s.probeChecked)
   })
   return {
     gapMembersOpen: !!gaps.membersOpen,
     gapAvoidsOpen: !!gaps.familyAvoidsOpen,
     gapCityOpen: !!gaps.cityOpen,
+    gapCookSkillOpen: !!gaps.cookSkillOpen,
     gapCuisineOpen: !!gaps.cuisineOpen
   }
 }
@@ -228,8 +238,11 @@ Page({
     gapMembersOpen: false,
     gapAvoidsOpen: false,
     gapCityOpen: false,
+    gapCookSkillOpen: false,
     gapCuisineOpen: false,
-    cookSkillRetakeLabel: retakeLinkLabel(null)
+    probeGroups: buildProbeGroups(),
+    probeChecked: {},
+    warnPulse: false
   },
 
   applyProfile(user) {
@@ -250,6 +263,83 @@ Page({
       clearTimeout(this._afterSaveTimer)
       this._afterSaveTimer = null
     }
+    this._clearFlashTimers()
+  },
+
+  _clearFlashTimers() {
+    if (this._flashOnTimer) {
+      clearTimeout(this._flashOnTimer)
+      this._flashOnTimer = null
+    }
+    if (this._flashOffTimer) {
+      clearTimeout(this._flashOffTimer)
+      this._flashOffTimer = null
+    }
+  },
+
+  onToggleProbeDish(e) {
+    const id = e.currentTarget.dataset.id
+    if (!id) return
+    const probeChecked = Object.assign({}, this.data.probeChecked)
+    probeChecked[id] = !probeChecked[id]
+    this.setData({ probeChecked })
+    this._syncGapMarks()
+  },
+
+  /**
+   * 与标题标红规则一致：忌口 / 城市 / 做饭水平 / 菜系（及成员）未表态则拦住保存。
+   * 引导页做饭水平仍可跳过；偏好页须至少勾 1 道。
+   * @returns {boolean}
+   */
+  _validateBeforeSave() {
+    const noneAvoid =
+      this._draftFamilyAvoidsNone != null
+        ? !!this._draftFamilyAvoidsNone
+        : !!this.data.noneAvoidChecked
+    const avoidsDraft =
+      this._draftFamilyAvoids != null ? this._draftFamilyAvoids : this.data.familyAvoids
+    const cuisineOk =
+      this._draftCuisineOk != null
+        ? !!this._draftCuisineOk
+        : !!this.data.cuisineOkChecked
+    const cuisinePrefs = cuisineOk ? {} : this.data.cuisinePrefs || {}
+    const marks = gapMarksFromState({
+      familyAvoids: noneAvoid ? [] : avoidsDraft || [],
+      noneAvoidChecked: noneAvoid,
+      familyAvoidsNone: noneAvoid,
+      members: this.data.members || [],
+      city: this.data.city || '',
+      cuisinePrefs,
+      cuisineOkChecked: cuisineOk,
+      cuisinePrefsConfirmedAt: cuisineOk
+        ? true
+        : hasCuisinePreferOrAvoid(cuisinePrefs)
+          ? true
+          : null,
+      probeChecked: this.data.probeChecked
+    })
+    if (
+      !(
+        marks.gapMembersOpen ||
+        marks.gapAvoidsOpen ||
+        marks.gapCityOpen ||
+        marks.gapCookSkillOpen ||
+        marks.gapCuisineOpen
+      )
+    ) {
+      return true
+    }
+    this._clearFlashTimers()
+    this.setData(Object.assign({}, marks, { warnPulse: false }))
+    this._flashOnTimer = setTimeout(() => {
+      this._flashOnTimer = null
+      this.setData({ warnPulse: true })
+    }, 20)
+    this._flashOffTimer = setTimeout(() => {
+      this._flashOffTimer = null
+      this.setData({ warnPulse: false })
+    }, 980)
+    return false
   },
 
   onShow() {
@@ -602,6 +692,9 @@ Page({
 
   onSave() {
     if (this.data.busy) return
+    if (!this._validateBeforeSave()) return
+    const probeCounts = probeCountsFromChecked(this.data.probeChecked)
+    const probeDishIds = dishIdsFromChecked(this.data.probeChecked)
     tapFeedback('heavy')
     this.setData({ busy: true })
     const prevCity = String(((getUser() || {}).city) || '').trim()
@@ -627,7 +720,18 @@ Page({
       defaultCombo
     }
     if (cuisineOk) patch.cuisinePrefsNoPreference = true
+    let probeRes = null
     callCloud('profile', Object.assign({ action: 'updateFamily' }, patch))
+      .then((res) =>
+        callCloud('profile', {
+          action: 'saveCookSkillProbe',
+          counts: probeCounts,
+          dishIds: probeDishIds
+        }).then((skillRes) => {
+          probeRes = skillRes
+          return res
+        })
+      )
       .then((res) => {
         // 作废进行中的 onShow login，防止旧 auth 在保存后把菜系打回喜欢/不喜欢
         this._profileLoadGen = (this._profileLoadGen || 0) + 1
@@ -660,7 +764,12 @@ Page({
             city: patch.city || '',
             cuisinePrefs: savedCuisine,
             cuisinePrefsConfirmedAt: savedCuisineConfirmed,
-            defaultCombo
+            defaultCombo,
+            cookSkill: probeRes && probeRes.cookSkill,
+            cookSkillProbeCounts:
+              (probeRes && probeRes.cookSkillProbeCounts) || probeCounts,
+            cookSkillProbeDishIds:
+              (probeRes && probeRes.cookSkillProbeDishIds) || probeDishIds
           })
         )
         const nextCity = String(next.city || '').trim()
@@ -682,8 +791,14 @@ Page({
             'dishFormPrefs',
             'cuisinePrefs',
             'city',
-            'defaultCombo'
+            'defaultCombo',
+            'cookSkill'
           ]
+        })
+        track('cook_skill_retake_submit', {
+          cookSkill: next.cookSkill,
+          counts: next.cookSkillProbeCounts,
+          source: 'mine'
         })
         wx.showToast({ title: '已保存', icon: 'success' })
         this.applyProfile(next)
@@ -705,16 +820,13 @@ Page({
           title = '云函数过旧，请重新部署 profile'
         } else if (code === 'CITY_CHANGE_WEEKLY_LIMIT') {
           title = '本周换城已达上限（2次）'
+        } else if (code === 'EMPTY_PROBE') {
+          title = '请勾选会做的菜'
+          this._validateBeforeSave()
         }
         wx.showToast({ title, icon: 'none' })
         this.setData({ busy: false })
       })
-  },
-
-  goCookSkillProbe() {
-    if (this.data.busy) return
-    tapFeedback()
-    wx.navigateTo({ url: '/pages/cookSkillProbe/cookSkillProbe' })
   },
 
   goOnboarding() {

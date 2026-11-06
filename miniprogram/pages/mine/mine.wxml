@@ -11,7 +11,7 @@
 
   <view class="section" id="secMembers">
     <view class="section-head">
-      <view class="section-title section-title-row {{gapMembersOpen ? 'section-title-gap' : ''}}"><image class="ui-icon ui-icon--sm" src="/assets/images/icons/group-people.png" mode="aspectFit" aria-hidden="true"/><text>家庭成员</text></view>
+      <view class="section-title section-title-row {{gapMembersOpen ? 'section-title-gap' : ''}} {{gapMembersOpen && warnPulse ? 'title-pulse' : ''}}"><image class="ui-icon ui-icon--sm" src="/assets/images/icons/group-people.png" mode="aspectFit" aria-hidden="true"/><text>家庭成员</text></view>
       <text class="section-aside">{{householdLabel}}</text>
     </view>
     <view class="member-card" wx:for="{{members}}" wx:key="memberId">
@@ -49,7 +49,7 @@
 
   <view class="section" id="secAvoids">
     <view class="section-head">
-      <view class="section-title section-title-row {{gapAvoidsOpen ? 'section-title-gap' : ''}}"><image class="ui-icon ui-icon--sm" src="/assets/images/icons/leafy-vegetables.png" mode="aspectFit" aria-hidden="true"/><text>家庭忌口</text></view>
+      <view class="section-title section-title-row {{gapAvoidsOpen ? 'section-title-gap' : ''}} {{gapAvoidsOpen && warnPulse ? 'title-pulse' : ''}}"><image class="ui-icon ui-icon--sm" src="/assets/images/icons/leafy-vegetables.png" mode="aspectFit" aria-hidden="true"/><text>家庭忌口</text></view>
       <text class="section-aside">选择后将避开相关食材</text>
     </view>
     <view class="chips">
@@ -70,7 +70,7 @@
 
   <view class="section" id="secCity">
     <view class="section-head">
-      <view class="section-title section-title-row {{gapCityOpen ? 'section-title-gap' : ''}}"><image class="ui-icon ui-icon--sm" src="/assets/images/icons/location-pin-green.png" mode="aspectFit" aria-hidden="true"/><text>所在城市</text></view>
+      <view class="section-title section-title-row {{gapCityOpen ? 'section-title-gap' : ''}} {{gapCityOpen && warnPulse ? 'title-pulse' : ''}}"><image class="ui-icon ui-icon--sm" src="/assets/images/icons/location-pin-green.png" mode="aspectFit" aria-hidden="true"/><text>所在城市</text></view>
       <text class="section-aside">用于匹配当地常见食材</text>
     </view>
     <picker mode="region" level="city" value="{{region}}" bindchange="onRegionChange">
@@ -78,9 +78,31 @@
     </picker>
   </view>
 
+  <view class="section" id="secCookSkill">
+    <view class="section-head">
+      <view class="section-title section-title-row {{gapCookSkillOpen ? 'section-title-gap' : ''}} {{gapCookSkillOpen && warnPulse ? 'title-pulse' : ''}}"><image class="ui-icon ui-icon--sm" src="/assets/images/icons/notebook-green.png" mode="aspectFit" aria-hidden="true"/><text>做饭水平</text></view>
+      <text class="section-aside">选择会做或者没做过但觉得简单的</text>
+    </view>
+    <block wx:for="{{probeGroups}}" wx:key="id">
+      <view class="sub">{{item.title}}</view>
+      <view class="chips">
+        <view
+          class="chip {{probeChecked[dish.id] ? 'on' : ''}}"
+          wx:for="{{item.dishes}}"
+          wx:for-item="dish"
+          wx:key="id"
+          data-id="{{dish.id}}"
+          hover-class="tap-hover"
+          hover-stay-time="80"
+          bindtap="onToggleProbeDish"
+        >{{dish.name}}</view>
+      </view>
+    </block>
+  </view>
+
   <view class="section" id="secCuisine">
     <view class="section-head">
-      <view class="section-title section-title-row {{gapCuisineOpen ? 'section-title-gap' : ''}}"><image class="ui-icon ui-icon--sm" src="/assets/images/icons/soup-bowl.png" mode="aspectFit" aria-hidden="true"/><text>菜系偏好</text></view>
+      <view class="section-title section-title-row {{gapCuisineOpen ? 'section-title-gap' : ''}} {{gapCuisineOpen && warnPulse ? 'title-pulse' : ''}}"><image class="ui-icon ui-icon--sm" src="/assets/images/icons/soup-bowl.png" mode="aspectFit" aria-hidden="true"/><text>菜系偏好</text></view>
       <text class="section-aside">选择喜欢的菜系更合口味</text>
     </view>
     <view class="chips">
@@ -111,6 +133,7 @@
     </view>
   </view>
 
+  <!-- 菜式偏好：暂隐藏，后期再开。JS onFormPrefRadio / dishFormPrefs 仍保留；恢复时取消本段注释
   <view class="section">
     <view class="section-head">
       <view class="section-title section-title-row"><image class="ui-icon ui-icon--sm" src="/assets/images/icons/notebook-green.png" mode="aspectFit" aria-hidden="true"/><text>菜式偏好</text></view>
@@ -139,15 +162,7 @@
       </radio-group>
     </view>
   </view>
-
-  <view class="section" id="secCookSkill">
-    <view
-      class="link-inline"
-      hover-class="tap-hover"
-      hover-stay-time="80"
-      bindtap="goCookSkillProbe"
-    >{{cookSkillRetakeLabel}}</view>
-  </view>
+  -->
 
   <view class="link reset-link" hover-class="tap-hover" hover-stay-time="80" bindtap="goOnboarding">重新设置偏好</view>
 

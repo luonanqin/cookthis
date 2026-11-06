@@ -12,6 +12,7 @@ function computeProfileGaps(input) {
   const city = (input && input.city) || ''
   const cuisinePrefs = (input && input.cuisinePrefs) || {}
   const cuisinePrefsConfirmedAt = input && input.cuisinePrefsConfirmedAt
+  const cookSkillProbeDishIds = (input && input.cookSkillProbeDishIds) || []
 
   const familyAvoidsOpen = !(
     (Array.isArray(familyAvoids) && familyAvoids.length > 0) ||
@@ -21,11 +22,16 @@ function computeProfileGaps(input) {
   const cityOpen = !String(city).trim()
   const cuisineOpen =
     !hasCuisineStance(cuisinePrefs) && !cuisinePrefsConfirmedAt
+  // 与「我的」一致：至少勾过 1 道探针菜才算已填；引导跳过清 dishIds → 缺口仍开
+  const cookSkillOpen = !(
+    Array.isArray(cookSkillProbeDishIds) && cookSkillProbeDishIds.length > 0
+  )
 
   const gaps = []
   if (familyAvoidsOpen) gaps.push('family_avoids')
   if (membersOpen) gaps.push('members')
   if (cityOpen) gaps.push('city')
+  if (cookSkillOpen) gaps.push('cook_skill')
   if (cuisineOpen) gaps.push('cuisine')
 
   return {
@@ -33,6 +39,7 @@ function computeProfileGaps(input) {
     familyAvoidsOpen,
     membersOpen,
     cityOpen,
+    cookSkillOpen,
     cuisineOpen,
     anyOpen: gaps.length > 0,
     recommendBanner: familyAvoidsOpen

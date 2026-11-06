@@ -1,6 +1,12 @@
 const { callCloud } = require('./cloud.js')
 const { prefetchCatalog } = require('./catalogCache.js')
-const { COOK_SKILL_VALUES } = require('../utils/cookSkill.js')
+const {
+  COOK_SKILL_VALUES,
+  PROBE_DISHES,
+  PROBE_GROUP_SIZE
+} = require('../utils/cookSkill.js')
+
+const PROBE_ID_SET = new Set(PROBE_DISHES.map((d) => d.id))
 
 const KEY = 'cookthis_user'
 
@@ -32,9 +38,22 @@ function storedProbeCounts(counts) {
   const n = (value) => {
     const x = Number(value)
     if (!Number.isFinite(x) || x <= 0) return 0
-    return Math.min(5, Math.floor(x))
+    return Math.min(PROBE_GROUP_SIZE, Math.floor(x))
   }
   return { easy: n(counts.easy), home: n(counts.home), advanced: n(counts.advanced) }
+}
+
+function storedProbeDishIds(ids) {
+  if (!Array.isArray(ids)) return []
+  const out = []
+  const seen = new Set()
+  for (let i = 0; i < ids.length; i++) {
+    const id = ids[i]
+    if (typeof id !== 'string' || !PROBE_ID_SET.has(id) || seen.has(id)) continue
+    seen.add(id)
+    out.push(id)
+  }
+  return out
 }
 
 function hasCuisineStance(prefs) {
@@ -70,6 +89,7 @@ function ensureLogin(opts) {
       onboardingDone: user.onboardingDone == null ? true : !!user.onboardingDone,
       cookSkill: storedCookSkill(user.cookSkill),
       cookSkillProbeCounts: storedProbeCounts(user.cookSkillProbeCounts),
+      cookSkillProbeDishIds: storedProbeDishIds(user.cookSkillProbeDishIds),
       profileLiteSkipped: !!user.profileLiteSkipped,
       profileLitePromptedAt: user.profileLitePromptedAt || null,
       defaultPeopleCount: members.length,

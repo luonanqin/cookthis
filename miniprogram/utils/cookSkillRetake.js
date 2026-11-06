@@ -39,8 +39,25 @@ function probeCountsFromChecked(checked) {
   return counts
 }
 
+/** @returns {string[]} */
+function dishIdsFromChecked(checked) {
+  const on = checked && typeof checked === 'object' ? checked : {}
+  return PROBE_DISHES.map((d) => d.id).filter((id) => on[id])
+}
+
+/** @returns {Record<string, boolean>} */
+function probeCheckedFromDishIds(ids) {
+  const checked = {}
+  if (!Array.isArray(ids)) return checked
+  const allow = new Set(PROBE_DISHES.map((d) => d.id))
+  ids.forEach((id) => {
+    if (typeof id === 'string' && allow.has(id)) checked[id] = true
+  })
+  return checked
+}
+
 /**
- * submit 才打 saveCookSkillProbe，档位由服务端根据 counts 推导。
+ * submit 才打 saveCookSkillProbe，档位由服务端根据 counts/dishIds 推导。
  * cancel / back 不发请求，已有档保留。
  * @param {string} kind 'submit' | 'cancel' | 'back'
  * @param {Record<string, boolean>|null|undefined} checked
@@ -48,12 +65,23 @@ function probeCountsFromChecked(checked) {
 function retakeCloudCall(kind, checked) {
   if (kind === 'submit') {
     const counts = probeCountsFromChecked(checked)
+    const dishIds = dishIdsFromChecked(checked)
+    if (counts.easy + counts.home + counts.advanced < 1) {
+      return {
+        track: TRACK_SUBMIT,
+        toast: null,
+        payload: null,
+        trackProps: {},
+        error: 'EMPTY_PROBE'
+      }
+    }
     return {
       track: TRACK_SUBMIT,
       toast: RETAKE_TOAST,
       payload: {
         action: 'saveCookSkillProbe',
-        counts
+        counts,
+        dishIds
       },
       trackProps: {
         cookSkill: deriveCookSkill(counts),
@@ -78,5 +106,7 @@ module.exports = {
   retakeLinkLabel,
   buildProbeGroups,
   probeCountsFromChecked,
+  dishIdsFromChecked,
+  probeCheckedFromDishIds,
   retakeCloudCall
 }

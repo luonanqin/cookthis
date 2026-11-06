@@ -1,33 +1,44 @@
 'use strict'
 
-const PROBE_THRESHOLD = 3
+/** 超过 4 道（≥5）即具备该档；每组现为 8 道 */
+const PROBE_THRESHOLD = 5
+const PROBE_GROUP_SIZE = 8
 const COOK_SKILL_VALUES = ['beginner', 'home', 'skilled']
 const DIFFICULTY_VALUES = ['easy', 'home', 'advanced']
 const COMPLEX_DISH_FORMS = ['steam', 'hotpot', 'dumpling', 'bake']
 const DIFFICULTY_SOFT_PENALTY = 20
 
-/** 测验用固定 15 道，id 不依赖菜谱库。组内顺序与组顺序固定。 */
+/** 测验用固定 24 道，id 不依赖菜谱库。组内顺序与组顺序固定。 */
 const PROBE_DISHES = [
   { id: 'easy-1', name: '凉拌黄瓜', difficulty: 'easy', group: 'easy' },
-  { id: 'easy-2', name: '蒜蓉西兰花', difficulty: 'easy', group: 'easy' },
-  { id: 'easy-3', name: '番茄炒蛋', difficulty: 'easy', group: 'easy' },
-  { id: 'easy-4', name: '蒸蛋羹', difficulty: 'easy', group: 'easy' },
-  { id: 'easy-5', name: '青菜豆腐汤', difficulty: 'easy', group: 'easy' },
+  { id: 'easy-2', name: '番茄炒蛋', difficulty: 'easy', group: 'easy' },
+  { id: 'easy-3', name: '青菜豆腐汤', difficulty: 'easy', group: 'easy' },
+  { id: 'easy-4', name: '清炒小白菜', difficulty: 'easy', group: 'easy' },
+  { id: 'easy-5', name: '蚝油生菜', difficulty: 'easy', group: 'easy' },
+  { id: 'easy-6', name: '青椒炒肉', difficulty: 'easy', group: 'easy' },
+  { id: 'easy-7', name: '酸辣土豆丝', difficulty: 'easy', group: 'easy' },
+  { id: 'easy-8', name: '肉末蒸蛋', difficulty: 'easy', group: 'easy' },
   { id: 'home-1', name: '鱼香肉丝', difficulty: 'home', group: 'home' },
   { id: 'home-2', name: '麻婆豆腐', difficulty: 'home', group: 'home' },
   { id: 'home-3', name: '红烧茄子', difficulty: 'home', group: 'home' },
   { id: 'home-4', name: '土豆烧肉', difficulty: 'home', group: 'home' },
-  { id: 'home-5', name: '西红柿鸡蛋面', difficulty: 'home', group: 'home' },
+  { id: 'home-5', name: '回锅肉', difficulty: 'home', group: 'home' },
+  { id: 'home-6', name: '可乐鸡翅', difficulty: 'home', group: 'home' },
+  { id: 'home-7', name: '香菇滑鸡', difficulty: 'home', group: 'home' },
+  { id: 'home-8', name: '小炒黄牛肉', difficulty: 'home', group: 'home' },
   { id: 'advanced-1', name: '红烧肉', difficulty: 'advanced', group: 'advanced' },
   { id: 'advanced-2', name: '糖醋排骨', difficulty: 'advanced', group: 'advanced' },
   { id: 'advanced-3', name: '清蒸鱼', difficulty: 'advanced', group: 'advanced' },
   { id: 'advanced-4', name: '宫保鸡丁', difficulty: 'advanced', group: 'advanced' },
-  { id: 'advanced-5', name: '水煮鱼', difficulty: 'advanced', group: 'advanced' }
+  { id: 'advanced-5', name: '剁椒鱼头', difficulty: 'advanced', group: 'advanced' },
+  { id: 'advanced-6', name: '啤酒鸭', difficulty: 'advanced', group: 'advanced' },
+  { id: 'advanced-7', name: '水煮牛肉', difficulty: 'advanced', group: 'advanced' },
+  { id: 'advanced-8', name: '蒜蓉粉丝蒸鲍鱼', difficulty: 'advanced', group: 'advanced' }
 ]
 
 /**
  * 从高到低看勾选数。advanced ≥ 阈值 → skilled；否则 home ≥ 阈值 → home；否则 beginner。
- * 全 0 也是 beginner（点了下一步但没勾）。跳过不走这里，字段留空。
+ * 全 0 也是 beginner（算法兜底）。引导「下一步」须至少勾 1 道才进此函数；跳过不走这里。
  * @param {{ easy?: number, home?: number, advanced?: number }|null|undefined} counts
  * @returns {'beginner'|'home'|'skilled'}
  */
@@ -92,6 +103,7 @@ function difficultySoftPenalty(skill, difficulty) {
 
 module.exports = {
   PROBE_THRESHOLD,
+  PROBE_GROUP_SIZE,
   COOK_SKILL_VALUES,
   DIFFICULTY_VALUES,
   COMPLEX_DISH_FORMS,

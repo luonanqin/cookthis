@@ -22,6 +22,7 @@
 | 12 | Slice 12 | **用户建议反馈**（首页入口 / 无数字红点 / 列表顶提交 / 运营回复 / 订阅落地） |
 | 13 | Slice 13 | **菜场规模与食材列表档位**（预生成分档名单 / 首页半屏 / 确认页切换刷新） |
 | 14 | Slice 14 | **方案分享**（推荐卡 / 食材页 / 已选自产 → 只读落地 / 保存到已选） |
+| 15 | Slice 15 | **做饭能力与菜品难度**（引导 15 选定档 / beginner 硬排 advanced / 「我的」重测） |
 | — | 语音 | 前端已下线，暂不点验 |
 
 新用户进首页只会**弹一次**「去设置 / 先逛逛」；选「先逛逛」或引导页「暂时跳过」即可继续测 Slice 1～4。完整引导放到 **Slice 6** 再验。跳过/轻量跳过后的**弱提醒与快捷补全**放到 **Slice 10** 再验。
@@ -41,11 +42,11 @@
 |------------------|--------------|
 | `nickname.js` | `auth/nickname.js` |
 | `confirmList.js` | `ingredients/confirmList.js` |
-| `homePlans.js` | `recommend/homePlans.js` |
+| `homePlans.js` | `recommend/homePlans.js`（含 cookSkill×difficulty 硬排 / 软分） |
 | `members.js` | `recommend/members.js`、`profile/members.js`；小程序 `miniprogram/utils/members.js`（大/小/老、访客展开、§3.0.8） |
 | `freshness.js` | `recommend/freshness.js`（主料新鲜度分档，供 homePlans 引用） |
 | `profileLite.js` | 小程序 `miniprogram/utils/profileLite.js`（日常轻量补全是否弹） |
-| `profileGaps.js` | 小程序 `miniprogram/utils/profileGaps.js`（忌口/成员/城市/菜系缺口；推荐顶栏只盯忌口） |
+| `profileGaps.js` | 小程序 `miniprogram/utils/profileGaps.js`（忌口/成员/城市/做饭水平/菜系缺口；推荐顶栏只盯忌口） |
 | `shoppingList.js` | 小程序 `miniprogram/utils/shoppingList.js`（清单页本地聚合）；`share/shoppingList.js`（供 `planShare` 聚合完整用料；无 bought） |
 | `planIngredientSummary.js` | 小程序 `miniprogram/utils/planIngredientSummary.js`（方案卡食材摘要） |
 | `recipeSheet.js` | 小程序 `miniprogram/utils/recipeSheet.js`（清单页菜谱弹层） |
@@ -59,6 +60,7 @@
 | `marketScale.js` | `profile/marketScale.js`；小程序 `miniprogram/utils/marketScale.js`（档位文案 / 半屏门禁 / 历史截断） |
 | `confirmListFromScale.js` | `ingredients/confirmListFromScale.js`（预生成 by-scale → seasonal/yearRound） |
 | `planShare.js` | `share/planShare.js`；小程序 `miniprogram/utils/planShare.js`（快照构建 / 分享卡 title；小程序侧仅 title） |
+| `cookSkill.js` | `recommend/cookSkill.js`、`profile/cookSkill.js`；小程序 `miniprogram/utils/cookSkill.js`（定档 / 推断难度 / 硬软排；探针菜常量） |
 
 部署 `recommend`（含 `listAccepted`）前，请在云开发控制台为集合 `recommendations` 创建复合索引：`uid`、`accepted`、`acceptedAt`（与 `orderBy acceptedAt desc` 分页查询一致）。
 
@@ -270,6 +272,22 @@
 计划：[`docs/superpowers/plans/2026-10-28-方案分享.md`](docs/superpowers/plans/2026-10-28-方案分享.md)。  
 设计：[`docs/superpowers/specs/2026-10-28-方案分享-design.md`](docs/superpowers/specs/2026-10-28-方案分享-design.md)。  
 需求：[`docs/superpowers/specs/2026-10-24-方案分享-requirements.md`](docs/superpowers/specs/2026-10-24-方案分享-requirements.md)。
+
+---
+
+## Slice 15 准备（做饭能力与菜品难度）
+
+假定 **Slice 2、Slice 6 准备已完成**（能出家常推荐；能走完整引导 / 「我的」）。再补：
+
+1. **重新部署**云函数：`profile`（`completeOnboarding` / `saveCookSkillProbe` 写 `cookSkill` + `cookSkillProbeDishIds`；包内须含 `cookSkill.js` + `cookSkillPersist.js`）、`auth`（登录回包 `cookSkill` / `cookSkillProbeDishIds`）、`recommend`（`homePlans` 难度硬排 + 软分；包内须含 `cookSkill.js`）。
+2. **重导菜谱**（建议）：集合 `recipes` 导入更新后的 `data/catalog/recipes-for-import.json`（探针同名菜带显式 `difficulty`）。冲突选覆盖或先清空。本地若改过 builtin：`node scripts/backfill-recipe-difficulty.js --apply-probe-names` 后再按 [`scripts/README.md`](scripts/README.md) 生成导入文件。
+3. 小程序：引导步「做饭水平」；「我的」城市与菜系之间内嵌 15 选并可回填；`utils/cookSkill.js`。
+4. 本地：`npm test`（含 `cookSkill` / `homePlans` 难度用例）。
+
+无新集合（字段写在 `users` / `recipes`）。做完即可对照下方「Slice 15 验收清单」。
+
+计划：[`docs/superpowers/plans/2026-11-05-做饭能力与菜品难度.md`](docs/superpowers/plans/2026-11-05-做饭能力与菜品难度.md)。  
+设计：[`docs/superpowers/specs/2026-11-05-做饭能力与菜品难度-design.md`](docs/superpowers/specs/2026-11-05-做饭能力与菜品难度-design.md)。
 
 ---
 
@@ -573,6 +591,29 @@
 **本切片不验：** 社区广场 / Feed / 排行榜、分享封面自定义、快照过期、广告、语音。
 
 **部署提醒：** `share` 与 `recommend`（listAccepted）同发；索引务必含 `plan_shares.shareId` 与带 `sourceSwapCount` 的复用复合索引。
+
+---
+
+## 本切片验收清单（Slice 15）
+
+**状态：待点验**（需重发 `profile` / `auth` / `recommend`；建议重导带 `difficulty` 的菜谱）
+
+**自动化：**
+
+- [ ] `npm test` PASS（含 `_shared/cookSkill`、`homePlans` 难度硬排 / 软分）。
+
+**需人工：** Slice 15 准备后（建议用**新用户**或清掉 `users.cookSkill` 再测引导）：
+
+1. [ ] **引导进阶档**：完整引导到「做饭水平」→「进阶一点」勾超过 4 道（≥5）→ 完成引导 → 云库 `users.cookSkill === skilled`；日常出方案时**可以**出现显式 `advanced` 菜（如红烧肉 / 清蒸鱼，视食材勾选而定）。
+2. [ ] **引导新手档**：另起账号（或清 `cookSkill` 重走引导）→ 只勾「轻松上手」点下一步 → `cookSkill === beginner`；方案中**不应**出现预标 `difficulty: advanced` 的菜；界面**不**展示「你是新手」等结论文案。全不勾点下一步应拦住（标题闪红）。
+3. [ ] **跳过该步**：引导在做饭水平点「跳过」→ `users` **无** `cookSkill`（或不写该字段）；推荐按家常处理，**可**出 advanced（与点「下一步」写入区分）。
+4. [ ] **「我的」重测**：有档时入口为「已测 · 可重测」，无档为「测一下做饭水平」→ 打开 15 选 → 提交 toast「已根据选择优化推荐」→ `cookSkill` 覆盖；再 `create` 方案应随新档变化。
+5. [ ] **重测取消**：进入重测后返回 / 取消 → **不**清空已有 `cookSkill`。
+6. [ ] **无 difficulty 兜底**：食材够的前提下，未标 `difficulty` 的菜靠 minutes/形态推断仍能出方案、不报错。
+
+**本切片不验：** 自报三档 chip、成员级做饭能力、行为校准改档、做饭时间预算与难度联动、非常规（火锅/面/饺）方案的难度过滤、向用户展示档位结论文案。
+
+**部署提醒：** `profile` + `auth` + `recommend` 同发；菜谱 JSONL 与 builtin 探针 `difficulty` 一致再导入。
 
 ---
 

@@ -31,7 +31,7 @@ describe('mine cook skill retake', () => {
     }
   })
 
-  it('reuses the same 15 probe dishes in onboarding group order', () => {
+  it('reuses the same 24 probe dishes in onboarding group order', () => {
     const groups = buildProbeGroups()
     assert.deepEqual(
       groups.map((g) => g.id),
@@ -42,7 +42,7 @@ describe('mine cook skill retake', () => {
       ['轻松上手', '家常水平', '进阶一点']
     )
     const dishes = groups.flatMap((g) => g.dishes)
-    assert.equal(dishes.length, 15)
+    assert.equal(dishes.length, 24)
     assert.deepEqual(
       dishes.map((d) => d.id),
       PROBE_DISHES.map((d) => d.id)
@@ -71,7 +71,20 @@ describe('mine cook skill retake', () => {
   })
 
   it('submit calls saveCookSkillProbe with counts and a neutral toast, without a client tier', () => {
-    const checked = { 'advanced-1': true, 'advanced-2': true, 'advanced-3': true }
+    const checked = {
+      'advanced-1': true,
+      'advanced-2': true,
+      'advanced-3': true,
+      'advanced-4': true,
+      'advanced-5': true
+    }
+    const dishIds = [
+      'advanced-1',
+      'advanced-2',
+      'advanced-3',
+      'advanced-4',
+      'advanced-5'
+    ]
     const call = retakeCloudCall('submit', checked)
     assert.equal(call.track, TRACK_SUBMIT)
     assert.equal(TRACK_SUBMIT, 'cook_skill_retake_submit')
@@ -79,14 +92,21 @@ describe('mine cook skill retake', () => {
     assert.equal(RETAKE_TOAST, '已根据选择优化推荐')
     assert.deepEqual(call.payload, {
       action: 'saveCookSkillProbe',
-      counts: { easy: 0, home: 0, advanced: 3 }
+      counts: { easy: 0, home: 0, advanced: 5 },
+      dishIds
     })
     assert.equal('cookSkill' in call.payload, false)
     assert.equal(call.payload.skipped, undefined)
     assert.deepEqual(call.trackProps, {
       cookSkill: 'skilled',
-      counts: { easy: 0, home: 0, advanced: 3 }
+      counts: { easy: 0, home: 0, advanced: 5 }
     })
+  })
+
+  it('submit with zero checks does not send a payload', () => {
+    const call = retakeCloudCall('submit', {})
+    assert.equal(call.payload, null)
+    assert.equal(call.error, 'EMPTY_PROBE')
   })
 
   it('cancel and back do not call the cloud, so the stored skill stays', () => {

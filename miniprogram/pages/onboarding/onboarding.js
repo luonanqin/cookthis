@@ -18,6 +18,7 @@ const { PROBE_DISHES, deriveCookSkill } = require('../../utils/cookSkill.js')
 
 const { AVOID_OPTIONS } = require('../../utils/avoidOptions.js')
 
+/** 菜式偏好词表：UI 暂隐藏，逻辑与落库仍保留默认 neutral */
 const FORM_OPTIONS = [
   { id: 'hotpot', label: '火锅' },
   { id: 'noodle', label: '面条' },
@@ -63,8 +64,12 @@ TASTES.forEach((x) => {
   TASTE_LABEL[x.id] = x.label
 })
 
-/** 与「我的」画像区块顺序对齐；做饭水平仅引导，插在城市与菜系之间 */
-const STEPS = ['家庭成员', '日常搭配', '家庭忌口', '所在城市', '做饭水平', '菜系偏好', '菜式偏好']
+/**
+ * 与「我的」画像区块顺序对齐。
+ * 菜式偏好：暂不进引导步（UI 注释保留）；恢复时把「菜式偏好」加回末尾即可。
+ */
+const STEPS = ['家庭成员', '日常搭配', '家庭忌口', '所在城市', '做饭水平', '菜系偏好']
+// const STEPS_WITH_DISH_FORM = [...STEPS, '菜式偏好']
 
 const PROBE_GROUP_META = [
   { id: 'easy', title: '轻松上手' },
@@ -184,7 +189,12 @@ Page({
     busy: false,
     probeGroups: buildProbeGroups(),
     probeChecked: {},
-    probeCounts: { easy: 0, home: 0, advanced: 0 }
+    probeCounts: { easy: 0, home: 0, advanced: 0 },
+    warnFamilyAvoids: false,
+    warnCity: false,
+    warnCookSkill: false,
+    warnCuisine: false,
+    warnPulse: false
   },
 
   onLoad(query) {
@@ -199,6 +209,7 @@ Page({
     this._cookSkillSkipped = false
     this._pendingCookSkill = undefined
     this._pendingCounts = undefined
+    this._pendingDishIds = undefined
     track('onboarding_start', { restart: !!this._restart })
     track('onboarding_step', { step: 0 })
     this._refreshHouseholdPreview()
@@ -233,6 +244,31 @@ Page({
       clearTimeout(this._flashOffTimer)
       this._flashOffTimer = null
     }
+  },
+
+  /** 非成员步：区块标题标红 + 闪缩；红字保留到补全 */
+  _flashWarnTitles(flags) {
+    this._clearFlashTimers()
+    this.setData(
+      Object.assign(
+        {
+          warnFamilyAvoids: false,
+          warnCity: false,
+          warnCookSkill: false,
+          warnCuisine: false,
+          warnPulse: false
+        },
+        flags || {}
+      )
+    )
+    this._flashOnTimer = setTimeout(() => {
+      this._flashOnTimer = null
+      this.setData({ warnPulse: true })
+    }, 20)
+    this._flashOffTimer = setTimeout(() => {
+      this._flashOffTimer = null
+      this.setData({ warnPulse: false })
+    }, 980)
   },
 
   _flashWarn(key) {
@@ -382,7 +418,8 @@ Page({
       this.setData({
         noneAvoidChecked: on,
         familyAvoidChecked: on ? {} : this.data.familyAvoidChecked,
-        familyAvoids: on ? [] : this.data.familyAvoids
+        familyAvoids: on ? [] : this.data.familyAvoids,
+        warnFamilyAvoids: false
       })
       return
     }
@@ -392,7 +429,8 @@ Page({
     this.setData({
       noneAvoidChecked: false,
       familyAvoidChecked,
-      familyAvoids
+      familyAvoids,
+      warnFamilyAvoids: false
     })
   },
 
@@ -408,7 +446,8 @@ Page({
     const on = !this.data.cuisineOkChecked
     this.setData({
       cuisineOkChecked: on,
-      cuisinePrefs: on ? {} : this.data.cuisinePrefs
+      cuisinePrefs: on ? {} : this.data.cuisinePrefs,
+      warnCuisine: false
     })
   },
 
@@ -417,7 +456,8 @@ Page({
     if (!id) return
     this.setData({
       cuisineOkChecked: false,
-      cuisinePrefs: toggleCuisinePrefer(this.data.cuisinePrefs, id)
+      cuisinePrefs: toggleCuisinePrefer(this.data.cuisinePrefs, id),
+      warnCuisine: false
     })
   },
 
@@ -426,7 +466,8 @@ Page({
     if (!id) return
     this.setData({
       cuisineOkChecked: false,
-      cuisinePrefs: toggleCuisineAvoid(this.data.cuisinePrefs, id)
+      cuisinePrefs: toggleCuisineAvoid(this.data.cuisinePrefs, id),
+      warnCuisine: false
     })
   },
 
@@ -450,7 +491,7 @@ Page({
   onRegionChange(e) {
     const region = e.detail.value || []
     const city = region[1] || region[0] || ''
-    this.setData({ region, city })
+    this.setData({ region, city, warnCity: false })
   },
 
   onToggleProbeDish(e) {
@@ -458,9 +499,12 @@ Page({
     if (!id) return
     const probeChecked = Object.assign({}, this.data.probeChecked)
     probeChecked[id] = !probeChecked[id]
+    const probeCounts = probeCountsFromChecked(probeChecked)
+    const anyChecked = probeCounts.easy + probeCounts.home + probeCounts.advanced > 0
     this.setData({
       probeChecked,
-      probeCounts: probeCountsFromChecked(probeChecked)
+      probeCounts,
+      warnCookSkill: anyChecked ? false : this.data.warnCookSkill
     })
   },
 
@@ -476,17 +520,27 @@ Page({
   /** 探针步「下一步」：定档并暂存，完成引导时一并写入 */
   _stashCookSkillFromProbe() {
     const counts = probeCountsFromChecked(this.data.probeChecked)
+    const dishIds = Object.keys(this.data.probeChecked || {}).filter(
+      (id) => this.data.probeChecked[id]
+    )
     this._cookSkillSkipped = false
     this._pendingCookSkill = deriveCookSkill(counts)
     this._pendingCounts = counts
+    this._pendingDishIds = dishIds
     this.setData({ probeCounts: counts })
   },
 
-  /** 探针步「跳过」：不写 cookSkill */
+  /** 探针步「跳过」：不写 cookSkill，并清本页勾选，避免重走后旧态干扰 */
   _skipCookSkillProbe() {
     this._cookSkillSkipped = true
     this._pendingCookSkill = undefined
     this._pendingCounts = undefined
+    this._pendingDishIds = undefined
+    this.setData({
+      probeChecked: {},
+      probeCounts: { easy: 0, home: 0, advanced: 0 },
+      warnCookSkill: false
+    })
   },
 
   _cookSkillFinishFields() {
@@ -494,7 +548,8 @@ Page({
     return {
       cookSkill: skipped ? undefined : this._pendingCookSkill,
       cookSkillSkipped: skipped,
-      cookSkillProbeCounts: skipped ? undefined : this._pendingCounts
+      cookSkillProbeCounts: skipped ? undefined : this._pendingCounts,
+      cookSkillProbeDishIds: skipped ? undefined : this._pendingDishIds
     }
   },
 
@@ -507,13 +562,60 @@ Page({
     }
   },
 
+  _hasFamilyAvoidStance() {
+    return !!this.data.noneAvoidChecked || (this.data.familyAvoids || []).length > 0
+  },
+
+  _hasCuisineStance() {
+    if (this.data.cuisineOkChecked) return true
+    const prefs = this.data.cuisinePrefs || {}
+    return Object.keys(prefs).some((k) => prefs[k] === 'prefer' || prefs[k] === 'avoid')
+  },
+
+  _hasProbeSelection() {
+    const c = this.data.probeCounts || {}
+    return (c.easy || 0) + (c.home || 0) + (c.advanced || 0) > 0
+  },
+
+  /**
+   * 当前步「下一步」校验；失败则统一闪红告警。
+   * 搭配有默认值不拦；菜式步暂隐藏。跳过不走此函数。
+   * @returns {boolean}
+   */
+  _validateCurrentStep() {
+    const step = this.data.step
+    const name = (this.data.steps || [])[step]
+    if (step === 0 || name === '家庭成员') {
+      return this._ensureAllComplete()
+    }
+    if (name === '家庭忌口') {
+      if (this._hasFamilyAvoidStance()) return true
+      this._flashWarnTitles({ warnFamilyAvoids: true })
+      return false
+    }
+    if (name === '所在城市') {
+      if (String(this.data.city || '').trim()) return true
+      this._flashWarnTitles({ warnCity: true })
+      return false
+    }
+    if (name === '做饭水平') {
+      if (this._hasProbeSelection()) return true
+      this._flashWarnTitles({ warnCookSkill: true })
+      return false
+    }
+    if (name === '菜系偏好') {
+      if (this._hasCuisineStance()) return true
+      this._flashWarnTitles({ warnCuisine: true })
+      return false
+    }
+    return true
+  },
+
   onNext() {
     tapFeedback()
     const step = this.data.step
     const last = this.data.steps.length - 1
-    if (step === 0) {
-      if (!this._ensureAllComplete()) return
-    }
+    if (!this._validateCurrentStep()) return
     if (this._isProbeStep(step)) this._stashCookSkillFromProbe()
     if (step >= last) {
       this.finish()
@@ -626,7 +728,8 @@ Page({
       members,
       cookSkill: this._cookSkillSkipped ? undefined : this._pendingCookSkill,
       cookSkillSkipped: !!this._cookSkillSkipped,
-      cookSkillProbeCounts: this._cookSkillSkipped ? undefined : this._pendingCounts
+      cookSkillProbeCounts: this._cookSkillSkipped ? undefined : this._pendingCounts,
+      cookSkillProbeDishIds: this._cookSkillSkipped ? undefined : this._pendingDishIds
     })
       .then(() => {
         track('onboarding_done', Object.assign({
