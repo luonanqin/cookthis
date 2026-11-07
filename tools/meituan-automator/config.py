@@ -72,13 +72,23 @@ MARKET_SHOPS_PER_ADDRESS = 1  # 每地址进几家店（预留 2）
 MARKET_REFRESH_WAIT_S = 5  # 点「完成」后等待秒数
 MARKET_RESUME_CITY: str | None = None  # 从此城开始（含）；优先于进度文件
 # Appium 菜场结果写入 screenshots_inbox/{城市}/（与截图 OCR 同一目录，统一清洗）
-SCREENSHOTS_INBOX = Path(__file__).resolve().parent / "screenshots_inbox"
+_TOOLS_ROOT = Path(__file__).resolve().parent
+SCREENSHOTS_INBOX = _TOOLS_ROOT / "screenshots_inbox"
 MARKET_OUTPUT_DIR = SCREENSHOTS_INBOX  # 兼容旧名：实际按城分子目录
 MARKET_PROGRESS_FILE = SCREENSHOTS_INBOX / "_market_progress.json"
+# 手录视频入口：video/{城市}/*.mp4 → screenshots_inbox/{城市}/_video/ + products.jsonl
+VIDEO_DIR = _TOOLS_ROOT / "video"
+# 混录不分荤素等；清洗时进「未分类」桶，后续靠 by-category / 编辑器补类
+VIDEO_DEFAULT_CATEGORY = "未分类"
 
 # 半自动截图 OCR：商品名区域（Appium 坐标，与 1080 宽截图一致）
 # 左上 (x1,y1) → 右下 (x2,y2)
 OCR_REGION = (565, 470, 1020, 1610)
+
+# 录屏抽帧 OCR：商品列表文字区（Appium 窗口坐标；帧按 ref 宽高分轴缩放后裁剪）
+# 左上 (x1,y1) → 右下 (x2,y2)；ref = driver.get_window_size()
+VIDEO_OCR_REGION = (230, 440, 1070, 2070)
+VIDEO_OCR_REF_SIZE = (1080, 2244)  # width, height
 
 # 截图采集分类（可切换；解析文本按城市汇总追加）
 OCR_CATEGORIES: list[str] = ["荤菜", "素菜", "汤羹", "主食", "火锅食材", "豆制品", "海鲜水产"]

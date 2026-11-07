@@ -79,27 +79,37 @@ MEITUAN_OCR_ENGINE=tesseract .venv/bin/python run_screenshot_pipeline.py
 .venv/bin/python run_screenshot_pipeline.py --local                      # inbox 全部
 ```
 
-## 录屏停稳抽帧 + 批 OCR
+## 录屏入库（按城，与截图合并）
 
-手机美团滑菜单时录屏（滑—停—滑—停）。视频解码使用 OpenCV（opencv-python-headless），不调用 ffmpeg 命令行；macOS 上预期通过 AVFoundation 读取手机 H.264。事后：
+手录视频放到 `video/{城市}/`（**只认城市目录名，忽略视频文件名**；可混录；**默认 `category=未分类`**）。入口脚本一次完成抽帧 + OCR + 写入同城 `products.jsonl`：
 
 ```bash
 cd tools/meituan-automator
 .venv/bin/pip install -r requirements.txt
-.venv/bin/python extract_still_frames.py /path/to/record.mp4
-# 默认写出 screenshots_inbox/_from_video/{视频名}/frame_XXXX.jpg
-# 停稳阈值默认 >0.2s；帧内容不去重
 
-.venv/bin/python ocr_video_frames.py screenshots_inbox/_from_video/{视频名}
-# → 同目录 ocr_raw.jsonl（每帧）+ dishes.txt（清洗后保序去重）
+.venv/bin/python ingest_video_city.py --city 上海
+.venv/bin/python ingest_video_city.py --city 上海 --skip-extract  # 已有帧只重跑 OCR
 ```
 
-可选：`extract_still_frames.py --min-still 0.2 --diff-threshold 2.5 --out DIR`
+| 路径 | 内容 |
+|------|------|
+| `video/{城市}/*` | 手录入口（文件名随意） |
+| `screenshots_inbox/{城市}/_video/frame_*.jpg` | 该城所有视频停稳帧汇总编号 |
+| 同上 `crops/`、`ocr_raw.jsonl`、`dishes.txt` | 裁剪与 OCR 副产物 |
+| `screenshots_inbox/{城市}/products.jsonl` | **截图 + 视频**汇总（`file` 为 `_video/frame_….jpg`；重跑该城会先清旧视频行） |
+
+OCR 默认只认商品列表区（Appium 1080×2244 坐标 `230,440,1070,2070`，按帧分轴缩放）。底层仍可单独调用：
+
+- `extract_still_frames.py VIDEO --out DIR`
+- `ocr_video_frames.py FRAMES_DIR`（`--region` / `--full-frame`）
+
+入库后走下方「食材大全」即可（旧城追加、新城如上海从零建货架同一套命令）。
 
 ## 食材大全（城货架 / 全量 / 别名）
 
-1. 清洗：`.venv/bin/python clean_city_products.py`  
+1. 清洗：`.venv/bin/python clean_city_products.py`（或 `--city 上海`）  
    - 短名进货架 + 词典；达到字数门槛的进 `review/pending.txt`（已标记过的除外）  
+   - 视频混录名在 **`未分类`** 桶，后续靠 by-category / 别名编辑器补类  
 2. **只刷新 pending（不定时查看）**：  
    ```bash
    .venv/bin/python pending_review.py --min-len 3              # len≥3
@@ -113,5 +123,11 @@ cd tools/meituan-automator
    - 只重刷品类：`.venv/bin/python ingredients_by_category.py`  
    - `build_aliases` 用 `alias-info.txt` + `ingredients-all` 类内同义 − `reject.txt` 重写 `aliases.json`（学名不进表）  
    - 只重刷别名：`.venv/bin/python build_aliases.py`  
-   - 同步到小程序/云函数：仓库根目录 `node scripts/sync-alias-runtime-data.js`
-4. 匹配示例：见 `alias_match.py` 中 `expand_shelf` / `recipe_covered`
+   - 同步到小程序/云函数：仓库根目录 `node scripts/sync-alias-runtime-data.js`  
+5. 云库导入食材（仓库根目录）：  
+   ```bash
+   node scripts/sync-builtin-from-all-catalog.js
+   node scripts/import-ingredients.js
+   # → data/catalog/ingredients-for-import.json
+   ```  
+6. 匹配示例：见 `alias_match.py` 中 `expand_shelf` / `recipe_covered`

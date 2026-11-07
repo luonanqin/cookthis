@@ -156,16 +156,45 @@ describe('dinerSoftPenalty', () => {
     assert.equal(dinerSoftPenalty(recipe, diners, ingredientsByName), 40)
   })
 
-  it('adds +15 when child/elder and spicy/heavy', () => {
+  it('adds +15 for guest child/elder on spicy/heavy', () => {
     const recipe = {
       id: 'r2',
       mainIngredients: ['青菜'],
       seasonings: [],
       taste: 'spicy'
     }
-    // taste normal → 不叠多数口味冲突 +10
-    const diners = [{ ageBand: '5_15', taste: 'normal', avoids: [] }]
+    // 访客 taste 虽为 normal 档默认，年龄加成仍生效；多数 normal 不叠 +10
+    const diners = [
+      { ageBand: '5_15', taste: 'normal', avoids: [], guest: true }
+    ]
     assert.equal(dinerSoftPenalty(recipe, diners, ingredientsByName), 15)
+  })
+
+  it('does not add age +15 for profile members; taste only', () => {
+    const recipe = {
+      id: 'r2b',
+      mainIngredients: ['青菜'],
+      seasonings: [],
+      taste: 'spicy'
+    }
+    // 档案小孩口味适中：无多数冲突、无访客年龄加成
+    assert.equal(
+      dinerSoftPenalty(
+        recipe,
+        [{ ageBand: '5_15', taste: 'normal', avoids: [], guest: false }],
+        ingredientsByName
+      ),
+      0
+    )
+    // 档案小孩口味清淡：只走多数口味冲突 +10
+    assert.equal(
+      dinerSoftPenalty(
+        recipe,
+        [{ ageBand: '5_15', taste: 'light', avoids: [], guest: false }],
+        ingredientsByName
+      ),
+      10
+    )
   })
 
   it('adds +10 when majority taste conflicts with spicy/heavy', () => {
@@ -180,11 +209,11 @@ describe('dinerSoftPenalty', () => {
       { ageBand: '26_40', taste: 'light', avoids: [] },
       { ageBand: '26_40', taste: 'normal', avoids: [] }
     ]
-    // majority light vs heavy → +10; no child/elder → no +15
+    // majority light vs heavy → +10; no guest child/elder → no +15
     assert.equal(dinerSoftPenalty(recipe, diners, ingredientsByName), 10)
   })
 
-  it('stacks avoid + child/elder + taste when all apply', () => {
+  it('stacks avoid + guest child/elder + taste when all apply', () => {
     const recipe = {
       id: 'r4',
       mainIngredients: ['猪肉'],
@@ -192,10 +221,10 @@ describe('dinerSoftPenalty', () => {
       taste: 'spicy'
     }
     const diners = [
-      { ageBand: '60_plus', taste: 'light', avoids: ['pork'] },
-      { ageBand: '5_15', taste: 'light', avoids: [] }
+      { ageBand: '60_plus', taste: 'light', avoids: ['pork'], guest: true },
+      { ageBand: '5_15', taste: 'light', avoids: [], guest: true }
     ]
-    // +40 avoid, +15 child/elder spicy, +10 majority light vs spicy
+    // +40 avoid, +15 guest 小/老 spicy, +10 majority light vs spicy
     assert.equal(dinerSoftPenalty(recipe, diners, ingredientsByName), 65)
   })
 })

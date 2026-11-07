@@ -202,7 +202,9 @@ function intersectsAvoids(tagSet, avoids) {
 
 /**
  * §3.0.8 extras only（不含 reject / fresh）。
- * 忌口命中 +40（多人不叠）；小/老+辣重口 +15；多数口味冲突 +10。
+ * 忌口命中 +40（多人不叠）；
+ * 访客/本场档位的小/老 + 辣重口 +15（档案成员不走年龄加成，只看口味）；
+ * 多数口味冲突 +10。
  */
 function dinerSoftPenalty(recipe, diners, ingredientsByName) {
   const list = diners || []
@@ -219,10 +221,13 @@ function dinerSoftPenalty(recipe, diners, ingredientsByName) {
   if (avoidHit) score += 40
 
   const taste = recipeTasteKey(recipe)
-  const hasChildOrElder = list.some(
-    (d) => d.ageBand === '5_15' || d.ageBand === '60_plus'
+  // 仅访客 / 聚会档位人：未设个人口味，小/老用档位默认少辣少重口
+  const hasGuestChildOrElder = list.some(
+    (d) =>
+      d.guest &&
+      (d.ageBand === '5_15' || d.ageBand === '60_plus')
   )
-  if (hasChildOrElder && (taste === 'spicy' || taste === 'heavy')) {
+  if (hasGuestChildOrElder && (taste === 'spicy' || taste === 'heavy')) {
     score += 15
   }
 

@@ -281,19 +281,37 @@
       gap: 10px;
     }
     .diff-card {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 10px 12px;
+      padding: 8px 10px;
+    }
+    .diff-card-body {
+      flex: 1;
+      min-width: 0;
     }
     .diff-name { font-weight: 600; }
     .diff-mains {
       color: var(--muted);
       font-size: 12px;
-      margin: 4px 0 8px;
-      min-height: 1.35em;
+      margin-top: 2px;
+      min-height: 1.2em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
-    .diff-levels { display: flex; gap: 4px; flex-wrap: wrap; }
+    .diff-levels {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .diff-levels button {
+      padding: 4px 8px;
+      font-size: 12px;
+    }
     .diff-levels button.active {
       background: var(--accent);
       color: #fff;
@@ -592,7 +610,9 @@
         card.className = 'diff-card';
         const shown = effectiveShownDifficulty(row);
         const mains = (row.mainIngredients || []).join('、') || '（无主料）';
-        card.innerHTML = '<div class="diff-name"></div><div class="diff-mains"></div><div class="diff-levels"></div>';
+        card.innerHTML =
+          '<div class="diff-card-body"><div class="diff-name"></div><div class="diff-mains"></div></div>' +
+          '<div class="diff-levels"></div>';
         card.querySelector('.diff-name').textContent = row.name || row.id;
         card.querySelector('.diff-mains').textContent = mains;
         const levels = card.querySelector('.diff-levels');
