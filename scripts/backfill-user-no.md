@@ -11,10 +11,10 @@
 1. 分页拉全量 `users`，过滤尚无合法 `userNo` 的（`Number.isInteger(n) && n >= 1`）。
 2. 已有合法号求出 `maxExisting`。
 3. 待填列表按 `createdAt` 升序，同毫秒按 `uid` 字符串升序。
-4. 从 `max(maxExisting, counters.value) + 1` 起连续赋号；写完后把 `counters.userNo.value` 设为最终 max（无人待填时也把计数器抬到 `maxExisting`）。
-5. 幂等：已有合法号跳过。中断后可再跑，已写入的用户不会被改号。
+4. 从 `max(maxExisting, counters.value) + 1` 起连续赋号；把 `counters.userNo.value` 抬到最终 max（无人待填时也抬到 `maxExisting`）。
+5. 幂等：已有合法号跳过。中断后可再跑，已写入的用户不会被改号。再跑可能留下空洞（号不连续），只保证不重复，不要靠回填填缝。
 
-先写用户、再写计数器，避免预占号后中断留下空洞。
+`--apply` 先对计数器做读改写：live 值必须仍等于规划时读到的值，否则中止；**禁止把计数器改小**。预占成功后再写用户，且只在库里仍是非法 `userNo` 时才写入。因此与线上 `allocateUserNo` 并发时宁可中止重跑，也不抢号、不回拨。预占后中断会留下空洞，这是可接受的。
 
 ## 前置
 
@@ -34,7 +34,9 @@ node scripts/backfill-user-no.js --users-json /tmp/users.json
 node scripts/backfill-user-no.js --users-json /tmp/users.json --counter 12
 ```
 
-核对报告：`pending` / `skipped` / `nextCounter`、`assign uid userNo` 行。已有号必须出现在 skipped，不得出现在 assign。若出现 `duplicate existing userNo`，**停止**，先人工处理重复，禁止 `--apply`。
+`--counter` 只用于 dump dry-run，用来覆盖 dump 里的计数器；**禁止**和 `--apply` 一起用。
+
+核对报告：`pending` / `skipped` / `nextCounter`、`assign uid userNo` 与 `skip uid userNo` 行。已有号必须出现在 skip，不得出现在 assign。若出现 `duplicate existing userNo`，**停止**，先人工处理重复，禁止 `--apply`。
 
 ### 方式 B：直连云库（可选依赖）
 
@@ -54,14 +56,15 @@ TCB_ENV=<test-env> TCB_SECRET_ID=<id> TCB_SECRET_KEY=<key> \
   node scripts/backfill-user-no.js --apply
 ```
 
-`--apply` 必须读线上数据，不能和 `--users-json` 一起用（防止对过期 dump 写库）。
+`--apply` 必须读线上数据，不能和 `--users-json` 或 `--counter` 一起用（防止对过期 dump / 手填计数器写库）。成功写入后才会打印 apply 报告。
 
 核对：
 
 - 每个用户至多一个合法 `userNo`，无重复。
-- 老用户号按 `createdAt` / `uid` 顺序连续接在 `max(maxExisting, counter)` 之后。
-- `counters/userNo.value` 等于全表 max。
-- 已有号与回填前一致。
+- 老用户号按 `createdAt` / `uid` 顺序接在规划时的 `max(maxExisting, counter)` 之后；再跑允许空洞。
+- `counters/userNo.value` ≥ 全表 max，且从未被脚本改小。
+- 已有合法号与回填前一致。
+- 若报 `counter moved`：放弃本次 apply，重新 dry-run 再执行。
 
 ## 生产 apply（人工）
 

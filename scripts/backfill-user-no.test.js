@@ -8,11 +8,13 @@ const path = require('path')
 const {
   toCreatedAtMs,
   parseArgs,
+  parseCounterValue,
+  decideCounterAdvance,
   planUserNoBackfill,
   formatBackfillReport,
   applyPlan
 } = require('./lib/backfillUserNo.js')
-const { runCli } = require('./backfill-user-no.js')
+const { runCli, fetchCounterValue, cloudWriter } = require('./backfill-user-no.js')
 
 function users(rows) {
   return rows.map((row) => ({ ...row }))
@@ -176,28 +178,137 @@ describe('planUserNoBackfill', () => {
   })
 })
 
+describe('parseCounterValue', () => {
+  it('treats missing or empty counter docs as 0', () => {
+    assert.equal(parseCounterValue(null), 0)
+    assert.equal(parseCounterValue(undefined), 0)
+    assert.equal(parseCounterValue({}), 0)
+    assert.equal(parseCounterValue({ updatedAt: 'x' }), 0)
+    assert.equal(parseCounterValue({ value: null }), 0)
+  })
+
+  it('returns an integer >= 0', () => {
+    assert.equal(parseCounterValue({ value: 0 }), 0)
+    assert.equal(parseCounterValue({ value: 12 }), 12)
+  })
+
+  it('aborts when value is present but not an integer >= 0', () => {
+    assert.throws(() => parseCounterValue({ value: 1.5 }), /not an integer >= 0/)
+    assert.throws(() => parseCounterValue({ value: -1 }), /not an integer >= 0/)
+    assert.throws(() => parseCounterValue({ value: '12' }), /not an integer >= 0/)
+    assert.throws(() => parseCounterValue({ value: NaN }), /not an integer >= 0/)
+  })
+})
+
+describe('decideCounterAdvance', () => {
+  it('returns next when the live counter still matches the plan', () => {
+    assert.equal(decideCounterAdvance(5, 5, 8), 8)
+    assert.equal(decideCounterAdvance(5, 5, 5), 5)
+  })
+
+  it('aborts when the live counter moved and never decreases it', () => {
+    assert.throws(() => decideCounterAdvance(5, 6, 8), /counter moved/)
+    assert.throws(() => decideCounterAdvance(8, 8, 5), /refusing to decrease counter/)
+  })
+})
+
 describe('applyPlan', () => {
-  it('writes pending users first, then the counter, and never touches skipped rows', async () => {
-    const plan = planUserNoBackfill(
+  function pendingPlan() {
+    return planUserNoBackfill(
       users([
         { _id: 'kept', uid: 'u_kept', createdAt: 1, userNo: 1 },
         { _id: 'need', uid: 'u_need', createdAt: 2 }
       ]),
       1
     )
+  }
+
+  it('reserves the counter before writing users and never touches skipped rows', async () => {
+    const plan = pendingPlan()
     const calls = []
     await applyPlan(plan, {
+      reserveCounter: async (observed, next) => {
+        calls.push(['reserve', observed, next])
+      },
+      readUser: async (id) => {
+        calls.push(['read', id])
+        return { _id: id, userNo: null }
+      },
       updateUser: async (row) => {
         calls.push(['user', row.uid, row.userNo])
-      },
-      upsertCounter: async (value) => {
-        calls.push(['counter', value])
       }
     })
     assert.deepEqual(calls, [
-      ['user', 'u_need', 2],
-      ['counter', 2]
+      ['reserve', 1, 2],
+      ['read', 'need'],
+      ['user', 'u_need', 2]
     ])
+  })
+
+  it('does not write users when reserveCounter aborts', async () => {
+    const calls = []
+    await assert.rejects(
+      () =>
+        applyPlan(pendingPlan(), {
+          reserveCounter: async () => {
+            calls.push('reserve')
+            throw new Error('counter moved since plan (1 → 2); aborting apply')
+          },
+          readUser: async () => {
+            calls.push('read')
+            return { userNo: null }
+          },
+          updateUser: async () => {
+            calls.push('user')
+          }
+        }),
+      /counter moved/
+    )
+    assert.deepEqual(calls, ['reserve'])
+  })
+
+  it('writes a planned number only when the stored userNo is still invalid', async () => {
+    const plan = planUserNoBackfill(
+      users([
+        { _id: 'a', uid: 'u_a', createdAt: 1 },
+        { _id: 'b', uid: 'u_b', createdAt: 2 }
+      ]),
+      0
+    )
+    const calls = []
+    await applyPlan(plan, {
+      reserveCounter: async () => {
+        calls.push('reserve')
+      },
+      readUser: async (id) => {
+        if (id === 'a') return { _id: 'a', userNo: 9 }
+        return { _id: 'b', userNo: 0 }
+      },
+      updateUser: async (row) => {
+        calls.push(['user', row.uid, row.userNo])
+      }
+    })
+    assert.deepEqual(calls, ['reserve', ['user', 'u_b', 2]])
+  })
+
+  it('still reserves the counter when nobody needs a number', async () => {
+    const plan = planUserNoBackfill(
+      users([{ _id: 'a', uid: 'u_a', createdAt: 1, userNo: 9 }]),
+      3
+    )
+    const calls = []
+    await applyPlan(plan, {
+      reserveCounter: async (observed, next) => {
+        calls.push(['reserve', observed, next])
+      },
+      readUser: async () => {
+        calls.push('read')
+      },
+      updateUser: async () => {
+        calls.push('user')
+      }
+    })
+    assert.deepEqual(calls, [['reserve', 3, 9]])
   })
 
   it('refuses apply when existing userNo values collide', async () => {
@@ -211,8 +322,9 @@ describe('applyPlan', () => {
     await assert.rejects(
       () =>
         applyPlan(plan, {
-          updateUser: async () => {},
-          upsertCounter: async () => {}
+          reserveCounter: async () => {},
+          readUser: async () => ({}),
+          updateUser: async () => {}
         }),
       /duplicate existing userNo/
     )
@@ -245,6 +357,7 @@ describe('runCli', () => {
       assert.equal(result.written, 0)
       assert.match(result.report, /mode: dry-run/)
       assert.match(result.report, /assign\tu_need\t2/)
+      assert.match(result.report, /skip\tu_kept\t1/)
       assert.deepEqual(writes, [])
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
@@ -259,6 +372,48 @@ describe('runCli', () => {
         }),
       /refusing --apply with --users-json/
     )
+  })
+
+  it('refuses --apply together with --counter', async () => {
+    await assert.rejects(
+      () =>
+        runCli(['node', 'backfill-user-no.js', '--apply', '--counter', '12'], {
+          stdoutWrite: () => {}
+        }),
+      /refusing --apply with --counter/
+    )
+  })
+
+  it('prints the apply report only after successful writes', async () => {
+    const events = []
+    const result = await runCli(['node', 'backfill-user-no.js', '--apply'], {
+      db: {},
+      fetchAllUsers: async () =>
+        users([
+          { _id: 'kept', uid: 'u_kept', createdAt: 1, userNo: 1 },
+          { _id: 'need', uid: 'u_need', createdAt: 2 }
+        ]),
+      fetchCounterValue: async () => 1,
+      writer: {
+        reserveCounter: async () => {
+          events.push('reserve')
+        },
+        readUser: async () => ({ userNo: null }),
+        updateUser: async () => {
+          events.push('user')
+        }
+      },
+      stdoutWrite: (text) => {
+        events.push('stdout')
+        events.push(text)
+      }
+    })
+    assert.deepEqual(
+      events.filter((item) => item === 'reserve' || item === 'user' || item === 'stdout'),
+      ['reserve', 'user', 'stdout']
+    )
+    assert.match(result.report, /mode: apply/)
+    assert.match(events[events.length - 1], /mode: apply/)
   })
 })
 
@@ -277,6 +432,164 @@ describe('formatBackfillReport', () => {
     assert.match(report, /skipped: 1/)
     assert.match(report, /nextCounter: 2/)
     assert.match(report, /assign\tu_need\t2/)
+    assert.match(report, /skip\tu_kept\t1/)
     assert.match(report, /no writes/)
+  })
+})
+
+describe('fetchCounterValue', () => {
+  function counterDb(getImpl) {
+    return {
+      collection(name) {
+        assert.equal(name, 'counters')
+        return {
+          doc(id) {
+            assert.equal(id, 'userNo')
+            return { get: getImpl }
+          }
+        }
+      }
+    }
+  }
+
+  it('returns 0 when the counter doc is missing or empty', async () => {
+    const missing = Object.assign(new Error('document not found'), {
+      code: 'DATABASE.DOC_NOT_EXIST'
+    })
+    assert.equal(
+      await fetchCounterValue(
+        counterDb(async () => {
+          throw missing
+        })
+      ),
+      0
+    )
+    assert.equal(await fetchCounterValue(counterDb(async () => ({ data: null }))), 0)
+    assert.equal(await fetchCounterValue(counterDb(async () => ({ data: [] }))), 0)
+    assert.equal(await fetchCounterValue(counterDb(async () => ({ data: {} }))), 0)
+  })
+
+  it('returns the stored integer', async () => {
+    assert.equal(
+      await fetchCounterValue(counterDb(async () => ({ data: { value: 12 } }))),
+      12
+    )
+  })
+
+  it('aborts on unexpected read errors', async () => {
+    await assert.rejects(
+      () =>
+        fetchCounterValue(
+          counterDb(async () => {
+            throw new Error('permission denied')
+          })
+        ),
+      /permission denied/
+    )
+  })
+
+  it('aborts when value is present but not an integer >= 0', async () => {
+    await assert.rejects(
+      () => fetchCounterValue(counterDb(async () => ({ data: { value: 1.5 } }))),
+      /not an integer >= 0/
+    )
+  })
+})
+
+describe('cloudWriter.reserveCounter', () => {
+  function createCounterDb(opts) {
+    let doc = opts.doc === undefined ? null : opts.doc
+    const events = []
+    const db = {
+      events,
+      getDoc() {
+        return doc
+      },
+      serverDate() {
+        return { SERVER_DATE: true }
+      },
+      collection() {
+        return {
+          doc() {
+            return {
+              async get() {
+                throw new Error('unlocked get is not allowed')
+              },
+              async update() {
+                throw new Error('unlocked update is not allowed')
+              },
+              async set() {
+                throw new Error('unlocked set is not allowed')
+              }
+            }
+          }
+        }
+      },
+      async runTransaction(fn) {
+        events.push('tx-start')
+        const txDoc = {
+          async get() {
+            events.push('get')
+            if (doc == null) {
+              const err = new Error('document not found')
+              err.code = 'DATABASE.DOC_NOT_EXIST'
+              throw err
+            }
+            return { data: { ...doc } }
+          },
+          async update(payload) {
+            events.push('update')
+            if (doc == null) throw new Error('cannot update missing doc')
+            doc = Object.assign({}, doc, payload)
+          },
+          async set(payload) {
+            events.push('set')
+            doc = Object.assign({}, payload)
+          }
+        }
+        const result = await fn({
+          collection() {
+            return {
+              doc() {
+                return txDoc
+              }
+            }
+          }
+        })
+        events.push('tx-end')
+        return result
+      }
+    }
+    return db
+  }
+
+  it('creates or advances the counter with read-modify-write and never decreases it', async () => {
+    const created = createCounterDb({ doc: null })
+    const writer = cloudWriter(created)
+    assert.equal(await writer.reserveCounter(0, 3), 3)
+    assert.equal(created.getDoc().value, 3)
+    assert.ok(created.events.includes('set'))
+
+    const advanced = createCounterDb({ doc: { value: 5 } })
+    assert.equal(await cloudWriter(advanced).reserveCounter(5, 8), 8)
+    assert.equal(advanced.getDoc().value, 8)
+    assert.deepEqual(advanced.events, ['tx-start', 'get', 'update', 'tx-end'])
+  })
+
+  it('aborts without writing when the live counter moved', async () => {
+    const db = createCounterDb({ doc: { value: 6 } })
+    await assert.rejects(() => cloudWriter(db).reserveCounter(5, 8), /counter moved/)
+    assert.equal(db.getDoc().value, 6)
+    assert.equal(db.events.includes('update'), false)
+    assert.equal(db.events.includes('set'), false)
+  })
+
+  it('aborts without writing when next would rewind the counter', async () => {
+    const db = createCounterDb({ doc: { value: 8 } })
+    await assert.rejects(
+      () => cloudWriter(db).reserveCounter(8, 5),
+      /refusing to decrease counter/
+    )
+    assert.equal(db.getDoc().value, 8)
   })
 })

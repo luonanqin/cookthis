@@ -13,12 +13,16 @@
  * Live cloud (optional @cloudbase/node-sdk + TCB_* env):
  *   node scripts/backfill-user-no.js
  *   node scripts/backfill-user-no.js --apply
+ * --counter is dump dry-run only; refuse it with --apply.
  *
  * Ops: scripts/backfill-user-no.md
  */
 const fs = require('fs')
 const {
   parseArgs,
+  parseCounterValue,
+  decideCounterAdvance,
+  isMissingCounterDoc,
   planUserNoBackfill,
   applyPlan,
   formatBackfillReport
@@ -41,13 +45,9 @@ function unwrapDoc(snap) {
   if (!snap) return null
   const data = snap.data
   if (typeof data === 'function') {
-    try {
-      const out = data()
-      if (Array.isArray(out)) return out[0] || null
-      return out || null
-    } catch (err) {
-      return null
-    }
+    const out = data()
+    if (Array.isArray(out)) return out[0] || null
+    return out || null
   }
   if (Array.isArray(data)) return data[0] || null
   if (data && typeof data === 'object') return data
@@ -95,34 +95,69 @@ async function fetchAllUsers(db) {
 }
 
 async function fetchCounterValue(db) {
+  let snap
   try {
-    const snap = await db.collection('counters').doc('userNo').get()
-    const data = unwrapDoc(snap)
-    const value = data && data.value
-    if (Number.isInteger(value) && value >= 0) return value
-    return 0
+    snap = await db.collection('counters').doc('userNo').get()
   } catch (err) {
-    return 0
+    if (isMissingCounterDoc(err)) return 0
+    throw err
   }
+  return parseCounterValue(unwrapDoc(snap))
 }
 
 function cloudWriter(db) {
   const now = () => (typeof db.serverDate === 'function' ? db.serverDate() : new Date())
+
+  async function reserveOnDoc(getDoc, setDoc, updateDoc, observed, next) {
+    let snap
+    try {
+      snap = await getDoc()
+    } catch (err) {
+      if (!isMissingCounterDoc(err)) throw err
+      snap = null
+    }
+    const data = unwrapDoc(snap)
+    const live = parseCounterValue(data)
+    const target = decideCounterAdvance(observed, live, next)
+    if (target === live && data) return target
+    const payload = { value: target, updatedAt: now() }
+    if (data) await updateDoc(payload)
+    else await setDoc(payload)
+    return target
+  }
+
   return {
+    async reserveCounter(observed, next) {
+      if (typeof db.runTransaction === 'function') {
+        return db.runTransaction(async (tx) => {
+          const doc = tx.collection('counters').doc('userNo')
+          return reserveOnDoc(
+            () => doc.get(),
+            (payload) => doc.set(payload),
+            (payload) => doc.update(payload),
+            observed,
+            next
+          )
+        })
+      }
+      const ref = db.collection('counters').doc('userNo')
+      return reserveOnDoc(
+        () => ref.get(),
+        (payload) => ref.set(payload),
+        (payload) => ref.update(payload),
+        observed,
+        next
+      )
+    },
+    async readUser(id) {
+      const snap = await db.collection('users').doc(id).get()
+      return unwrapDoc(snap)
+    },
     async updateUser(row) {
       await db.collection('users').doc(row._id).update({
         userNo: row.userNo,
         updatedAt: now()
       })
-    },
-    async upsertCounter(value) {
-      const payload = { value, updatedAt: now() }
-      const ref = db.collection('counters').doc('userNo')
-      try {
-        await ref.update(payload)
-      } catch (err) {
-        await ref.set(payload)
-      }
     }
   }
 }
@@ -131,6 +166,9 @@ async function runCli(argv = process.argv, io = {}) {
   const args = parseArgs(argv)
   if (args.apply && args.usersJson) {
     throw new Error('refusing --apply with --users-json; apply must use live cloud data')
+  }
+  if (args.apply && args.counter != null) {
+    throw new Error('refusing --apply with --counter; --counter is dump dry-run only')
   }
 
   let users
@@ -153,12 +191,15 @@ async function runCli(argv = process.argv, io = {}) {
   const mode = args.apply ? 'apply' : 'dry-run'
   const report = formatBackfillReport(plan, { mode })
   const writeOut = io.stdoutWrite || ((text) => process.stdout.write(text))
-  writeOut(report)
 
-  if (!args.apply) return { plan, report, written: 0 }
+  if (!args.apply) {
+    writeOut(report)
+    return { plan, report, written: 0 }
+  }
 
   const writer = io.writer || cloudWriter(db)
   await applyPlan(plan, writer)
+  writeOut(report)
   return { plan, report, written: plan.assignments.length }
 }
 
