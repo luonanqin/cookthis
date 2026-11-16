@@ -23,6 +23,7 @@ const {
   parseCounterValue,
   decideCounterAdvance,
   isMissingCounterDoc,
+  parseUsersDumpText,
   planUserNoBackfill,
   applyPlan,
   formatBackfillReport
@@ -31,14 +32,7 @@ const {
 const PAGE_SIZE = 100
 
 function loadDump(filePath) {
-  const raw = JSON.parse(fs.readFileSync(filePath, 'utf8'))
-  if (Array.isArray(raw)) return { users: raw, counterValue: 0 }
-  if (raw && Array.isArray(raw.users)) {
-    const n = raw.counterValue
-    const counterValue = Number.isInteger(n) && n >= 0 ? n : 0
-    return { users: raw.users, counterValue }
-  }
-  throw new Error('users json must be an array or { users, counterValue }')
+  return parseUsersDumpText(fs.readFileSync(filePath, 'utf8'))
 }
 
 function unwrapDoc(snap) {

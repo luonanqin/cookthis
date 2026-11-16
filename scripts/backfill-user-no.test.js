@@ -10,6 +10,7 @@ const {
   parseArgs,
   parseCounterValue,
   decideCounterAdvance,
+  parseUsersDumpText,
   planUserNoBackfill,
   formatBackfillReport,
   applyPlan
@@ -26,6 +27,10 @@ describe('toCreatedAtMs', () => {
     assert.equal(toCreatedAtMs(new Date(1700000000000)), 1700000000000)
     assert.equal(toCreatedAtMs('2023-11-14T22:13:20.000Z'), Date.parse('2023-11-14T22:13:20.000Z'))
     assert.equal(toCreatedAtMs({ $date: 1700000000000 }), 1700000000000)
+    assert.equal(
+      toCreatedAtMs({ $date: '2026-10-06T17:37:02.318Z' }),
+      Date.parse('2026-10-06T17:37:02.318Z')
+    )
   })
 
   it('treats missing or unreadable values as 0', () => {
@@ -33,6 +38,32 @@ describe('toCreatedAtMs', () => {
     assert.equal(toCreatedAtMs(undefined), 0)
     assert.equal(toCreatedAtMs('not-a-date'), 0)
     assert.equal(toCreatedAtMs({}), 0)
+  })
+})
+
+describe('parseUsersDumpText', () => {
+  it('parses cloud-console NDJSON (one user object per line)', () => {
+    const text =
+      '{"_id":"a","uid":"u_a","createdAt":{"$date":"2026-10-06T17:37:02.318Z"}}\n' +
+      '{"_id":"b","uid":"u_b","createdAt":{"$date":"2026-10-30T03:16:14.246Z"}}\n'
+    const dump = parseUsersDumpText(text)
+    assert.equal(dump.users.length, 2)
+    assert.equal(dump.users[0].uid, 'u_a')
+    assert.equal(dump.counterValue, 0)
+    const plan = planUserNoBackfill(dump.users, 0)
+    assert.equal(plan.assignments.length, 2)
+    assert.equal(plan.assignments[0].uid, 'u_a')
+    assert.equal(plan.assignments[0].userNo, 1)
+    assert.equal(plan.assignments[1].uid, 'u_b')
+    assert.equal(plan.assignments[1].userNo, 2)
+  })
+
+  it('still accepts a JSON array and { users } envelope', () => {
+    assert.equal(parseUsersDumpText('[{"uid":"u1"}]').users[0].uid, 'u1')
+    assert.equal(
+      parseUsersDumpText('{"users":[{"uid":"u2"}],"counterValue":3}').counterValue,
+      3
+    )
   })
 })
 

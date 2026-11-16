@@ -3,5 +3,8 @@
   "private": true,
   "scripts": {
     "test": "node --test cloudfunctions/_shared/*.test.js scripts/tests/*.test.js"
+  },
+  "dependencies": {
+    "@cloudbase/node-sdk": "^3.18.7"
   }
 }

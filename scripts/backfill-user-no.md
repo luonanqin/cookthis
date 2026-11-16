@@ -29,10 +29,13 @@
 云开发控制台 → 数据库 → `users` 导出 JSON。可选同时看 `counters/userNo.value`。
 
 ```bash
-# 数组，或 { "users": [...], "counterValue": 12 }
+# 支持：JSON 数组、{ "users": [...], "counterValue": 12 }、
+# 云开发控制台导出的 NDJSON（一行一条文档）、单个用户对象
 node scripts/backfill-user-no.js --users-json /tmp/users.json
 node scripts/backfill-user-no.js --users-json /tmp/users.json --counter 12
 ```
+
+控制台「导出」若是**每行一个 `{...}`**（不是外层 `[...]`），脚本已兼容，无需手工改成数组。
 
 `--counter` 只用于 dump dry-run，用来覆盖 dump 里的计数器；**禁止**和 `--apply` 一起用。
 

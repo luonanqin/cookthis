@@ -17,12 +17,77 @@ function toCreatedAtMs(value) {
     if (typeof value.$date === 'number' && Number.isFinite(value.$date)) {
       return value.$date
     }
+    // 云开发控制台导出常见：{ "$date": "2026-10-06T17:37:02.318Z" }
+    if (typeof value.$date === 'string') {
+      const t = Date.parse(value.$date)
+      return Number.isFinite(t) ? t : 0
+    }
     if (typeof value.getTime === 'function') {
       const t = value.getTime()
       return Number.isFinite(t) ? t : 0
     }
   }
   return 0
+}
+
+/**
+ * 解析控制台/手工 dump：
+ * - JSON 数组
+ * - { users: [...], counterValue? }
+ * - NDJSON（一行一条文档，云开发导出常见）
+ * - 单个用户对象
+ */
+function parseUsersDumpText(text) {
+  const src = String(text || '').replace(/^\uFEFF/, '').trim()
+  if (!src) return { users: [], counterValue: 0 }
+
+  const tryJson = () => {
+    try {
+      return JSON.parse(src)
+    } catch (e) {
+      return null
+    }
+  }
+
+  const raw = tryJson()
+  if (raw != null) {
+    if (Array.isArray(raw)) return { users: raw, counterValue: 0 }
+    if (raw && Array.isArray(raw.users)) {
+      const n = raw.counterValue
+      const counterValue = Number.isInteger(n) && n >= 0 ? n : 0
+      return { users: raw.users, counterValue }
+    }
+    if (raw && typeof raw === 'object' && (raw.uid || raw._id)) {
+      return { users: [raw], counterValue: 0 }
+    }
+  }
+
+  // NDJSON：整文件 JSON.parse 会因第二行报错；按行解析
+  const users = []
+  const lines = src.split(/\r?\n/)
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim()
+    if (!line) continue
+    let obj
+    try {
+      obj = JSON.parse(line)
+    } catch (e) {
+      throw new Error(
+        'users dump line ' +
+          (i + 1) +
+          ' is not JSON (expected array, {users}, single doc, or NDJSON): ' +
+          e.message
+      )
+    }
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
+      throw new Error('users dump line ' + (i + 1) + ' must be a user object')
+    }
+    users.push(obj)
+  }
+  if (!users.length) {
+    throw new Error('users json must be an array, { users, counterValue }, NDJSON, or one user object')
+  }
+  return { users, counterValue: 0 }
 }
 
 function isMissingCounterDoc(err) {
@@ -234,6 +299,7 @@ module.exports = {
   isMissingCounterDoc,
   parseCounterValue,
   decideCounterAdvance,
+  parseUsersDumpText,
   parseArgs,
   planUserNoBackfill,
   applyPlan,
