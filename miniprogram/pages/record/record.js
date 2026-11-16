@@ -1,6 +1,7 @@
 const { callCloud } = require('../../services/cloud.js')
 const { track } = require('../../utils/track.js')
 const { tapFeedback } = require('../../utils/haptic.js')
+const { mealLogSourceLabel } = require('../../utils/mealLogSource.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 
 const PAGE_SIZE = 10
@@ -10,6 +11,7 @@ function mapItem(it) {
     logId: it.logId,
     date: it.date,
     source: it.source,
+    sourceLabel: mealLogSourceLabel(it.source),
     dishesText: (it.dishNames || []).join('、')
   }
 }

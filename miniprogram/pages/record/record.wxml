@@ -17,7 +17,7 @@
   <block wx:else>
     <view class="item" wx:for="{{items}}" wx:key="logId">
       <view class="item-main">
-        <view class="meta">{{item.date}} · {{item.source}}</view>
+        <view class="meta">{{item.date}} · {{item.sourceLabel}}</view>
         <view class="dishes">{{item.dishesText}}</view>
       </view>
       <view
