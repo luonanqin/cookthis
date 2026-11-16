@@ -19,6 +19,8 @@ const {
   storedCookSkill,
   storedProbeCounts
 } = require('./cookSkillPersist.js')
+// Vendored: keep in sync with cloudfunctions/auth/userNo.js
+const { loginUserNoFields } = require('./userNo.js')
 
 /**
  * #4：写城市前校验冷却 / 日上限。首次设城与同城不计入。
@@ -161,7 +163,8 @@ async function handleGet(uid) {
         child: household.child,
         elder: household.elder
       },
-      ...marketScaleSnapshot(user)
+      ...marketScaleSnapshot(user),
+      ...loginUserNoFields(user)
     },
     members,
     ageBands: AGE_BANDS
@@ -765,6 +768,17 @@ async function handleConfirmCuisineNoPreference(uid, user) {
   return { ok: true, cuisinePrefsConfirmedAt: true }
 }
 
+async function handleAckUserNoReveal(uid, user) {
+  if (user.userNoRevealSeenAt) return { ok: true, userNoRevealSeen: true }
+  await db.collection('users').doc(user._id).update({
+    data: {
+      userNoRevealSeenAt: db.serverDate(),
+      updatedAt: db.serverDate()
+    }
+  })
+  return { ok: true, userNoRevealSeen: true }
+}
+
 exports.main = async (event) => {
   const wxContext = cloud.getWXContext()
   const openid = wxContext.OPENID
@@ -793,11 +807,12 @@ exports.main = async (event) => {
   if (action === 'setMarketScale') return handleSetMarketScale(event, uid, user)
   if (action === 'debugMarketScale') return handleDebugMarketScale(event, uid, user)
   if (action === 'saveCookSkillProbe') return handleSaveCookSkillProbe(event, uid, user)
+  if (action === 'ackUserNoReveal') return handleAckUserNoReveal(uid, user)
   console.warn('profile UNKNOWN_ACTION', action)
   return {
     ok: false,
     error: 'UNKNOWN_ACTION',
-    hint: '请重新上传并部署云函数 profile（需含 saveProfileLite / skipProfileLite / confirmFamilyAvoidsNone / confirmCuisineNoPreference / setMarketScale / debugMarketScale / saveCookSkillProbe）',
+    hint: '请重新上传并部署云函数 profile（需含 saveProfileLite / skipProfileLite / confirmFamilyAvoidsNone / confirmCuisineNoPreference / setMarketScale / debugMarketScale / saveCookSkillProbe / ackUserNoReveal）',
     action: action || null
   }
 }

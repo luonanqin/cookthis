@@ -99,7 +99,9 @@ function ensureLogin(opts) {
       marketScaleEffective: user.marketScaleEffective || null,
       marketScaleChosenAt: user.marketScaleChosenAt || null,
       marketScaleAnchor: user.marketScaleAnchor || null,
-      members
+      members,
+      userNo: Number.isInteger(user.userNo) && user.userNo >= 1 ? user.userNo : null,
+      userNoRevealSeen: !!user.userNoRevealSeen
     }
     if (preferLocalStance && prev) {
       if (prev.familyAvoidsNone && !slim.familyAvoidsNone) {
