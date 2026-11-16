@@ -27,7 +27,22 @@
         <text class="member-sep" aria-hidden="true">|</text>
         <text class="member-cell member-cell--avoid">{{item.avoidLabel}}</text>
       </view>
-      <text class="member-del" data-id="{{item.memberId}}" catchtap="removeMember">删</text>
+      <view class="member-del-wrap">
+        <block wx:if="{{pendingRemoveMemberId === item.memberId}}">
+          <text class="member-del-cancel" catchtap="onCancelRemoveMember">取消</text>
+          <text
+            class="member-del-confirm"
+            data-id="{{item.memberId}}"
+            catchtap="onConfirmRemoveMember"
+          >确认删除</text>
+        </block>
+        <text
+          wx:else
+          class="member-del"
+          data-id="{{item.memberId}}"
+          catchtap="onAskRemoveMember"
+        >删除</text>
+      </view>
     </view>
     <view class="link-inline member-add" bindtap="openAddMember">＋ 添加家庭成员</view>
   </view>
@@ -175,15 +190,6 @@
     <button type="primary" disabled="{{busy}}" bindtap="onSave">保存</button>
   </view>
 
-  <view class="mask user-no-mask" wx:if="{{showUserNoReveal}}" catchtouchmove="true" bindtap="onUserNoRevealAck">
-    <view class="user-no-card" catchtap="noop">
-      <view class="user-no-welcome">欢迎加入</view>
-      <view class="user-no-roll">{{revealDisplay}}</view>
-      <view class="user-no-final" wx:if="{{revealDone}}">{{userNoLabel}}</view>
-      <button class="btn-primary" bindtap="onUserNoRevealAck">知道了</button>
-    </view>
-  </view>
-
   <view
     wx:if="{{showMemberEditor}}"
     class="editor-mask"
@@ -248,8 +254,8 @@
         >{{item.label}}</view>
       </view>
       <view class="editor-actions">
-        <button size="mini" class="btn-outline" bindtap="closeMemberEditor">取消</button>
-        <button size="mini" type="primary" bindtap="saveMember">确定</button>
+        <button size="mini" class="btn-outline" bindtap="closeMemberEditor">取 消</button>
+        <button size="mini" type="primary" bindtap="saveMember">确 定</button>
       </view>
     </view>
   </view>

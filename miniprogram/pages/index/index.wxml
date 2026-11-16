@@ -50,8 +50,14 @@
         <text class="home-type-scale__glyph">{{typeScaleLabel}}</text>
       </view>
 
-      <!-- 首页底部测试区暂隐；需要时把 showHomeDevTools 设为 true -->
+      <!-- 开发/体验可见测试入口 -->
       <block wx:if="{{showHomeDevTools}}">
+        <view
+          class="link link-dev"
+          hover-class="tap-hover"
+          hover-stay-time="80"
+          bindtap="onDebugReplayUserNoCeremony"
+        >重播首启仪式 · 100000（测试）</view>
         <view
           class="link link-dev"
           hover-class="tap-hover"
@@ -134,8 +140,8 @@
           type="{{hasSelected ? 'primary' : 'default'}}"
           disabled="{{busy || !hasSelected}}"
           bindtap="onConfirmSubmit"
-        >确认</button>
-        <button size="mini" class="btn-outline" bindtap="onConfirmSkip">跳过</button>
+        >确 认</button>
+        <button size="mini" class="btn-outline" bindtap="onConfirmSkip">跳 过</button>
       </view>
     </view>
   </view>
@@ -214,14 +220,97 @@
           class="btn-outline"
           disabled="{{busy}}"
           bindtap="onMarketScaleSkip"
-        >跳过</button>
+        >跳 过</button>
         <button
           size="mini"
           type="{{marketScaleHighlight ? 'primary' : 'default'}}"
           class="{{marketScaleHighlight ? '' : 'btn-outline btn-confirm-disabled'}}"
           disabled="{{busy || !marketScaleHighlight}}"
           bindtap="onMarketScaleConfirm"
-        >确认</button>
+        >确 认</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 首启①→②：同一蒙层；点遮罩不关；优先于进场确认/规模 -->
+  <view
+    class="mask user-no-ceremony"
+    wx:if="{{showUserNoCeremony}}"
+    catchtouchmove="true"
+    catchtap="noop"
+  >
+    <view class="ceremony-stage ceremony-phase-{{ceremonyPhase}}">
+      <view class="ceremony-card {{showCeremonyConfetti ? 'is-confetti' : ''}}">
+        <view class="ceremony-welcome">
+          <view class="ceremony-line">
+            <view class="ceremony-line-text">欢迎！第</view>
+            <view class="ceremony-roll-anchor">
+              <view class="ceremony-roll">{{revealDisplay}}</view>
+              <view
+                class="ceremony-confetti"
+                wx:if="{{showCeremonyConfetti}}"
+                aria-hidden="true"
+              >
+                <view
+                  wx:for="{{ceremonyConfetti}}"
+                  wx:key="id"
+                  class="ceremony-confetti-piece ceremony-burst-{{item.burst}} {{item.round ? 'is-round' : ''}}"
+                  style="width: {{item.w}}rpx; height: {{item.h}}rpx; background: {{item.color}}; animation-delay: {{item.delay}}ms;"
+                />
+              </view>
+            </view>
+            <view class="ceremony-line-text">位大厨！</view>
+          </view>
+        </view>
+        <!-- 抽屉：序号不关，整卡上移后从序号下方向下展开 -->
+        <view class="ceremony-drawer">
+          <view class="ceremony-steps">
+            <view class="ceremony-steps-title">
+              <view class="ceremony-steps-mark" aria-hidden="true"></view>
+              <text>使用说明</text>
+            </view>
+            <view class="ceremony-step-list">
+              <view class="ceremony-step">
+                <view class="ceremony-step-rail">
+                  <view class="ceremony-step-index">01</view>
+                  <view class="ceremony-step-line" aria-hidden="true"></view>
+                </view>
+                <view class="ceremony-step-body">
+                  <view class="ceremony-step-name">确认今日可选食材</view>
+                  <view class="ceremony-step-desc">看看菜场时令与常见菜，可补充</view>
+                </view>
+              </view>
+              <view class="ceremony-step">
+                <view class="ceremony-step-rail">
+                  <view class="ceremony-step-index">02</view>
+                  <view class="ceremony-step-line" aria-hidden="true"></view>
+                </view>
+                <view class="ceremony-step-body">
+                  <view class="ceremony-step-name">生成完整菜品搭配</view>
+                  <view class="ceremony-step-desc">结合口味和近期食用，不喜可换</view>
+                </view>
+              </view>
+              <view class="ceremony-step ceremony-step--last">
+                <view class="ceremony-step-rail">
+                  <view class="ceremony-step-index">03</view>
+                </view>
+                <view class="ceremony-step-body">
+                  <view class="ceremony-step-name">按清单采购回家做</view>
+                  <view class="ceremony-step-desc">明确食材不费脑，轻松购买</view>
+                </view>
+              </view>
+            </view>
+            <view class="ceremony-actions">
+              <button class="btn-outline ceremony-btn-secondary" bindtap="onCeremonyBrowseFirst"
+                >先逛逛</button>
+              <button
+                class="btn-main ceremony-btn-primary"
+                type="primary"
+                bindtap="onCeremonyGoOnboarding"
+              >完善偏好</button>
+            </view>
+          </view>
+        </view>
       </view>
     </view>
   </view>

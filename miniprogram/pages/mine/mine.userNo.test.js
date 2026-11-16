@@ -10,49 +10,21 @@ const js = fs.readFileSync(path.join(dir, 'mine.js'), 'utf8')
 const wxml = fs.readFileSync(path.join(dir, 'mine.wxml'), 'utf8')
 const wxss = fs.readFileSync(path.join(dir, 'mine.wxss'), 'utf8')
 
-describe('mine userNo subtitle and first-visit reveal', () => {
+describe('mine userNo subtitle only (no ceremony)', () => {
   it('wraps nickname plus optional userNoLabel under profile-text', () => {
     assert.match(wxml, /class="profile-text"/)
-    assert.match(wxml, /<text class="nickname">\{\{nickname\}\}<\/text>/)
+    assert.match(wxml, /class="nickname"/)
     assert.match(wxml, /<text wx:if="\{\{userNoLabel\}\}" class="user-no">\{\{userNoLabel\}\}<\/text>/)
   })
 
-  it('renders the ceremony mask with welcome copy and ack control', () => {
-    assert.match(wxml, /class="mask user-no-mask"/)
-    assert.match(wxml, /catchtouchmove="true"/)
-    assert.match(wxml, /class="user-no-card" catchtap="noop"/)
-    assert.match(wxml, /欢迎加入/)
-    assert.match(wxml, /\{\{revealDisplay\}\}/)
-    assert.match(wxml, /wx:if="\{\{revealDone\}\}"/)
-    assert.match(wxml, /bindtap="onUserNoRevealAck"/)
-    assert.match(wxml, /知道了/)
-    assert.match(wxml, /bindtap="onUserNoRevealAck"/)
+  it('does not render a userNo reveal mask on mine', () => {
+    assert.doesNotMatch(wxml, /user-no-mask|showUserNoReveal|onUserNoRevealAck|revealDisplay/)
+    assert.doesNotMatch(js, /_maybeStartUserNoReveal|showUserNoReveal|ackUserNoReveal/)
+    assert.doesNotMatch(wxss, /\.user-no-mask|\.user-no-roll/)
   })
 
-  it('lets a mask tap ack the same way as the button', () => {
-    assert.match(
-      wxml,
-      /class="mask user-no-mask"[^>]*bindtap="onUserNoRevealAck"/
-    )
-  })
-
-  it('styles the subtitle with secondary color and a smaller type token', () => {
-    assert.match(wxss, /\.user-no\s*\{[^}]*--color-text-secondary/s)
-    assert.match(wxss, /\.user-no\s*\{[^}]*--fs-/s)
-  })
-
-  it('starts the reveal from onShow and acks via storage, session, cloud, and track', () => {
-    assert.match(js, /this\._maybeStartUserNoReveal\(\)/)
-    assert.match(js, /if \(!isValidUserNo\(n\)\) return/)
-    assert.match(js, /if \(u\.userNoRevealSeen\) return/)
-    assert.match(js, /cookthis_user_no_reveal_seen/)
-    assert.match(js, /shouldAnimateUserNoReveal\(\)/)
-    assert.match(js, /formatUserNoLabel\(n\)/)
-    assert.match(js, /revealStartValue\(n\)/)
-    assert.match(js, /patchUser\(\{ userNoRevealSeen: true \}\)/)
-    assert.match(js, /callCloud\('profile', \{ action: 'ackUserNoReveal' \}\)/)
-    assert.match(js, /track\('user_no_reveal_show'/)
-    assert.match(js, /track\('user_no_reveal_ack'/)
+  it('still formats the subtitle from session userNo', () => {
+    assert.match(js, /formatUserNoLabel/)
     assert.match(js, /userNoLabel:\s*formatUserNoLabel\(/)
   })
 })

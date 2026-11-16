@@ -313,17 +313,6 @@
   gap: 28rpx;
 }
 
-.sheet-confirm-ft button[size='mini'] {
-  height: 56rpx;
-  line-height: 56rpx;
-  padding: 0 28rpx;
-  margin: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-}
-
 .sheet-confirm-ft button.btn-confirm-disabled[disabled] {
   color: var(--color-text-muted) !important;
   border-color: var(--color-border) !important;
@@ -417,17 +406,6 @@
   border-top: 1rpx solid var(--color-border);
 }
 
-.scale-actions button[size='mini'] {
-  height: 56rpx;
-  line-height: 56rpx;
-  padding: 0 28rpx;
-  margin: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-}
-
 .scale-actions button.btn-confirm-disabled[disabled] {
   color: var(--color-text-muted) !important;
   border-color: var(--color-border) !important;
@@ -477,6 +455,359 @@
 .home-nav-icon {
   width: 68rpx;
   height: 68rpx;
+}
+
+/* —— 首启①→②：蒙层内水平+垂直居中；指南从序号下抽屉展开 —— */
+.user-no-ceremony {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* 左右留白加大，卡片在屏幕正中 */
+  padding: 48rpx 56rpx;
+  box-sizing: border-box;
+  z-index: 300;
+}
+
+.ceremony-stage {
+  width: 100%;
+  max-width: 640rpx;
+  margin: 0 auto;
+  flex-shrink: 0;
+}
+
+.ceremony-card {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--color-surface);
+  border-radius: var(--radius-sheet);
+  overflow: hidden;
+}
+
+/* 礼花期间允许溢出，纸屑可从数字处向外散开 */
+.ceremony-card.is-confetti {
+  overflow: visible;
+}
+
+.ceremony-welcome {
+  padding: 48rpx 40rpx 36rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 一行：欢迎！第 N 位大厨！；整行水平居中，数字与两侧文字垂直居中 */
+.ceremony-line {
+  width: auto;
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.ceremony-line-text {
+  flex-shrink: 0;
+  font-size: var(--fs-title);
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.ceremony-roll-anchor {
+  position: relative;
+  flex-shrink: 0;
+  margin: 0 4rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.ceremony-roll {
+  font-size: var(--fs-brand);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 抽屉：默认收起；从序号下方向下展开 */
+.ceremony-drawer {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    max-height 1.5s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 1s ease;
+}
+
+.ceremony-phase-transition .ceremony-drawer,
+.ceremony-phase-steps .ceremony-drawer {
+  max-height: 900rpx;
+  opacity: 1;
+}
+
+.ceremony-steps {
+  padding: 8rpx 40rpx 40rpx;
+  box-sizing: border-box;
+  text-align: left;
+  border-top: 1rpx solid rgba(0, 0, 0, 0.06);
+}
+
+.ceremony-steps-title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 28rpx;
+  font-size: var(--fs-lead);
+  font-weight: 600;
+  color: var(--color-text);
+  text-align: left;
+  line-height: 1.4;
+}
+
+.ceremony-steps-mark {
+  flex-shrink: 0;
+  width: 8rpx;
+  height: 28rpx;
+  border-radius: 4rpx;
+  background: var(--color-primary);
+}
+
+.ceremony-step-list {
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.ceremony-step {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+}
+
+.ceremony-step-rail {
+  flex-shrink: 0;
+  width: 56rpx;
+  margin-right: 18rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: stretch;
+}
+
+.ceremony-step-index {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 14rpx;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: var(--fs-md);
+  font-weight: 700;
+  line-height: 56rpx;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  box-sizing: border-box;
+}
+
+.ceremony-step-line {
+  width: 2rpx;
+  flex: 1;
+  min-height: 28rpx;
+  margin: 8rpx 0;
+  background: rgba(82, 127, 85, 0.28);
+}
+
+.ceremony-step--last .ceremony-step-rail {
+  margin-bottom: 0;
+}
+
+.ceremony-step-body {
+  flex: 1;
+  min-width: 0;
+  padding-top: 6rpx;
+  padding-bottom: 28rpx;
+}
+
+.ceremony-step--last .ceremony-step-body {
+  padding-bottom: 4rpx;
+}
+
+.ceremony-step-name {
+  font-size: var(--fs-title);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-text);
+  text-align: left;
+}
+
+.ceremony-step-desc {
+  margin-top: 8rpx;
+  font-size: var(--fs-body);
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.ceremony-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 16rpx;
+  margin-top: 28rpx;
+}
+
+.ceremony-btn-primary,
+.ceremony-btn-secondary {
+  flex: 1;
+  margin: 0;
+  width: auto;
+  min-width: 0;
+  padding: 0 12rpx !important;
+  box-sizing: border-box;
+  white-space: nowrap;
+  font-size: var(--fs-btn) !important;
+  line-height: 2.2;
+}
+
+.ceremony-btn-primary::after,
+.ceremony-btn-secondary::after {
+  border: none !important;
+}
+
+/* 礼花：锚定在数字中心，向左右散开后再开抽屉 */
+.ceremony-confetti {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 2;
+  overflow: visible;
+}
+
+.ceremony-confetti-piece {
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin-left: -6rpx;
+  margin-top: -8rpx;
+  border-radius: 2rpx;
+  opacity: 0;
+  animation-duration: 1.05s;
+  animation-timing-function: cubic-bezier(0.08, 0.65, 0.2, 1);
+  animation-fill-mode: forwards;
+}
+
+.ceremony-confetti-piece.is-round {
+  border-radius: 50%;
+}
+
+.ceremony-burst-l0 { animation-name: ceremony-burst-l0; }
+.ceremony-burst-l1 { animation-name: ceremony-burst-l1; }
+.ceremony-burst-l2 { animation-name: ceremony-burst-l2; }
+.ceremony-burst-l3 { animation-name: ceremony-burst-l3; }
+.ceremony-burst-l4 { animation-name: ceremony-burst-l4; }
+.ceremony-burst-l5 { animation-name: ceremony-burst-l5; }
+.ceremony-burst-l6 { animation-name: ceremony-burst-l6; }
+.ceremony-burst-l7 { animation-name: ceremony-burst-l7; }
+.ceremony-burst-r0 { animation-name: ceremony-burst-r0; }
+.ceremony-burst-r1 { animation-name: ceremony-burst-r1; }
+.ceremony-burst-r2 { animation-name: ceremony-burst-r2; }
+.ceremony-burst-r3 { animation-name: ceremony-burst-r3; }
+.ceremony-burst-r4 { animation-name: ceremony-burst-r4; }
+.ceremony-burst-r5 { animation-name: ceremony-burst-r5; }
+.ceremony-burst-r6 { animation-name: ceremony-burst-r6; }
+.ceremony-burst-r7 { animation-name: ceremony-burst-r7; }
+
+@keyframes ceremony-burst-l0 {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(-220rpx, -180rpx, 0) rotate(-220deg); }
+}
+@keyframes ceremony-burst-l1 {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(-300rpx, -80rpx, 0) rotate(-300deg); }
+}
+@keyframes ceremony-burst-l2 {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(-260rpx, 40rpx, 0) rotate(-160deg); }
+}
+@keyframes ceremony-burst-l3 {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(-340rpx, -40rpx, 0) rotate(-400deg); }
+}
+@keyframes ceremony-burst-l4 {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(-180rpx, -240rpx, 0) rotate(-120deg); }
+}
+@keyframes ceremony-burst-l5 {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(-280rpx, 120rpx, 0) rotate(-260deg); }
+}
+@keyframes ceremony-burst-l6 {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(-360rpx, -140rpx, 0) rotate(-340deg); }
+}
+@keyframes ceremony-burst-l7 {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(-200rpx, 90rpx, 0) rotate(-180deg); }
+}
+@keyframes ceremony-burst-r0 {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(220rpx, -180rpx, 0) rotate(220deg); }
+}
+@keyframes ceremony-burst-r1 {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(300rpx, -80rpx, 0) rotate(300deg); }
+}
+@keyframes ceremony-burst-r2 {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(260rpx, 40rpx, 0) rotate(160deg); }
+}
+@keyframes ceremony-burst-r3 {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(340rpx, -40rpx, 0) rotate(400deg); }
+}
+@keyframes ceremony-burst-r4 {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(180rpx, -240rpx, 0) rotate(120deg); }
+}
+@keyframes ceremony-burst-r5 {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(280rpx, 120rpx, 0) rotate(260deg); }
+}
+@keyframes ceremony-burst-r6 {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(360rpx, -140rpx, 0) rotate(340deg); }
+}
+@keyframes ceremony-burst-r7 {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(200rpx, 90rpx, 0) rotate(180deg); }
 }
 
 

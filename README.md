@@ -23,11 +23,10 @@
 | 13 | Slice 13 | **菜场规模与食材列表档位**（预生成分档名单 / 首页半屏 / 确认页切换刷新） |
 | 14 | Slice 14 | **方案分享**（推荐卡 / 食材页 / 已选自产 → 只读落地 / 保存到已选；**合规暂关前台**） |
 | 15 | Slice 15 | **做饭能力与菜品难度**（引导 15 选定档 / beginner 硬排 advanced / 「我的」重测） |
+| 16 | Slice 16 | **用户序号与首启仪式**（原子 `userNo` / 首页①→② 连贯蒙层 / 「我的」小字） |
 | — | 语音 | 前端已下线，暂不点验 |
 
-新用户进首页只会**弹一次**「去设置 / 先逛逛」；选「先逛逛」或引导页「暂时跳过」即可继续测 Slice 1～4。完整引导放到 **Slice 6** 再验。跳过/轻量跳过后的**弱提醒与快捷补全**放到 **Slice 10** 再验。
-
-用户序号与首次仪式不单列切片。手测见 [`docs/superpowers/specs/2026-11-16-用户序号与首次仪式-design.md`](docs/superpowers/specs/2026-11-16-用户序号与首次仪式-design.md) §5。
+新用户进首页：若未看过首启且已有 `userNo`，先播 **Slice 16** ①→②（左「先逛逛」/右「完善偏好」）；否则仍可能弹旧「去设置 / 先逛逛」。选「先逛逛」或引导页「暂时跳过」即可继续测 Slice 1～4。完整引导放到 **Slice 6** 再验。跳过/轻量跳过后的**弱提醒与快捷补全**放到 **Slice 10** 再验。
 
 ---
 
@@ -63,10 +62,13 @@
 | `confirmListFromScale.js` | `ingredients/confirmListFromScale.js`（预生成 by-scale → seasonal/yearRound） |
 | `planShare.js` | `share/planShare.js`；小程序 `miniprogram/utils/planShare.js`（快照构建 / 分享卡 title；小程序侧仅 title） |
 | `cookSkill.js` | `recommend/cookSkill.js`、`profile/cookSkill.js`；小程序 `miniprogram/utils/cookSkill.js`（定档 / 推断难度 / 硬软排；探针菜常量） |
+| `userNo.js` | `auth/userNo.js`、`profile/userNo.js`；小程序 `miniprogram/utils/userNo.js`（校验 / 文案 / 滚动起点）；首页仪式另用 `miniprogram/utils/userNoReveal.js` |
 
 部署 `recommend`（含 `listAccepted`）前，请在云开发控制台为集合 `recommendations` 创建复合索引：`uid`、`accepted`、`acceptedAt`（与 `orderBy acceptedAt desc` 分页查询一致）。
 
 Slice 15（做饭能力）部署后，集合 `recipes` 另需普通复合索引：`cities` ASC + `difficulty` ASC（勿勾唯一；新手拉池 `where` 同时带这两字段）。细节见设计 §4.1 与下方「Slice 15 准备」。
+
+Slice 16（用户序号）另需集合 **`counters`**（文档 `userNo`，字段 `value`）；仅云函数可写。细节见下方「Slice 16 准备」。
 
 ---
 
@@ -303,6 +305,30 @@ Slice 15（做饭能力）部署后，集合 `recipes` 另需普通复合索引�
 
 计划：[`docs/superpowers/plans/2026-11-05-做饭能力与菜品难度.md`](docs/superpowers/plans/2026-11-05-做饭能力与菜品难度.md)。  
 设计：[`docs/superpowers/specs/2026-11-05-做饭能力与菜品难度-design.md`](docs/superpowers/specs/2026-11-05-做饭能力与菜品难度-design.md)。
+
+---
+
+## Slice 16 准备（用户序号与首启仪式）
+
+假定 **公共准备已完成**（能 `auth.login` 进首页即可；不依赖推荐链路）。再补：
+
+1. **再建集合** `counters`（云开发控制台 → 数据库）：
+   - 权限：与其它业务集合同策略，**仅云函数可写**（防未登录乱加序号）。
+   - 文档可不手建：首次新用户注册时 `allocateUserNo` 会在事务里 `set` 文档 `_id=userNo`，字段 `value`（number）+ `updatedAt`。
+2. **上传并部署**云函数：
+   - `auth`（新用户 `allocateUserNo` + login 回包 `userNo` / `userNoRevealSeen`；包内须含 `allocateUserNo.js` + `userNo.js`）
+   - `profile`（`get` 回包同上；`ackUserNoReveal`；包内须含 `userNo.js`）
+3. **小程序**：首页同一蒙层①→②（`pages/index`）；「我的」仅昵称下小字（无蒙层）；本地防闪 `cookthis_user_no_reveal_seen`；`utils/userNo.js` + `userNoReveal.js`。
+4. **老用户回填**（有存量用户时必做一次；新环境可跳过）：
+   - 说明：[`scripts/backfill-user-no.md`](scripts/backfill-user-no.md)
+   - 先 dry-run：`node scripts/backfill-user-no.js --users-json <导出.json>`（控制台 NDJSON 一行一条也可；或配 `TCB_*` 直连仍默认 dry-run）
+   - 核对无重复、顺序合理后：`--apply`（**禁止**与 `--users-json` / `--counter` 同用；SDK 须有 `runTransaction`）
+5. 本地：`npm test`（含 `_shared/userNo`、`auth/allocateUserNo`、`backfill-user-no`、首页/我的 wiring）。
+
+`users` 新字段：`userNo`、`userNoRevealSeenAt`（由 login/ack 写入）。做完即可对照下方「Slice 16 验收清单」。
+
+计划：[`docs/superpowers/plans/2026-11-16-用户序号与首次仪式.md`](docs/superpowers/plans/2026-11-16-用户序号与首次仪式.md)。  
+设计：[`docs/superpowers/specs/2026-11-16-用户序号与首次仪式-design.md`](docs/superpowers/specs/2026-11-16-用户序号与首次仪式-design.md)。
 
 ---
 
@@ -634,6 +660,31 @@ Slice 15（做饭能力）部署后，集合 `recipes` 另需普通复合索引�
 **本切片不验：** 自报三档 chip、成员级做饭能力、行为校准改档、做饭时间预算与难度联动、非常规（火锅/面/饺）方案的难度过滤、向用户展示档位结论文案。
 
 **部署提醒：** `profile` + `auth` + `recommend` 同发；菜谱 JSONL 全量含 `difficulty` 再导入；集合 `recipes` 建普通复合索引 `cities` ASC + `difficulty` ASC（勿唯一）。
+
+---
+
+## 本切片验收清单（Slice 16）
+
+**状态：待点验**（需建 `counters`；重发 `auth` / `profile`；存量用户跑回填；真机或开发者工具看首页蒙层）
+
+**自动化：**
+
+- [ ] `npm test` PASS（含 `userNo` / `allocateUserNo` / `backfill-user-no` / index·mine wiring）。
+
+**需人工：** Slice 16 准备后（建议**新 openid** 测分配；另用未见过仪式的账号测蒙层）：
+
+1. [ ] **新号序号**：全新登录 → 云库 `users.userNo` 为正整数；`nickname` **不含**流水号（仍是「大厨」+短码）；`counters/userNo.value` 递增。再注册第二号 → 序号 +1。
+2. [ ] **首页①→②**：未见过仪式的账号进首页 → 同一蒙层：数字滚到 N → 上移 → 「使用说明」带 1/2/3 序号三步左对齐落下；点**遮罩不关**。
+3. [ ] **主 CTA**：点右侧「完善偏好」→ 蒙层关、进引导；`userNoRevealSeenAt` 已写（或本地 `cookthis_user_no_reveal_seen`）；再回首页**不**再播。
+4. [ ] **次 CTA**：另起未见过账号 → 左侧「先逛逛」→ 关层留首页；标记已写；再进不播。
+5. [ ] **「我的」小字**：有 `userNo` 时昵称下常驻「第 N 位大厨」；**无**蒙层。缺 `userNo` 时不展示错号/空壳第二行。
+6. [ ] **不叠弹**：首启蒙层播着时，不与进场确认 / 菜场规模半屏同屏；点「今日菜场」应被挡住或等关层后再测。
+7. [ ] **回填**（有存量时）：dry-run 无重复 → `--apply` → 老用户有唯一号；已有号不改；未见过仪式的老用户仍播一次。
+8. [ ] **分享无 N**：若开分享，卡片/落地只用 nickname，不带序号（合规暂关期可略）。
+
+**本切片不验：** 排行榜、「超越 xx%」、引导步内插播仪式、自定义封面、广告、语音。
+
+**部署提醒：** `auth` + `profile` 同发；先有 `counters` 再测新号；回填前务必 dry-run，且勿对已有合法 `userNo` 重排。
 
 ---
 

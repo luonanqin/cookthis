@@ -11,9 +11,56 @@ const {
   RELOCATE_MIN_METERS,
   RELOCATE_COOLDOWN_MS
 } = require('../../utils/marketScale.js')
+const {
+  isValidUserNo,
+  revealStartValue,
+  shouldAnimateUserNoReveal,
+  revealTick,
+  REVEAL_DURATION_MS
+} = require('../../utils/userNoReveal.js')
 const confirmIngredientsCache = require('../../services/confirmIngredientsCache.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 const { getNavMetrics } = require('../../utils/navBar.js')
+
+  /** 数字滚定后稍顿，再放礼花 */
+const CEREMONY_LABEL_HOLD_MS = 520
+/** 礼花散开时长 */
+const CEREMONY_CONFETTI_MS = 1100
+/** 礼花结束后再等多久开抽屉 */
+const CEREMONY_AFTER_CONFETTI_MS = 80
+/** ① 上移 → ② 落下 */
+const CEREMONY_TRANSITION_MS = 1500
+/** 减弱动效：跳过礼花，定格后短切② */
+const CEREMONY_REDUCED_HOLD_MS = 200
+
+const CEREMONY_CONFETTI_COLORS = [
+  '#527F55',
+  '#EC947D',
+  '#E8C547',
+  '#7BB3D8',
+  '#C4A574',
+  '#EDF5E3'
+]
+
+/** 从中心向左右散开的纸屑（预设 burst 类，兼容小程序 keyframes） */
+function buildCeremonyConfetti(count) {
+  const n = count || 28
+  const pieces = []
+  for (let i = 0; i < n; i++) {
+    const side = i % 2 === 0 ? 'l' : 'r'
+    const variant = Math.floor(i / 2) % 8
+    pieces.push({
+      id: i,
+      color: CEREMONY_CONFETTI_COLORS[i % CEREMONY_CONFETTI_COLORS.length],
+      burst: side + variant,
+      delay: (i % 8) * 24,
+      w: 10 + (i % 5) * 2,
+      h: 14 + (i % 4) * 2,
+      round: i % 4 === 0
+    })
+  }
+  return pieces
+}
 
 /** 同一小程序会话内规模半屏最多一次（模块级，随 App 进程存活） */
 let marketScaleSessionShown = false
@@ -104,7 +151,7 @@ Page({
     candidatesPeek: false,
     selected: {},
     hasSelected: false,
-    selectAllLabel: '全选',
+    selectAllLabel: '全 选',
     busy: false,
     requestId: null,
     recommendationId: null,
@@ -113,16 +160,25 @@ Page({
     showHomeDevTools: false,
     showMarketScaleDebug: false,
     marketScaleDebugStatus: '',
-    debugForceNoLocationLabel: '模拟无定位：关'
+    debugForceNoLocationLabel: '模拟无定位：关',
+    showUserNoCeremony: false,
+    ceremonyPhase: 'roll',
+    revealDisplay: 0,
+    revealDone: false,
+    showCeremonyConfetti: false,
+    ceremonyConfetti: []
   },
 
   onLoad(query) {
     const nav = getNavMetrics()
     this._maybeOpenFeedback(query)
+    const dev = isNonReleaseEnv()
     this.setData({
       statusBarHeight: nav.statusBarHeight,
-      navBarHeight: nav.navBarHeight
-      // 测试入口暂隐：需要时改为 showHomeDevTools: true, showMarketScaleDebug: isNonReleaseEnv()
+      navBarHeight: nav.navBarHeight,
+      // 开发/体验可见测试入口（含重播首启）
+      showHomeDevTools: dev,
+      showMarketScaleDebug: dev
     })
   },
 
@@ -133,32 +189,13 @@ Page({
     // 先用本地缓存（我的页保存后已 patch），红点立刻对；再拉 auth
     this.refreshProfileGapBadge(getUser())
     this.refreshMarketScaleDebugStatus()
-    // Do not force onboarding — Slice 1-4 stay usable. Guide is Slice 5 / MVP-gap.
     ensureLogin({ preferLocalStance: true })
       .then((user) => {
         this.refreshProfileGapBadge(user)
         this.refreshMarketScaleDebugStatus(user)
-        const app = getApp()
-        // 仅显式 false 才弹；true / 缺字段都不弹
-        if (!user || user.onboardingDone !== false) return
-        if (!app || app.globalData.onboardingTipShown) return
-        app.globalData.onboardingTipShown = true
-        wx.showModal({
-          title: '完善家庭设置',
-          content: '建议先设置家庭成员和忌口，推荐会更准哦。',
-          confirmText: '去设置',
-          cancelText: '先逛逛',
-          success: (res) => {
-            if (res.confirm) {
-              wx.navigateTo({ url: '/pages/onboarding/onboarding' })
-              return
-            }
-            // 「先逛逛」= 跳过引导，写入 onboardingDone，避免每次进首页再弹
-            callCloud('profile', { action: 'skipOnboarding' })
-              .then(() => ensureLogin())
-              .catch(() => {})
-          }
-        })
+        // 首启①→② 优先；播完前不叠进场确认/规模，也不弹旧「完善家庭设置」
+        if (this._maybeStartUserNoCeremony(user)) return
+        this._maybeShowOnboardingTip(user)
       })
       .catch(() => {})
     this.refreshFeedbackDot()
@@ -167,6 +204,213 @@ Page({
       const enter = wx.getEnterOptionsSync && wx.getEnterOptionsSync()
       if (enter && enter.query) this._maybeOpenFeedback(enter.query)
     } catch (e) {}
+  },
+
+  _maybeShowOnboardingTip(user) {
+    const app = getApp()
+    // 仅显式 false 才弹；true / 缺字段都不弹
+    if (!user || user.onboardingDone !== false) return
+    if (!app || app.globalData.onboardingTipShown) return
+    if (this.data.showUserNoCeremony) return
+    app.globalData.onboardingTipShown = true
+    wx.showModal({
+      title: '完善家庭设置',
+      content: '建议先设置家庭成员和忌口，推荐会更准哦。',
+      confirmText: '去设置',
+      cancelText: '先逛逛',
+      success: (res) => {
+        if (res.confirm) {
+          wx.navigateTo({ url: '/pages/onboarding/onboarding' })
+          return
+        }
+        callCloud('profile', { action: 'skipOnboarding' })
+          .then(() => ensureLogin())
+          .catch(() => {})
+      }
+    })
+  },
+
+  /**
+   * @param {object} [user]
+   * @param {{ force?: boolean, userNo?: number }} [opts] force=true 忽略已看过；userNo 仅测滚动展示
+   * @returns {boolean} true = 已开始或正在播首启，调用方勿再叠其他弹层
+   */
+  _maybeStartUserNoCeremony(user, opts) {
+    const force = !!(opts && opts.force)
+    if (!force && this.data.showUserNoCeremony) return true
+    const u = user || getUser() || {}
+    const overrideNo = opts && opts.userNo
+    const n = isValidUserNo(overrideNo) ? overrideNo : u.userNo
+    if (!isValidUserNo(n)) return false
+    if (!force) {
+      if (u.userNoRevealSeen) return false
+      try {
+        if (wx.getStorageSync('cookthis_user_no_reveal_seen')) return false
+      } catch (e) {}
+    }
+    this._clearCeremonyTimers()
+    const animate = shouldAnimateUserNoReveal()
+    this.setData({
+      showUserNoCeremony: true,
+      ceremonyPhase: 'roll',
+      revealDisplay: animate ? revealStartValue(n) : n,
+      revealDone: !animate,
+      showCeremonyConfetti: false,
+      ceremonyConfetti: [],
+      showConfirm: false,
+      showMarketScale: false
+    })
+    track('user_no_reveal_show', { userNo: n, force: force || undefined })
+    if (animate) {
+      this._runCeremonyRoll(n)
+    } else {
+      this._scheduleCeremonyAfterHold(CEREMONY_REDUCED_HOLD_MS)
+    }
+    return true
+  },
+
+  /** 开发/体验：用 100000 重播①→②，方便看多位数滚动（不改云端真实 userNo） */
+  onDebugReplayUserNoCeremony() {
+    if (!isNonReleaseEnv()) return
+    tapFeedback()
+    try {
+      wx.removeStorageSync('cookthis_user_no_reveal_seen')
+    } catch (e) {}
+    patchUser({ userNoRevealSeen: false })
+    const u = getUser() || {}
+    const ok = this._maybeStartUserNoCeremony(u, { force: true, userNo: 100000 })
+    if (!ok) {
+      wx.showToast({ title: '无法启动仪式', icon: 'none' })
+    }
+  },
+
+  _runCeremonyRoll(n) {
+    this._clearCeremonyTimers()
+    const startedAt = Date.now()
+    const step = () => {
+      const { display, done } = revealTick(n, Date.now() - startedAt, REVEAL_DURATION_MS)
+      // 数字已滚到 N 就定格并出文案，不必等满时长（小 N 时 ease-out 会早早停在 N）
+      const settled = done || display >= n
+      this.setData({
+        revealDisplay: settled ? n : display,
+        revealDone: settled
+      })
+      if (!settled) return
+      this._clearCeremonyTimers()
+      this._scheduleCeremonyConfettiAfterLabel()
+    }
+    this._ceremonyRollTimer = setInterval(step, 16)
+  },
+
+  /** 数字定格后稍顿，再放礼花 */
+  _scheduleCeremonyConfettiAfterLabel() {
+    this._clearCeremonyHoldTimer()
+    this._ceremonyHoldTimer = setTimeout(() => {
+      this._ceremonyHoldTimer = null
+      this._playCeremonyConfetti()
+    }, CEREMONY_LABEL_HOLD_MS)
+  },
+
+  /** 礼花从数字中心向两边散开，再弹出抽屉 */
+  _playCeremonyConfetti() {
+    if (!this.data.showUserNoCeremony) return
+    this.setData({
+      revealDone: true,
+      showCeremonyConfetti: true,
+      ceremonyConfetti: buildCeremonyConfetti()
+    })
+    this._clearCeremonyHoldTimer()
+    this._ceremonyHoldTimer = setTimeout(() => {
+      this._ceremonyHoldTimer = null
+      if (!this.data.showUserNoCeremony) return
+      this.setData({ showCeremonyConfetti: false, ceremonyConfetti: [] })
+      this._scheduleCeremonyAfterHold(CEREMONY_AFTER_CONFETTI_MS)
+    }, CEREMONY_CONFETTI_MS)
+  },
+
+  _scheduleCeremonyAfterHold(holdMs) {
+    this._clearCeremonyHoldTimer()
+    this._ceremonyHoldTimer = setTimeout(() => {
+      this._ceremonyHoldTimer = null
+      this._beginCeremonyTransition()
+    }, holdMs)
+  },
+
+  _beginCeremonyTransition() {
+    if (!this.data.showUserNoCeremony) return
+    this.setData({
+      ceremonyPhase: 'transition',
+      revealDone: true,
+      showCeremonyConfetti: false,
+      ceremonyConfetti: []
+    })
+    this._clearCeremonyHoldTimer()
+    this._ceremonyHoldTimer = setTimeout(() => {
+      this._ceremonyHoldTimer = null
+      if (!this.data.showUserNoCeremony) return
+      this.setData({ ceremonyPhase: 'steps' })
+    }, CEREMONY_TRANSITION_MS)
+  },
+
+  _clearCeremonyHoldTimer() {
+    if (this._ceremonyHoldTimer) {
+      clearTimeout(this._ceremonyHoldTimer)
+      this._ceremonyHoldTimer = null
+    }
+  },
+
+  _clearCeremonyTimers() {
+    if (this._ceremonyRollTimer) {
+      clearInterval(this._ceremonyRollTimer)
+      this._ceremonyRollTimer = null
+    }
+    this._clearCeremonyHoldTimer()
+  },
+
+  _ackUserNoCeremony() {
+    try {
+      wx.setStorageSync('cookthis_user_no_reveal_seen', 1)
+    } catch (e) {}
+    patchUser({ userNoRevealSeen: true })
+    callCloud('profile', { action: 'ackUserNoReveal' }).catch(() => {})
+    track('user_no_reveal_ack', {})
+  },
+
+  onCeremonyGoOnboarding() {
+    if (!this.data.showUserNoCeremony) return
+    tapFeedback()
+    this._clearCeremonyTimers()
+    this._ackUserNoCeremony()
+    this.setData({
+      showUserNoCeremony: false,
+      ceremonyPhase: 'roll',
+      showCeremonyConfetti: false,
+      ceremonyConfetti: []
+    })
+    const app = getApp()
+    if (app) app.globalData.onboardingTipShown = true
+    wx.navigateTo({ url: '/pages/onboarding/onboarding' })
+  },
+
+  onCeremonyBrowseFirst() {
+    if (!this.data.showUserNoCeremony) return
+    tapFeedback()
+    this._clearCeremonyTimers()
+    this._ackUserNoCeremony()
+    this.setData({
+      showUserNoCeremony: false,
+      ceremonyPhase: 'roll',
+      showCeremonyConfetti: false,
+      ceremonyConfetti: []
+    })
+    const app = getApp()
+    if (app) app.globalData.onboardingTipShown = true
+    const u = getUser() || {}
+    if (u.onboardingDone === false) {
+      callCloud('profile', { action: 'skipOnboarding' })
+        .then(() => ensureLogin())
+        .catch(() => {})
+    }
   },
 
   refreshFeedbackDot() {
@@ -234,7 +478,7 @@ Page({
         candidatesPeek: result.dishNames.length > 6,
         selected,
         hasSelected: false,
-        selectAllLabel: '全选',
+        selectAllLabel: '全 选',
         requestId: result.requestId || null,
         recommendationId: result.recommendationId || null,
         busy: false
@@ -250,15 +494,29 @@ Page({
       clearTimeout(this._openFeedbackTimer)
       this._openFeedbackTimer = null
     }
+    this._clearCeremonyTimers()
   },
 
   onHide() {
     // 半屏 catchtouchmove 留在栈底时，上层页会出现「什么都点不动」
-    if (this.data.showConfirm || this.data.showMarketScale || this.data.busy) {
+    if (
+      this.data.showConfirm ||
+      this.data.showMarketScale ||
+      this.data.showUserNoCeremony ||
+      this.data.busy
+    ) {
       if (this.data.showMarketScale) {
         marketScaleSessionShown = false
       }
-      this.setData({ showConfirm: false, showMarketScale: false, busy: false })
+      this._clearCeremonyTimers()
+      this.setData({
+        showConfirm: false,
+        showMarketScale: false,
+        showUserNoCeremony: false,
+        showCeremonyConfetti: false,
+        ceremonyConfetti: [],
+        busy: false
+      })
     }
     this._disableMarketScaleBackGuard()
   },
@@ -266,7 +524,14 @@ Page({
   noop() {},
 
   goMarket() {
-    if (this.data.busy || this.data.showConfirm || this.data.showMarketScale) return
+    if (
+      this.data.busy ||
+      this.data.showConfirm ||
+      this.data.showMarketScale ||
+      this.data.showUserNoCeremony
+    ) {
+      return
+    }
     tapFeedback()
     track('market_entry', {})
     this.setData({ busy: true })
@@ -299,7 +564,7 @@ Page({
   _selectAllLabel(candidates, selected) {
     const list = candidates || []
     const all = list.length > 0 && list.every((n) => selected[n])
-    return all ? '取消全选' : '全选'
+    return all ? '取消全选' : '全 选'
   },
 
   _hasSelected(candidates, selected) {
@@ -330,7 +595,7 @@ Page({
     this.setData({
       selected,
       hasSelected: this._hasSelected(candidates, selected),
-      selectAllLabel: allSelected ? '全选' : '取消全选'
+      selectAllLabel: allSelected ? '全 选' : '取消全选'
     })
   },
 
