@@ -1,4 +1,7 @@
 {
   "navigationBarTitleText": "买菜没烦恼",
-  "navigationStyle": "custom"
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "busy-overlay": "/components/busy-overlay/busy-overlay"
+  }
 }

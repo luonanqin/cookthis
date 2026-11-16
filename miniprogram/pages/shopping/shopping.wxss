@@ -6,7 +6,8 @@
 }
 
 .shopping-body {
-  padding-bottom: calc(200rpx + env(safe-area-inset-bottom));
+  /* 底栏滚动余量（悬浮钮叠在底栏上方） */
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
 }
 
 .banner {
@@ -36,7 +37,7 @@
   height: 52rpx !important;
   line-height: 52rpx !important;
   font-size: var(--fs-sm) !important;
-  font-weight: 500 !important;
+  font-weight: var(--fw-medium) !important;
   color: #fff !important;
   background: var(--color-primary) !important;
   border: none !important;
@@ -121,20 +122,23 @@
 .name {
   font-size: var(--fs-body);
   color: var(--color-text);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1 1 auto;
-  min-width: 0;
+  /* 主名必须完整展示，不收缩、不省略 */
+  flex: 0 0 auto;
+  max-width: 100%;
+  white-space: nowrap;
 }
 
 .secondary {
   font-size: var(--fs-xs);
   color: var(--color-text-secondary);
-  flex: 0 0 auto;
+  /* 副名吃剩余宽度，不够再省略 */
+  flex: 1 1 auto;
+  min-width: 0;
   margin-left: auto;
   text-align: right;
-  overflow: visible;
-  max-width: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .cell.bought .name,
@@ -148,94 +152,194 @@
   min-height: 40rpx;
 }
 
-.footer {
-  z-index: 110;
-  flex-direction: column;
-  gap: 12rpx;
+/* 容器只包住按钮尺寸，避免弹层撑宽后挡住下方空白点击 */
+.fab-stack {
+  position: fixed;
+  right: 40rpx;
+  bottom: calc(128rpx + env(safe-area-inset-bottom));
+  z-index: 20;
+  width: 96rpx;
+  height: 96rpx;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
 }
 
-.recipe-entry {
-  width: 360rpx;
-  box-sizing: border-box;
+.fab-stack.fab-dimmed {
+  opacity: 0.32;
+}
+
+.fab {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+  margin: 0 !important;
+  width: 96rpx !important;
+  height: 96rpx !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  font-size: var(--fs-title) !important;
+  font-weight: var(--fw-semibold) !important;
+  letter-spacing: 0 !important;
+  line-height: 1.15 !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  white-space: normal;
   text-align: center;
-  padding: 20rpx 16rpx;
-  border-radius: var(--radius-card);
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
-  font-size: var(--fs-body);
-  font-weight: 600;
+  box-shadow: 0 4rpx 12rpx rgba(26, 26, 26, 0.12);
+  box-sizing: border-box;
 }
 
-/* 全屏遮罩：拦页面滚动；点遮罩关闭；弹层本身 ≤ 半屏 */
-.mask {
+.fab::after {
+  border: none !important;
+}
+
+.fab-swap {
+  background: var(--color-primary) !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.fab-swap.button-hover {
+  background: var(--color-primary-pressed) !important;
+}
+
+.fab[disabled] {
+  opacity: 0.45;
+}
+
+.large-text .fab-stack {
+  width: 112rpx;
+  height: 112rpx;
+}
+
+.large-text .fab {
+  width: 112rpx !important;
+  height: 112rpx !important;
+  font-size: var(--fs-lead) !important;
+}
+
+.footer {
+  z-index: 12;
+}
+
+/* 全屏可点关闭 + 下层毛玻璃；z 低于 fab-stack，不挡按钮/气泡 */
+.recipe-pop-mask {
   position: fixed;
   left: 0;
   right: 0;
   top: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.45);
-  z-index: 100;
-  display: flex;
-  align-items: flex-end;
-  box-sizing: border-box;
-  /* 给底部 footer 留一点可见，弹层仍不超过半屏 */
-  padding-bottom: calc(112rpx + env(safe-area-inset-bottom));
+  z-index: 18;
+  background: rgba(255, 252, 248, 0.1);
+  backdrop-filter: blur(16px) saturate(1.15);
+  -webkit-backdrop-filter: blur(16px) saturate(1.15);
 }
 
-.sheet {
-  width: 100%;
-  max-height: 50vh;
+/* 锚在按钮上方，不撑大 fab-stack 点击区域 */
+.recipe-pop {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 16rpx);
+  pointer-events: auto;
+  width: 560rpx;
+  max-width: calc(100vw - 80rpx);
+  max-height: 42vh;
   background: var(--color-surface);
-  border-radius: 24rpx 24rpx 0 0;
-  display: flex;
-  flex-direction: column;
+  border-radius: 20rpx;
+  box-shadow: 0 8rpx 28rpx rgba(26, 26, 26, 0.16);
+  border: 1rpx solid var(--color-border);
   box-sizing: border-box;
   overflow: hidden;
+  animation: recipe-pop-in 0.16s ease-out;
 }
 
-.sheet-head {
+@keyframes recipe-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(12rpx) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.recipe-pop-body {
+  max-height: 42vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 8rpx 24rpx 12rpx;
+  box-sizing: border-box;
+}
+
+.recipe-group + .recipe-group {
+  margin-top: 8rpx;
+  padding-top: 8rpx;
+  border-top: 1rpx solid var(--color-border);
+}
+
+.recipe-group-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 24rpx 28rpx 12rpx;
-  border-bottom: 1rpx solid var(--color-border);
+  padding: 6rpx 0 4rpx;
+}
+
+.type-badge {
   flex-shrink: 0;
-}
-
-.sheet-title {
-  font-size: var(--fs-btn);
-  font-weight: 600;
-  color: var(--color-text);
-}
-
-.sheet-close {
-  font-size: var(--fs-md);
-  color: var(--color-text-secondary);
-  padding: 8rpx 4rpx 8rpx 24rpx;
-}
-
-/* scroll-view 需明确高度才能滚动；半屏减去标题栏 */
-.sheet-body {
-  height: calc(50vh - 96rpx);
-  max-height: calc(50vh - 96rpx);
-  padding: 8rpx 28rpx 24rpx;
+  min-width: 44rpx;
+  height: 44rpx;
+  padding: 0 8rpx;
   box-sizing: border-box;
+  border-radius: 10rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  line-height: 1;
+  text-align: center;
+}
+
+.type-meat {
+  background: #fbe6e1;
+  color: #c56a55;
+}
+
+.type-veg {
+  background: #edf5e3;
+  color: #527f55;
+}
+
+.type-soup {
+  background: #f8efd8;
+  color: #b8893a;
+}
+
+.type-other {
+  background: var(--color-surface-soft, #f3f1ea);
+  color: var(--color-text-secondary);
 }
 
 .dish-row {
   display: flex;
   align-items: flex-start;
-  gap: 20rpx;
-  padding: 16rpx 0;
+  gap: 16rpx;
+  padding: 14rpx 0;
   border-bottom: 1rpx solid var(--color-border);
 }
 
+.recipe-group .dish-row:last-child {
+  border-bottom: none;
+}
+
 .dish-name {
-  flex: 0 0 200rpx;
+  flex: 0 0 168rpx;
   font-size: var(--fs-body);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: var(--color-text);
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
 .dish-ings {
@@ -243,7 +347,7 @@
   min-width: 0;
   font-size: var(--fs-md);
   color: var(--color-text-secondary);
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
 /* Icon assets */

@@ -1,5 +1,5 @@
 const { callCloud } = require('../../services/cloud.js')
-const { ensureLogin } = require('../../services/session.js')
+const { ensureLogin, patchUser } = require('../../services/session.js')
 const { track } = require('../../utils/track.js')
 const {
   CUISINE_OPTIONS,
@@ -68,8 +68,10 @@ TASTES.forEach((x) => {
  * 与「我的」画像区块顺序对齐。
  * 菜式偏好：暂不进引导步（UI 注释保留）；恢复时把「菜式偏好」加回末尾即可。
  */
-const STEPS = ['家庭成员', '日常搭配', '家庭忌口', '所在城市', '做饭水平', '菜系偏好']
-// const STEPS_WITH_DISH_FORM = [...STEPS, '菜式偏好']
+// 菜系偏好暂隐藏：恢复时把「菜系偏好」加回 STEPS，并取消 onboarding.wxml 对应注释；同时翻 CUISINE_PREFS_ENABLED
+const STEPS = ['家庭成员', '日常搭配', '家庭忌口', '所在城市', '做饭水平']
+// const STEPS_WITH_CUISINE = [...STEPS, '菜系偏好']
+// const STEPS_WITH_DISH_FORM = [...STEPS_WITH_CUISINE, '菜式偏好']
 
 const PROBE_GROUP_META = [
   { id: 'easy', title: '轻松上手' },
@@ -668,6 +670,7 @@ Page({
   /**
    * @param {{ allowPartial?: boolean }} [opts]
    * allowPartial：末步点「跳过」——只提交已填完整的成员，不拦回第一步
+   * 完成：先乐观写本地 → 约 2s 回首页；云端保存后台进行，不堵离开。
    */
   finish(opts) {
     if (this.data.busy) return
@@ -691,55 +694,101 @@ Page({
       taste: m.taste || 'normal',
       avoids: m.avoidsNone ? [] : m.avoids || []
     }))
-    // 一路跳过且无有效填写：标完成即可，勿写入默认成员；重走须 reset 保空态
-    if (allowPartial && !members.length && !this._hasDraftStance()) {
-      callCloud('profile', {
-        action: 'skipOnboarding',
-        resetProfile: !!this._restart
-      })
-        .then(() => {
-          track('onboarding_done', Object.assign({
-            skipped: true,
-            restart: !!this._restart,
-            emptySkip: true
-          }, this._cookSkillDoneProps()))
-          return ensureLogin()
-        })
-        .then(() => this._leaveOnboardingDone())
-        .catch((err) => {
-          this.setData({ busy: false })
-          wx.showToast({ title: this.cloudErrorTitle(err), icon: 'none' })
-        })
-      return
-    }
-    callCloud('profile', {
-      action: 'completeOnboarding',
-      familyAvoids: noneAvoid ? [] : this.data.familyAvoids,
+    const emptySkip =
+      allowPartial && !members.length && !this._hasDraftStance()
+
+    // 乐观本地：立刻当已完成，首页不因 auth 延迟再弹引导
+    const localPatch = {
+      onboardingDone: true,
+      familyAvoids: noneAvoid ? [] : this.data.familyAvoids || [],
       familyAvoidsNone: noneAvoid,
-      dishFormPrefs: this.data.dishFormPrefs,
-      cuisinePrefs: cuisineOk ? {} : this.data.cuisinePrefs,
-      cuisinePrefsNoPreference: cuisineOk,
+      dishFormPrefs: this.data.dishFormPrefs || {},
+      cuisinePrefs: cuisineOk ? {} : this.data.cuisinePrefs || {},
+      cuisinePrefsConfirmedAt: cuisineOk
+        ? true
+        : Object.keys(this.data.cuisinePrefs || {}).some(
+            (k) =>
+              this.data.cuisinePrefs[k] === 'prefer' ||
+              this.data.cuisinePrefs[k] === 'avoid'
+          )
+          ? true
+          : null,
       defaultCombo: {
         meat: this.data.meat,
         veg: this.data.veg,
         soup: this.data.soup
       },
       city: this.data.city || null,
-      members,
-      cookSkill: this._cookSkillSkipped ? undefined : this._pendingCookSkill,
-      cookSkillSkipped: !!this._cookSkillSkipped,
-      cookSkillProbeCounts: this._cookSkillSkipped ? undefined : this._pendingCounts,
-      cookSkillProbeDishIds: this._cookSkillSkipped ? undefined : this._pendingDishIds
-    })
-      .then(() => {
-        track('onboarding_done', Object.assign({
-          memberCount: members.length,
-          partial: allowPartial
-        }, this._cookSkillDoneProps()))
-        return ensureLogin()
-      })
-      .then(() => this._leaveOnboardingDone())
+      members: emptySkip ? [] : members,
+      defaultPeopleCount: emptySkip ? 0 : members.length
+    }
+    if (!this._cookSkillSkipped && this._pendingCookSkill) {
+      localPatch.cookSkill = this._pendingCookSkill
+      localPatch.cookSkillProbeCounts = this._pendingCounts
+      localPatch.cookSkillProbeDishIds = this._pendingDishIds
+    }
+    patchUser(localPatch)
+
+    const leaveTimer = setTimeout(() => {
+      this._leaveOnboardingDone()
+    }, 2000)
+
+    const save = emptySkip
+      ? callCloud('profile', {
+          action: 'skipOnboarding',
+          resetProfile: !!this._restart
+        }).then(() => {
+          track(
+            'onboarding_done',
+            Object.assign(
+              {
+                skipped: true,
+                restart: !!this._restart,
+                emptySkip: true
+              },
+              this._cookSkillDoneProps()
+            )
+          )
+        })
+      : callCloud('profile', {
+          action: 'completeOnboarding',
+          familyAvoids: noneAvoid ? [] : this.data.familyAvoids,
+          familyAvoidsNone: noneAvoid,
+          dishFormPrefs: this.data.dishFormPrefs,
+          cuisinePrefs: cuisineOk ? {} : this.data.cuisinePrefs,
+          cuisinePrefsNoPreference: cuisineOk,
+          defaultCombo: {
+            meat: this.data.meat,
+            veg: this.data.veg,
+            soup: this.data.soup
+          },
+          city: this.data.city || null,
+          members,
+          cookSkill: this._cookSkillSkipped ? undefined : this._pendingCookSkill,
+          cookSkillSkipped: !!this._cookSkillSkipped,
+          cookSkillProbeCounts: this._cookSkillSkipped
+            ? undefined
+            : this._pendingCounts,
+          cookSkillProbeDishIds: this._cookSkillSkipped
+            ? undefined
+            : this._pendingDishIds
+        }).then(() => {
+          track(
+            'onboarding_done',
+            Object.assign(
+              {
+                memberCount: members.length,
+                partial: allowPartial
+              },
+              this._cookSkillDoneProps()
+            )
+          )
+        })
+
+    save
+      .then(() => ensureLogin({ preferLocalStance: true }).catch(() => null))
       .catch((err) => {
+        clearTimeout(leaveTimer)
         this.setData({ busy: false })
         wx.showToast({ title: this.cloudErrorTitle(err), icon: 'none' })
       })

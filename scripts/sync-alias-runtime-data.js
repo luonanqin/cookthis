@@ -5,8 +5,15 @@ const path = require('path')
 
 const root = path.join(__dirname, '..')
 const aliasesSrc = path.join(root, 'data/catalog/aliases.json')
+const byCategorySrc = path.join(
+  root,
+  'data/catalog/ingredients-all-by-category.json'
+)
 const citiesDir = path.join(root, 'data/catalog/cities')
 const { flattenShelfNameOrder } = require('../cloudfunctions/_shared/aliasMatch.js')
+const {
+  buildIngredientCategoryMap
+} = require('./lib/buildIngredientCategoryMap.js')
 
 const aliasJsonTargets = [
   'cloudfunctions/_shared/data/aliases.json',
@@ -52,3 +59,17 @@ for (const ent of fs.readdirSync(citiesDir, { withFileTypes: true })) {
 const catalogShelvesJs = 'cloudfunctions/catalog/data/city-shelves.js'
 writeJsModule(path.join(root, catalogShelvesJs), shelvesMap)
 console.log('wrote', catalogShelvesJs)
+
+// 清单分类兜底：菜谱食材不在「已选」里时，仍按 by-category 归类（别名编辑器分组 ≠ 清单分类源）
+const byCategoryDoc = JSON.parse(fs.readFileSync(byCategorySrc, 'utf8'))
+const categoryMap = buildIngredientCategoryMap(byCategoryDoc)
+const categoryTargets = [
+  'miniprogram/data/ingredient-categories.js',
+  'cloudfunctions/_shared/data/ingredient-categories.js'
+]
+categoryTargets.forEach((rel) => {
+  const dest = path.join(root, rel)
+  ensureDir(path.dirname(dest))
+  writeJsModule(dest, categoryMap)
+  console.log('wrote', rel, Object.keys(categoryMap).length)
+})

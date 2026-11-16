@@ -9,7 +9,7 @@ const {
 describe('pickDefaultAvatar', () => {
   it('returns local asset path avatar-cook-01..10', () => {
     const p = pickDefaultAvatar('u_01JABC')
-    assert.match(p, new RegExp(`^${AVATAR_PREFIX}\\d{2}\\.png$`))
+    assert.match(p, new RegExp(`^${AVATAR_PREFIX}\\d{2}\\.jpg$`))
     const n = Number(p.slice(AVATAR_PREFIX.length, AVATAR_PREFIX.length + 2))
     assert.ok(n >= 1 && n <= AVATAR_COUNT)
   })

@@ -22,6 +22,7 @@ python3 tools/alias-editor/server.py
 - 「解散」：组内全部回到未分组
 - 每次改动自动保存，并写回 `ingredients-all-by-category.json`（人工挪品类会保留，`finish_review` / 同步全量不再冲掉）
 - 「同步全量」：按最新 `ingredients-all.json` 刷新品类表，把**新名字**补进各分类「未分组」；**已有别名组不动**；已挪过的品类归属会先写回再刷新
+- 「导出到运行时」：`export-aliases-from-editor.py` + `sync-alias-runtime-data.js`（写 `aliases.json` 并拷到 `catalog` / `recommend` 包）；**重新上传云函数 `catalog`（及 `recommend`）** 后小程序拉取即用新别名
 - 「重置初始化」：用当前 `aliases.json` **整表覆盖**编辑稿（会丢掉网页上的拖拽结果，慎用）
 
 ## 忌口 Tab
@@ -30,8 +31,7 @@ python3 tools/alias-editor/server.py
 - 「+ 忌口组」：只填中文名，自动分配 `id`（`gN`）；chip 上 × 确认后整组删除（含成员）
 - 保存成员时**不**把词表打回硬编码六码；小程序「我的」偏好词表暂不动
 - 「从 builtin 灌入」：按**当前**词表 ids 反填（忽略词表外如 lamb）；不重置自定义 vocab
-- 「导出到 builtin」：按底稿全量重算 avoidTags（别名表面名一并打标）；不写云库
-- 导入云库仍走现有 ingredients 导入脚本
+- 「导出 for-import」：按底稿全量重算 avoidTags 写回 builtin，再跑 `import-ingredients.js` 生成 `ingredients-for-import.json`；再手工导入云库 `ingredients`
 - 「同步全量」在忌口态同样可用：补池内新名，不自动进忌口组
 
 ## 城菜 Tab
@@ -49,9 +49,16 @@ python3 tools/alias-editor/server.py
 - 有未确认草稿时切档/切 Tab 会弹窗：保存并切换 / 放弃并切换 / 取消
 - 「导出 for-import」：生成 `recipes-for-import.json`（有草稿时先处理草稿）；再手工导云库
 
+## 菜系 Tab
+
+- 数据：`recipes-builtin.json` 的 `cuisineTags`（可多标；`home_style` 展示为「通用」）
+- 左栏：未标注 / 通用 / 19 地方系（一道菜可出现在多个系）
+- 右键菜卡 → 4×5 弹层切换归属（已选高亮）；右侧芯片为「当前栏以外」的已选系，点击取消
+- 「确认修改」写 builtin；有草稿时切栏/切 Tab 弹窗；「导出 for-import」同难度 Tab
+
 ## 导回 aliases.json（供云函数 / 小程序）
 
-确认编辑稿后：
+确认编辑稿后，可在「别名」Tab 点 **导出到运行时**，或命令行：
 
 ```bash
 python3 scripts/export-aliases-from-editor.py
@@ -60,4 +67,5 @@ node scripts/sync-alias-runtime-data.js
 
 - 源稿：`data/catalog/aliases-editor.json`
 - 规范表：`data/catalog/aliases.json`
-- **部署云函数 `recommend` 时带上的是**：`cloudfunctions/recommend/data/aliases.json`（由上面 sync 从规范表拷贝；`_shared` / 小程序也会同步）
+- sync 写入：`cloudfunctions/catalog/data/aliases.js`（小程序经 catalog 云函数拉取）、`cloudfunctions/recommend/data/aliases.json` 等
+- **上传云函数 `catalog` + `recommend`** 后生效

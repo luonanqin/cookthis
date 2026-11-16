@@ -83,7 +83,7 @@
 }
 
 .btn-main {
-  font-weight: 600 !important;
+  font-weight: var(--fw-semibold) !important;
   font-size: var(--fs-title) !important;
 }
 
@@ -108,8 +108,8 @@
 }
 
 .home-type-scale__glyph {
-  font-size: 28rpx;
-  font-weight: 700;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-bold);
   color: var(--color-primary);
   line-height: 1;
 }
@@ -131,7 +131,7 @@
 
 .home-nav-title {
   font-size: var(--fs-md);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: var(--color-text);
   text-align: center;
   line-height: 1.3;
@@ -148,10 +148,10 @@
   border-radius: 14rpx;
   background: #e54d42;
   color: #fff;
-  font-size: 18rpx;
+  font-size: var(--fs-xxs);
   line-height: 28rpx;
   text-align: center;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 
 .link-dot {
@@ -245,16 +245,18 @@
   box-sizing: border-box;
 }
 
+/* 两列均分：避免 calc(50%-n) 在部分机型失效变单列；列宽随屏宽自适应 */
 .sheet-confirm-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12rpx;
   padding: 4rpx 0 32rpx;
   box-sizing: border-box;
 }
 
 .sheet-chip {
-  width: calc(50% - 6rpx);
+  width: auto;
+  min-width: 0;
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -344,14 +346,15 @@
 .scale-card {
   min-height: 96rpx;
   box-sizing: border-box;
-  padding: 20rpx 24rpx;
+  padding: 10rpx 8rpx 10rpx 24rpx;
   border: 1rpx solid var(--color-border);
   border-radius: var(--radius-card);
   background: var(--color-bg);
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 6rpx;
+  flex-direction: row;
+  align-items: center;
+  gap: 12rpx;
+  overflow: visible;
 }
 
 .scale-card.on {
@@ -359,9 +362,18 @@
   background: var(--color-primary-soft);
 }
 
+.scale-card-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6rpx;
+}
+
 .scale-card-title {
-  font-size: var(--fs-md);
-  font-weight: 600;
+  font-size: var(--fs-title);
+  font-weight: var(--fw-semibold);
   color: var(--color-text);
   line-height: 1.3;
 }
@@ -370,27 +382,57 @@
   color: var(--color-primary);
 }
 
+/* heightFix：高度撑满，宽度按比例变宽；margin-left:auto 贴右 */
+.scale-card-icon {
+  flex-shrink: 0;
+  display: block;
+  margin-left: auto;
+  height: 100rpx;
+  width: auto;
+}
+
+.scale-card-icon--small {
+  /* 小档接近方形，略收一点宽 */
+  height: 100rpx;
+}
+
+.scale-card-icon--medium,
+.scale-card-icon--large {
+  height: 100rpx;
+}
+
 .scale-card-desc {
   font-size: var(--fs-sm);
   color: var(--color-text-secondary);
   line-height: 1.35;
 }
 
-.scale-default-wrap {
+.scale-actions {
   flex-shrink: 0;
   padding: 16rpx 28rpx calc(20rpx + env(safe-area-inset-bottom));
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
+  gap: 28rpx;
+  border-top: 1rpx solid var(--color-border);
 }
 
-.scale-default-wrap .scale-default-btn {
+.scale-actions button[size='mini'] {
+  height: 56rpx;
+  line-height: 56rpx;
+  padding: 0 28rpx;
   margin: 0;
-  min-width: 240rpx;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
-.scale-default-wrap .scale-default-btn.on {
-  background: var(--color-primary-soft) !important;
+.scale-actions button.btn-confirm-disabled[disabled] {
+  color: var(--color-text-muted) !important;
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-soft) !important;
+  opacity: 1 !important;
 }
 
 /* Icon assets */

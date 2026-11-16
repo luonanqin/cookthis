@@ -837,9 +837,7 @@
     "kind": "main",
     "onConfirmPage": false,
     "sort": 6,
-    "avoidTags": [
-      "pork"
-    ],
+    "avoidTags": [],
     "source": "builtin",
     "updatedAt": "2026-10-09T00:00:00.000Z",
     "id": "ing_streaky",
@@ -4642,9 +4640,7 @@
     "kind": "main",
     "onConfirmPage": false,
     "sort": 4,
-    "avoidTags": [
-      "pork"
-    ],
+    "avoidTags": [],
     "source": "builtin",
     "updatedAt": "2026-10-09T00:00:00.000Z",
     "id": "ing_xm_4",
@@ -4990,9 +4986,7 @@
     "kind": "main",
     "onConfirmPage": false,
     "sort": 1,
-    "avoidTags": [
-      "pork"
-    ],
+    "avoidTags": [],
     "source": "builtin",
     "updatedAt": "2026-10-09T00:00:00.000Z",
     "id": "ing_jn_1",
@@ -5896,9 +5890,7 @@
     "kind": "main",
     "onConfirmPage": false,
     "sort": 4,
-    "avoidTags": [
-      "pork"
-    ],
+    "avoidTags": [],
     "source": "builtin",
     "updatedAt": "2026-10-09T00:00:00.000Z",
     "id": "ing_hy_4",
@@ -22704,6 +22696,84 @@
     "avoidTags": [],
     "source": "builtin",
     "updatedAt": "2026-11-04T08:03:05.372Z",
+    "availability": "year_round"
+  },
+  {
+    "id": "ing_a0ec39d7d7",
+    "name": "豆腐乳",
+    "category": "未分类",
+    "cities": [],
+    "kind": "main",
+    "onConfirmPage": false,
+    "sort": 99,
+    "avoidTags": [],
+    "source": "builtin",
+    "updatedAt": "2026-11-12T02:29:59.549Z",
+    "availability": "year_round"
+  },
+  {
+    "id": "ing_c82e0c7c61",
+    "name": "麻酱",
+    "category": "未分类",
+    "cities": [],
+    "kind": "seasoning",
+    "onConfirmPage": false,
+    "sort": 99,
+    "avoidTags": [],
+    "source": "builtin",
+    "updatedAt": "2026-11-12T02:29:59.549Z",
+    "availability": "year_round"
+  },
+  {
+    "id": "ing_feca6b13da",
+    "name": "盐焗粉",
+    "category": "未分类",
+    "cities": [],
+    "kind": "seasoning",
+    "onConfirmPage": false,
+    "sort": 99,
+    "avoidTags": [],
+    "source": "builtin",
+    "updatedAt": "2026-11-12T02:30:23.646Z",
+    "availability": "year_round"
+  },
+  {
+    "id": "ing_scallion_oil",
+    "name": "葱油",
+    "category": "未分类",
+    "cities": [],
+    "kind": "seasoning",
+    "onConfirmPage": false,
+    "sort": 99,
+    "avoidTags": [],
+    "source": "builtin",
+    "updatedAt": "2026-11-12T02:30:34.961Z",
+    "availability": "year_round"
+  },
+  {
+    "id": "ing_0f1e2fa31a",
+    "name": "芥兰",
+    "category": "菜叶",
+    "cities": [],
+    "kind": "main",
+    "onConfirmPage": false,
+    "sort": 99,
+    "avoidTags": [],
+    "source": "builtin",
+    "updatedAt": "2026-11-12T06:57:39.058Z",
+    "availability": "year_round"
+  },
+  {
+    "id": "ing_055cd0e698",
+    "name": "白酒",
+    "category": "未分类",
+    "cities": [],
+    "kind": "main",
+    "sort": 99,
+    "avoidTags": [],
+    "source": "builtin",
+    "updatedAt": "2026-11-13T03:50:27.176Z",
+    "onConfirmPage": false,
     "availability": "year_round"
   }
 ]

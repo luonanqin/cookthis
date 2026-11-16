@@ -3,6 +3,10 @@
   <view class="page-body">
   <view wx:if="{{loading}}" class="empty">加载中…</view>
 
+  <view wx:elif="{{featureClosed}}" class="empty">
+    <text class="empty-text">方案分享暂未开放</text>
+  </view>
+
   <view wx:elif="{{invalid}}" class="empty">
     <text class="empty-text">分享已失效或不存在</text>
   </view>
@@ -40,16 +44,17 @@
 
   </view>
 
-  <view class="footer" wx:if="{{!loading && !invalid}}">
+  <view class="footer" wx:if="{{!loading && !invalid && !featureClosed}}">
     <button
       wx:if="{{!saved}}"
       type="primary"
       class="save-btn"
-      loading="{{saving}}"
       disabled="{{saving}}"
       hover-class="button-hover"
       bindtap="onSave"
     >保存到我的</button>
     <view wx:else class="saved-hint">已保存到已选方案</view>
   </view>
+
+  <busy-overlay show="{{saving}}" />
 </view>

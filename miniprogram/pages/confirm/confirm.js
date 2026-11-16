@@ -1,5 +1,6 @@
 const { callCloud } = require('../../services/cloud.js')
 const { getUser, ensureLogin, patchUser } = require('../../services/session.js')
+const confirmIngredientsCache = require('../../services/confirmIngredientsCache.js')
 const { suggestPartyCombo, suggestComboByPeople } = require('../../utils/suggestCombo.js')
 const { filterHolidays } = require('../../utils/filterHolidays.js')
 const { track } = require('../../utils/track.js')
@@ -272,22 +273,34 @@ Page({
       this.setData({ loading: false, error: '页面初始化失败' })
       return
     }
+    // 首页已预取时同步灌入，避免进页后再闪 loading
+    const entryScale = confirmIngredientsCache.resolveScale()
+    const prefetched = confirmIngredientsCache.take(entryScale)
+    if (prefetched) {
+      this._applyIngredientPayload(prefetched, { preserveSelection: false })
+    }
     this.loadHousehold()
     this._ensureSystemDefaultMarketScale()
       .then(() => {
         this._syncMarketScaleEntry()
-        this.loadList()
+        const nextScale = confirmIngredientsCache.resolveScale()
+        if (prefetched && nextScale === entryScale) return
+        this.loadList(
+          prefetched && nextScale !== entryScale
+            ? { preserveSelection: true }
+            : undefined
+        )
       })
       .catch((err) => {
         console.warn('market scale init failed', err)
         this._syncMarketScaleEntry()
-        this.loadList()
+        if (!prefetched) this.loadList()
       })
   },
 
   onShow() {
     this.applyTypeScale()
-    // 从推荐页返回时恢复按钮，避免一直停在「脑壳飞速运转中」
+    // 从推荐页返回时清 busy，避免遮罩一直挡住
     if (this.data.submitting || this.data.liteBusy) {
       this.setData({ submitting: false, liteBusy: false })
     }
@@ -512,67 +525,81 @@ Page({
   },
 
   /**
+   * @param {{ scale?: string, seasonal?: any[], yearRound?: any[] }} payload
+   * @param {{ preserveSelection?: boolean }} [opts]
+   */
+  _applyIngredientPayload(payload, opts) {
+    const preserveSelection = !!(opts && opts.preserveSelection)
+    const seasonal = (payload && payload.seasonal) || []
+    const yearRound = (payload && payload.yearRound) || []
+    const manuals = preserveSelection ? this.data.manuals || [] : []
+    const user = getUser() || {}
+    const familyAvoids = user.familyAvoids || []
+    let seasonalChecked
+    let yearRoundChecked
+    if (preserveSelection) {
+      seasonalChecked = mergeSeasonalChecked(
+        this.data.seasonal || [],
+        this.data.seasonalChecked || {},
+        seasonal
+      )
+      yearRoundChecked = mergeYearRoundChecked(
+        this.data.yearRound || [],
+        this.data.yearRoundChecked || {},
+        yearRound,
+        familyAvoids
+      )
+    } else {
+      seasonalChecked = {}
+      seasonal.forEach((it) => {
+        seasonalChecked[it.id] = true
+      })
+      yearRoundChecked = defaultYearRoundChecked(yearRound, familyAvoids)
+    }
+    this.setData({
+      loading: false,
+      error: '',
+      holdBlank: false,
+      seasonal,
+      yearRound,
+      seasonalGroups: groupByCategory(seasonal),
+      yearRoundGroups: groupByCategory(yearRound),
+      seasonalChecked,
+      seasonalSelectAllLabel: this._seasonalSelectAllLabel(seasonal, seasonalChecked),
+      yearRoundChecked,
+      yearRoundExpanded: preserveSelection ? this.data.yearRoundExpanded : false,
+      manuals,
+      listEmpty: seasonal.length === 0 && yearRound.length === 0,
+      ...this._counts(seasonalChecked, yearRoundChecked, manuals)
+    })
+  },
+
+  /**
    * @param {{ preserveSelection?: boolean }} [opts]
    */
   loadList(opts) {
     const preserveSelection = !!(opts && opts.preserveSelection)
-    const prevSeasonal = preserveSelection ? this.data.seasonal || [] : []
-    const prevYearRound = preserveSelection ? this.data.yearRound || [] : []
-    const prevSeasonalChecked = preserveSelection
-      ? Object.assign({}, this.data.seasonalChecked || {})
-      : {}
-    const prevYearRoundChecked = preserveSelection
-      ? Object.assign({}, this.data.yearRoundChecked || {})
-      : {}
-    const manuals = preserveSelection ? this.data.manuals || [] : []
+    const scale = confirmIngredientsCache.resolveScale()
+    if (!preserveSelection) {
+      const cached = confirmIngredientsCache.take(scale)
+      if (cached) {
+        this._applyIngredientPayload(cached, { preserveSelection: false })
+        return
+      }
+    }
 
     this.setData({ loading: true, error: '', holdBlank: false, listEmpty: false })
-    const user = getUser() || {}
-    const familyAvoids = user.familyAvoids || []
-    const scale = user.marketScaleEffective || 'medium'
+    confirmIngredientsCache.clear()
     callCloud('ingredients', { scale })
       .then((res) => {
-        const seasonal = (res && res.seasonal) || []
-        const yearRound = (res && res.yearRound) || []
-        let seasonalChecked
-        let yearRoundChecked
-        if (preserveSelection) {
-          seasonalChecked = mergeSeasonalChecked(
-            prevSeasonal,
-            prevSeasonalChecked,
-            seasonal
-          )
-          yearRoundChecked = mergeYearRoundChecked(
-            prevYearRound,
-            prevYearRoundChecked,
-            yearRound,
-            familyAvoids
-          )
-        } else {
-          seasonalChecked = {}
-          seasonal.forEach((it) => {
-            seasonalChecked[it.id] = true
-          })
-          yearRoundChecked = defaultYearRoundChecked(yearRound, familyAvoids)
-        }
-        this.setData({
-          loading: false,
-          error: '',
-          holdBlank: false,
-          seasonal,
-          yearRound,
-          seasonalGroups: groupByCategory(seasonal),
-          yearRoundGroups: groupByCategory(yearRound),
-          seasonalChecked,
-          seasonalSelectAllLabel: this._seasonalSelectAllLabel(seasonal, seasonalChecked),
-          yearRoundChecked,
-          yearRoundExpanded: preserveSelection
-            ? this.data.yearRoundExpanded
-            : false,
-          manuals,
-          listEmpty: seasonal.length === 0 && yearRound.length === 0,
-          ...this._counts(seasonalChecked, yearRoundChecked, manuals)
-        })
+        this._applyIngredientPayload(
+          {
+            scale: (res && res.scale) || scale,
+            seasonal: (res && res.seasonal) || [],
+            yearRound: (res && res.yearRound) || []
+          },
+          { preserveSelection }
+        )
       })
       .catch((err) => {
         console.error(err)
@@ -610,22 +637,45 @@ Page({
     })
   },
 
-  onMarketScaleSelect(e) {
+  onMarketScalePick(e) {
     if (this.data.marketScaleBusy || !this.data.showMarketScale) return
     const choice =
       e && e.currentTarget && e.currentTarget.dataset
         ? e.currentTarget.dataset.choice
         : null
-    if (!choice) return
+    if (!choice || (choice !== 'small' && choice !== 'medium' && choice !== 'large')) {
+      return
+    }
+    tapFeedback()
+    this.setData({
+      marketScaleHighlight: choice,
+      marketScaleDefaultOn: false
+    })
+  },
+
+  onMarketScaleSkip() {
+    this._commitMarketScale('default_medium')
+  },
+
+  onMarketScaleConfirm() {
+    const choice = this.data.marketScaleHighlight
+    if (!choice) {
+      wx.showToast({ title: '请先选择菜场规模', icon: 'none' })
+      return
+    }
+    this._commitMarketScale(choice)
+  },
+
+  _commitMarketScale(choice) {
+    if (this.data.marketScaleBusy || !this.data.showMarketScale || !choice) return
     const user = getUser() || {}
     const current = user.marketScaleChoice || null
     const effective = effectiveFromChoice(choice)
-    // 先刷新选中态，再决定关层 / 写库（否则等云函数时只有震动、卡面不变）
     this.setData({
       marketScaleHighlight: effective,
       marketScaleDefaultOn: choice === 'default_medium'
     })
-    // 点当前已选档：关层不写库，避免重复 history
+    // 与当前已选档相同：关层不写库，避免重复 history
     if (choice === current) {
       tapFeedback()
       this.setData({ showMarketScale: false })
@@ -643,8 +693,8 @@ Page({
       })
       .catch((err) => {
         console.error(err)
-        // 写库失败：选中态回退到本地已保存档
-        const fallbackChoice = (getUser() || {}).marketScaleChoice || current || 'default_medium'
+        const fallbackChoice =
+          (getUser() || {}).marketScaleChoice || current || 'default_medium'
         this.setData({
           marketScaleBusy: false,
           marketScaleHighlight: effectiveFromChoice(fallbackChoice),

@@ -4,6 +4,8 @@ const { loadAliases, buildAliasIndex, normalizeCityKey } = require('../utils/ali
 const { track } = require('../utils/track.js')
 
 const ALIASES_KEY = 'cookthis_aliases_v1'
+/** 别名表不兼容变更时 +1：读到旧 epoch 会 removeStorage 再拉 */
+const ALIASES_CACHE_EPOCH = 2
 const SHELF_PREFIX = 'cookthis_shelf_v1_'
 
 function shelfStorageKey(cityKey) {
@@ -30,14 +32,28 @@ function removeKey(key) {
   } catch (e) {}
 }
 
+function clearAliasesCache() {
+  removeKey(ALIASES_KEY)
+  // 短暂用过的升 key 残留
+  removeKey('cookthis_aliases_v2')
+}
+
 function readAliasesTable() {
   const raw = readJson(ALIASES_KEY)
   if (!raw || typeof raw !== 'object') return null
+  if (Number(raw._cacheEpoch) !== ALIASES_CACHE_EPOCH) {
+    clearAliasesCache()
+    return null
+  }
   return loadAliases(raw)
 }
 
 function writeAliasesTable(aliases) {
-  writeJson(ALIASES_KEY, aliases || {})
+  const table = aliases && typeof aliases === 'object' ? aliases : {}
+  writeJson(
+    ALIASES_KEY,
+    Object.assign({}, table, { _cacheEpoch: ALIASES_CACHE_EPOCH })
+  )
 }
 
 function readShelfOrder(city) {
@@ -128,11 +144,13 @@ function loadShoppingCatalog(city) {
 
 module.exports = {
   ALIASES_KEY,
+  ALIASES_CACHE_EPOCH,
   shelfStorageKey,
   ensureAliases,
   ensureShelfOrder,
   prefetchCatalog,
   loadShoppingCatalog,
+  clearAliasesCache,
   clearShelfCache,
   readAliasesTable,
   readShelfOrder

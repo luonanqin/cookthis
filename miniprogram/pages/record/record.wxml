@@ -37,4 +37,6 @@
   <view class="footer">
     <button class="btn-outline" hover-class="button-hover" bindtap="onBack">返回</button>
   </view>
+
+  <busy-overlay show="{{busy}}" />
 </view>

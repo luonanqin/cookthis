@@ -1,5 +1,5 @@
 .sheet-title {
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   font-size: var(--fs-title);
   color: var(--color-text);
 }
@@ -59,8 +59,8 @@
   padding: 0 !important;
   height: 96rpx;
   line-height: 96rpx;
-  font-size: var(--fs-body);
-  font-weight: 500;
+  font-size: var(--fs-btn);
+  font-weight: var(--fw-medium);
   color: var(--color-text);
   background: transparent !important;
   border: none !important;
@@ -77,7 +77,7 @@
 
 .lite-btn-primary {
   color: var(--color-primary) !important;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 
 .lite-btn.button-hover {

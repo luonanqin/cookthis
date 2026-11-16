@@ -33,8 +33,8 @@
 }
 
 .section-title {
-  font-size: var(--fs-lead);
-  font-weight: 600;
+  font-size: var(--fs-title);
+  font-weight: var(--fw-semibold);
   margin-bottom: 0;
   color: var(--color-forest);
   flex-shrink: 0;
@@ -248,7 +248,7 @@
   display: block;
   font-size: var(--fs-body);
   color: var(--color-text);
-  font-weight: 500;
+  font-weight: var(--fw-semibold);
 }
 
 .member-meta {
@@ -278,7 +278,7 @@
 
 .member-editor-title {
   font-size: var(--fs-body);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: var(--color-text);
 }
 
@@ -330,9 +330,18 @@
   align-items: center !important;
   justify-content: center !important;
   box-sizing: border-box !important;
-  font-size: var(--fs-body) !important;
-  font-weight: 600 !important;
   border-radius: var(--radius-btn) !important;
+}
+
+/* 主 CTA / 次按钮字号粗细走 app 全局；此处只保证布局 */
+.footer > button[type='primary'] {
+  font-size: var(--fs-title) !important;
+  font-weight: var(--fw-semibold) !important;
+}
+
+.footer > button.btn-outline {
+  font-size: var(--fs-btn) !important;
+  font-weight: var(--fw-medium) !important;
 }
 
 .footer-primary {

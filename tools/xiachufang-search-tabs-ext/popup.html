@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>下厨房搜索页采集</title>
+    <style>
+      body {
+        font: 13px/1.45 -apple-system, BlinkMacSystemFont, "PingFang SC",
+          "Helvetica Neue", sans-serif;
+        margin: 12px;
+        width: 320px;
+        color: #222;
+      }
+      h1 {
+        font-size: 14px;
+        margin: 0 0 8px;
+      }
+      .row {
+        margin: 6px 0;
+        color: #555;
+        word-break: break-all;
+      }
+      .ok {
+        color: #0a7;
+      }
+      .err {
+        color: #b00020;
+      }
+      button {
+        width: 100%;
+        padding: 8px 10px;
+        margin-top: 8px;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      #log {
+        margin-top: 10px;
+        white-space: pre-wrap;
+        font-size: 12px;
+        max-height: 220px;
+        overflow: auto;
+      }
+      .hint {
+        color: #888;
+        font-size: 12px;
+        margin-top: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>下厨房搜索页批量采集</h1>
+    <div class="row">保存服务：<span id="saveServer">检测中…</span></div>
+    <div class="row">已查关键字：<span id="searchedCount">—</span></div>
+    <button type="button" id="btnScrape">采集本窗口全部搜索页</button>
+    <div class="hint">
+      只读当前已加载列表。结果持续写入 search-tab-results.json，已查词写入
+      search-tab-progress.json（不碰 popularity 旧文件）。
+    </div>
+    <div id="log"></div>
+    <script src="popup.js"></script>
+  </body>
+</html>

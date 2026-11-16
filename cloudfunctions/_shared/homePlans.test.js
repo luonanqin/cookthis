@@ -1079,7 +1079,8 @@ describe('within-plan dedupe (3.0.7)', () => {
 })
 
 describe('cuisinePrefs in buildHomePlans', () => {
-  it('hard-excludes avoid cuisine from candidates', () => {
+  // CUISINE_PREFS_ENABLED=false：偏好暂不影响推荐；翻 true 后应恢复排除/软分
+  it('does not hard-exclude avoid cuisine while prefs gated off', () => {
     const recipes = [
       {
         id: 'rcp_mapo',
@@ -1118,11 +1119,10 @@ describe('cuisinePrefs in buildHomePlans', () => {
         for (const d of m.dishes || []) ids.push(d.recipeId)
       }
     }
-    assert.ok(!ids.includes('rcp_mapo'))
+    assert.ok(ids.includes('rcp_mapo'))
   })
 
-  it('prefer cuisine sorts ahead of neutral when both fit', () => {
-    // 两道 meat，combo 只要 1 meat：prefer 的应被优先挑中
+  it('prefer cuisine soft delta is inert while prefs gated off', () => {
     const recipes = [
       {
         id: 'rcp_neutral_meat',
@@ -1141,30 +1141,8 @@ describe('cuisinePrefs in buildHomePlans', () => {
         meatVeg: 'meat',
         cuisineTags: ['hunan'],
         enabled: true
-      },
-      {
-        id: 'rcp_veg',
-        name: '蒜蓉小白菜',
-        mainIngredients: ['小白菜'],
-        seasonings: ['盐'],
-        meatVeg: 'veg',
-        cuisineTags: ['home_style'],
-        enabled: true
       }
     ]
-    const built = buildHomePlans({
-      recipes,
-      selectedNames: ['猪肉', '青椒', '小白菜'],
-      scene: {
-        mealType: 'daily',
-        combo: { meat: 1, veg: 1, soup: 0 },
-        mealSlots: [{ meal: 'dinner', label: '晚饭①' }]
-      },
-      cuisinePrefs: { hunan: 'prefer' },
-      maxPlans: 1,
-      // seed 'a' picks neutral when soft scores tie — prefer delta must break the tie
-      sessionSeed: 'a'
-    })
     const preferCtx = {
       downranked: new Set(),
       memberAvoids: new Set(),
@@ -1172,14 +1150,10 @@ describe('cuisinePrefs in buildHomePlans', () => {
       ingredientsByName: undefined,
       cuisinePrefs: { hunan: 'prefer' }
     }
-    assert.ok(
-      softPenalty(recipes[1], preferCtx) < softPenalty(recipes[0], preferCtx),
-      'prefer cuisine must lower softPenalty'
+    assert.equal(
+      softPenalty(recipes[1], preferCtx),
+      softPenalty(recipes[0], preferCtx)
     )
-    const meatId = built.plans[0].meals[0].dishes.find((d) =>
-      ['rcp_neutral_meat', 'rcp_hunan_meat'].includes(d.recipeId)
-    ).recipeId
-    assert.equal(meatId, 'rcp_hunan_meat')
   })
 })
 

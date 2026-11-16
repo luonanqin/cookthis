@@ -1,7 +1,7 @@
 const { callCloud } = require('../../services/cloud.js')
 const { track } = require('../../utils/track.js')
 const { tapFeedback } = require('../../utils/haptic.js')
-const { shareCardTitle } = require('../../utils/planShare.js')
+const { PLAN_SHARE_ENABLED, shareCardTitle } = require('../../utils/planShare.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 const { formatSceneSummary } = require('../../utils/sceneSummary.js')
 
@@ -127,32 +127,53 @@ Page({
     loadingMore: false,
     hint: HINT,
     headerHeight: 140,
-    metaStickyTop: 172,
+    hintBarHeight: 28,
+    metaStickyTop: 168,
     showTip: false,
     tipStep: 1,
     tipText: '可点击记录已吃',
     tipSpot: null,
     tipBubbleTop: 120,
     tipBubbleLeft: 28,
-    tipOwnListKey: ''
+    tipOwnListKey: '',
+    planShareEnabled: PLAN_SHARE_ENABLED
   },
 
   onHeaderHeight(e) {
     const height = e && e.detail && e.detail.height
     if (!height) return
-    let hintH = 32
-    try {
-      const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync()
-      hintH = Math.ceil((64 / 750) * (sys.windowWidth || 375))
-    } catch (err) {}
-    const metaStickyTop = height + hintH
-    if (
-      height === this.data.headerHeight &&
-      metaStickyTop === this.data.metaStickyTop
-    ) {
-      return
+    if (height !== this.data.headerHeight) {
+      this.setData({ headerHeight: height })
     }
-    this.setData({ headerHeight: height, metaStickyTop })
+    this._syncHintStickyMetrics()
+  },
+
+  /** 按提示条实测底边贴齐方案 meta，避免估算多出一条缝 */
+  _syncHintStickyMetrics() {
+    const run = () => {
+      this.createSelectorQuery()
+        .select('.hint-bar')
+        .boundingClientRect()
+        .exec((res) => {
+          const rect = res && res[0]
+          if (!rect || !rect.height) return
+          const hintBarHeight = Math.ceil(rect.height)
+          // 上叠 1px，消亚像素缝
+          const metaStickyTop = Math.max(0, Math.round(rect.bottom) - 1)
+          if (
+            hintBarHeight === this.data.hintBarHeight &&
+            metaStickyTop === this.data.metaStickyTop
+          ) {
+            return
+          }
+          this.setData({ hintBarHeight, metaStickyTop })
+        })
+    }
+    if (typeof wx.nextTick === 'function') {
+      wx.nextTick(run)
+    } else {
+      setTimeout(run, 16)
+    }
   },
 
   _loadGen: 0,
@@ -170,6 +191,7 @@ Page({
 
   onShow() {
     this.applyTypeScale()
+    this._syncHintStickyMetrics()
     this.setData({
       showTip: !readTipSeen(),
       tipStep: 1,
@@ -487,6 +509,9 @@ Page({
   },
 
   onShareAppMessage(res) {
+    if (!PLAN_SHARE_ENABLED) {
+      return { title: '买菜没烦恼', path: '/pages/index/index' }
+    }
     const ds = (res.target && res.target.dataset) || {}
     const entry = ds.entry || 'accepted'
     const recommendationId = ds.recommendationId

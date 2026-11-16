@@ -11,6 +11,7 @@ const {
   RELOCATE_MIN_METERS,
   RELOCATE_COOLDOWN_MS
 } = require('../../utils/marketScale.js')
+const confirmIngredientsCache = require('../../services/confirmIngredientsCache.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 const { getNavMetrics } = require('../../utils/navBar.js')
 
@@ -404,7 +405,17 @@ Page({
 
   _navigateConfirm() {
     this._disableMarketScaleBackGuard()
-    wx.navigateTo({ url: '/pages/confirm/confirm' })
+    // 先拉好食材再进页，避免确认页二次 loading
+    this.setData({ busy: true })
+    return confirmIngredientsCache
+      .ensure()
+      .catch((err) => {
+        console.warn('ingredients prefetch failed', err)
+      })
+      .then(() => {
+        this.setData({ busy: false })
+        wx.navigateTo({ url: '/pages/confirm/confirm' })
+      })
   },
 
   _afterEntryConfirm() {
@@ -413,14 +424,12 @@ Page({
     this._maybeShowMarketScaleSheet()
       .then((shown) => {
         if (!shown) {
-          this.setData({ busy: false })
-          this._navigateConfirm()
+          return this._navigateConfirm()
         }
       })
       .catch((err) => {
         console.warn('market scale sheet gate failed', err)
-        this.setData({ busy: false })
-        this._navigateConfirm()
+        return this._navigateConfirm()
       })
   },
 
@@ -540,6 +549,7 @@ Page({
         showMarketScale: true,
         marketScaleTitle: copy.title,
         marketScaleHint: copy.hint,
+        // 有历史档则预选；首次空着，须点选或跳过
         marketScaleHighlight: prior ? effectiveFromChoice(prior) : '',
         marketScaleDefaultOn: prior === 'default_medium',
         busy: false
@@ -548,12 +558,36 @@ Page({
     })
   },
 
-  onMarketScaleSelect(e) {
+  onMarketScalePick(e) {
     if (this.data.busy || !this.data.showMarketScale) return
     const choice = e && e.currentTarget && e.currentTarget.dataset
       ? e.currentTarget.dataset.choice
       : null
-    if (!choice) return
+    if (!choice || (choice !== 'small' && choice !== 'medium' && choice !== 'large')) {
+      return
+    }
+    tapFeedback()
+    this.setData({
+      marketScaleHighlight: choice,
+      marketScaleDefaultOn: false
+    })
+  },
+
+  onMarketScaleSkip() {
+    this._commitMarketScale('default_medium')
+  },
+
+  onMarketScaleConfirm() {
+    const choice = this.data.marketScaleHighlight
+    if (!choice) {
+      wx.showToast({ title: '请先选择菜场规模', icon: 'none' })
+      return
+    }
+    this._commitMarketScale(choice)
+  },
+
+  _commitMarketScale(choice) {
+    if (this.data.busy || !this.data.showMarketScale || !choice) return
     tapFeedback()
     const fix = this._marketScaleFix || null
     const payload = {
@@ -576,10 +610,9 @@ Page({
         wx.showToast({ title: '保存失败，已按中档继续', icon: 'none' })
       })
       .then(() => {
-        this._disableMarketScaleBackGuard()
-        this.setData({ showMarketScale: false, busy: false })
+        this.setData({ showMarketScale: false })
         this.refreshMarketScaleDebugStatus(getUser())
-        this._navigateConfirm()
+        return this._navigateConfirm()
       })
   },
 
@@ -603,7 +636,7 @@ Page({
     wx.showModal({
       title: '重置偏好（测试）',
       content:
-        '清空忌口/菜系表态、所在城市、菜式偏好、做饭水平，并删除全部家庭成员；不改家庭引导是否完成。重置后红点应为 5。确定？',
+        '清空忌口/菜系表态、所在城市、菜式偏好、做饭水平，并删除全部家庭成员；不改家庭引导是否完成。重置后红点应为 4（菜系暂不计入缺口）。确定？',
       confirmText: '重置',
       success: (res) => {
         if (!res.confirm) return

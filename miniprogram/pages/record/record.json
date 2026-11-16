@@ -3,6 +3,7 @@
   "onReachBottomDistance": 80,
   "navigationStyle": "custom",
   "usingComponents": {
-    "page-header": "/components/page-header/page-header"
+    "page-header": "/components/page-header/page-header",
+    "busy-overlay": "/components/busy-overlay/busy-overlay"
   }
 }

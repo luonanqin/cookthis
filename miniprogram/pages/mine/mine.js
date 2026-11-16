@@ -28,7 +28,14 @@ const {
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 
 function resolveAvatar(url) {
-  return url ? url : '/assets/avatar-default.png'
+  if (!url) return '/assets/avatar-default.png'
+  // 本地头像现为 jpg；兼容库里旧的 .png / .webp 路径
+  if (typeof url === 'string' && url.indexOf('/assets/avatars/avatar-cook-') === 0) {
+    if (url.slice(-4) === '.png' || url.slice(-5) === '.webp') {
+      return url.replace(/\.png$|\.webp$/, '.jpg')
+    }
+  }
+  return url
 }
 
 function normalizeDefaultCombo(combo) {
@@ -287,8 +294,8 @@ Page({
   },
 
   /**
-   * 与标题标红规则一致：忌口 / 城市 / 做饭水平 / 菜系（及成员）未表态则拦住保存。
-   * 引导页做饭水平仍可跳过；偏好页须至少勾 1 道。
+   * 与标题标红规则一致：忌口 / 城市 / 做饭水平（及成员）未表态则拦住保存。
+   * 菜系偏好暂关，不拦保存。引导页做饭水平仍可跳过；偏好页须至少勾 1 道。
    * @returns {boolean}
    */
   _validateBeforeSave() {
@@ -323,8 +330,7 @@ Page({
         marks.gapMembersOpen ||
         marks.gapAvoidsOpen ||
         marks.gapCityOpen ||
-        marks.gapCookSkillOpen ||
-        marks.gapCuisineOpen
+        marks.gapCookSkillOpen
       )
     ) {
       return true

@@ -70,8 +70,8 @@
 }
 
 .page-header__title {
-  font-size: 44rpx;
-  font-weight: 700;
+  font-size: var(--fs-header);
+  font-weight: var(--fw-bold);
   line-height: 1.15;
   color: var(--color-forest);
   letter-spacing: 1rpx;

@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import socket
 import subprocess
+import sys
 import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -47,10 +48,30 @@ from city_recipes import (  # noqa: E402
     set_recipe_cities,
     write_recipes,
 )
+from recipe_cuisine import (  # noqa: E402
+    CUISINE_LABELS,
+    CUISINE_OPTIONS,
+    NAV_ORDER,
+    apply_cuisine_changes,
+    counts_by_cuisine,
+    group_by_cuisine,
+)
 from recipe_difficulty import (  # noqa: E402
     apply_difficulty_changes,
     counts_by_difficulty,
     group_by_difficulty,
+)
+from recipe_meat_veg import (  # noqa: E402
+    add_to_uncategorized,
+    apply_meat_veg_changes,
+    apply_recipe_ingredients,
+    collect_recipe_main_ingredient_names,
+    counts_by_meat_veg,
+    delete_recipe_by_id,
+    editor_known_names,
+    ensure_names_in_ingredients_builtin,
+    group_by_meat_veg,
+    ingredient_suggest_names,
 )
 
 
@@ -494,6 +515,53 @@ class Handler(BaseHTTPRequestHandler):
                 },
             )
             return
+        if path == "/api/recipe-cuisine":
+            try:
+                recipes = load_recipes(RECIPES_BUILTIN_PATH)
+                by = group_by_cuisine(recipes)
+            except Exception as e:
+                self._json(500, {"error": str(e)})
+                return
+            self._json(
+                200,
+                {
+                    "byCuisine": by,
+                    "counts": counts_by_cuisine(by),
+                    "navOrder": NAV_ORDER,
+                    "options": [{"id": c, "label": lab} for c, lab in CUISINE_OPTIONS],
+                    "labels": CUISINE_LABELS,
+                    "path": str(RECIPES_BUILTIN_PATH),
+                },
+            )
+            return
+        if path == "/api/recipe-meat-veg":
+            try:
+                recipes = load_recipes(RECIPES_BUILTIN_PATH)
+                by = group_by_meat_veg(recipes)
+                suggest: list[str] = []
+                try:
+                    ing_all = (
+                        _load_json(CATALOG / "ingredients-all.json")
+                        if (CATALOG / "ingredients-all.json").is_file()
+                        else {}
+                    )
+                    editor = ensure_data()
+                    suggest = ingredient_suggest_names(ing_all, editor)
+                except Exception:
+                    suggest = sorted(editor_known_names(ensure_data()))
+            except Exception as e:
+                self._json(500, {"error": str(e)})
+                return
+            self._json(
+                200,
+                {
+                    "byMeatVeg": by,
+                    "counts": counts_by_meat_veg(by),
+                    "ingredientNames": suggest,
+                    "path": str(RECIPES_BUILTIN_PATH),
+                },
+            )
+            return
         self._json(404, {"error": "not found"})
 
     def do_PUT(self) -> None:
@@ -569,6 +637,129 @@ class Handler(BaseHTTPRequestHandler):
             )
             return
 
+        if path == "/api/recipe-cuisine":
+            changes = body.get("changes")
+            if not isinstance(changes, dict) or not changes:
+                self._json(400, {"error": "changes object required"})
+                return
+            try:
+                recipes = load_recipes(RECIPES_BUILTIN_PATH)
+                updated, missing = apply_cuisine_changes(recipes, changes)
+                if updated:
+                    write_recipes(RECIPES_BUILTIN_PATH, recipes)
+                by = group_by_cuisine(recipes)
+            except ValueError as e:
+                self._json(400, {"error": str(e)})
+                return
+            except Exception as e:
+                self._json(500, {"error": str(e)})
+                return
+            self._json(
+                200,
+                {
+                    "ok": True,
+                    "updated": updated,
+                    "missing": missing,
+                    "byCuisine": by,
+                    "counts": counts_by_cuisine(by),
+                    "navOrder": NAV_ORDER,
+                    "options": [{"id": c, "label": lab} for c, lab in CUISINE_OPTIONS],
+                    "labels": CUISINE_LABELS,
+                    "path": str(RECIPES_BUILTIN_PATH),
+                },
+            )
+            return
+
+        if path == "/api/recipe-meat-veg/ingredients":
+            recipe_id = str(body.get("id") or "").strip()
+            if not recipe_id:
+                self._json(400, {"error": "id required"})
+                return
+            try:
+                recipes = load_recipes(RECIPES_BUILTIN_PATH)
+                summary = apply_recipe_ingredients(
+                    recipes,
+                    recipe_id,
+                    body.get("mainIngredients"),
+                    body.get("seasonings"),
+                )
+                if summary is None:
+                    self._json(404, {"error": f"recipe not found: {recipe_id}"})
+                    return
+                write_recipes(RECIPES_BUILTIN_PATH, recipes)
+                alias_added: list[str] = []
+                builtin_added: list[str] = []
+                editor = ensure_data()
+                known = editor_known_names(editor)
+                candidates = list(summary.get("mainIngredients") or []) + list(
+                    summary.get("seasonings") or []
+                )
+                new_names = [n for n in candidates if n not in known]
+                if new_names:
+                    alias_added = add_to_uncategorized(editor, new_names)
+                    if alias_added:
+                        write_data(editor)
+                # import-recipes 校验主料名 ∈ ingredients-builtin
+                builtin = _load_list_json(BUILTIN_PATH)
+                builtin_added = ensure_names_in_ingredients_builtin(
+                    builtin, list(summary.get("mainIngredients") or [])
+                )
+                if builtin_added:
+                    BUILTIN_PATH.write_text(
+                        json.dumps(builtin, ensure_ascii=False, indent=2) + "\n",
+                        encoding="utf-8",
+                    )
+                by = group_by_meat_veg(recipes)
+            except ValueError as e:
+                self._json(400, {"error": str(e)})
+                return
+            except Exception as e:
+                self._json(500, {"error": str(e)})
+                return
+            self._json(
+                200,
+                {
+                    "ok": True,
+                    "recipe": summary,
+                    "aliasAdded": alias_added,
+                    "builtinAdded": builtin_added,
+                    "byMeatVeg": by,
+                    "counts": counts_by_meat_veg(by),
+                    "path": str(RECIPES_BUILTIN_PATH),
+                },
+            )
+            return
+
+        if path == "/api/recipe-meat-veg":
+            changes = body.get("changes")
+            if not isinstance(changes, dict) or not changes:
+                self._json(400, {"error": "changes object required"})
+                return
+            try:
+                recipes = load_recipes(RECIPES_BUILTIN_PATH)
+                updated, missing = apply_meat_veg_changes(recipes, changes)
+                if updated:
+                    write_recipes(RECIPES_BUILTIN_PATH, recipes)
+                by = group_by_meat_veg(recipes)
+            except ValueError as e:
+                self._json(400, {"error": str(e)})
+                return
+            except Exception as e:
+                self._json(500, {"error": str(e)})
+                return
+            self._json(
+                200,
+                {
+                    "ok": True,
+                    "updated": updated,
+                    "missing": missing,
+                    "byMeatVeg": by,
+                    "counts": counts_by_meat_veg(by),
+                    "path": str(RECIPES_BUILTIN_PATH),
+                },
+            )
+            return
+
         if path != "/api/avoid":
             self._json(404, {"error": "not found"})
             return
@@ -602,10 +793,41 @@ class Handler(BaseHTTPRequestHandler):
     def do_DELETE(self) -> None:
         path = urlparse(self.path).path
         parsed = urlparse(self.path)
+        qs = parse_qs(parsed.query or "")
+        if path == "/api/recipe-meat-veg":
+            ids = qs.get("id") or []
+            recipe_id = (ids[0] if ids else "").strip()
+            if not recipe_id:
+                self._json(400, {"error": "id required"})
+                return
+            try:
+                recipes = load_recipes(RECIPES_BUILTIN_PATH)
+                removed = delete_recipe_by_id(recipes, recipe_id)
+                if removed is None:
+                    self._json(404, {"error": f"recipe not found: {recipe_id}"})
+                    return
+                write_recipes(RECIPES_BUILTIN_PATH, recipes)
+                by = group_by_meat_veg(recipes)
+            except ValueError as e:
+                self._json(400, {"error": str(e)})
+                return
+            except Exception as e:
+                self._json(500, {"error": str(e)})
+                return
+            self._json(
+                200,
+                {
+                    "ok": True,
+                    "removed": removed,
+                    "byMeatVeg": by,
+                    "counts": counts_by_meat_veg(by),
+                    "path": str(RECIPES_BUILTIN_PATH),
+                },
+            )
+            return
         if path != "/api/avoid/vocab":
             self._json(404, {"error": "not found"})
             return
-        qs = parse_qs(parsed.query or "")
         ids = qs.get("id") or []
         code = (ids[0] if ids else "").strip()
         if not code:
@@ -637,6 +859,22 @@ class Handler(BaseHTTPRequestHandler):
         )
 
     def _run_import_recipes(self) -> None:
+        # 食材编辑可能只写了别名稿；导出前把缺失主料名补进 ingredients-builtin
+        builtin_added: list[str] = []
+        try:
+            recipes = load_recipes(RECIPES_BUILTIN_PATH)
+            builtin = _load_list_json(BUILTIN_PATH)
+            builtin_added = ensure_names_in_ingredients_builtin(
+                builtin, collect_recipe_main_ingredient_names(recipes)
+            )
+            if builtin_added:
+                BUILTIN_PATH.write_text(
+                    json.dumps(builtin, ensure_ascii=False, indent=2) + "\n",
+                    encoding="utf-8",
+                )
+        except Exception as e:
+            self._json(500, {"error": f"ensure ingredients-builtin failed: {e}"})
+            return
         script = ROOT / "scripts" / "import-recipes.js"
         try:
             proc = subprocess.run(
@@ -647,7 +885,7 @@ class Handler(BaseHTTPRequestHandler):
                 check=False,
             )
         except Exception as e:
-            self._json(500, {"error": str(e)})
+            self._json(500, {"error": str(e), "builtinAdded": builtin_added})
             return
         if proc.returncode != 0:
             self._json(
@@ -656,6 +894,7 @@ class Handler(BaseHTTPRequestHandler):
                     "error": "import-recipes failed",
                     "stdout": (proc.stdout or "")[-2000:],
                     "stderr": (proc.stderr or "")[-2000:],
+                    "builtinAdded": builtin_added,
                 },
             )
             return
@@ -665,15 +904,84 @@ class Handler(BaseHTTPRequestHandler):
                 "ok": True,
                 "stdout": (proc.stdout or "").strip(),
                 "importPath": str(CATALOG / "recipes-for-import.json"),
+                "builtinAdded": builtin_added,
+            },
+        )
+
+    def _run_export_aliases_runtime(self) -> None:
+        """aliases-editor → aliases.json → catalog/recommend 运行时数据。"""
+        export_py = ROOT / "scripts" / "export-aliases-from-editor.py"
+        sync_js = ROOT / "scripts" / "sync-alias-runtime-data.js"
+        logs: list[str] = []
+        try:
+            p1 = subprocess.run(
+                [sys.executable, str(export_py)],
+                cwd=str(ROOT),
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        except Exception as e:
+            self._json(500, {"error": str(e)})
+            return
+        logs.append((p1.stdout or "").strip())
+        if p1.stderr:
+            logs.append((p1.stderr or "").strip())
+        if p1.returncode != 0:
+            self._json(
+                500,
+                {
+                    "error": "export-aliases-from-editor failed",
+                    "stdout": "\n".join(logs)[-3000:],
+                    "stderr": (p1.stderr or "")[-2000:],
+                },
+            )
+            return
+        try:
+            p2 = subprocess.run(
+                ["node", str(sync_js)],
+                cwd=str(ROOT),
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        except Exception as e:
+            self._json(500, {"error": str(e), "stdout": "\n".join(logs)[-2000:]})
+            return
+        logs.append((p2.stdout or "").strip())
+        if p2.stderr:
+            logs.append((p2.stderr or "").strip())
+        if p2.returncode != 0:
+            self._json(
+                500,
+                {
+                    "error": "sync-alias-runtime-data failed",
+                    "stdout": "\n".join(logs)[-3000:],
+                    "stderr": (p2.stderr or "")[-2000:],
+                },
+            )
+            return
+        self._json(
+            200,
+            {
+                "ok": True,
+                "stdout": "\n".join(x for x in logs if x),
+                "aliasesPath": str(ALIASES_PATH),
+                "hint": "已写入 catalog/recommend 包内别名；重新上传云函数 catalog（及 recommend）后小程序拉新表生效。",
             },
         )
 
     def do_POST(self) -> None:
         path = urlparse(self.path).path
         parsed = urlparse(self.path)
+        if path == "/api/aliases/export-runtime":
+            self._run_export_aliases_runtime()
+            return
         if path in (
             "/api/city-recipes/export-import",
             "/api/recipe-difficulty/export-import",
+            "/api/recipe-cuisine/export-import",
+            "/api/recipe-meat-veg/export-import",
         ):
             self._run_import_recipes()
             return
@@ -768,9 +1076,47 @@ class Handler(BaseHTTPRequestHandler):
             except Exception as e:
                 self._json(500, {"error": str(e)})
                 return
+            # 与荤素汤「导出 for-import」一致：写完 builtin 再生成 JSONL
+            script = ROOT / "scripts" / "import-ingredients.js"
+            try:
+                proc = subprocess.run(
+                    ["node", str(script)],
+                    cwd=str(ROOT),
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+            except Exception as e:
+                self._json(
+                    500,
+                    {
+                        "error": str(e),
+                        "report": report,
+                        "path": str(BUILTIN_PATH),
+                    },
+                )
+                return
+            if proc.returncode != 0:
+                self._json(
+                    500,
+                    {
+                        "error": "import-ingredients failed",
+                        "report": report,
+                        "path": str(BUILTIN_PATH),
+                        "stdout": (proc.stdout or "")[-2000:],
+                        "stderr": (proc.stderr or "")[-2000:],
+                    },
+                )
+                return
             self._json(
                 200,
-                {"ok": True, "report": report, "path": str(BUILTIN_PATH)},
+                {
+                    "ok": True,
+                    "report": report,
+                    "path": str(BUILTIN_PATH),
+                    "importPath": str(CATALOG / "ingredients-for-import.json"),
+                    "stdout": (proc.stdout or "").strip(),
+                },
             )
             return
         if path != "/api/data":

@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "做饭水平"
+  "navigationBarTitleText": "做饭水平",
+  "usingComponents": {
+    "busy-overlay": "/components/busy-overlay/busy-overlay"
+  }
 }

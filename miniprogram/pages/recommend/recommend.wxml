@@ -18,9 +18,12 @@
   </view>
 
   <block wx:else>
-    <view wx:if="{{sceneSummary}}" class="scene-bar">
+    <view wx:if="{{sceneSummaryLine1}}" class="scene-bar">
       <image class="ui-icon ui-icon--sm" src="/assets/images/icons/group-people.png" mode="aspectFit" aria-hidden="true"/>
-      <text class="scene-bar-text">{{sceneSummary}}</text>
+      <view class="scene-bar-text">
+        <text class="scene-bar-line">{{sceneSummaryLine1}}</text>
+        <text wx:if="{{sceneSummaryLine2}}" class="scene-bar-line">{{sceneSummaryLine2}}</text>
+      </view>
       <text class="scene-bar-edit" hover-class="tap-hover" hover-stay-time="80" bindtap="onBack">修改 ></text>
     </view>
     <view class="plan" wx:for="{{plans}}" wx:key="planIndex">
@@ -28,6 +31,7 @@
         <view class="plan-title">方案 {{item.planIndex + 1}}</view>
         <view class="plan-actions">
           <button
+            wx:if="{{planShareEnabled}}"
             class="plan-share"
             size="mini"
             open-type="share"
@@ -46,11 +50,20 @@
           ><image class="ui-icon ui-icon--xs" src="/assets/images/icons/cart-white.png" mode="aspectFit" aria-hidden="true"/><text>去买菜</text></button>
         </view>
       </view>
-      <view class="meal" wx:for="{{item.meals}}" wx:for-item="meal" wx:key="mealKey">
-        <view wx:if="{{item.meals.length > 1}}" class="meal-label">{{meal.slot.label || meal.slot.meal}}</view>
-        <view class="dish-row" wx:for="{{meal.dishGroups}}" wx:for-item="group" wx:key="type">
-          <text class="type-badge type-{{group.type}}">{{group.label}}</text>
-          <text class="dish-name">{{group.namesText}}</text>
+      <view class="plan-body">
+        <view class="meal" wx:for="{{item.meals}}" wx:for-item="meal" wx:key="mealKey">
+          <view wx:if="{{item.meals.length > 1}}" class="meal-label">{{meal.slot.label || meal.slot.meal}}</view>
+          <view class="dish-row" wx:for="{{meal.dishGroups}}" wx:for-item="group" wx:key="type">
+            <text class="type-badge type-{{group.type}}">{{group.label}}</text>
+            <view class="dish-names">
+              <text
+                class="dish-name"
+                wx:for="{{group.dishes}}"
+                wx:for-item="dish"
+                wx:key="name"
+              >{{dish.name}}</text>
+            </view>
+          </view>
         </view>
       </view>
       <view wx:if="{{item.ingredientTipText}}" class="plan-ings">
@@ -58,7 +71,7 @@
         <text class="plan-ings-text">{{item.ingredientTipText}}</text>
       </view>
     </view>
-    <view class="scroll-end-pad"></view>
+    <view class="scroll-end-tip" wx:if="{{plans.length}}">— 已经到底了 —</view>
   </block>
   </view>
 
@@ -67,7 +80,7 @@
       class="fab fab-swap"
       disabled="{{busy || fabDimmed}}"
       bindtap="onSwap"
-    >换一批</button>
+    >换 菜</button>
     <button
       class="fab fab-reject"
       disabled="{{busy || fabDimmed}}"
@@ -133,4 +146,6 @@
       </view>
     </view>
   </view>
+
+  <busy-overlay show="{{busy}}" />
 </view>

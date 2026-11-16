@@ -31,9 +31,10 @@
     <button
       size="mini"
       type="primary"
-      loading="{{busy}}"
       disabled="{{busy}}"
       bindtap="onSubmit"
     >提交</button>
   </view>
+
+  <busy-overlay show="{{busy}}" />
 </view>

@@ -3,7 +3,7 @@
     <view class="page-header__inner">
       <image
         class="page-header__art"
-        src="/assets/images/inner-header-market-with-board.webp"
+        src="/assets/images/inner-header-market-with-board.jpg"
         mode="heightFix"
         style="top: {{navBarHeight}}px; height: calc(100% - {{navBarHeight}}px);"
         aria-hidden="true"

@@ -45,6 +45,8 @@ const RECENT_MEAL_DAYS = 7
 const RECIPE_PAGE = 100
 const RECIPE_MAX_PAGES = 5
 const RECIPE_REFILL_MAX = 3
+/** 目标方案套数：尽量先凑满，候选不足才少出 */
+const TARGET_PLAN_COUNT = 3
 const IN_QUERY_CHUNK = 10
 
 /** @type {Map|null} */
@@ -251,8 +253,9 @@ function mergeRecipeBatch(list, ids, batchRecipes) {
 }
 
 /**
- * 组不出方案或池已被 exclude 耗尽时，按批续拉（最多 extraBatches 次）。
+ * 方案数不足目标、或池已被 exclude 耗尽时，按批续拉（最多 extraBatches 次）。
  * @param {boolean} [alreadyExhausted]
+ * @param {number} [targetPlanCount] 尽量凑到的套数（默认 TARGET_PLAN_COUNT）
  */
 async function refillRecipePool(
   city,
@@ -261,16 +264,21 @@ async function refillRecipePool(
   buildOnce,
   extraBatches,
   alreadyExhausted,
-  cookSkill
+  cookSkill,
+  targetPlanCount
 ) {
   let ids = Array.isArray(poolIds) ? poolIds.slice() : []
   let list = Array.isArray(recipes) ? recipes.slice() : []
   let exhausted = !!alreadyExhausted
   let built = buildOnce(list)
   const maxExtra = typeof extraBatches === 'number' ? extraBatches : RECIPE_REFILL_MAX
+  const target = Math.max(
+    1,
+    Number(targetPlanCount) > 0 ? Number(targetPlanCount) : TARGET_PLAN_COUNT
+  )
 
   for (let i = 0; i < maxExtra; i++) {
-    if ((built.plans || []).length > 0) break
+    if ((built.plans || []).length >= target) break
     if (exhausted) break
     const batch = await loadRecipeBatch({ city, excludeIds: ids, cookSkill })
     exhausted = batch.exhausted
@@ -381,7 +389,7 @@ function rebuildPlans(user, doc, excludedDishIds) {
     recentDishNames: doc._recentDishNames || [],
     diners: doc._diners || [],
     recentIngredientDays: doc._recentIngredientDays || {},
-    maxPlans: 3,
+    maxPlans: TARGET_PLAN_COUNT,
     sessionSeed,
     cookSkill: user.cookSkill
   })
@@ -396,7 +404,11 @@ function rebuildPlans(user, doc, excludedDishIds) {
     cuisinePrefs: user.cuisinePrefs || {},
     sessionSeed
   })
-  const plans = mergePlansWithUnconventional(built.plans || [], unc, 3)
+  const plans = mergePlansWithUnconventional(
+    built.plans || [],
+    unc,
+    TARGET_PLAN_COUNT
+  )
   const out = { plans }
   if (built.emptyReason && plans.length === 0) out.emptyReason = built.emptyReason
   return out
@@ -473,7 +485,7 @@ async function handleCreate(event, uid, user) {
       recentDishNames: recent.recentDishNames,
       diners,
       recentIngredientDays: recent.recentIngredientDays || {},
-      maxPlans: 3,
+      maxPlans: TARGET_PLAN_COUNT,
       sessionSeed,
       cookSkill: user.cookSkill
     })
@@ -488,7 +500,11 @@ async function handleCreate(event, uid, user) {
       cuisinePrefs: user.cuisinePrefs || {},
       sessionSeed
     })
-    const plans = mergePlansWithUnconventional(home.plans || [], unc, 3)
+    const plans = mergePlansWithUnconventional(
+      home.plans || [],
+      unc,
+      TARGET_PLAN_COUNT
+    )
     const out = { plans }
     if (home.emptyReason && plans.length === 0) out.emptyReason = home.emptyReason
     return out
@@ -499,7 +515,11 @@ async function handleCreate(event, uid, user) {
   let recipePoolExhausted = !!batch.exhausted
   let built = buildOnce(recipes)
 
-  if ((built.plans || []).length === 0 && !recipePoolExhausted) {
+  // 不足目标套数就续拉候选（勿仅在 0 套时才 refill，否则首屏常只有 2 套）
+  if (
+    (built.plans || []).length < TARGET_PLAN_COUNT &&
+    !recipePoolExhausted
+  ) {
     const refilled = await refillRecipePool(
       city,
       recipePoolIds,
@@ -507,7 +527,8 @@ async function handleCreate(event, uid, user) {
       buildOnce,
       RECIPE_REFILL_MAX,
       recipePoolExhausted,
-      user.cookSkill
+      user.cookSkill,
+      TARGET_PLAN_COUNT
     )
     recipes = refilled.recipes
     recipePoolIds = refilled.recipePoolIds
@@ -621,10 +642,11 @@ async function handleSwapOrReject(event, uid, user, kind) {
   let built = buildOnce(recipes)
 
   if (
-    ((built.plans || []).length === 0 || isRecipePoolExhausted(recipePoolIds, excluded)) &&
+    ((built.plans || []).length < TARGET_PLAN_COUNT ||
+      isRecipePoolExhausted(recipePoolIds, excluded)) &&
     !recipePoolExhausted
   ) {
-    // 池耗尽时先拉下一批再组；组空时也续拉
+    // 池耗尽或套数不足目标时续拉
     if (isRecipePoolExhausted(recipePoolIds, excluded)) {
       const batch = await loadRecipeBatch({
         city,
@@ -637,7 +659,10 @@ async function handleSwapOrReject(event, uid, user, kind) {
       recipePoolIds = merged.ids
       built = buildOnce(recipes)
     }
-    if ((built.plans || []).length === 0 && !recipePoolExhausted) {
+    if (
+      (built.plans || []).length < TARGET_PLAN_COUNT &&
+      !recipePoolExhausted
+    ) {
       const refilled = await refillRecipePool(
         city,
         recipePoolIds,
@@ -645,7 +670,8 @@ async function handleSwapOrReject(event, uid, user, kind) {
         buildOnce,
         RECIPE_REFILL_MAX,
         recipePoolExhausted,
-        user.cookSkill
+        user.cookSkill,
+        TARGET_PLAN_COUNT
       )
       recipes = refilled.recipes
       recipePoolIds = refilled.recipePoolIds

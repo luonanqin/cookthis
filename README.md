@@ -21,7 +21,7 @@
 | 11 | Slice 11 | **购物清单别名展示 + 推荐别名匹配**（当地主名/副名；确认别名能命中通用名主料） |
 | 12 | Slice 12 | **用户建议反馈**（首页入口 / 无数字红点 / 列表顶提交 / 运营回复 / 订阅落地） |
 | 13 | Slice 13 | **菜场规模与食材列表档位**（预生成分档名单 / 首页半屏 / 确认页切换刷新） |
-| 14 | Slice 14 | **方案分享**（推荐卡 / 食材页 / 已选自产 → 只读落地 / 保存到已选） |
+| 14 | Slice 14 | **方案分享**（推荐卡 / 食材页 / 已选自产 → 只读落地 / 保存到已选；**合规暂关前台**） |
 | 15 | Slice 15 | **做饭能力与菜品难度**（引导 15 选定档 / beginner 硬排 advanced / 「我的」重测） |
 | — | 语音 | 前端已下线，暂不点验 |
 
@@ -259,9 +259,11 @@ Slice 15（做饭能力）部署后，集合 `recipes` 另需普通复合索引�
 
 ## Slice 14 准备（方案分享）
 
+> **2026-11-11 合规暂关：** 小程序 `PLAN_SHARE_ENABLED=false`（`miniprogram/utils/planShare.js`）。前台不露出分享钮；落地页显示「方案分享暂未开放」。云函数 `share`、集合与代码**保留**。合规通过后改回 `true` 再按下列准备点验。
+
 假定 **Slice 2～3、Slice 8 准备已完成**（能出推荐、「去买菜」进清单、「已选方案」列表可用）。再补：
 
-1. **上传并部署**云函数：`cloudfunctions/share`（云端安装依赖；包内须含 vendored `planShare.js` + `shoppingList.js`）。改 `_shared/planShare.js` / `listAccepted.js` 后记得同步到 `share/`、`recommend/` 与小程序 `utils/planShare.js`（title）。
+1. **上传并部署**云函数：`cloudfunctions/share`（云端安装依赖；包内须含 vendored `planShare.js` + `shoppingList.js`）。改 `_shared/planShare.js` / `listAccepted.js` 后记得同步到 `share/`、`recommend/` 与小程序 `utils/planShare.js`（title；**勿覆盖**小程序侧的 `PLAN_SHARE_ENABLED` 开关）。
 2. **重新部署**云函数：`recommend`（`listAccepted` 合并 `received_plans`）。
 3. **再建集合**：`plan_shares`、`received_plans`（权限同上，业务读写走云函数）。
 4. **复合索引**（控制台按报错补齐亦可）：
@@ -584,13 +586,18 @@ Slice 15（做饭能力）部署后，集合 `recipes` 另需普通复合索引�
 
 ## 本切片验收清单（Slice 14）
 
-**状态：待点验**（需部署 `share` + 重发 `recommend`；建 `plan_shares` / `received_plans` 与索引；真机互测分享）
+**状态：合规暂关 · 2026-11-11**（前台不露出；重开后按下列项点验。开关：`PLAN_SHARE_ENABLED`）
 
 **自动化：**
 
 - [ ] `npm test` PASS（含 `planShare` / `listAccepted`）。
 
-**需人工：** Slice 14 准备后（建议两微信号：分享人 A / 接收人 B）：
+**暂关期冒烟（开关为 false 时）：**
+
+1. [ ] 推荐卡 / 购买清单 / 已选自产 **无**分享按钮。
+2. [ ] 打开 `/pages/sharedPlan/sharedPlan?shareId=任意` → 「方案分享暂未开放」，无保存钮。
+
+**需人工（合规重开、`PLAN_SHARE_ENABLED=true` 后；建议两微信号：分享人 A / 接收人 B）：**
 
 1. [ ] **推荐卡分享**：方案卡旁「分享」→ 微信面板；B 打开落地页见**菜名 + 完整用料**（无步骤、无已买勾选）；未登录 / 无 users 文档也可预览。
 2. [ ] **保存幂等**：B「保存到我的」→「已选方案」出现「分享」角标；再保存不双份；按钮变为「已保存到已选方案」。
@@ -601,7 +608,7 @@ Slice 15（做饭能力）部署后，集合 `recipes` 另需普通复合索引�
 
 **本切片不验：** 社区广场 / Feed / 排行榜、分享封面自定义、快照过期、广告、语音。
 
-**部署提醒：** `share` 与 `recommend`（listAccepted）同发；索引务必含 `plan_shares.shareId` 与带 `sourceSwapCount` 的复用复合索引。
+**部署提醒：** 重开后 `share` 与 `recommend`（listAccepted）同发；索引务必含 `plan_shares.shareId` 与带 `sourceSwapCount` 的复用复合索引。
 
 ---
 

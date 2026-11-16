@@ -1,0 +1,11 @@
+<view wx:if="{{show}}" class="busy-overlay" catchtouchmove="true" aria-role="alert" aria-label="{{tip || '加载中'}}">
+  <view class="busy-overlay__panel">
+    <image
+      class="busy-overlay__gif"
+      src="/assets/images/loading-basket.gif"
+      mode="aspectFit"
+      aria-hidden="true"
+    />
+    <text wx:if="{{tip}}" class="busy-overlay__tip">{{tip}}</text>
+  </view>
+</view>

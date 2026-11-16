@@ -4,9 +4,9 @@ const { track } = require('../../utils/track.js')
 const { buildPlanIngredientSummary } = require('../../utils/planIngredientSummary.js')
 const { clearChecksForRequest } = require('../../utils/shoppingChecks.js')
 const { tapFeedback } = require('../../utils/haptic.js')
-const { shareCardTitle } = require('../../utils/planShare.js')
+const { PLAN_SHARE_ENABLED, shareCardTitle } = require('../../utils/planShare.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
-const { formatSceneSummary } = require('../../utils/sceneSummary.js')
+const { formatSceneSummaryLines } = require('../../utils/sceneSummary.js')
 const { computeProfileGaps } = require('../../utils/profileGaps.js')
 
 const RECOMMEND_KEY = 'cookthis_last_recommend'
@@ -124,7 +124,8 @@ Page({
     empty: true,
     emptyText: '暂无推荐方案，可返回改场景或换食材',
     requestId: '',
-    sceneSummary: '',
+    sceneSummaryLine1: '',
+    sceneSummaryLine2: '',
     busy: false,
     busyAction: '',
     busyPlanIndex: -1,
@@ -134,7 +135,8 @@ Page({
     showQuickLite: false,
     quickLiteNeedCity: false,
     rejectReasons: REJECT_REASONS,
-    fabDimmed: false
+    fabDimmed: false,
+    planShareEnabled: PLAN_SHARE_ENABLED
   },
 
   _visibleMs: 0,
@@ -275,12 +277,14 @@ Page({
         scene = (sel && sel.scene) || null
       } catch (e) {}
     }
+    const summaryLines = formatSceneSummaryLines(scene)
     this.setData({
       plans,
       empty,
       emptyText: emptyMessage(snap && snap.emptyReason),
       requestId: (snap && snap.requestId) || '',
-      sceneSummary: formatSceneSummary(scene)
+      sceneSummaryLine1: summaryLines.line1,
+      sceneSummaryLine2: summaryLines.line2
     })
     if (empty) {
       track('empty_recommend', { reasonCode: (snap && snap.emptyReason) || null })
@@ -556,6 +560,9 @@ Page({
   },
 
   onShareAppMessage(res) {
+    if (!PLAN_SHARE_ENABLED) {
+      return { title: '买菜没烦恼', path: '/pages/index/index' }
+    }
     const entry = (res.target && res.target.dataset.entry) || 'recommend'
     const planIndex = Number(
       (res.target && res.target.dataset.planIndex) != null

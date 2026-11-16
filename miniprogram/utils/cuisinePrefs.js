@@ -1,5 +1,11 @@
 'use strict'
 
+/**
+ * 与 cloudfunctions/_shared/cuisinePrefs.js 的 CUISINE_PREFS_ENABLED 对齐。
+ * false：引导/「我的」不展示菜系；翻 true 并恢复 WXML/STEPS 即可。
+ */
+const CUISINE_PREFS_ENABLED = false
+
 const CUISINE_OPTIONS = [
   { id: 'sichuan', label: '川菜' },
   { id: 'cantonese', label: '粤菜' },
@@ -39,6 +45,7 @@ function toggleCuisineAvoid(prefs, id) {
 }
 
 module.exports = {
+  CUISINE_PREFS_ENABLED,
   CUISINE_OPTIONS,
   toggleCuisinePrefer,
   toggleCuisineAvoid

@@ -35,34 +35,13 @@
   background: var(--color-coral-soft);
   color: #c56a55;
   font-size: var(--fs-xs);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   line-height: 1.4;
 }
 
 .season-actions {
   margin: 16rpx 0 0;
   justify-content: flex-end;
-}
-
-.chip-check {
-  width: 28rpx;
-  height: 28rpx;
-  margin-right: 8rpx;
-  flex-shrink: 0;
-  box-sizing: border-box;
-  border: 2rpx solid var(--color-border);
-  border-radius: var(--radius-control);
-  text-align: center;
-  line-height: 24rpx;
-  color: var(--color-primary);
-  font-size: 18rpx;
-  background: var(--color-surface);
-}
-
-.chip-on .chip-check {
-  border-color: var(--color-primary);
-  background: var(--color-primary);
-  color: #fff;
 }
 
 .state {
@@ -101,7 +80,7 @@
 
 .section-title {
   font-size: var(--fs-title);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: var(--color-forest);
 }
 
@@ -202,7 +181,7 @@
 
 .fold-body .chip {
   font-size: var(--fs-sm);
-  padding: 10rpx 18rpx;
+  padding: 10rpx 16rpx;
 }
 
 .manual {
@@ -252,13 +231,14 @@
 .chip {
   display: inline-flex;
   align-items: center;
-  padding: 12rpx 18rpx;
+  padding: 10rpx 16rpx;
   background: var(--color-surface);
   border: 1rpx solid var(--color-border);
   border-radius: var(--radius-chip);
   font-size: var(--fs-sm);
   color: var(--color-text);
   box-sizing: border-box;
+  line-height: 1.25;
 }
 
 .chip-on {
@@ -388,7 +368,7 @@
 }
 
 .custom-slots-title {
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   font-size: var(--fs-title);
   color: var(--color-text);
   text-align: center;
@@ -404,7 +384,7 @@
 
 .custom-slot-name {
   width: 80rpx;
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   color: var(--color-text);
   text-align: right;
 }
@@ -499,7 +479,7 @@
 }
 
 .footer button[type='primary'] {
-  font-weight: 600 !important;
+  font-weight: var(--fw-semibold) !important;
 }
 
 .lite-more {
@@ -550,14 +530,15 @@
 .scale-card {
   min-height: 96rpx;
   box-sizing: border-box;
-  padding: 20rpx 24rpx;
+  padding: 10rpx 8rpx 10rpx 24rpx;
   border: 1rpx solid var(--color-border);
   border-radius: 12rpx;
   background: var(--color-bg);
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 6rpx;
+  flex-direction: row;
+  align-items: center;
+  gap: 12rpx;
+  overflow: visible;
 }
 
 .scale-card.on {
@@ -565,9 +546,18 @@
   background: var(--color-primary-soft);
 }
 
+.scale-card-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6rpx;
+}
+
 .scale-card-title {
-  font-size: var(--fs-md);
-  font-weight: 600;
+  font-size: var(--fs-title);
+  font-weight: var(--fw-semibold);
   color: var(--color-text);
   line-height: 1.3;
 }
@@ -576,27 +566,56 @@
   color: var(--color-primary);
 }
 
+/* heightFix：高度撑满，宽度按比例变宽；margin-left:auto 贴右 */
+.scale-card-icon {
+  flex-shrink: 0;
+  display: block;
+  margin-left: auto;
+  height: 100rpx;
+  width: auto;
+}
+
+.scale-card-icon--small {
+  height: 100rpx;
+}
+
+.scale-card-icon--medium,
+.scale-card-icon--large {
+  height: 100rpx;
+}
+
 .scale-card-desc {
   font-size: var(--fs-sm);
   color: var(--color-text-secondary);
   line-height: 1.35;
 }
 
-.scale-default-wrap {
+.scale-actions {
   flex-shrink: 0;
   padding: 16rpx 28rpx calc(20rpx + env(safe-area-inset-bottom));
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
+  gap: 28rpx;
+  border-top: 1rpx solid var(--color-border);
 }
 
-.scale-default-wrap .scale-default-btn {
+.scale-actions button[size='mini'] {
+  height: 56rpx;
+  line-height: 56rpx;
+  padding: 0 28rpx;
   margin: 0;
-  min-width: 240rpx;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
-.scale-default-wrap .scale-default-btn.on {
-  background: var(--color-primary-soft) !important;
+.scale-actions button.btn-confirm-disabled[disabled] {
+  color: var(--color-text-muted) !important;
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-soft) !important;
+  opacity: 1 !important;
 }
 
 /* Icon assets */

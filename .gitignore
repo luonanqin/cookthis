@@ -19,3 +19,4 @@ tools/**/result/
 tools/**/shots/
 tools/meituan-automator/Untitled
 data/audits.json
+.tmp-venv/

@@ -28,7 +28,7 @@
   color: var(--color-primary);
   border-radius: var(--radius-card);
   font-size: var(--fs-md);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   line-height: 1.4;
 }
 
@@ -82,7 +82,7 @@
   width: 28rpx;
   color: var(--color-primary);
   opacity: 0.55;
-  font-weight: 700;
+  font-weight: var(--fw-semibold);
 }
 
 .dish-name {

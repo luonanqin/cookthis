@@ -190,6 +190,7 @@
     </view>
   </block>
 
+  <!-- 菜系偏好：暂隐藏（CUISINE_PREFS_ENABLED=false）。恢复：STEPS 加回「菜系偏好」，并取消本段注释
   <block wx:elif="{{step === 5}}">
     <view class="section">
       <view class="section-title {{warnCuisine ? 'title-warn' : ''}} {{warnCuisine && warnPulse ? 'title-pulse' : ''}}">菜系偏好</view>
@@ -221,6 +222,7 @@
       </view>
     </view>
   </block>
+  -->
 
   <!-- 菜式偏好：暂隐藏，后期再开。恢复：STEPS 加回「菜式偏好」，并取消本段注释
   <block wx:else>
@@ -267,10 +269,11 @@
     <button
       type="primary"
       class="footer-primary"
-      loading="{{busy}}"
       disabled="{{busy}}"
       bindtap="onNext"
     >{{step >= steps.length - 1 ? '完成' : '下一步'}}</button>
   </view>
   </view>
+
+  <busy-overlay show="{{busy}}" />
 </view>

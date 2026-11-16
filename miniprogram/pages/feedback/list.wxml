@@ -28,7 +28,7 @@
     <view class="composer-bar">
       <view class="composer-bar-right">
         <text class="count">{{draftLen}}/100</text>
-        <button size="mini" type="primary" loading="{{submitting}}" bindtap="onSubmit">提交</button>
+        <button size="mini" type="primary" disabled="{{submitting}}" bindtap="onSubmit">提交</button>
       </view>
     </view>
   </view>
@@ -94,4 +94,6 @@
   <view wx:if="{{loadingMore}}" class="more">加载中…</view>
   <view wx:elif="{{items.length && !nextCursor && !loading}}" class="more muted">没有更多了</view>
   </view>
+
+  <busy-overlay show="{{submitting}}" />
 </view>

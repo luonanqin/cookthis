@@ -1,6 +1,7 @@
 """菜谱难度分桶与批量更新（recipes-builtin.difficulty）。"""
 from __future__ import annotations
 
+import locale
 from typing import Any
 
 DIFFICULTY_LEVELS = ("easy", "home", "advanced")
@@ -9,6 +10,34 @@ DIFFICULTY_LABELS = {
     "home": "家常水平",
     "advanced": "进阶一点",
 }
+
+_zh_collate_ready: bool | None = None
+
+
+def _ensure_zh_collate() -> bool:
+    """尽量启用中文排序（近似拼音）；失败则退回默认字符串序。"""
+    global _zh_collate_ready
+    if _zh_collate_ready is not None:
+        return _zh_collate_ready
+    for loc in ("zh_CN.UTF-8", "zh_CN.utf8", "zh_CN"):
+        try:
+            locale.setlocale(locale.LC_COLLATE, loc)
+            _zh_collate_ready = True
+            return True
+        except locale.Error:
+            continue
+    _zh_collate_ready = False
+    return False
+
+
+def name_sort_key(name: str) -> Any:
+    s = str(name or "")
+    if _ensure_zh_collate():
+        try:
+            return locale.strxfrm(s)
+        except Exception:
+            pass
+    return s
 
 
 def effective_difficulty(row: dict[str, Any] | None) -> str:
@@ -23,6 +52,7 @@ def summarize_difficulty_recipe(row: dict[str, Any]) -> dict[str, Any]:
         "id": row.get("id"),
         "name": row.get("name"),
         "mainIngredients": list(row.get("mainIngredients") or []),
+        "seasonings": list(row.get("seasonings") or []),
         "difficulty": effective_difficulty(row),
     }
 
@@ -35,7 +65,7 @@ def group_by_difficulty(
         summary = summarize_difficulty_recipe(row)
         by[summary["difficulty"]].append(summary)
     for k in DIFFICULTY_LEVELS:
-        by[k].sort(key=lambda r: str(r.get("name") or ""))
+        by[k].sort(key=lambda r: name_sort_key(str(r.get("name") or "")))
     return by
 
 

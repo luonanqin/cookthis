@@ -2,6 +2,6 @@
   "name": "cookthis",
   "private": true,
   "scripts": {
-    "test": "node --test cloudfunctions/_shared/*.test.js"
+    "test": "node --test cloudfunctions/_shared/*.test.js scripts/tests/*.test.js"
   }
 }

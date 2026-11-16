@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "下厨房搜索页批量采集",
+  "version": "1.2.1",
+  "description": "手动打开多个 www 搜索页后，一键采集菜名、做过人数与食材摘要；持续写入 search-tab-results + progress",
+  "permissions": ["tabs", "scripting"],
+  "host_permissions": [
+    "https://www.xiachufang.com/*",
+    "http://127.0.0.1:18766/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "采集本窗口搜索页",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.xiachufang.com/search/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

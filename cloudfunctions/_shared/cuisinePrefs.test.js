@@ -2,9 +2,11 @@
 const { describe, it } = require('node:test')
 const assert = require('node:assert/strict')
 const {
+  CUISINE_PREFS_ENABLED,
   CUISINE_CODES,
   sanitizeCuisinePrefs,
   familyAvoidCuisines,
+  effectiveCuisineTags,
   recipeBlockedByCuisine,
   cuisineSoftDelta
 } = require('./cuisinePrefs.js')
@@ -28,35 +30,25 @@ describe('cuisinePrefs', () => {
     assert.deepEqual(out, { sichuan: 'prefer', hunan: 'avoid' })
   })
 
-  it('hard-blocks recipe when cuisineTags hit avoid', () => {
-    assert.equal(
-      recipeBlockedByCuisine(
-        { cuisineTags: ['sichuan', 'home_style'] },
-        { sichuan: 'avoid' }
-      ),
-      true
-    )
-    assert.equal(
-      recipeBlockedByCuisine({ cuisineTags: ['cantonese'] }, { sichuan: 'avoid' }),
-      false
-    )
-    assert.equal(
-      recipeBlockedByCuisine({ cuisineTags: [] }, { sichuan: 'avoid' }),
-      false
-    )
-    assert.equal(
-      recipeBlockedByCuisine({ name: 'x' }, { sichuan: 'avoid' }),
-      false
-    )
+  it('effectiveCuisineTags ignores regional when home_style present', () => {
+    assert.deepEqual(effectiveCuisineTags({ cuisineTags: ['sichuan', 'home_style'] }), [])
+    assert.deepEqual(effectiveCuisineTags({ cuisineTags: ['home_style'] }), [])
+    assert.deepEqual(effectiveCuisineTags({ cuisineTags: ['sichuan', 'hunan'] }), [
+      'sichuan',
+      'hunan'
+    ])
+    assert.deepEqual(effectiveCuisineTags({ cuisineTags: [] }), [])
+    assert.deepEqual(effectiveCuisineTags({}), [])
   })
 
-  it('soft delta -20 on prefer hit', () => {
+  it('recommend effect gated off while CUISINE_PREFS_ENABLED is false', () => {
+    assert.equal(CUISINE_PREFS_ENABLED, false)
     assert.equal(
-      cuisineSoftDelta({ cuisineTags: ['hunan'] }, { hunan: 'prefer' }),
-      -20
+      recipeBlockedByCuisine({ cuisineTags: ['sichuan'] }, { sichuan: 'avoid' }),
+      false
     )
     assert.equal(
-      cuisineSoftDelta({ cuisineTags: ['hunan'] }, { sichuan: 'prefer' }),
+      cuisineSoftDelta({ cuisineTags: ['hunan'] }, { hunan: 'prefer' }),
       0
     )
   })

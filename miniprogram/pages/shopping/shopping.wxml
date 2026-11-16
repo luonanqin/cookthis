@@ -1,11 +1,10 @@
-<page-meta page-style="{{showRecipeSheet ? 'overflow: hidden;' : ''}}" />
 <view class="page {{typeScaleClass}}">
   <page-header title="购买清单" subtitle="把新鲜食材带回家" />
   <view class="page-body shopping-body">
   <view wx:if="{{accepted}}" class="banner">
     <view class="banner-copy"><image class="ui-icon ui-icon--sm" src="/assets/images/icons/leafy-vegetables.png" mode="aspectFit" aria-hidden="true"/><text class="banner-text">已采纳，可按清单采购</text></view>
     <button
-      wx:if="{{!loading && !empty}}"
+      wx:if="{{planShareEnabled && !loading && !empty}}"
       class="banner-share"
       open-type="share"
       data-entry="shopping"
@@ -57,47 +56,50 @@
   </view>
   </view>
 
+  <!-- 点空白关闭；从菜谱钮向上弹出 -->
   <view
-    class="mask"
+    class="recipe-pop-mask"
     wx:if="{{showRecipeSheet}}"
     catchtouchmove="true"
     bindtap="onRecipeSheetClose"
+  />
+
+  <view
+    class="fab-stack {{fabDimmed && !showRecipeSheet ? 'fab-dimmed' : ''}}"
+    wx:if="{{!loading && !empty}}"
   >
-    <view class="sheet" catchtap="noop">
-      <view class="sheet-head">
-        <text class="sheet-title">看菜谱</text>
-        <view class="sheet-close" catchtap="onRecipeSheetClose">关闭</view>
-      </view>
-      <scroll-view
-        class="sheet-body"
-        scroll-y
-        enhanced
-        show-scrollbar="{{false}}"
-        scroll-top="{{recipeScrollTop}}"
-        bindscroll="onRecipeSheetScroll"
-      >
+    <view class="recipe-pop" wx:if="{{showRecipeSheet}}" catchtap="noop">
+      <view class="recipe-pop-body">
         <view
-          class="dish-row"
-          wx:for="{{recipeDishes}}"
-          wx:for-item="dish"
-          wx:for-index="dishIdx"
-          wx:key="dishIdx"
+          class="recipe-group"
+          wx:for="{{recipeGroups}}"
+          wx:for-item="group"
+          wx:key="type"
         >
-          <view class="dish-name">{{dish.name}}</view>
-          <view class="dish-ings">{{dish.ingredientText}}</view>
+          <view class="recipe-group-head">
+            <text class="type-badge type-{{group.type}}">{{group.label}}</text>
+          </view>
+          <view
+            class="dish-row"
+            wx:for="{{group.dishes}}"
+            wx:for-item="dish"
+            wx:for-index="dishIdx"
+            wx:key="dishIdx"
+          >
+            <view class="dish-name">{{dish.name}}</view>
+            <view class="dish-ings">{{dish.ingredientText}}</view>
+          </view>
         </view>
-      </scroll-view>
+      </view>
     </view>
+    <button
+      class="fab fab-swap"
+      disabled="{{fabDimmed && !showRecipeSheet}}"
+      bindtap="onRecipeFabTap"
+    >菜 谱</button>
   </view>
 
   <view class="footer">
-    <view
-      wx:if="{{!loading && !empty && !showRecipeSheet}}"
-      class="recipe-entry"
-      hover-class="tap-hover"
-      hover-stay-time="80"
-      bindtap="onRecipeSheetOpen"
-    >看菜谱</view>
     <button class="btn-outline" bindtap="onBack">返回</button>
   </view>
 </view>

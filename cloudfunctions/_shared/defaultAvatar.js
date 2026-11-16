@@ -13,7 +13,7 @@ const AVATAR_PREFIX = '/assets/avatars/avatar-cook-'
 function pickDefaultAvatar(uid) {
   const n = (hash32(String(uid || 'anon')) % AVATAR_COUNT) + 1
   const id = n < 10 ? `0${n}` : String(n)
-  return `${AVATAR_PREFIX}${id}.png`
+  return `${AVATAR_PREFIX}${id}.jpg`
 }
 
 module.exports = { pickDefaultAvatar, AVATAR_COUNT, AVATAR_PREFIX }

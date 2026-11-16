@@ -82,6 +82,13 @@
 - 单元：规范化（空串、去重保序）；主料/调味可并存同名；更新命中/缺失 id；新名写入未分类 ungrouped 且不重复、不碰已有 group。
 - 手工：开荤素汤 tab → 点菜名 → 改主料/调味（含联想与新名）→ 保存 → 卡片文案更新；别名 tab「未分类」未分组出现新名；顶栏荤素汤草稿仍可独立确认。
 
+## 删除菜谱（同 Tab）
+
+- 卡片上「删除」按钮；二次确认后立刻从 `recipes-builtin.json` 按 id 硬删并刷新列表。
+- 若该 id 在荤素汤分类草稿中，一并清除。
+- **不**自动改 for-import / dish-ingredients（顶栏「导出 for-import」）。
+- API：`DELETE /api/recipe-meat-veg?id=…` → `{ ok, removed, byMeatVeg, counts }`。
+
 ## 实现边界
 
 仅改 `tools/alias-editor/`（`index.html`、`server.py`、`recipe_meat_veg.py`、对应 tests）。不改小程序运行时推荐逻辑。

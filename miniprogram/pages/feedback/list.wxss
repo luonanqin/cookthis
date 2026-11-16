@@ -134,7 +134,7 @@
 .cat {
   font-size: var(--fs-sm);
   color: var(--color-primary);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
 }
 
 .time {

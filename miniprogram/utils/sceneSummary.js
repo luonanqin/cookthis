@@ -43,16 +43,21 @@ function tierCountsFromScene(scene) {
 }
 
 /**
- * 场景一行摘要。默认含顿次（本场 / 晚饭①…）；已选方案传 omitSlots:true。
- * 例：聚会 · 9人 · 5大 2小 2老 · 本场
- *     日常 · 3人 · 2大 1小 0老 · 1荤1素1汤 · 晚饭①
+ * 场景摘要两行。
+ * 行1：类型 · 人数 · 大/小/老（及聚会顿次若有）
+ * 行2：日常荤素汤 · 顿次（一顿晚饭…）；已选方案 omitSlots 时行2可无荤素汤外的顿次
+ * 例行1：日常 · 2人 · 1大 0小 1老
+ * 例行2：5荤4素2汤 · 一顿晚饭
  */
-function formatSceneSummary(scene, opts) {
-  if (!scene || typeof scene !== 'object') return ''
-  const parts = []
+function formatSceneSummaryLines(scene, opts) {
+  if (!scene || typeof scene !== 'object') {
+    return { line1: '', line2: '' }
+  }
+  const line1 = []
+  const line2 = []
   const isDaily = scene.mealType === 'daily'
   const typeLabel = MEAL_TYPE_LABELS[scene.mealType] || (isDaily ? '日常' : '聚会')
-  if (typeLabel) parts.push(typeLabel)
+  if (typeLabel) line1.push(typeLabel)
 
   const tiers = tierCountsFromScene(scene)
   const people =
@@ -62,37 +67,50 @@ function formatSceneSummary(scene, opts) {
         ? tiers.adult + tiers.child + tiers.elder
         : 0
   if (people > 0) {
-    parts.push(people + '人')
+    line1.push(people + '人')
   }
   if (tiers) {
-    parts.push(tiers.adult + '大 ' + tiers.child + '小 ' + tiers.elder + '老')
+    line1.push(tiers.adult + '大 ' + tiers.child + '小 ' + tiers.elder + '老')
   }
 
-  // 聚会不露荤素汤（与确认页一致）；日常仍展示
+  // 聚会不露荤素汤（与确认页一致）；日常放到第二行
   if (isDaily) {
     const combo = scene.combo || {}
     const comboBits = []
     if (combo.meat) comboBits.push(combo.meat + '荤')
     if (combo.veg) comboBits.push(combo.veg + '素')
     if (combo.soup) comboBits.push(combo.soup + '汤')
-    if (comboBits.length) parts.push(comboBits.join(''))
+    if (comboBits.length) line2.push(comboBits.join(''))
   }
   if (!(opts && opts.omitSlots)) {
-    // 日常优先用确认页芯片文案（一顿晚饭 / 1午+1晚 / 2午+1晚…）
     const summary =
       typeof scene.mealSlotsSummary === 'string'
         ? scene.mealSlotsSummary.trim()
         : ''
     if (summary) {
-      parts.push(summary)
+      line2.push(summary)
     } else {
       const slots = (scene.mealSlots || [])
         .map((s) => (s && (s.label || s.meal)) || '')
         .filter(Boolean)
-      if (slots.length) parts.push(slots.join('、'))
+      if (slots.length) line2.push(slots.join('、'))
     }
   }
-  return parts.join(' · ')
+  return {
+    line1: line1.join(' · '),
+    line2: line2.join(' · ')
+  }
 }
 
-module.exports = { MEAL_TYPE_LABELS, formatSceneSummary, tierCountsFromScene }
+/** 单行摘要（已选方案等）；内容同两行用「 · 」拼接 */
+function formatSceneSummary(scene, opts) {
+  const { line1, line2 } = formatSceneSummaryLines(scene, opts)
+  return [line1, line2].filter(Boolean).join(' · ')
+}
+
+module.exports = {
+  MEAL_TYPE_LABELS,
+  formatSceneSummary,
+  formatSceneSummaryLines,
+  tierCountsFromScene
+}

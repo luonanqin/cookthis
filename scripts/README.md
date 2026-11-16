@@ -36,15 +36,19 @@ node scripts/sync-city-scale-to-cloud.js
 |------|------|
 | `export-aliases-from-editor.py` | 把 `data/catalog/aliases-editor.json` 压成 `data/catalog/aliases.json` |
 | `sync-alias-runtime-data.js` | 把 `aliases.json` 同步到云函数 / 小程序，并生成各城货架名序 |
+| `normalize-national-recipe-ingredients.js` | 全国菜主料/调味收成别名通用名；城菜不动（默认 dry-run） |
 
 **日常更新别名（分组改完后）：**
 
 ```bash
 python3 scripts/export-aliases-from-editor.py
 node scripts/sync-alias-runtime-data.js
+# 可选：全国菜食材名跟通用名对齐
+node scripts/normalize-national-recipe-ingredients.js --apply
+# → 再 node scripts/import-recipes.js 并导入云库 recipes
 ```
 
-然后在微信开发者工具**重新上传部署**云函数 `recommend`。
+然后在微信开发者工具**重新上传部署**云函数 `catalog` / `recommend`。
 
 | 文件 | 角色 |
 |------|------|
@@ -54,6 +58,7 @@ node scripts/sync-alias-runtime-data.js
 | `cloudfunctions/_shared/data/aliases.json` | 共享副本 |
 | `miniprogram/data/aliases.json` + `aliases.js` | 小程序运行时 |
 | `miniprogram/data/city-shelves/*` + `city-shelves.js` | 各城货架名序（sync 从 `data/catalog/cities/*/ingredients.json` 生成） |
+| `miniprogram/data/ingredient-categories.js` | 清单分类兜底：`ingredients-all-by-category` 名→品类（sync 生成） |
 
 编辑器说明见 [`tools/alias-editor/README.md`](../tools/alias-editor/README.md)。
 
@@ -144,6 +149,50 @@ node scripts/import-recipes.js
 
 ---
 
+## 菜谱 cuisineTags（DeepSeek 重标）
+
+对 **未标注** 与 **通用**（`home_style`）菜调用 DeepSeek；已有明确地方系不动。默认 dry-run。
+
+| 脚本 | 作用 |
+|------|------|
+| `llm-tag-recipe-cuisines.js` | DeepSeek 批量重标 `recipes-builtin.json` 的 `cuisineTags` |
+| `backfill-recipe-cuisine-tags.js` | 点评 + 弱规则回填（非 LLM） |
+
+```bash
+export DEEPSEEK_API_KEY=sk-...
+node scripts/llm-tag-recipe-cuisines.js --limit 40          # 小跑 dry-run
+node scripts/llm-tag-recipe-cuisines.js                     # 全量候选 dry-run（可断点续跑）
+node scripts/llm-tag-recipe-cuisines.js --apply             # 写回 builtin
+node scripts/llm-tag-recipe-cuisines.js --reset-checkpoint  # 清断点
+```
+
+可选：`DEEPSEEK_BASE_URL`（默认 `https://api.deepseek.com`）、`DEEPSEEK_MODEL`（默认 `deepseek-chat`）、`--batch 30`。
+
+设计见 `docs/superpowers/specs/2026-11-10-DeepSeek菜系重标-design.md`。
+
+---
+
+## 按菜名补全食材
+
+从菜名里最长匹配已知食材名，把明显漏写的主料/调味补进 `recipes-builtin.json`；若新名不在全量表，写入 `ingredients-all.json` 的「未映射」和 `aliases-editor.json` 的「未分类」（便于网页分组）。
+
+| 脚本 | 作用 |
+|------|------|
+| `enrich-recipe-ingredients-from-name.py` | 菜名 → 补食材（默认 dry-run） |
+| `lib/enrichRecipeIngredientsFromName.py` | 匹配/写回逻辑 |
+
+```bash
+python3 scripts/enrich-recipe-ingredients-from-name.py          # 只看将补哪些
+python3 scripts/enrich-recipe-ingredients-from-name.py --apply  # 写回 builtin / all / editor
+node scripts/sync-builtin-from-all-catalog.js                   # 新名进 ingredients-builtin
+node scripts/import-ingredients.js
+node scripts/import-recipes.js
+```
+
+匹配为从左到右最长词；会跳过烹饪动词，并避开「蚝油菜心→油菜心」「京酱肉丝→酱肉」等歧义。别名组已覆盖的（如菜名「排骨」、用料已有「猪肋排」）不会重复补。
+
+---
+
 ## 菜谱 difficulty 回填
 
 | 脚本 | 作用 |
@@ -207,6 +256,7 @@ FEEDBACK_ADMIN_KEY=xxx node scripts/reply-feedback.js <feedbackId> <回复正文
 | 忌口组或组成员（「忌口」Tab） | 编辑器「导出到 builtin」→ `sync-avoid-options.js` → `import-ingredients.js` | 导入 `ingredients`；部署 `profile`；编译小程序 |
 | 城市货架 / 热度 → 菜场分档 | `build-ingredient-popularity.py` → `build-city-ingredients-by-scale.py` → `sync-city-scale-to-cloud.js` | 部署 `ingredients` |
 | 仅菜谱 builtin | `import-recipes.js` | 导入 `recipes` |
+| 按菜名补漏写食材 | `enrich-recipe-ingredients-from-name.py --apply` → `sync-builtin-from-all-catalog.js` → `import-ingredients.js` → `import-recipes.js` | 导入 `ingredients` + `recipes`；新名在编辑器「未分类」自行归组 |
 | 下厨房清洗菜+用料灌入 builtin | `merge-xiachufang-dishes-into-recipes.js` → `import-recipes.js` | 导入 `recipes` |
 | 仅食材非忌口字段（名/品类等）已写进 builtin | `import-ingredients.js` | 导入 `ingredients`（若词表也变了，仍要 `sync-avoid-options`） |
 | 全量/编辑器有新名，builtin 还缺 | `sync-builtin-from-all-catalog.js` → `import-ingredients.js` | 导入 `ingredients` |

@@ -98,7 +98,7 @@ describe('buildUnconventionalPlan', () => {
     assert.equal(out.meals[0].dishes[0].recipeId, 'rcp_noodle')
   })
 
-  it('hard-excludes avoid cuisine from hotpot pool', () => {
+  it('does not exclude avoid cuisine from hotpot pool while prefs gated off', () => {
     const sichuanOnly = [
       {
         id: 'rcp_hotpot_base_sc',
@@ -128,7 +128,8 @@ describe('buildUnconventionalPlan', () => {
       mealSlots: slots,
       cuisinePrefs: { sichuan: 'avoid' }
     })
-    assert.equal(out, null)
+    assert.ok(out)
+    assert.equal(out.planKind, 'hotpot')
   })
 
   it('noodle/dumpling plans have only one dish (no side stir-fry)', () => {

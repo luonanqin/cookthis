@@ -4,6 +4,7 @@ const { callCloud } = require('../../services/cloud.js')
 const { ensureLogin } = require('../../services/session.js')
 const { track } = require('../../utils/track.js')
 const { tapFeedback } = require('../../utils/haptic.js')
+const { PLAN_SHARE_ENABLED } = require('../../utils/planShare.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 
 function groupDishesByMeal(dishes) {
@@ -71,6 +72,7 @@ Page({
   data: {
     loading: true,
     invalid: false,
+    featureClosed: false,
     saved: false,
     saving: false,
     titleText: '来自好友的方案',
@@ -80,6 +82,10 @@ Page({
   },
 
   onLoad(query) {
+    if (!PLAN_SHARE_ENABLED) {
+      this.setData({ loading: false, featureClosed: true })
+      return
+    }
     const raw = query && query.shareId != null ? String(query.shareId) : ''
     let shareId = raw
     try {

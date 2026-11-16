@@ -10,6 +10,7 @@ from recipe_difficulty import (  # noqa: E402
     apply_difficulty_changes,
     effective_difficulty,
     group_by_difficulty,
+    name_sort_key,
     summarize_difficulty_recipe,
 )
 
@@ -32,6 +33,18 @@ def test_group_by_difficulty_buckets_and_sorts():
     assert [r["id"] for r in by["home"]] == ["3"]
     assert [r["id"] for r in by["advanced"]] == ["2"]
     assert by["home"][0]["mainIngredients"] == ["番茄", "鸡蛋"]
+
+
+def test_group_by_difficulty_sorts_names_with_zh_key():
+    rows = [
+        {"id": "h", "name": "红烧肉", "difficulty": "easy"},
+        {"id": "b", "name": "白菜炒肉", "difficulty": "easy"},
+        {"id": "f", "name": "番茄炒蛋", "difficulty": "easy"},
+        {"id": "c", "name": "炒青菜", "difficulty": "easy"},
+    ]
+    by = group_by_difficulty(rows)
+    names = [r["name"] for r in by["easy"]]
+    assert names == sorted(names, key=name_sort_key)
 
 
 def test_apply_difficulty_changes_updates_and_reports_missing():
@@ -59,11 +72,19 @@ def test_apply_difficulty_changes_rejects_bad_enum():
 
 def test_summarize_shape():
     s = summarize_difficulty_recipe(
-        {"id": "x", "name": "菜", "mainIngredients": ["白菜"], "difficulty": "easy", "cities": []}
+        {
+            "id": "x",
+            "name": "菜",
+            "mainIngredients": ["白菜"],
+            "seasonings": ["盐", "大蒜"],
+            "difficulty": "easy",
+            "cities": [],
+        }
     )
     assert s == {
         "id": "x",
         "name": "菜",
         "mainIngredients": ["白菜"],
+        "seasonings": ["盐", "大蒜"],
         "difficulty": "easy",
     }

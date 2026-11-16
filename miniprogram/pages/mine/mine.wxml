@@ -100,6 +100,7 @@
     </block>
   </view>
 
+  <!-- 菜系偏好：暂隐藏（CUISINE_PREFS_ENABLED=false）。JS handlers / 云字段仍保留；恢复时取消本段注释并翻开关
   <view class="section" id="secCuisine">
     <view class="section-head">
       <view class="section-title section-title-row {{gapCuisineOpen ? 'section-title-gap' : ''}} {{gapCuisineOpen && warnPulse ? 'title-pulse' : ''}}"><image class="ui-icon ui-icon--sm" src="/assets/images/icons/soup-bowl.png" mode="aspectFit" aria-hidden="true"/><text>菜系偏好</text></view>
@@ -132,6 +133,7 @@
       >{{item.label}}</view>
     </view>
   </view>
+  -->
 
   <!-- 菜式偏好：暂隐藏，后期再开。JS onFormPrefRadio / dishFormPrefs 仍保留；恢复时取消本段注释
   <view class="section">
@@ -240,4 +242,6 @@
     </view>
   </view>
   </view>
+
+  <busy-overlay show="{{busy}}" />
 </view>

@@ -72,6 +72,37 @@ describe('buildShoppingList', () => {
     assert.ok(idxs.leaf < idxs.seasoning)
   })
 
+  it('places recipe-only 猪瘦肉 under 肉类 when catalog map has it', () => {
+    const { groups } = buildShoppingList({
+      plan: {
+        meals: [
+          {
+            dishes: [
+              {
+                name: '青椒肉丝',
+                mainIngredients: ['猪瘦肉', '青椒'],
+                seasonings: ['生抽']
+              }
+            ]
+          }
+        ]
+      },
+      // 模拟：已选为空，仅靠 by-category 底表（清单此前会掉进「其他」）
+      categoryByName: {
+        猪瘦肉: '肉类',
+        青椒: '瓜果'
+      }
+    })
+    const meat = groups.find((g) => g.category === '肉类')
+    const other = groups.find((g) => g.category === '其他')
+    assert.ok(meat)
+    assert.deepEqual(
+      meat.items.map((x) => x.name),
+      ['猪瘦肉']
+    )
+    assert.ok(!other || !other.items.some((x) => x.name === '猪瘦肉'))
+  })
+
   it('labels Chinese taxonomy categories from by-scale (not 其他)', () => {
     const { groups } = buildShoppingList({
       plan: {

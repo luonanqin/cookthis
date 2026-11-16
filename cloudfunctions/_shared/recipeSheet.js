@@ -72,6 +72,7 @@ function buildRecipeSheet(input) {
       dishes.push({
         recipeId: dish.recipeId || '',
         name: dish.name || '',
+        meatVeg: dish.meatVeg || '',
         ingredients
       })
     }

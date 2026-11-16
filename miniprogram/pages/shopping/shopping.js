@@ -20,8 +20,9 @@ const { callCloud } = require('../../services/cloud.js')
 const { getUser } = require('../../services/session.js')
 const { loadShoppingCatalog } = require('../../services/catalogCache.js')
 const { tapFeedback } = require('../../utils/haptic.js')
-const { shareCardTitle } = require('../../utils/planShare.js')
+const { PLAN_SHARE_ENABLED, shareCardTitle } = require('../../utils/planShare.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
+const catalogCategories = require('../../data/ingredient-categories.js')
 
 const RECOMMEND_KEY = 'cookthis_last_recommend'
 const SELECTED_KEY = 'cookthis_last_selected'
@@ -49,6 +50,11 @@ function categoryByNameFromStorage() {
     if (x && x.name) map[x.name] = normalizeCategory(x.category, '其他')
   })
   return map
+}
+
+/** by-category 底表 + 已选覆盖（已选优先），再交给别名 expand */
+function categoryByNameForShopping() {
+  return Object.assign({}, catalogCategories || {}, categoryByNameFromStorage())
 }
 
 function planHasIngredients(plan) {
@@ -87,18 +93,50 @@ function withBought(groups, checkedNames) {
   })
 }
 
+const MEAT_VEG_ORDER = ['meat', 'veg', 'soup']
+const MEAT_VEG_LABELS = { meat: '荤', veg: '素', soup: '汤' }
+
+/**
+ * 扁平菜列表 + 按荤素汤分组（弹层展示用）。
+ * @returns {{ recipeDishes: object[], recipeGroups: Array<{ type: string, label: string, dishes: object[] }> }}
+ */
 function decorateRecipeSheet(sheet) {
-  const dishes = []
+  const recipeDishes = []
   ;((sheet && sheet.meals) || []).forEach((meal) => {
     ;(meal.dishes || []).forEach((dish) => {
-      dishes.push({
+      recipeDishes.push({
         recipeId: dish.recipeId,
         name: dish.name,
+        meatVeg: dish.meatVeg || '',
         ingredientText: (dish.ingredients || []).map((x) => x.name).join('、')
       })
     })
   })
-  return dishes
+
+  const buckets = { meat: [], veg: [], soup: [], other: [] }
+  recipeDishes.forEach((d) => {
+    const k = d.meatVeg
+    if (k === 'meat' || k === 'veg' || k === 'soup') buckets[k].push(d)
+    else buckets.other.push(d)
+  })
+
+  const recipeGroups = []
+  for (const k of MEAT_VEG_ORDER) {
+    if (!buckets[k].length) continue
+    recipeGroups.push({
+      type: k,
+      label: MEAT_VEG_LABELS[k],
+      dishes: buckets[k]
+    })
+  }
+  if (buckets.other.length) {
+    recipeGroups.push({
+      type: 'other',
+      label: '其他',
+      dishes: buckets.other
+    })
+  }
+  return { recipeDishes, recipeGroups }
 }
 
 Page({
@@ -112,20 +150,42 @@ Page({
     loading: true,
     adSlots: [],
     recipeDishes: [],
+    recipeGroups: [],
     showRecipeSheet: false,
-    recipeScrollTop: 0
+    fabDimmed: false,
+    planShareEnabled: PLAN_SHARE_ENABLED
   },
 
   _requestId: '',
   _planIndex: 0,
   _swapCount: 0,
-  _recipeScrollTop: 0,
   _recipeSheetOpenedAt: 0,
-  _recipeSheetScrolled: false,
+  _fabScrollTimer: null,
 
   onShow() {
     this.applyTypeScale()
     this.refitSecondaryNames()
+  },
+
+  onHide() {
+    this._clearFabScrollTimer()
+    if (this.data.fabDimmed) this.setData({ fabDimmed: false })
+  },
+
+  onPageScroll() {
+    if (!this.data.fabDimmed) this.setData({ fabDimmed: true })
+    this._clearFabScrollTimer()
+    this._fabScrollTimer = setTimeout(() => {
+      this._fabScrollTimer = null
+      if (this.data.fabDimmed) this.setData({ fabDimmed: false })
+    }, 180)
+  },
+
+  _clearFabScrollTimer() {
+    if (this._fabScrollTimer) {
+      clearTimeout(this._fabScrollTimer)
+      this._fabScrollTimer = null
+    }
   },
 
   refitSecondaryNames() {
@@ -174,7 +234,7 @@ Page({
       (recommend.scene && recommend.scene.mealType) ||
       (selectedSnap.scene && selectedSnap.scene.mealType) ||
       'daily'
-    const categoryByNameRaw = categoryByNameFromStorage()
+    const categoryByNameRaw = categoryByNameForShopping()
     let plan = pickPlan(recommend.plans, idx)
 
     const finish = (finalPlan, sourceMealType) => {
@@ -211,16 +271,17 @@ Page({
 
           const groups = withBought(labeled, checkedNames)
           const flat = flattenShoppingList({ groups })
-          const recipeDishes = finalPlan
+          const decorated = finalPlan
             ? decorateRecipeSheet(
                 buildRecipeSheet({ plan: finalPlan, categoryByName })
               )
-            : []
+            : { recipeDishes: [], recipeGroups: [] }
 
           track('shopping_list_open', { accepted })
           this.setData({
             groups,
-            recipeDishes,
+            recipeDishes: decorated.recipeDishes,
+            recipeGroups: decorated.recipeGroups,
             accepted,
             loading: false,
             empty: flat.length === 0,
@@ -317,13 +378,16 @@ Page({
   noop() {},
 
   onUnload() {
-    if (this._recipeScrollTimer) {
-      clearTimeout(this._recipeScrollTimer)
-      this._recipeScrollTimer = null
-    }
-    this._recipeScrollTop = 0
-    this._recipeSheetScrolled = false
+    this._clearFabScrollTimer()
     this._recipeSheetOpenedAt = 0
+  },
+
+  onRecipeFabTap() {
+    if (this.data.showRecipeSheet) {
+      this.onRecipeSheetClose()
+      return
+    }
+    this.onRecipeSheetOpen()
   },
 
   onRecipeSheetOpen() {
@@ -333,16 +397,8 @@ Page({
     }
     tapFeedback()
     this._recipeSheetOpenedAt = Date.now()
-    this._recipeSheetScrolled = false
     track('shopping_recipe_sheet_open', { planIndex: this._planIndex })
-    // 先置一个略不同的值，确保 scroll-view 能吃到恢复的 scrollTop
-    const top = this._recipeScrollTop || 0
-    this.setData({ showRecipeSheet: true, recipeScrollTop: top === 0 ? 0.01 : top - 0.01 })
-    if (this._recipeScrollTimer) clearTimeout(this._recipeScrollTimer)
-    this._recipeScrollTimer = setTimeout(() => {
-      this._recipeScrollTimer = null
-      this.setData({ recipeScrollTop: top })
-    }, 30)
+    this.setData({ showRecipeSheet: true, fabDimmed: false })
   },
 
   onRecipeSheetClose() {
@@ -353,17 +409,10 @@ Page({
       : 0
     track('shopping_recipe_sheet_close', {
       planIndex: this._planIndex,
-      dwellMs,
-      scrolled: !!this._recipeSheetScrolled
+      dwellMs
     })
     this._recipeSheetOpenedAt = 0
     this.setData({ showRecipeSheet: false })
-  },
-
-  onRecipeSheetScroll(e) {
-    const top = (e.detail && e.detail.scrollTop) || 0
-    this._recipeScrollTop = top
-    if (top > 8) this._recipeSheetScrolled = true
   },
 
   onBack() {
@@ -379,6 +428,9 @@ Page({
   },
 
   onShareAppMessage(res) {
+    if (!PLAN_SHARE_ENABLED) {
+      return { title: '买菜没烦恼', path: '/pages/index/index' }
+    }
     const entry =
       (res.target && res.target.dataset && res.target.dataset.entry) ||
       'shopping'

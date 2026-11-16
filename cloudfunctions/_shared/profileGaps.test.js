@@ -16,13 +16,9 @@ describe('computeProfileGaps', () => {
 
   it('all open for empty skip-onboarding style user', () => {
     const g = computeProfileGaps(base)
-    assert.deepEqual(g.gaps, [
-      'family_avoids',
-      'members',
-      'city',
-      'cook_skill',
-      'cuisine'
-    ])
+    // 菜系偏好暂关：gaps 不含 cuisine
+    assert.deepEqual(g.gaps, ['family_avoids', 'members', 'city', 'cook_skill'])
+    assert.equal(g.cuisineOpen, false)
     assert.equal(g.recommendBanner, true)
     assert.equal(g.anyOpen, true)
     assert.equal(g.cookSkillOpen, true)
@@ -73,6 +69,12 @@ describe('computeProfileGaps', () => {
     )
     assert.equal(g.membersOpen, false)
     assert.equal(g.cityOpen, false)
-    assert.deepEqual(g.gaps, ['cook_skill', 'cuisine'])
+    assert.deepEqual(g.gaps, ['cook_skill'])
+  })
+
+  it('cuisine gap stays closed while prefs feature disabled', () => {
+    const g = computeProfileGaps(base)
+    assert.equal(g.cuisineOpen, false)
+    assert.ok(!g.gaps.includes('cuisine'))
   })
 })

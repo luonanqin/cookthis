@@ -22,8 +22,8 @@
 }
 
 .section-title {
-  font-size: var(--fs-body);
-  font-weight: 600;
+  font-size: var(--fs-title);
+  font-weight: var(--fw-semibold);
   margin-bottom: 0;
   color: var(--color-text);
   flex-shrink: 0;

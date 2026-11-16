@@ -5,9 +5,8 @@
     subtitle="看看菜场有什么"
   />
 
-  <view wx:if="{{loading}}" class="state">加载中…</view>
+  <view wx:if="{{loading || holdBlank}}" class="state"></view>
   <view wx:elif="{{error}}" class="state">{{error}}</view>
-  <view wx:elif="{{holdBlank}}" class="state"></view>
 
   <block wx:else>
     <view class="page-body confirm-body">
@@ -39,10 +38,7 @@
               class="chip {{seasonalChecked[ing.id] ? 'chip-on' : ''}}"
               data-id="{{ing.id}}"
               catchtap="toggleSeasonal"
-            >
-              <view class="chip-check">{{seasonalChecked[ing.id] ? '✓' : ''}}</view>
-              <text>{{ing.displayName || ing.name}}</text>
-            </view>
+            >{{ing.displayName || ing.name}}</view>
           </view>
         </view>
       </view>
@@ -69,10 +65,7 @@
               class="chip {{yearRoundChecked[ing.id] ? 'chip-on' : ''}}"
               data-id="{{ing.id}}"
               catchtap="toggleYearRound"
-            >
-              <view class="chip-check">{{yearRoundChecked[ing.id] ? '✓' : ''}}</view>
-              <text>{{ing.displayName || ing.name}}</text>
-            </view>
+            >{{ing.displayName || ing.name}}</view>
           </view>
         </view>
       </view>
@@ -195,8 +188,7 @@
 
   <view class="footer" wx:if="{{!loading && !error && !holdBlank}}">
     <button type="primary" disabled="{{submitting || liteBusy}}" bindtap="onConfirm">
-      <block wx:if="{{submitting}}">脑壳飞速运转中</block>
-      <block wx:else>确认（已选 {{count}}）</block>
+      确认（已选 {{count}}）
     </button>
   </view>
 
@@ -255,7 +247,7 @@
     </view>
   </view>
 
-  <!-- 菜场规模半屏（页内切换）：遮罩不关；同款三卡 + 默认中菜场 -->
+  <!-- 菜场规模半屏（页内切换）：遮罩不关；三卡点选 + 跳过/确认 -->
   <view
     class="mask"
     wx:if="{{showMarketScale}}"
@@ -273,41 +265,73 @@
           hover-class="tap-hover"
           hover-stay-time="80"
           data-choice="small"
-          bindtap="onMarketScaleSelect"
+          bindtap="onMarketScalePick"
         >
-          <view class="scale-card-title">小菜场</view>
-          <view class="scale-card-desc">小门面、路边摊位</view>
+          <view class="scale-card-main">
+            <view class="scale-card-title">小菜场</view>
+            <view class="scale-card-desc">小门面、路边摊位</view>
+          </view>
+          <image
+            class="scale-card-icon scale-card-icon--small"
+            src="/assets/images/icons/market-scale-small.png"
+            mode="heightFix"
+            aria-hidden="true"
+          />
         </view>
         <view
           class="scale-card {{marketScaleHighlight === 'medium' ? 'on' : ''}}"
           hover-class="tap-hover"
           hover-stay-time="80"
           data-choice="medium"
-          bindtap="onMarketScaleSelect"
+          bindtap="onMarketScalePick"
         >
-          <view class="scale-card-title">中菜场</view>
-          <view class="scale-card-desc">普通超市、连着几个门面</view>
+          <view class="scale-card-main">
+            <view class="scale-card-title">中菜场</view>
+            <view class="scale-card-desc">普通超市、连着几个门面</view>
+          </view>
+          <image
+            class="scale-card-icon scale-card-icon--medium"
+            src="/assets/images/icons/market-scale-medium.png"
+            mode="heightFix"
+            aria-hidden="true"
+          />
         </view>
         <view
           class="scale-card {{marketScaleHighlight === 'large' ? 'on' : ''}}"
           hover-class="tap-hover"
           hover-stay-time="80"
           data-choice="large"
-          bindtap="onMarketScaleSelect"
+          bindtap="onMarketScalePick"
         >
-          <view class="scale-card-title">大菜场</view>
-          <view class="scale-card-desc">集贸市场、大超市、很多摊位</view>
+          <view class="scale-card-main">
+            <view class="scale-card-title">大菜场</view>
+            <view class="scale-card-desc">集贸市场、大超市、很多摊位</view>
+          </view>
+          <image
+            class="scale-card-icon scale-card-icon--large"
+            src="/assets/images/icons/market-scale-large.png"
+            mode="heightFix"
+            aria-hidden="true"
+          />
         </view>
       </view>
-      <view class="scale-default-wrap">
+      <view class="scale-actions">
         <button
           size="mini"
-          class="btn-outline scale-default-btn {{marketScaleDefaultOn ? 'on' : ''}}"
-          data-choice="default_medium"
+          class="btn-outline"
           disabled="{{marketScaleBusy}}"
-          bindtap="onMarketScaleSelect"
-        >默认中菜场</button>
+          bindtap="onMarketScaleSkip"
+        >跳过</button>
+        <button
+          size="mini"
+          type="{{marketScaleHighlight ? 'primary' : 'default'}}"
+          class="{{marketScaleHighlight ? '' : 'btn-outline btn-confirm-disabled'}}"
+          disabled="{{marketScaleBusy || !marketScaleHighlight}}"
+          bindtap="onMarketScaleConfirm"
+        >确认</button>
       </view>
     </view>
   </view>
+
+  <busy-overlay show="{{loading || submitting || liteBusy || marketScaleBusy}}" />
 </view>

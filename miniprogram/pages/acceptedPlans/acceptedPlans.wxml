@@ -4,7 +4,7 @@
   <view class="hint-bar" style="top: {{headerHeight}}px;">
     <view class="hint">{{hint}}</view>
   </view>
-  <view class="hint-bar-spacer" aria-hidden="true"></view>
+  <view class="hint-bar-spacer" style="height: {{hintBarHeight}}px;" aria-hidden="true"></view>
 
   <view wx:if="{{loading && !items.length}}" class="empty">加载中…</view>
   <view wx:elif="{{!items.length}}" class="empty">还没有采纳过方案</view>
@@ -42,6 +42,7 @@
           <text class="meta-scene">{{item.sceneSummary}}</text>
         </view>
         <button
+          wx:if="{{planShareEnabled}}"
           class="card-share"
           size="mini"
           open-type="share"
