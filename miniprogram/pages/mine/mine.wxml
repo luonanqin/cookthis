@@ -6,7 +6,10 @@
   <view class="wrap">
   <view class="profile-row">
     <image class="avatar" src="{{avatarSrc}}" mode="aspectFill" />
-    <text class="nickname">{{nickname}}</text>
+    <view class="profile-text">
+      <text class="nickname">{{nickname}}</text>
+      <text wx:if="{{userNoLabel}}" class="user-no">{{userNoLabel}}</text>
+    </view>
   </view>
 
   <view class="section" id="secMembers">
@@ -170,6 +173,15 @@
 
   <view class="footer">
     <button type="primary" disabled="{{busy}}" bindtap="onSave">保存</button>
+  </view>
+
+  <view class="mask user-no-mask" wx:if="{{showUserNoReveal}}" catchtouchmove="true" bindtap="onUserNoRevealAck">
+    <view class="user-no-card" catchtap="noop">
+      <view class="user-no-welcome">欢迎加入</view>
+      <view class="user-no-roll">{{revealDisplay}}</view>
+      <view class="user-no-final" wx:if="{{revealDone}}">{{userNoLabel}}</view>
+      <button class="btn-primary" bindtap="onUserNoRevealAck">知道了</button>
+    </view>
   </view>
 
   <view

@@ -7,6 +7,15 @@ const {
 const { track } = require('../../utils/track.js')
 const { tapFeedback } = require('../../utils/haptic.js')
 const {
+  isValidUserNo,
+  formatUserNoLabel,
+  revealStartValue
+} = require('../../utils/userNo.js')
+const {
+  shouldAnimateUserNoReveal,
+  revealTick
+} = require('../../utils/userNoReveal.js')
+const {
   CUISINE_OPTIONS,
   toggleCuisinePrefer,
   toggleCuisineAvoid
@@ -147,7 +156,8 @@ function profileViewFromUser(user) {
     nickname: p.nickname || '',
     avatarSrc: resolveAvatar(p.avatarUrl),
     members,
-    householdLabel: summary.label
+    householdLabel: summary.label,
+    userNoLabel: formatUserNoLabel(p.userNo)
   }
 }
 
@@ -209,6 +219,10 @@ Page({
   data: {
     nickname: '',
     avatarSrc: '/assets/avatar-default.png',
+    userNoLabel: '',
+    showUserNoReveal: false,
+    revealDisplay: 0,
+    revealDone: false,
     avoidOptions: AVOID_OPTIONS,
     formOptions: FORM_OPTIONS,
     formValues: FORM_VALUES,
@@ -270,6 +284,7 @@ Page({
       clearTimeout(this._afterSaveTimer)
       this._afterSaveTimer = null
     }
+    this._stopRevealAnimation()
     this._clearFlashTimers()
   },
 
@@ -361,12 +376,62 @@ Page({
         // 保存后或二次 onShow 会使 gen 前进；丢弃过期 login，避免旧菜系盖掉「都还行」
         if (gen !== this._profileLoadGen) return
         this.applyProfile(user)
+        this._maybeStartUserNoReveal()
       })
       .catch((err) => {
         if (gen !== this._profileLoadGen) return
         console.error(err)
         if (!cached) wx.showToast({ title: '登录失败', icon: 'none' })
       })
+    this._maybeStartUserNoReveal()
+  },
+
+  _maybeStartUserNoReveal() {
+    if (this.data.showUserNoReveal) return
+    const u = getUser() || {}
+    const n = u.userNo
+    if (!isValidUserNo(n)) return
+    if (u.userNoRevealSeen) return
+    try {
+      if (wx.getStorageSync('cookthis_user_no_reveal_seen')) return
+    } catch (e) {}
+    const animate = shouldAnimateUserNoReveal()
+    this.setData({
+      showUserNoReveal: true,
+      userNoLabel: formatUserNoLabel(n),
+      revealDisplay: animate ? revealStartValue(n) : n,
+      revealDone: !animate
+    })
+    if (animate) this._runRevealAnimation(n)
+    track('user_no_reveal_show', { userNo: n })
+  },
+
+  _runRevealAnimation(n) {
+    this._stopRevealAnimation()
+    const startedAt = Date.now()
+    const step = () => {
+      const { display, done } = revealTick(n, Date.now() - startedAt)
+      this.setData({ revealDisplay: display, revealDone: done })
+      if (done) this._stopRevealAnimation()
+    }
+    this._revealTimer = setInterval(step, 16)
+  },
+
+  _stopRevealAnimation() {
+    if (this._revealTimer) {
+      clearInterval(this._revealTimer)
+      this._revealTimer = null
+    }
+  },
+
+  onUserNoRevealAck() {
+    if (!this.data.showUserNoReveal) return
+    this._stopRevealAnimation()
+    this.setData({ showUserNoReveal: false, revealDone: true })
+    try { wx.setStorageSync('cookthis_user_no_reveal_seen', 1) } catch (e) {}
+    patchUser({ userNoRevealSeen: true })
+    callCloud('profile', { action: 'ackUserNoReveal' }).catch(() => {})
+    track('user_no_reveal_ack', {})
   },
 
   /** 成员增删改后刷新：走 auth 带回最新 members */

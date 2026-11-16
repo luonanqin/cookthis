@@ -4,6 +4,8 @@ const cloud = require('wx-server-sdk')
 // Source of truth for tests: cloudfunctions/_shared/nickname.js — keep in sync when changing.
 const { buildDefaultNickname } = require('./nickname.js')
 const { pickDefaultAvatar } = require('./defaultAvatar.js')
+const { allocateUserNo } = require('./allocateUserNo.js')
+const { loginUserNoFields } = require('./userNo.js')
 
 // Keep in sync with COOK_SKILL_VALUES in cloudfunctions/_shared/cookSkill.js
 const COOK_SKILL_VALUES = ['beginner', 'home', 'skilled']
@@ -140,13 +142,15 @@ exports.main = async (event) => {
       marketScaleHistory: Array.isArray(user.marketScaleHistory)
         ? user.marketScaleHistory
         : [],
-      members
+      members,
+      ...loginUserNoFields(user)
     }
   }
 
   const uid = `u_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`
   let nickname = buildDefaultNickname(uid)
   const avatarUrl = pickDefaultAvatar(uid)
+  const userNo = await allocateUserNo(db)
   // 可选：查重 nickname，冲突则 buildDefaultNickname(uid, 5)
 
   await db.collection('users').add({
@@ -168,6 +172,8 @@ exports.main = async (event) => {
       profileLiteSkipped: false,
       profileLitePromptedAt: null,
       requirePhoneFor: [],
+      userNo,
+      userNoRevealSeenAt: null,
       createdAt: now,
       updatedAt: now
     }
@@ -211,6 +217,7 @@ exports.main = async (event) => {
     marketScaleChosenAt: null,
     marketScaleAnchor: null,
     marketScaleHistory: [],
-    members: []
+    members: [],
+    ...loginUserNoFields({ userNo, userNoRevealSeenAt: null })
   }
 }
