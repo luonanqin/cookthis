@@ -30,9 +30,22 @@ function pad2(n) {
   return n < 10 ? '0' + n : String(n)
 }
 
+function startOfDay(d) {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+}
+
+/** 最近几天突出相对日；更早仍用完整日期 */
 function formatTimeText(value) {
   const d = toDate(value)
   if (!d) return ''
+  const hm = pad2(d.getHours()) + ':' + pad2(d.getMinutes())
+  const dayDiff = Math.round((startOfDay(new Date()) - startOfDay(d)) / 86400000)
+  if (dayDiff === 0) return '今天 ' + hm
+  if (dayDiff === 1) return '昨天 ' + hm
+  if (dayDiff > 1 && dayDiff < 7) {
+    const week = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+    return week[d.getDay()] + ' ' + hm
+  }
   return (
     d.getFullYear() +
     '-' +
@@ -40,9 +53,7 @@ function formatTimeText(value) {
     '-' +
     pad2(d.getDate()) +
     ' ' +
-    pad2(d.getHours()) +
-    ':' +
-    pad2(d.getMinutes())
+    hm
   )
 }
 
@@ -158,15 +169,18 @@ Page({
           const rect = res && res[0]
           if (!rect || !rect.height) return
           const hintBarHeight = Math.ceil(rect.height)
-          // 上叠 1px，消亚像素缝
+          // 轻微上叠进 hint，吸顶后顶边改直角，无缝也不露月牙
           const metaStickyTop = Math.max(0, Math.round(rect.bottom) - 1)
           if (
             hintBarHeight === this.data.hintBarHeight &&
             metaStickyTop === this.data.metaStickyTop
           ) {
+            this._bindMetaStuckObserver()
             return
           }
-          this.setData({ hintBarHeight, metaStickyTop })
+          this.setData({ hintBarHeight, metaStickyTop }, () => {
+            this._bindMetaStuckObserver()
+          })
         })
     }
     if (typeof wx.nextTick === 'function') {
@@ -174,6 +188,38 @@ Page({
     } else {
       setTimeout(run, 16)
     }
+  },
+
+  _disconnectMetaStuckObserver() {
+    if (this._metaStuckObs) {
+      try {
+        this._metaStuckObs.disconnect()
+      } catch (e) {}
+      this._metaStuckObs = null
+    }
+  },
+
+  /** 吸顶态改直角，避免圆角月牙漏出背后滚动内容 */
+  _bindMetaStuckObserver() {
+    this._disconnectMetaStuckObserver()
+    const top = this.data.metaStickyTop || 0
+    if (!this.data.items || !this.data.items.length) return
+    try {
+      this._metaStuckObs = this.createIntersectionObserver(this, {
+        thresholds: [0, 1],
+        observeAll: true
+      })
+      this._metaStuckObs.relativeToViewport({ top: -top }).observe('.meta-sticky', (res) => {
+        const id = (res && res.id) || ''
+        const idx = parseInt(String(id).replace(/^ms-/, ''), 10)
+        if (!Number.isFinite(idx) || idx < 0) return
+        const item = (this.data.items || [])[idx]
+        if (!item) return
+        const stuck = !!(res.boundingClientRect && res.boundingClientRect.top <= top + 1)
+        if (!!item.metaStuck === stuck) return
+        this.setData({ ['items[' + idx + '].metaStuck']: stuck })
+      })
+    } catch (e) {}
   },
 
   _loadGen: 0,
@@ -187,6 +233,7 @@ Page({
       clearTimeout(this._tipMeasureTimer)
       this._tipMeasureTimer = null
     }
+    this._disconnectMetaStuckObserver()
   },
 
   onShow() {
@@ -277,6 +324,7 @@ Page({
         this.setData(
           { items, nextCursor, loading: false, tipOwnListKey },
           () => {
+            this._bindMetaStuckObserver()
             if (this.data.showTip && tipOwnListKey) {
               if (this._tipMeasureTimer) clearTimeout(this._tipMeasureTimer)
               this._tipMeasureTimer = setTimeout(() => {
@@ -311,11 +359,14 @@ Page({
         }
         const more = ((result && result.items) || []).map(mapItem)
         const nextCursor = (result && result.nextCursor) || null
-        this.setData({
-          items: this.data.items.concat(more),
-          nextCursor,
-          loadingMore: false
-        })
+        this.setData(
+          {
+            items: this.data.items.concat(more),
+            nextCursor,
+            loadingMore: false
+          },
+          () => this._bindMetaStuckObserver()
+        )
         track('accepted_plans_list', {
           page: 'more',
           count: more.length

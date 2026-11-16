@@ -27,13 +27,13 @@
       class="btn-outline"
       disabled="{{busy}}"
       bindtap="onCancel"
-    >取消</button>
+    >取 消</button>
     <button
       size="mini"
       type="primary"
       disabled="{{busy}}"
       bindtap="onSubmit"
-    >提交</button>
+    >提 交</button>
   </view>
 
   <busy-overlay show="{{busy}}" />

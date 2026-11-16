@@ -88,6 +88,3 @@
   flex: 0 0 auto;
 }
 
-.footer button[size='mini'] {
-  min-width: 140rpx;
-}

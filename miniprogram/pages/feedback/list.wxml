@@ -28,7 +28,7 @@
     <view class="composer-bar">
       <view class="composer-bar-right">
         <text class="count">{{draftLen}}/100</text>
-        <button size="mini" type="primary" disabled="{{submitting}}" bindtap="onSubmit">提交</button>
+        <button size="mini" type="primary" disabled="{{submitting}}" bindtap="onSubmit">提 交</button>
       </view>
     </view>
   </view>

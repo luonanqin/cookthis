@@ -378,15 +378,29 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16rpx;
   margin: 20rpx 0;
 }
 
+/* 标签+步进器整体居中；两行同宽对齐，避免名称固定宽导致视觉偏左 */
+.custom-slot-cluster {
+  display: grid;
+  grid-template-columns: 72rpx 48rpx 48rpx 48rpx;
+  align-items: center;
+  justify-items: center;
+  column-gap: 16rpx;
+}
+
 .custom-slot-name {
-  width: 80rpx;
+  width: 100%;
   font-size: var(--fs-body);
   color: var(--color-text);
-  text-align: right;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.custom-slot-cluster .step-btn,
+.custom-slot-cluster .slot-count {
+  justify-self: center;
 }
 
 .custom-slots-actions {
@@ -395,12 +409,6 @@
   gap: 16rpx;
   justify-content: center;
   margin-top: 24rpx;
-}
-
-.custom-slots-panel .custom-slots-btn {
-  margin: 0 !important;
-  min-width: 128rpx !important;
-  padding: 0 28rpx !important;
 }
 
 /* 大字版：人数/搭配 picker 触发格与步进钮加大触控与字号 */
@@ -428,6 +436,11 @@
 .large-text .slot-count {
   font-size: var(--fs-lead);
   min-width: 56rpx;
+}
+
+.large-text .custom-slot-cluster {
+  grid-template-columns: 88rpx 72rpx 72rpx 72rpx;
+  column-gap: 20rpx;
 }
 
 .large-text .slot-stepper {
@@ -598,17 +611,6 @@
   align-items: center;
   gap: 28rpx;
   border-top: 1rpx solid var(--color-border);
-}
-
-.scale-actions button[size='mini'] {
-  height: 56rpx;
-  line-height: 56rpx;
-  padding: 0 28rpx;
-  margin: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
 }
 
 .scale-actions button.btn-confirm-disabled[disabled] {

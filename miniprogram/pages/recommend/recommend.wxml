@@ -108,8 +108,8 @@
         bindtap="onRejectReason"
       >{{item.label}}</view>
       <view class="sheet-actions">
-        <button size="mini" class="btn-outline" bindtap="onRejectSkip">跳过</button>
-        <button size="mini" class="btn-outline" bindtap="onRejectClose">取消</button>
+        <button size="mini" class="btn-outline" bindtap="onRejectSkip">跳 过</button>
+        <button size="mini" class="btn-outline" bindtap="onRejectClose">取 消</button>
       </view>
     </view>
   </view>

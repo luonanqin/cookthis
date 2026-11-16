@@ -16,8 +16,11 @@
 }
 
 .progress {
-  color: var(--color-text-secondary);
-  font-size: var(--fs-sm);
+  color: var(--color-forest);
+  font-size: var(--fs-lead);
+  font-weight: var(--fw-semibold);
+  line-height: 1.35;
+  text-align: center;
 }
 
 .section {
@@ -48,6 +51,14 @@
   font-size: var(--fs-caption);
   line-height: 1.35;
   color: var(--color-text-secondary, #888);
+}
+
+.section-aside--solo {
+  display: block;
+  flex: none;
+  width: 100%;
+  margin: 0 0 16rpx;
+  text-align: left;
 }
 
 .hint,
@@ -258,10 +269,38 @@
   color: var(--color-text-secondary);
 }
 
-.member-del {
+.member-del-wrap {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.member-del,
+.member-save,
+.member-del-cancel,
+.member-del-confirm {
   font-size: var(--fs-sm);
-  color: var(--color-text-secondary);
   padding: 8rpx 12rpx;
+}
+
+.member-save {
+  color: var(--color-primary);
+  font-weight: var(--fw-medium);
+}
+
+.member-del {
+  color: var(--color-text-secondary);
+}
+
+.member-del-cancel {
+  color: var(--color-text-secondary);
+}
+
+.member-del-confirm {
+  color: var(--color-coral);
+  font-weight: var(--fw-medium);
 }
 
 .member-editor {
@@ -306,8 +345,10 @@
 
 .link-inline {
   margin-top: 12rpx;
+  margin-bottom: 8rpx;
   font-size: var(--fs-body);
   color: var(--color-primary);
+  text-align: center;
 }
 
 /* 引导底栏：多按钮均分宽度，高度与全站一致；单按钮时居中 */

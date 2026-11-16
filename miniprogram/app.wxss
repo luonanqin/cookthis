@@ -150,10 +150,20 @@ button.btn-coral.button-hover {
   background: #d9826c !important;
 }
 
+/* 半屏/弹层小按钮：与「自定义几顿」取 消 / 确 认同规格 */
 button[size='mini'] {
   font-size: var(--fs-sm);
-  padding: 0 24rpx;
+  font-weight: var(--fw-medium);
+  min-width: 128rpx;
+  padding: 0 28rpx;
   line-height: 2;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+button[size='mini'][type='primary'] {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
 }
 
 /* Press feedback: WeChat default hover-class is button-hover */

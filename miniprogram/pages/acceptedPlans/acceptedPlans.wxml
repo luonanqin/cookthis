@@ -9,7 +9,7 @@
   <view wx:if="{{loading && !items.length}}" class="empty">加载中…</view>
   <view wx:elif="{{!items.length}}" class="empty">还没有采纳过方案</view>
 
-  <block wx:for="{{items}}" wx:key="listKey">
+  <block wx:for="{{items}}" wx:key="listKey" wx:for-index="cardIdx">
     <!-- 收到的：整卡进只读页；无已吃 chip、无分享 -->
     <view
       wx:if="{{item.source === 'shared'}}"
@@ -19,12 +19,19 @@
       data-share-id="{{item.shareId}}"
       bindtap="onOpenShared"
     >
-      <view class="meta meta-shared" style="top: {{metaStickyTop}}px;">
-        <view class="meta-info">
-          <text class="meta-time">{{item.timeText}}</text>
-          <text class="meta-scene">{{item.sceneSummary}}</text>
+      <view
+        id="ms-{{cardIdx}}"
+        class="meta-sticky {{item.metaStuck ? 'is-stuck' : ''}}"
+        style="top: {{metaStickyTop}}px;"
+      >
+        <view class="meta-sticky-shield" aria-hidden="true"></view>
+        <view class="meta meta-shared">
+          <view class="meta-info">
+            <text class="meta-time">{{item.timeText}}</text>
+            <text class="meta-scene">{{item.sceneSummary}}</text>
+          </view>
+          <text class="badge">{{item.badge || '分享'}}</text>
         </view>
-        <text class="badge">{{item.badge || '分享'}}</text>
       </view>
       <view class="dish-names">
         <block wx:for="{{item.dishes}}" wx:for-item="d" wx:for-index="dishIdx" wx:key="name">
@@ -36,21 +43,28 @@
 
     <!-- 自产：已吃 chip + 分享 -->
     <view wx:else class="card">
-      <view class="meta meta-own" style="top: {{metaStickyTop}}px;">
-        <view class="meta-info">
-          <text class="meta-time">{{item.timeText}}</text>
-          <text class="meta-scene">{{item.sceneSummary}}</text>
+      <view
+        id="ms-{{cardIdx}}"
+        class="meta-sticky {{item.metaStuck ? 'is-stuck' : ''}}"
+        style="top: {{metaStickyTop}}px;"
+      >
+        <view class="meta-sticky-shield" aria-hidden="true"></view>
+        <view class="meta meta-own">
+          <view class="meta-info">
+            <text class="meta-time">{{item.timeText}}</text>
+            <text class="meta-scene">{{item.sceneSummary}}</text>
+          </view>
+          <button
+            wx:if="{{planShareEnabled}}"
+            class="card-share"
+            size="mini"
+            open-type="share"
+            data-recommendation-id="{{item.recommendationId}}"
+            data-entry="accepted"
+            hover-class="tap-hover"
+            aria-label="分享"
+          ><image class="ui-icon ui-icon--md" src="/assets/images/icons/share-export-green.png" mode="aspectFit" aria-hidden="true"/></button>
         </view>
-        <button
-          wx:if="{{planShareEnabled}}"
-          class="card-share"
-          size="mini"
-          open-type="share"
-          data-recommendation-id="{{item.recommendationId}}"
-          data-entry="accepted"
-          hover-class="tap-hover"
-          aria-label="分享"
-        ><image class="ui-icon ui-icon--md" src="/assets/images/icons/share-export-green.png" mode="aspectFit" aria-hidden="true"/></button>
       </view>
       <view class="chips">
         <view

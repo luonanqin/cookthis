@@ -138,9 +138,23 @@ function blankMember() {
     avoids: [],
     avoidChecked: {},
     avoidsNone: false,
+    saved: false,
     warnFields: {},
     warnPulse: false
   })
+}
+
+/** 用于对比是否改过（展开已有成员时） */
+function memberEditSnapshot(m) {
+  if (!m) return ''
+  const avoids = (m.avoids || []).slice().sort()
+  return [
+    String(m.name || '').trim(),
+    m.ageBand || '',
+    m.taste || 'normal',
+    m.avoidsNone ? '1' : '0',
+    avoids.join(',')
+  ].join('|')
 }
 
 function memberMissingFields(m) {
@@ -171,6 +185,9 @@ Page({
     tastes: TASTES,
     draftMembers: [],
     expandedKey: '',
+    pendingRemoveKey: '',
+    /** 展开编辑时是否显示「保存」（新成员 / 已有成员有改动） */
+    showMemberSave: false,
     familyAvoids: [],
     familyAvoidChecked: {},
     noneAvoidChecked: false,
@@ -201,11 +218,13 @@ Page({
 
   onLoad(query) {
     const first = blankMember()
+    this._memberEditBaseline = memberEditSnapshot(first)
     this.setData({
       busy: false,
       step: 0,
       draftMembers: [first],
-      expandedKey: first.key
+      expandedKey: first.key,
+      showMemberSave: true
     })
     this._restart = !!(query && (query.restart === '1' || query.restart === 'true'))
     this._cookSkillSkipped = false
@@ -222,6 +241,16 @@ Page({
     if (this.data.busy) this.setData({ busy: false })
   },
 
+  _refreshMemberSaveVisible(m) {
+    if (!m || this.data.expandedKey !== m.key) {
+      return { showMemberSave: false }
+    }
+    // 从未点过保存的新成员：始终可保存；已有成员仅改动后出现
+    if (!m.saved) return { showMemberSave: true }
+    const dirty = memberEditSnapshot(m) !== (this._memberEditBaseline || '')
+    return { showMemberSave: dirty }
+  },
+
   _patchMember(key, patch) {
     const draftMembers = (this.data.draftMembers || []).slice()
     const idx = draftMembers.findIndex((m) => m.key === key)
@@ -229,7 +258,8 @@ Page({
     draftMembers[idx] = decorateMember(
       Object.assign({}, draftMembers[idx], patch, { warnFields: {}, warnPulse: false })
     )
-    this.setData({ draftMembers })
+    const saveVis = this._refreshMemberSaveVisible(draftMembers[idx])
+    this.setData(Object.assign({ draftMembers }, saveVis))
     this._refreshHouseholdPreview()
   },
 
@@ -318,44 +348,121 @@ Page({
     if (!list.length) return false
     for (let i = 0; i < list.length; i++) {
       if (!isMemberComplete(list[i])) {
-        this.setData({ expandedKey: list[i].key })
-        this._flashWarn(list[i].key)
+        const m = list[i]
+        this._memberEditBaseline = memberEditSnapshot(m)
+        this.setData(
+          Object.assign(
+            { expandedKey: m.key, pendingRemoveKey: '' },
+            this._refreshMemberSaveVisible(m)
+          )
+        )
+        this._flashWarn(m.key)
         return false
       }
     }
+    // 全部完整：展开中的卡默认保存并收起（含仅一位未点「保存」直接下一步）
+    this._autoSaveExpandedIfComplete()
     return true
+  },
+
+  /** 展开卡完整则标记已保存并收起（不新开输入框） */
+  _autoSaveExpandedIfComplete() {
+    const key = this.data.expandedKey
+    if (!key) return true
+    const list = (this.data.draftMembers || []).slice()
+    const idx = list.findIndex((m) => m.key === key)
+    if (idx < 0) return true
+    if (!isMemberComplete(list[idx])) return false
+    list[idx] = decorateMember(Object.assign({}, list[idx], { saved: true }))
+    this._memberEditBaseline = ''
+    this.setData({
+      draftMembers: list,
+      expandedKey: '',
+      showMemberSave: false,
+      pendingRemoveKey: ''
+    })
+    this._refreshHouseholdPreview()
+    return true
+  },
+
+  onSaveMember() {
+    if (!this.data.expandedKey) return
+    if (!this._ensureExpandedComplete()) return
+    this._autoSaveExpandedIfComplete()
   },
 
   onExpandMember(e) {
     const key = e.currentTarget.dataset.key
     if (!key || key === this.data.expandedKey) return
     if (!this._ensureExpandedComplete()) return
-    this.setData({ expandedKey: key })
+    // 离开当前展开卡时若已完整，先默认保存收起
+    if (this.data.expandedKey) this._autoSaveExpandedIfComplete()
+    const m = (this.data.draftMembers || []).find((x) => x.key === key)
+    if (!m) return
+    this._memberEditBaseline = memberEditSnapshot(m)
+    this.setData(
+      Object.assign(
+        {
+          expandedKey: key,
+          pendingRemoveKey: ''
+        },
+        this._refreshMemberSaveVisible(m)
+      )
+    )
   },
 
   onAddMember() {
-    if (!this._ensureExpandedComplete()) return
+    if (this.data.expandedKey && !this._ensureExpandedComplete()) return
+    if (this.data.expandedKey) this._autoSaveExpandedIfComplete()
     const next = blankMember()
     const draftMembers = (this.data.draftMembers || []).concat([next])
+    this._memberEditBaseline = memberEditSnapshot(next)
     this.setData({
       draftMembers,
-      expandedKey: next.key
+      expandedKey: next.key,
+      pendingRemoveKey: '',
+      showMemberSave: true
     })
     this._refreshHouseholdPreview()
   },
 
-  onRemoveMember(e) {
+  onAskRemoveMember(e) {
     const key = e.currentTarget.dataset.key
+    if (!key) return
+    if ((this.data.draftMembers || []).length <= 1) {
+      wx.showToast({ title: '至少保留一位', icon: 'none' })
+      return
+    }
+    this.setData({ pendingRemoveKey: key })
+  },
+
+  onCancelRemoveMember() {
+    this.setData({ pendingRemoveKey: '' })
+  },
+
+  onConfirmRemoveMember(e) {
+    const key = e.currentTarget.dataset.key
+    if (!key || this.data.pendingRemoveKey !== key) {
+      this.setData({ pendingRemoveKey: '' })
+      return
+    }
     const list = this.data.draftMembers || []
     if (list.length <= 1) {
       wx.showToast({ title: '至少保留一位', icon: 'none' })
+      this.setData({ pendingRemoveKey: '' })
       return
     }
     const draftMembers = list.filter((m) => m.key !== key)
     // 删掉当前展开卡时不自动展开其它卡，保持全部收起
     const expandedKey =
       this.data.expandedKey === key ? '' : this.data.expandedKey
-    this.setData({ draftMembers, expandedKey })
+    if (this.data.expandedKey === key) this._memberEditBaseline = ''
+    this.setData({
+      draftMembers,
+      expandedKey,
+      pendingRemoveKey: '',
+      showMemberSave: expandedKey ? this.data.showMemberSave : false
+    })
     this._refreshHouseholdPreview()
   },
 

@@ -1,126 +1,160 @@
 <view class="page {{typeScaleClass}}">
   <page-header title="开始设置" subtitle="先记下家里几口人、忌口和口味" show-back="{{false}}" />
   <view class="wrap">
-  <view class="progress">步骤 {{step + 1}} / {{steps.length}} · {{steps[step]}}</view>
+  <view
+    class="progress {{(step === 2 && warnFamilyAvoids) || (step === 3 && warnCity) || (step === 4 && warnCookSkill) ? 'title-warn' : ''}} {{((step === 2 && warnFamilyAvoids) || (step === 3 && warnCity) || (step === 4 && warnCookSkill)) && warnPulse ? 'title-pulse' : ''}}"
+  >步骤 {{step + 1}} / {{steps.length}} · {{steps[step]}}</view>
 
   <block wx:if="{{step === 0}}">
     <view class="section">
-      <view class="section-title">家庭成员</view>
       <view class="household">{{householdPreview}}</view>
 
-      <view class="member-block" wx:for="{{draftMembers}}" wx:key="key">
-        <!-- 收起：同「我的」摘要行 -->
-        <view
-          wx:if="{{expandedKey !== item.key}}"
-          class="member-card"
-          data-key="{{item.key}}"
-          bindtap="onExpandMember"
-        >
-          <view class="member-main">
-            <text class="member-name">{{item.title}}</text>
-            <text class="member-meta">{{item.ageLabel}} · {{item.tasteLabel}} · 忌口{{item.avoidLabel}}</text>
-          </view>
-          <text
-            class="member-del"
-            wx:if="{{draftMembers.length > 1}}"
-            data-key="{{item.key}}"
-            catchtap="onRemoveMember"
-          >删</text>
-        </view>
-
-        <!-- 展开：完整表单，无确定按钮 -->
-        <view wx:else class="member-editor">
-          <view class="member-editor-head">
-            <text class="member-editor-title">{{item.title}}</text>
+      <!-- 展开编辑始终置顶，已完成成员排在下方 -->
+      <block wx:for="{{draftMembers}}" wx:key="key">
+        <view class="member-block" wx:if="{{expandedKey === item.key}}">
+          <view class="member-editor">
+            <view class="member-editor-head">
+              <text class="member-editor-title">{{item.title}}</text>
+              <view class="member-del-wrap">
+                <block wx:if="{{pendingRemoveKey === item.key}}">
+                  <text class="member-del-cancel" catchtap="onCancelRemoveMember">取消</text>
+                  <text
+                    class="member-del-confirm"
+                    data-key="{{item.key}}"
+                    catchtap="onConfirmRemoveMember"
+                  >确认删除</text>
+                </block>
+                <block wx:else>
+                  <text
+                    wx:if="{{showMemberSave}}"
+                    class="member-save"
+                    catchtap="onSaveMember"
+                  >保存</text>
+                  <text
+                    wx:if="{{draftMembers.length > 1}}"
+                    class="member-del"
+                    data-key="{{item.key}}"
+                    catchtap="onAskRemoveMember"
+                  >删除</text>
+                </block>
+              </view>
+            </view>
             <text
-              class="member-del"
-              wx:if="{{draftMembers.length > 1}}"
-              data-key="{{item.key}}"
-              catchtap="onRemoveMember"
-            >删</text>
-          </view>
-          <text
-            class="form-label {{item.warnFields.name ? 'title-warn' : ''}} {{item.warnFields.name && item.warnPulse ? 'title-pulse' : ''}}"
-          >称呼</text>
-          <view class="editor-input-box">
-            <view class="editor-input-field">
-              <input
-                class="editor-input-inner"
-                style="width: 72rpx;"
-                placeholder="称呼"
-                value="{{item.name}}"
-                data-key="{{item.key}}"
-                bindinput="onMemberName"
-              />
+              class="form-label {{item.warnFields.name ? 'title-warn' : ''}} {{item.warnFields.name && item.warnPulse ? 'title-pulse' : ''}}"
+            >称呼</text>
+            <view class="editor-input-box">
+              <view class="editor-input-field">
+                <input
+                  class="editor-input-inner"
+                  style="width: 72rpx;"
+                  placeholder="称呼"
+                  value="{{item.name}}"
+                  data-key="{{item.key}}"
+                  bindinput="onMemberName"
+                />
+              </view>
+              <view class="editor-input-quicks">
+                <view
+                  class="chip chip-mini"
+                  wx:for="{{item.nameQuickOptions}}"
+                  wx:for-item="qn"
+                  wx:key="*this"
+                  data-key="{{item.key}}"
+                  data-name="{{qn}}"
+                  bindtap="onPickQuickName"
+                >{{qn}}</view>
+              </view>
             </view>
-            <view class="editor-input-quicks">
+            <text
+              class="form-label {{item.warnFields.age ? 'title-warn' : ''}} {{item.warnFields.age && item.warnPulse ? 'title-pulse' : ''}}"
+            >年龄段</text>
+            <view class="chips">
               <view
-                class="chip chip-mini"
-                wx:for="{{item.nameQuickOptions}}"
-                wx:for-item="qn"
-                wx:key="*this"
+                class="chip {{item.ageBand === ab.id ? 'on' : ''}}"
+                wx:for="{{ageBands}}"
+                wx:for-item="ab"
+                wx:key="id"
                 data-key="{{item.key}}"
-                data-name="{{qn}}"
-                bindtap="onPickQuickName"
-              >{{qn}}</view>
+                data-id="{{ab.id}}"
+                bindtap="onPickAge"
+              >{{ab.label}}</view>
             </view>
-          </view>
-          <text
-            class="form-label {{item.warnFields.age ? 'title-warn' : ''}} {{item.warnFields.age && item.warnPulse ? 'title-pulse' : ''}}"
-          >年龄段</text>
-          <view class="chips">
-            <view
-              class="chip {{item.ageBand === ab.id ? 'on' : ''}}"
-              wx:for="{{ageBands}}"
-              wx:for-item="ab"
-              wx:key="id"
-              data-key="{{item.key}}"
-              data-id="{{ab.id}}"
-              bindtap="onPickAge"
-            >{{ab.label}}</view>
-          </view>
-          <text class="form-label">口味</text>
-          <view class="chips">
-            <view
-              class="chip {{item.taste === tb.id ? 'on' : ''}}"
-              wx:for="{{tastes}}"
-              wx:for-item="tb"
-              wx:key="id"
-              data-key="{{item.key}}"
-              data-id="{{tb.id}}"
-              bindtap="onPickTaste"
-            >{{tb.label}}</view>
-          </view>
-          <text
-            class="form-label {{item.warnFields.avoids ? 'title-warn' : ''}} {{item.warnFields.avoids && item.warnPulse ? 'title-pulse' : ''}}"
-          >个人忌口</text>
-          <view class="chips">
-            <view
-              class="chip {{item.avoidsNone ? 'on' : ''}}"
-              data-key="{{item.key}}"
-              data-id="none"
-              bindtap="onToggleMemberAvoid"
-            >无</view>
-            <view
-              class="chip {{item.avoidChecked[ao.id] ? 'on' : ''}}"
-              wx:for="{{avoidOptions}}"
-              wx:for-item="ao"
-              wx:key="id"
-              data-key="{{item.key}}"
-              data-id="{{ao.id}}"
-              bindtap="onToggleMemberAvoid"
-            >{{ao.label}}</view>
+            <text class="form-label">口味</text>
+            <view class="chips">
+              <view
+                class="chip {{item.taste === tb.id ? 'on' : ''}}"
+                wx:for="{{tastes}}"
+                wx:for-item="tb"
+                wx:key="id"
+                data-key="{{item.key}}"
+                data-id="{{tb.id}}"
+                bindtap="onPickTaste"
+              >{{tb.label}}</view>
+            </view>
+            <text
+              class="form-label {{item.warnFields.avoids ? 'title-warn' : ''}} {{item.warnFields.avoids && item.warnPulse ? 'title-pulse' : ''}}"
+            >个人忌口</text>
+            <view class="chips">
+              <view
+                class="chip {{item.avoidsNone ? 'on' : ''}}"
+                data-key="{{item.key}}"
+                data-id="none"
+                bindtap="onToggleMemberAvoid"
+              >无</view>
+              <view
+                class="chip {{item.avoidChecked[ao.id] ? 'on' : ''}}"
+                wx:for="{{avoidOptions}}"
+                wx:for-item="ao"
+                wx:key="id"
+                data-key="{{item.key}}"
+                data-id="{{ao.id}}"
+                bindtap="onToggleMemberAvoid"
+              >{{ao.label}}</view>
+            </view>
           </view>
         </view>
-      </view>
+      </block>
 
       <view class="link-inline" bindtap="onAddMember">＋ 添加家庭成员</view>
+
+      <block wx:for="{{draftMembers}}" wx:key="key">
+        <view
+          class="member-block"
+          wx:if="{{expandedKey !== item.key}}"
+        >
+          <view
+            class="member-card"
+            data-key="{{item.key}}"
+            bindtap="onExpandMember"
+          >
+            <view class="member-main">
+              <text class="member-name">{{item.title}}</text>
+              <text class="member-meta">{{item.ageLabel}} · {{item.tasteLabel}} · 忌口{{item.avoidLabel}}</text>
+            </view>
+            <view class="member-del-wrap" wx:if="{{draftMembers.length > 1}}">
+              <block wx:if="{{pendingRemoveKey === item.key}}">
+                <text class="member-del-cancel" catchtap="onCancelRemoveMember">取消</text>
+                <text
+                  class="member-del-confirm"
+                  data-key="{{item.key}}"
+                  catchtap="onConfirmRemoveMember"
+                >确认删除</text>
+              </block>
+              <text
+                wx:else
+                class="member-del"
+                data-key="{{item.key}}"
+                catchtap="onAskRemoveMember"
+              >删除</text>
+            </view>
+          </view>
+        </view>
+      </block>
     </view>
   </block>
 
   <block wx:elif="{{step === 1}}">
     <view class="section">
-      <view class="section-title">日常搭配</view>
       <view class="household">{{householdPreview}}</view>
       <view class="combo-row">
         <picker mode="selector" range="{{comboRange}}" value="{{meatIndex}}" data-field="meat" bindchange="onComboPick">
@@ -138,7 +172,6 @@
 
   <block wx:elif="{{step === 2}}">
     <view class="section">
-      <view class="section-title {{warnFamilyAvoids ? 'title-warn' : ''}} {{warnFamilyAvoids && warnPulse ? 'title-pulse' : ''}}">家庭忌口</view>
       <view class="chips">
         <view
           class="chip {{noneAvoidChecked ? 'on' : ''}}"
@@ -158,10 +191,7 @@
 
   <block wx:elif="{{step === 3}}">
     <view class="section">
-      <view class="section-head">
-        <view class="section-title {{warnCity ? 'title-warn' : ''}} {{warnCity && warnPulse ? 'title-pulse' : ''}}">所在城市</view>
-        <text class="section-aside">仅用于匹配当地常见食材</text>
-      </view>
+      <view class="section-aside section-aside--solo">仅用于匹配当地常见食材</view>
       <picker mode="region" level="city" value="{{region}}" bindchange="onRegionChange">
         <view class="picker-row">{{city || '点此选择城市匹配当地食材'}}</view>
       </picker>
@@ -170,10 +200,7 @@
 
   <block wx:elif="{{step === 4}}">
     <view class="section">
-      <view class="section-head">
-        <view class="section-title {{warnCookSkill ? 'title-warn' : ''}} {{warnCookSkill && warnPulse ? 'title-pulse' : ''}}">做饭水平</view>
-        <text class="section-aside">选择会做或者没做过但觉得简单的</text>
-      </view>
+      <view class="section-aside section-aside--solo">选择会做或者没做过但觉得简单的</view>
       <block wx:for="{{probeGroups}}" wx:key="id">
         <view class="sub">{{item.title}}</view>
         <view class="chips">

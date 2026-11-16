@@ -82,7 +82,7 @@
           confirm-type="done"
           bindconfirm="addManual"
         />
-        <button size="mini" type="primary" bindtap="addManual">添加</button>
+        <button size="mini" type="primary" bindtap="addManual">添 加</button>
       </view>
       <view
         wx:for="{{manuals}}"
@@ -215,20 +215,24 @@
     <view class="custom-slots-panel" catchtap="noop" catchtouchmove="true">
       <view class="custom-slots-title">自定义几顿</view>
       <view class="custom-slot-row">
-        <text class="custom-slot-name">午饭</text>
-        <text class="step-btn" data-which="lunch" data-delta="-1" bindtap="bumpCustomDraft">−</text>
-        <text class="slot-count">{{draftLunchCount}}</text>
-        <text class="step-btn" data-which="lunch" data-delta="1" bindtap="bumpCustomDraft">+</text>
+        <view class="custom-slot-cluster">
+          <text class="custom-slot-name">午饭</text>
+          <text class="step-btn" data-which="lunch" data-delta="-1" bindtap="bumpCustomDraft">−</text>
+          <text class="slot-count">{{draftLunchCount}}</text>
+          <text class="step-btn" data-which="lunch" data-delta="1" bindtap="bumpCustomDraft">+</text>
+        </view>
       </view>
       <view class="custom-slot-row">
-        <text class="custom-slot-name">晚饭</text>
-        <text class="step-btn" data-which="dinner" data-delta="-1" bindtap="bumpCustomDraft">−</text>
-        <text class="slot-count">{{draftDinnerCount}}</text>
-        <text class="step-btn" data-which="dinner" data-delta="1" bindtap="bumpCustomDraft">+</text>
+        <view class="custom-slot-cluster">
+          <text class="custom-slot-name">晚饭</text>
+          <text class="step-btn" data-which="dinner" data-delta="-1" bindtap="bumpCustomDraft">−</text>
+          <text class="slot-count">{{draftDinnerCount}}</text>
+          <text class="step-btn" data-which="dinner" data-delta="1" bindtap="bumpCustomDraft">+</text>
+        </view>
       </view>
       <view class="custom-slots-actions">
-        <button size="mini" class="btn-outline custom-slots-btn" bindtap="onCloseCustomSlots">取 消</button>
-        <button size="mini" type="primary" class="custom-slots-btn" bindtap="onConfirmCustomSlots">确 认</button>
+        <button size="mini" class="btn-outline" bindtap="onCloseCustomSlots">取 消</button>
+        <button size="mini" type="primary" bindtap="onConfirmCustomSlots">确 认</button>
       </view>
     </view>
   </view>
@@ -321,14 +325,14 @@
           class="btn-outline"
           disabled="{{marketScaleBusy}}"
           bindtap="onMarketScaleSkip"
-        >跳过</button>
+        >跳 过</button>
         <button
           size="mini"
           type="{{marketScaleHighlight ? 'primary' : 'default'}}"
           class="{{marketScaleHighlight ? '' : 'btn-outline btn-confirm-disabled'}}"
           disabled="{{marketScaleBusy || !marketScaleHighlight}}"
           bindtap="onMarketScaleConfirm"
-        >确认</button>
+        >确 认</button>
       </view>
     </view>
   </view>
