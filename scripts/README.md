@@ -185,6 +185,21 @@ node scripts/import-recipes.js
 
 ---
 
+## 用户序号 userNo 回填
+
+| 脚本 | 作用 |
+|------|------|
+| `backfill-user-no.js` | 给尚无合法 `userNo` 的老用户按 `createdAt`/`uid` 连续赋号（默认 dry-run） |
+
+操作说明见 [`backfill-user-no.md`](./backfill-user-no.md)。**禁止**改已有号。生产 `--apply` 是人工步骤。
+
+```bash
+node scripts/backfill-user-no.js --users-json /tmp/users.json   # 只看报告
+node --test scripts/backfill-user-no.test.js
+```
+
+---
+
 ## 运营反馈
 
 | 脚本 | 作用 |
