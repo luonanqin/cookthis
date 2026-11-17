@@ -177,7 +177,7 @@
       "番茄",
       "鸡蛋"
     ],
-    "meatVeg": "meat",
+    "meatVeg": "veg",
     "cuisineTags": [
       "home_style"
     ],
@@ -894,7 +894,7 @@
       "丝瓜",
       "鸡蛋"
     ],
-    "meatVeg": "meat",
+    "meatVeg": "veg",
     "cuisineTags": [
       "cantonese",
       "zhejiang",
@@ -7022,7 +7022,7 @@
       "火腿",
       "杭白菜"
     ],
-    "meatVeg": "meat",
+    "meatVeg": "veg",
     "cuisineTags": [
       "anhui",
       "beijing",
@@ -8839,7 +8839,7 @@
     "seasonings": [
       "姜"
     ],
-    "meatVeg": "meat",
+    "meatVeg": "veg",
     "tasteTags": [
       "normal"
     ],
@@ -20605,7 +20605,7 @@
       "鸡蛋"
     ],
     "seasonings": [],
-    "meatVeg": "meat",
+    "meatVeg": "veg",
     "tasteTags": [
       "normal"
     ],
@@ -21027,7 +21027,7 @@
       "鸡蛋"
     ],
     "seasonings": [],
-    "meatVeg": "meat",
+    "meatVeg": "veg",
     "tasteTags": [
       "normal"
     ],
@@ -23219,7 +23219,7 @@
       "鸡蛋"
     ],
     "seasonings": [],
-    "meatVeg": "meat",
+    "meatVeg": "veg",
     "tasteTags": [
       "normal"
     ],
@@ -24470,7 +24470,7 @@
       "鸡蛋"
     ],
     "seasonings": [],
-    "meatVeg": "meat",
+    "meatVeg": "veg",
     "tasteTags": [
       "normal"
     ],
@@ -26016,7 +26016,7 @@
       "鸡蛋"
     ],
     "seasonings": [],
-    "meatVeg": "meat",
+    "meatVeg": "veg",
     "tasteTags": [
       "normal"
     ],
@@ -33256,7 +33256,7 @@
     "seasonings": [
       "姜"
     ],
-    "meatVeg": "meat",
+    "meatVeg": "veg",
     "tasteTags": [
       "normal"
     ],
