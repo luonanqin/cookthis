@@ -31,6 +31,17 @@ function emptyMessage(reason) {
   return EMPTY_REASONS[reason] || String(reason)
 }
 
+function plansHaveSoftLock(plans) {
+  for (const p of plans || []) {
+    for (const m of p.meals || []) {
+      for (const d of m.dishes || []) {
+        if (d && d.softLocked) return true
+      }
+    }
+  }
+  return false
+}
+
 /** 套数诊断 → 打点 props（与云端 planFill 对齐） */
 function planFillTrackProps(planFill) {
   if (!planFill || typeof planFill !== 'object') return {}
@@ -201,7 +212,8 @@ Page({
     planShareEnabled: PLAN_SHARE_ENABLED,
     showSwapCap: false,
     swapCapUsed: 0,
-    swapCapLimit: 3
+    swapCapLimit: 3,
+    showDishCapTip: false
   },
 
   _swapCooldownUntil: 0,
@@ -344,13 +356,15 @@ Page({
       } catch (e) {}
     }
     const summaryLines = formatSceneSummaryLines(scene)
+    const showDishCapTip = !empty && (!!(snap && snap.dishSoftCap) || plansHaveSoftLock(raw))
     this.setData({
       plans,
       empty,
       emptyText: emptyMessage(snap && snap.emptyReason),
       requestId: (snap && snap.requestId) || '',
       sceneSummaryLine1: summaryLines.line1,
-      sceneSummaryLine2: summaryLines.line2
+      sceneSummaryLine2: summaryLines.line2,
+      showDishCapTip
     })
     const fillProps = planFillTrackProps(snap && snap.planFill)
     if (empty) {
@@ -485,7 +499,8 @@ Page({
           selectedIngredients: selected,
           emptyReason: result.emptyReason || null,
           swapCount: 0,
-          planFill: result.planFill || null
+          planFill: result.planFill || null,
+          dishSoftCap: result.dishSoftCap || null
         }
         writeSnap(snap)
         this.applySnap(snap)
@@ -645,7 +660,8 @@ Page({
           plans: newPlans,
           emptyReason: null,
           swapCount: result.swapCount,
-          planFill: result.planFill || null
+          planFill: result.planFill || null,
+          dishSoftCap: result.dishSoftCap || null
         })
         writeSnap(snap)
         this.applySnap(snap)
@@ -741,6 +757,14 @@ Page({
   onSwapCapClose() {
     tapFeedback()
     this.setData({ showSwapCap: false })
+  },
+
+  onDishCapGoMember() {
+    tapFeedback()
+    track('dish_cap_go_member')
+    wx.navigateTo({
+      url: '/pages/membership/index?from=dish_cap'
+    })
   },
 
   onShareAppMessage(res) {

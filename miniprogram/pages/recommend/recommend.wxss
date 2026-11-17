@@ -67,6 +67,17 @@
   text-decoration: underline;
 }
 
+.dish-cap-banner {
+  margin-bottom: 16rpx;
+  padding: 12rpx 16rpx;
+  text-align: center;
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+  color: var(--color-text-secondary, #888);
+  background: var(--color-primary-soft);
+  border-radius: var(--radius-card);
+}
+
 .empty {
   padding: 80rpx 24rpx;
   text-align: center;
@@ -230,6 +241,19 @@
   font-weight: var(--fw-regular);
   line-height: 1.45;
   word-break: break-word;
+}
+
+.dish-name--locked {
+  color: var(--color-text-secondary, #999);
+  opacity: 0.55;
+}
+
+.dish-locked-hint {
+  display: block;
+  margin-top: 2rpx;
+  font-size: var(--fs-xs);
+  color: var(--color-text-secondary, #999);
+  line-height: 1.3;
 }
 
 .plan-ings {

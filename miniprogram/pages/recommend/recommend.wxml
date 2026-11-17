@@ -26,6 +26,15 @@
       </view>
       <text class="scene-bar-edit" hover-class="tap-hover" hover-stay-time="80" bindtap="onBack">修改 ></text>
     </view>
+    <view
+      wx:if="{{showDishCapTip}}"
+      class="dish-cap-banner"
+      hover-class="tap-hover"
+      hover-stay-time="80"
+      bindtap="onDishCapGoMember"
+    >
+      <text>今日菜数较多，开通会员可一次看全</text>
+    </view>
     <view class="plan" wx:for="{{plans}}" wx:key="planIndex">
       <view class="plan-head">
         <view class="plan-title">方案 {{item.planIndex + 1}}</view>
@@ -56,12 +65,15 @@
           <view class="dish-row" wx:for="{{meal.dishGroups}}" wx:for-item="group" wx:key="type">
             <text class="type-badge type-{{group.type}}">{{group.label}}</text>
             <view class="dish-names">
-              <text
-                class="dish-name"
+              <view
+                class="dish-name {{dish.softLocked ? 'dish-name--locked' : ''}}"
                 wx:for="{{group.dishes}}"
                 wx:for-item="dish"
                 wx:key="name"
-              >{{dish.name}}</text>
+              >
+                <text>{{dish.name}}</text>
+                <text wx:if="{{dish.softLocked}}" class="dish-locked-hint">会员可展开</text>
+              </view>
             </view>
           </view>
         </view>

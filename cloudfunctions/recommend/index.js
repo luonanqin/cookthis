@@ -40,10 +40,12 @@ const { suggestPartyCombo } = require('./suggestCombo.js')
 // Vendored: keep in sync with cloudfunctions/_shared/cookSkill.js
 const { recipeDifficultyInFilter } = require('./cookSkill.js')
 // Vendored: keep in sync with cloudfunctions/_shared/membershipLogic.js
-require('./membershipLogic.js')
+const { isMemberActive } = require('./membershipLogic.js')
 // Vendored: keep in sync with cloudfunctions/_shared/swapQuota.js
 require('./swapQuota.js')
 const { evaluateSwapAccess, buildSwapQuotaUserPatch } = require('./swapGate.js')
+// Vendored: keep in sync with cloudfunctions/_shared/dishSoftCap.js
+const { applyDailyDishSoftLock } = require('./dishSoftCap.js')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
@@ -109,6 +111,26 @@ function collectPlanRecipeIds(plans) {
     }
   }
   return ids
+}
+
+/** Soft-lock extra dishes on each card separately (cap is per plan, not across both). */
+function applyDailyDishSoftLockPerPlan(plans, opts) {
+  const list = Array.isArray(plans) ? plans : []
+  let lockedCount = 0
+  let limit
+  const next = []
+  for (const plan of list) {
+    const locked = applyDailyDishSoftLock([plan], opts)
+    if (locked.softCapped) {
+      lockedCount += locked.lockedCount || 0
+      if (locked.limit != null) limit = locked.limit
+    }
+    next.push((locked.plans && locked.plans[0]) || plan)
+  }
+  return {
+    plans: next,
+    dishSoftCap: lockedCount > 0 ? { limit: limit, lockedCount } : null
+  }
 }
 
 async function resolveUid(openid) {
@@ -501,11 +523,12 @@ async function handleCreate(event, uid, user) {
   }
 
   const city = user.city || null
-  const [batch, ingredientsByName, recent, members] = await Promise.all([
+  const [batch, ingredientsByName, recent, members, membership] = await Promise.all([
     loadRecipeBatch({ city, excludeIds: [], cookSkill: user.cookSkill }),
     loadIngredientsCached(),
     loadRecentMealSignals(uid),
-    loadMembers(uid)
+    loadMembers(uid),
+    loadMembership(uid)
   ])
 
   const diners = dinersForScene(members, scene)
@@ -633,7 +656,17 @@ async function handleCreate(event, uid, user) {
     }
   })
 
-  return { ok: true, requestId, plans, planFill }
+  const locked = applyDailyDishSoftLockPerPlan(plans, {
+    isMember: isMemberActive(membership, Date.now()),
+    mealType: scene.mealType
+  })
+  return {
+    ok: true,
+    requestId,
+    plans: locked.plans,
+    planFill,
+    dishSoftCap: locked.dishSoftCap
+  }
 }
 
 async function handleSwapOrReject(event, uid, user, kind) {
@@ -823,7 +856,18 @@ async function handleSwapOrReject(event, uid, user, kind) {
     })
   })
 
-  return { ok: true, requestId, plans, swapCount, planFill }
+  const locked = applyDailyDishSoftLockPerPlan(plans, {
+    isMember: isMemberActive(membership, Date.now()),
+    mealType: doc.scene && doc.scene.mealType
+  })
+  return {
+    ok: true,
+    requestId,
+    plans: locked.plans,
+    swapCount,
+    planFill,
+    dishSoftCap: locked.dishSoftCap
+  }
 }
 
 async function handleAccept(event, uid, user) {
