@@ -57,6 +57,25 @@ function formatTimeText(value) {
   )
 }
 
+function groupDishesByMeal(dishes) {
+  const groups = []
+  const indexByLabel = Object.create(null)
+  ;(dishes || []).forEach((d) => {
+    if (!d) return
+    const mealLabel = d.mealLabel != null ? String(d.mealLabel) : ''
+    if (indexByLabel[mealLabel] == null) {
+      indexByLabel[mealLabel] = groups.length
+      groups.push({
+        mealLabel,
+        displayLabel: mealLabel || '本顿',
+        dishes: []
+      })
+    }
+    groups[indexByLabel[mealLabel]].dishes.push(d)
+  })
+  return groups
+}
+
 function mapItem(raw) {
   const source = raw && raw.source === 'shared' ? 'shared' : 'own'
   const dishes = (raw && raw.dishes) || []
@@ -64,6 +83,13 @@ function mapItem(raw) {
   const recommendationId = (raw && raw.recommendationId) || null
   const requestId = (raw && raw.requestId) || null
   const sortAt = source === 'shared' ? raw.savedAt : raw.acceptedAt
+  const mappedDishes = dishes.map((d) => ({
+    name: d.name,
+    recipeId: d.recipeId,
+    meatVeg: d.meatVeg,
+    mealLabel: d.mealLabel != null ? String(d.mealLabel) : '',
+    ate: source === 'shared' ? false : !!d.ate
+  }))
   return {
     source,
     shareId,
@@ -83,12 +109,8 @@ function mapItem(raw) {
           ? '来自 ' + raw.sharerNickname
           : '来自好友'
         : formatSceneSummary(raw.scene, { omitSlots: true }),
-    dishes: dishes.map((d) => ({
-      name: d.name,
-      recipeId: d.recipeId,
-      meatVeg: d.meatVeg,
-      ate: source === 'shared' ? false : !!d.ate
-    }))
+    dishes: mappedDishes,
+    mealGroups: groupDishesByMeal(mappedDishes)
   }
 }
 
@@ -555,6 +577,7 @@ Page({
     const dishes = item.dishes.slice()
     dishes[dishIndex] = Object.assign({}, dishes[dishIndex], { ate: !!ate })
     item.dishes = dishes
+    item.mealGroups = groupDishesByMeal(dishes)
     items[itemIndex] = item
     this.setData({ items })
   },

@@ -33,11 +33,16 @@
           <text class="badge">{{item.badge || '分享'}}</text>
         </view>
       </view>
-      <view class="dish-names">
-        <block wx:for="{{item.dishes}}" wx:for-item="d" wx:for-index="dishIdx" wx:key="name">
-          <text wx:if="{{dishIdx > 0}}" class="dish-sep"> · </text>
-          <text class="dish-name-plain">{{d.name}}</text>
-        </block>
+      <view class="meal-body">
+        <view class="meal" wx:for="{{item.mealGroups}}" wx:for-item="g" wx:key="mealLabel">
+          <view class="meal-label">{{g.displayLabel}}</view>
+          <view class="dish-names">
+            <block wx:for="{{g.dishes}}" wx:for-item="d" wx:for-index="dishIdx" wx:key="name">
+              <text wx:if="{{dishIdx > 0}}" class="dish-sep"> · </text>
+              <text class="dish-name-plain">{{d.name}}</text>
+            </block>
+          </view>
+        </view>
       </view>
     </view>
 
@@ -66,23 +71,34 @@
           ><image class="ui-icon ui-icon--md" src="/assets/images/icons/share-export-green.png" mode="aspectFit" aria-hidden="true"/></button>
         </view>
       </view>
-      <view class="chips">
+      <view class="meal-body">
         <view
-          id="{{item.listKey === tipOwnListKey && dishIndex === 0 ? 'tipSpotChip' : ''}}"
-          class="sheet-chip {{d.ate ? 'on' : ''}}"
-          wx:for="{{item.dishes}}"
-          wx:for-item="d"
-          wx:for-index="dishIndex"
-          wx:key="name"
-          data-request-id="{{item.requestId}}"
-          data-recommendation-id="{{item.recommendationId}}"
-          data-name="{{d.name}}"
-          data-ate="{{d.ate}}"
-          bindtap="onToggleDish"
+          class="meal"
+          wx:for="{{item.mealGroups}}"
+          wx:for-item="g"
+          wx:for-index="gIdx"
+          wx:key="mealLabel"
         >
-          <text class="check">{{d.ate ? '✓' : ''}}</text>
-          <text class="sheet-chip-text">{{d.name}}</text>
-          <text wx:if="{{d.ate}}" class="ate-tag">吃过</text>
+          <view class="meal-label">{{g.displayLabel}}</view>
+          <view class="chips">
+            <view
+              id="{{item.listKey === tipOwnListKey && gIdx === 0 && dishIndex === 0 ? 'tipSpotChip' : ''}}"
+              class="sheet-chip {{d.ate ? 'on' : ''}}"
+              wx:for="{{g.dishes}}"
+              wx:for-item="d"
+              wx:for-index="dishIndex"
+              wx:key="name"
+              data-request-id="{{item.requestId}}"
+              data-recommendation-id="{{item.recommendationId}}"
+              data-name="{{d.name}}"
+              data-ate="{{d.ate}}"
+              bindtap="onToggleDish"
+            >
+              <text class="check">{{d.ate ? '✓' : ''}}</text>
+              <text class="sheet-chip-text">{{d.name}}</text>
+              <text wx:if="{{d.ate}}" class="ate-tag">吃过</text>
+            </view>
+          </view>
         </view>
       </view>
     </view>

@@ -165,16 +165,41 @@
   border: none !important;
 }
 
-.dish-names {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
+.meal-body {
   padding: 8rpx 24rpx 20rpx;
   background: var(--color-surface);
   border: 1rpx solid var(--color-border);
   border-top: none;
   border-radius: 0 0 var(--radius-card) var(--radius-card);
   box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+}
+
+.meal + .meal {
+  margin-top: 16rpx;
+}
+
+.meal-label {
+  display: inline-block;
+  margin-bottom: 12rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 8rpx;
+  background: var(--color-primary-soft);
+  color: var(--color-forest);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  line-height: 1.4;
+}
+
+.dish-names {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
 }
 
 .dish-name-plain {
@@ -195,11 +220,10 @@
   gap: 12rpx;
   position: relative;
   z-index: 1;
-  padding: 8rpx 24rpx 24rpx;
-  background: var(--color-surface);
-  border: 1rpx solid var(--color-border);
-  border-top: none;
-  border-radius: 0 0 var(--radius-card) var(--radius-card);
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
   box-sizing: border-box;
 }
 
