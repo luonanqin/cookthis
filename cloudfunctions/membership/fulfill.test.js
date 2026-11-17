@@ -99,6 +99,66 @@ describe('fulfillPaidOrder', () => {
     assert.equal(stacked.membership.tier, 'quarter')
   })
 
+  it('grants once when a paid order has no membership row yet', async () => {
+    const db = createMemoryDb()
+    await seedCreatedOrder(db, {
+      status: 'paid',
+      paidAt: new Date(NOW).toISOString()
+    })
+
+    const first = await fulfillPaidOrder({ db, orderId: 'morder001abc', nowMs: NOW })
+    assert.equal(first.ok, true)
+    const expectedExpiry = computeNewExpiry(null, 31, NOW)
+    assert.equal(first.membership.expiresAt, expectedExpiry)
+
+    const second = await fulfillPaidOrder({
+      db,
+      orderId: 'morder001abc',
+      nowMs: NOW + DAY_MS
+    })
+    assert.equal(second.ok, true)
+    assert.equal(second.membership.expiresAt, expectedExpiry)
+
+    const memberships = await db.collection('memberships').where({ uid: 'user-1' }).get()
+    assert.equal(memberships.data.length, 1)
+    assert.equal(memberships.data[0].expiresAt, expectedExpiry)
+  })
+
+  it('completes grant when paid membership is short of expectedExpiresAt', async () => {
+    const db = createMemoryDb()
+    const expectedExpiry = computeNewExpiry(null, 31, NOW)
+    await seedCreatedOrder(db, {
+      status: 'paid',
+      paidAt: new Date(NOW).toISOString(),
+      expectedExpiresAt: expectedExpiry
+    })
+    await db.collection('memberships').add({
+      data: {
+        uid: 'user-1',
+        tier: 'month',
+        startsAt: new Date(NOW).toISOString(),
+        expiresAt: new Date(NOW + 5 * DAY_MS).toISOString(),
+        updatedAt: new Date(NOW).toISOString()
+      }
+    })
+
+    const first = await fulfillPaidOrder({ db, orderId: 'morder001abc', nowMs: NOW })
+    assert.equal(first.ok, true)
+    assert.equal(first.membership.expiresAt, expectedExpiry)
+
+    const second = await fulfillPaidOrder({
+      db,
+      orderId: 'morder001abc',
+      nowMs: NOW + DAY_MS
+    })
+    assert.equal(second.ok, true)
+    assert.equal(second.membership.expiresAt, expectedExpiry)
+
+    const memberships = await db.collection('memberships').where({ uid: 'user-1' }).get()
+    assert.equal(memberships.data.length, 1)
+    assert.equal(memberships.data[0].expiresAt, expectedExpiry)
+  })
+
   it('rejects non-created unpaid orders and missing orders', async () => {
     const db = createMemoryDb()
     await seedCreatedOrder(db, { status: 'closed' })

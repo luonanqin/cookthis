@@ -126,11 +126,29 @@ describe('getStatus', () => {
 })
 
 describe('push deliver notify', () => {
+  it('rejects client callFunction spoof and does not fulfill', async () => {
+    const db = createMemoryDb()
+    await seedUser(db)
+    const created = await api(db).createOrder('user-1', 'month')
+    const res = await handleMain(
+      { Event: 'xpay_goods_deliver_notify', OutTradeNo: created.orderId },
+      { db, xpay, env: PAY_ENV, nowMs: NOW, wxContext: { OPENID: 'oUser' } }
+    )
+    assert.deepEqual(res, { ok: false, error: 'FORBIDDEN' })
+    const paid = (
+      await db.collection('membership_orders').where({ orderId: created.orderId }).limit(1).get()
+    ).data[0]
+    assert.equal(paid.status, 'created')
+    const memberships = (await db.collection('memberships').where({ uid: 'user-1' }).get()).data
+    assert.equal(memberships.length, 0)
+  })
+
   it('fulfills OutTradeNo and always returns WeChat success shape', async () => {
     const db = createMemoryDb()
     await seedUser(db)
     const created = await api(db).createOrder('user-1', 'month')
     const event = {
+      MsgType: 'event',
       Event: 'xpay_goods_deliver_notify',
       OutTradeNo: created.orderId,
       WeChatPayInfo: { TransactionId: 'wx_push_1' }
@@ -161,7 +179,11 @@ describe('push deliver notify', () => {
   it('still returns success when the order is missing', async () => {
     const db = createMemoryDb()
     const res = await handleMain(
-      { Event: 'xpay_goods_deliver_notify', OutTradeNo: 'missing-order' },
+      {
+        MsgType: 'event',
+        Event: 'xpay_goods_deliver_notify',
+        OutTradeNo: 'missing-order'
+      },
       { db, xpay, env: PAY_ENV, nowMs: NOW, wxContext: {} }
     )
     assert.deepEqual(res, { ErrCode: 0, ErrMsg: 'success' })
@@ -174,7 +196,11 @@ describe('push deliver notify', () => {
       }
     }
     const res = await handleMain(
-      { Event: 'xpay_goods_deliver_notify', OutTradeNo: 'morder001abc' },
+      {
+        MsgType: 'event',
+        Event: 'xpay_goods_deliver_notify',
+        OutTradeNo: 'morder001abc'
+      },
       { db, xpay, env: PAY_ENV, nowMs: NOW, wxContext: {} }
     )
     assert.notEqual(res.ErrCode, 0)

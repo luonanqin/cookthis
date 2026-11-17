@@ -241,13 +241,27 @@ function createMembershipApi(deps) {
   return { getStatus, createOrder, refresh, devGrant }
 }
 
+function isClientSpoofedXpayNotify(wxContext) {
+  return Boolean(wxContext && wxContext.OPENID)
+}
+
+function isLegitimateXpayDeliverPush(eventObj) {
+  if (!eventObj || eventObj.Event !== 'xpay_goods_deliver_notify') return false
+  if (eventObj.MsgType !== 'event') return false
+  return String(eventObj.OutTradeNo || '').trim() !== ''
+}
+
 async function handleMain(event, ctx) {
   const eventObj = event || {}
+  const wxContext = ctx.wxContext || {}
   if (eventObj.Event === 'xpay_goods_deliver_notify') {
+    if (isClientSpoofedXpayNotify(wxContext) || !isLegitimateXpayDeliverPush(eventObj)) {
+      return { ok: false, error: 'FORBIDDEN' }
+    }
     try {
       await fulfillPaidOrder({
         db: ctx.db,
-        orderId: eventObj.OutTradeNo,
+        orderId: String(eventObj.OutTradeNo).trim(),
         wxPayment: eventObj.WeChatPayInfo || {},
         nowMs: ctx.nowMs
       })
@@ -258,7 +272,6 @@ async function handleMain(event, ctx) {
     }
   }
 
-  const wxContext = ctx.wxContext || {}
   const openid = wxContext.OPENID
   if (!openid) return { ok: false, error: 'NO_OPENID' }
   const uid = await resolveUid(ctx.db, openid)
