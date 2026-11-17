@@ -293,7 +293,7 @@
           </view>
           <image
             class="scale-card-icon scale-card-icon--small"
-            src="/assets/images/icons/market-scale-small.png"
+            src="/assets/images/icons/market-scale-small.webp"
             mode="heightFix"
             aria-hidden="true"
           />
@@ -311,7 +311,7 @@
           </view>
           <image
             class="scale-card-icon scale-card-icon--medium"
-            src="/assets/images/icons/market-scale-medium.png"
+            src="/assets/images/icons/market-scale-medium.webp"
             mode="heightFix"
             aria-hidden="true"
           />
@@ -329,7 +329,7 @@
           </view>
           <image
             class="scale-card-icon scale-card-icon--large"
-            src="/assets/images/icons/market-scale-large.png"
+            src="/assets/images/icons/market-scale-large.webp"
             mode="heightFix"
             aria-hidden="true"
           />

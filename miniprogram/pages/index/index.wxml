@@ -4,7 +4,7 @@
     <view class="home-hero">
       <image
         class="home-hero__img"
-        src="/assets/images/home-market-hero.jpg"
+        src="/assets/images/home-market-hero.webp"
         mode="widthFix"
         aria-label="买菜没烦恼，从菜场到餐桌让每天吃饭更简单"
       />
@@ -12,7 +12,7 @@
     </view>
 
     <view class="home-body">
-      <image class="home-question-image" src="/assets/images/home-question-title.jpg" mode="aspectFit" aria-label="不知道今天买什么菜？" />
+      <image class="home-question-image" src="/assets/images/home-question-title.webp" mode="aspectFit" aria-label="不知道今天买什么菜？" />
       <view class="home-sub">选好食材，回家做饭</view>
 
       <view class="home-cta-row">
@@ -172,7 +172,7 @@
           </view>
           <image
             class="scale-card-icon scale-card-icon--small"
-            src="/assets/images/icons/market-scale-small.png"
+            src="/assets/images/icons/market-scale-small.webp"
             mode="heightFix"
             aria-hidden="true"
           />
@@ -190,7 +190,7 @@
           </view>
           <image
             class="scale-card-icon scale-card-icon--medium"
-            src="/assets/images/icons/market-scale-medium.png"
+            src="/assets/images/icons/market-scale-medium.webp"
             mode="heightFix"
             aria-hidden="true"
           />
@@ -208,7 +208,7 @@
           </view>
           <image
             class="scale-card-icon scale-card-icon--large"
-            src="/assets/images/icons/market-scale-large.png"
+            src="/assets/images/icons/market-scale-large.webp"
             mode="heightFix"
             aria-hidden="true"
           />
