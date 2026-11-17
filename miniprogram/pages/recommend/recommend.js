@@ -30,6 +30,21 @@ function emptyMessage(reason) {
   return EMPTY_REASONS[reason] || String(reason)
 }
 
+/** 套数诊断 → 打点 props（与云端 planFill 对齐） */
+function planFillTrackProps(planFill) {
+  if (!planFill || typeof planFill !== 'object') return {}
+  return {
+    planFillAction: planFill.action || null,
+    planFillBefore: planFill.before,
+    planFillCount: planFill.count,
+    planFillTarget: planFill.target,
+    planFillPool: planFill.pool,
+    planFillExhausted: !!planFill.exhausted,
+    planFillRefills: planFill.refills,
+    planUnderfilled: !!planFill.underfilled
+  }
+}
+
 function readSnap() {
   try {
     return wx.getStorageSync(RECOMMEND_KEY) || null
@@ -286,13 +301,26 @@ Page({
       sceneSummaryLine1: summaryLines.line1,
       sceneSummaryLine2: summaryLines.line2
     })
+    const fillProps = planFillTrackProps(snap && snap.planFill)
     if (empty) {
-      track('empty_recommend', { reasonCode: (snap && snap.emptyReason) || null })
+      track(
+        'empty_recommend',
+        Object.assign(
+          { reasonCode: (snap && snap.emptyReason) || null },
+          fillProps
+        )
+      )
     } else {
-      track('recommend_show', {
-        planCount: plans.length,
-        planKinds: plans.map((p) => p.planKind || 'home')
-      })
+      track(
+        'recommend_show',
+        Object.assign(
+          {
+            planCount: plans.length,
+            planKinds: plans.map((p) => p.planKind || 'home')
+          },
+          fillProps
+        )
+      )
       plans.forEach((p) => {
         track('recommend_plan_impression', {
           planIndex: p.planIndex,
@@ -405,7 +433,8 @@ Page({
           scene,
           selectedIngredients: selected,
           emptyReason: result.emptyReason || null,
-          swapCount: 0
+          swapCount: 0,
+          planFill: result.planFill || null
         }
         writeSnap(snap)
         this.applySnap(snap)
@@ -479,10 +508,16 @@ Page({
         const newPlans = (result && result.plans) || []
         // 凑不出新方案：保留当前方案，弹窗告知（不切到空页）
         if (result.noNewPlans || newPlans.length === 0) {
-          track('empty_recommend', {
-            reasonCode: (result && result.emptyReason) || null,
-            action
-          })
+          track(
+            'empty_recommend',
+            Object.assign(
+              {
+                reasonCode: (result && result.emptyReason) || null,
+                action
+              },
+              planFillTrackProps(result && result.planFill)
+            )
+          )
           if (this._batchDwellReported) {
             this._batchDwellReported = false
             this._visibleSince = Date.now()
@@ -499,7 +534,8 @@ Page({
           requestId,
           plans: newPlans,
           emptyReason: null,
-          swapCount: result.swapCount
+          swapCount: result.swapCount,
+          planFill: result.planFill || null
         })
         writeSnap(snap)
         this.applySnap(snap)

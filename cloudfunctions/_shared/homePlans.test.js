@@ -739,6 +739,65 @@ describe('home plan overlap caps (3.0.6)', () => {
       }
     }
   })
+
+  it('一荤一素 fills up to 3 disjoint plans when pool has enough pairs', () => {
+    const meats = []
+    const vegs = []
+    const selected = []
+    const ingredients = {}
+    for (let i = 0; i < 6; i++) {
+      const meatMain = '肉料' + i
+      const vegMain = '素料' + i
+      selected.push(meatMain, vegMain)
+      ingredients[meatMain] = { avoidTags: [] }
+      ingredients[vegMain] = { avoidTags: [] }
+      meats.push({
+        id: 'meat_' + i,
+        name: '荤菜' + i,
+        mainIngredients: [meatMain],
+        seasonings: [],
+        meatVeg: 'meat',
+        cities: [],
+        enabled: true,
+        difficulty: 'easy'
+      })
+      vegs.push({
+        id: 'veg_' + i,
+        name: '素菜' + i,
+        mainIngredients: [vegMain],
+        seasonings: [],
+        meatVeg: 'veg',
+        cities: [],
+        enabled: true,
+        difficulty: 'easy'
+      })
+    }
+    const result = buildHomePlans({
+      recipes: meats.concat(vegs),
+      ingredientsByName: ingredients,
+      selectedNames: selected,
+      scene: {
+        combo: { meat: 1, veg: 1, soup: 0 },
+        mealSlots: [{ meal: 'dinner', label: '晚饭' }],
+        mealType: 'daily'
+      },
+      familyAvoids: [],
+      maxPlans: 3,
+      sessionSeed: 'req_one_meat_one_veg'
+    })
+    assert.equal(result.plans.length, 3, 'expected 3 plans, got ' + result.plans.length)
+    for (let i = 0; i < result.plans.length; i++) {
+      assert.equal(planDishCount(result.plans[i].meals), 2)
+      for (let j = i + 1; j < result.plans.length; j++) {
+        assert.equal(
+          sharedBetween(result.plans[i], result.plans[j]),
+          0,
+          `plans ${i},${j} must not share dishes`
+        )
+      }
+    }
+  })
+
 })
 
 describe('within-plan dedupe helpers (3.0.7)', () => {

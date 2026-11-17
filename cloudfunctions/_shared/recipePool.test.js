@@ -55,6 +55,43 @@ describe('pickRecipeBatch', () => {
     )
   })
 
+  it('continues refill while under target and pool still has more', () => {
+    const { shouldContinueRecipeRefill, RECIPE_REFILL_MAX, RECIPE_POOL_CAP } = require('./recipePool.js')
+    assert.equal(
+      shouldContinueRecipeRefill({
+        planCount: 1,
+        target: 3,
+        exhausted: false,
+        poolSize: 200,
+        batchIndex: 3
+      }),
+      true,
+      'user log case: 1/3 plans, pool 200, not exhausted → keep refilling'
+    )
+    assert.equal(
+      shouldContinueRecipeRefill({
+        planCount: 3,
+        target: 3,
+        exhausted: false,
+        poolSize: 200,
+        batchIndex: 1
+      }),
+      false
+    )
+    assert.equal(
+      shouldContinueRecipeRefill({
+        planCount: 1,
+        target: 3,
+        exhausted: true,
+        poolSize: 200,
+        batchIndex: 1
+      }),
+      false
+    )
+    assert.ok(RECIPE_REFILL_MAX >= 15)
+    assert.ok(RECIPE_POOL_CAP >= 500)
+  })
+
   it('default limit is RECIPE_BATCH_SIZE', () => {
     assert.equal(RECIPE_BATCH_SIZE, 50)
     const rows = []

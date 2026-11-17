@@ -1,6 +1,34 @@
 'use strict'
 
 const RECIPE_BATCH_SIZE = 50
+/** 套数未满且库未耗尽时，最多再拉几批（首批之外） */
+const RECIPE_REFILL_MAX = 20
+/** 单次会话候选池上限，防止无限拉 */
+const RECIPE_POOL_CAP = 1000
+
+/**
+ * 是否继续按批续拉候选。
+ * 例：planCount=1、pool=200、exhausted=false → true（勿因「已有若干批」就停）。
+ */
+function shouldContinueRecipeRefill(input) {
+  const planCount = Number(input && input.planCount) || 0
+  const target = Math.max(1, Number(input && input.target) || 3)
+  if (planCount >= target) return false
+  if (input && input.exhausted) return false
+  const poolSize = Number(input && input.poolSize) || 0
+  const poolCap =
+    Number(input && input.poolCap) > 0
+      ? Number(input.poolCap)
+      : RECIPE_POOL_CAP
+  if (poolSize >= poolCap) return false
+  const batchIndex = Number(input && input.batchIndex) || 0
+  const maxBatches =
+    Number(input && input.maxBatches) > 0
+      ? Number(input.maxBatches)
+      : RECIPE_REFILL_MAX
+  if (batchIndex >= maxBatches) return false
+  return true
+}
 
 function recipeDocId(row) {
   if (!row) return ''
@@ -69,6 +97,9 @@ function isRecipePoolExhausted(poolIds, excludedIds) {
 
 module.exports = {
   RECIPE_BATCH_SIZE,
+  RECIPE_REFILL_MAX,
+  RECIPE_POOL_CAP,
+  shouldContinueRecipeRefill,
   recipeDocId,
   pickRecipeBatch,
   isRecipePoolExhausted,

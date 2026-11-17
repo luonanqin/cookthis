@@ -28,6 +28,9 @@ const {
 // Vendored: keep in sync with cloudfunctions/_shared/recipePool.js
 const {
   RECIPE_BATCH_SIZE,
+  RECIPE_REFILL_MAX,
+  RECIPE_POOL_CAP,
+  shouldContinueRecipeRefill,
   pickRecipeBatch,
   isRecipePoolExhausted,
   recipeDocId
@@ -44,7 +47,6 @@ const MAX = 500
 const RECENT_MEAL_DAYS = 7
 const RECIPE_PAGE = 100
 const RECIPE_MAX_PAGES = 5
-const RECIPE_REFILL_MAX = 3
 /** 目标方案套数：尽量先凑满，候选不足才少出 */
 const TARGET_PLAN_COUNT = 3
 const IN_QUERY_CHUNK = 10
@@ -252,8 +254,27 @@ function mergeRecipeBatch(list, ids, batchRecipes) {
   return { list: nextList, ids: nextIds }
 }
 
+/** 套数诊断快照：写入 recommendations + 回包给客户端打点 */
+function buildPlanFill(input) {
+  const count = Number(input && input.count) || 0
+  const target = Math.max(
+    1,
+    Number(input && input.target) > 0 ? Number(input.target) : TARGET_PLAN_COUNT
+  )
+  return {
+    action: (input && input.action) || 'create',
+    before: Number(input && input.before) || 0,
+    count,
+    target,
+    pool: Number(input && input.pool) || 0,
+    exhausted: !!(input && input.exhausted),
+    refills: Number(input && input.refills) || 0,
+    underfilled: count < target
+  }
+}
+
 /**
- * 方案数不足目标、或池已被 exclude 耗尽时，按批续拉（最多 extraBatches 次）。
+ * 方案数不足目标、或池已被 exclude 耗尽时，按批续拉，直到凑满 / 库尽 / 触顶。
  * @param {boolean} [alreadyExhausted]
  * @param {number} [targetPlanCount] 尽量凑到的套数（默认 TARGET_PLAN_COUNT）
  */
@@ -276,24 +297,38 @@ async function refillRecipePool(
     1,
     Number(targetPlanCount) > 0 ? Number(targetPlanCount) : TARGET_PLAN_COUNT
   )
+  let batchesPulled = 0
 
-  for (let i = 0; i < maxExtra; i++) {
-    if ((built.plans || []).length >= target) break
-    if (exhausted) break
+  while (
+    shouldContinueRecipeRefill({
+      planCount: (built.plans || []).length,
+      target,
+      exhausted,
+      poolSize: list.length,
+      poolCap: RECIPE_POOL_CAP,
+      batchIndex: batchesPulled,
+      maxBatches: maxExtra
+    })
+  ) {
     const batch = await loadRecipeBatch({ city, excludeIds: ids, cookSkill })
     exhausted = batch.exhausted
-    if (!(batch.recipes || []).length) break
+    if (!(batch.recipes || []).length) {
+      exhausted = true
+      break
+    }
     const merged = mergeRecipeBatch(list, ids, batch.recipes)
     list = merged.list
     ids = merged.ids
     built = buildOnce(list)
+    batchesPulled += 1
   }
 
   return {
     recipes: list,
     recipePoolIds: ids,
     recipePoolExhausted: exhausted,
-    built
+    built,
+    refillBatches: batchesPulled
   }
 }
 
@@ -514,11 +549,20 @@ async function handleCreate(event, uid, user) {
   let recipePoolIds = recipes.map(recipeDocId).filter(Boolean)
   let recipePoolExhausted = !!batch.exhausted
   let built = buildOnce(recipes)
+  const plansBeforeRefill = (built.plans || []).length
+  let refillBatches = 0
 
-  // 不足目标套数就续拉候选（勿仅在 0 套时才 refill，否则首屏常只有 2 套）
+  // 不足目标套数就续拉候选（勿仅在 0 套时才 refill；也勿过早触顶停拉）
   if (
-    (built.plans || []).length < TARGET_PLAN_COUNT &&
-    !recipePoolExhausted
+    shouldContinueRecipeRefill({
+      planCount: plansBeforeRefill,
+      target: TARGET_PLAN_COUNT,
+      exhausted: recipePoolExhausted,
+      poolSize: recipePoolIds.length,
+      poolCap: RECIPE_POOL_CAP,
+      batchIndex: 0,
+      maxBatches: RECIPE_REFILL_MAX
+    })
   ) {
     const refilled = await refillRecipePool(
       city,
@@ -534,9 +578,19 @@ async function handleCreate(event, uid, user) {
     recipePoolIds = refilled.recipePoolIds
     recipePoolExhausted = refilled.recipePoolExhausted
     built = refilled.built
+    refillBatches = refilled.refillBatches || 0
   }
 
   const plans = built.plans || []
+  const planFill = buildPlanFill({
+    action: 'create',
+    before: plansBeforeRefill,
+    count: plans.length,
+    target: TARGET_PLAN_COUNT,
+    pool: recipePoolIds.length,
+    exhausted: recipePoolExhausted,
+    refills: refillBatches
+  })
 
   // 凑不出：不写 recommendations，由确认页弹窗「食材不够出菜了」（与推荐页同款）
   if (!plans.length) {
@@ -544,7 +598,8 @@ async function handleCreate(event, uid, user) {
       ok: true,
       requestId,
       plans: [],
-      emptyReason: built.emptyReason || 'cannot_fill_combo'
+      emptyReason: built.emptyReason || 'cannot_fill_combo',
+      planFill
     }
   }
 
@@ -561,13 +616,14 @@ async function handleCreate(event, uid, user) {
       excludedDishIds: [],
       recipePoolIds,
       recipePoolExhausted,
+      planFill,
       feedback: [],
       createdAt: now,
       updatedAt: now
     }
   })
 
-  return { ok: true, requestId, plans }
+  return { ok: true, requestId, plans, planFill }
 }
 
 async function handleSwapOrReject(event, uid, user, kind) {
@@ -640,6 +696,8 @@ async function handleSwapOrReject(event, uid, user, kind) {
     )
 
   let built = buildOnce(recipes)
+  const plansBeforeRefill = (built.plans || []).length
+  let refillBatches = 0
 
   if (
     ((built.plans || []).length < TARGET_PLAN_COUNT ||
@@ -660,8 +718,15 @@ async function handleSwapOrReject(event, uid, user, kind) {
       built = buildOnce(recipes)
     }
     if (
-      (built.plans || []).length < TARGET_PLAN_COUNT &&
-      !recipePoolExhausted
+      shouldContinueRecipeRefill({
+        planCount: (built.plans || []).length,
+        target: TARGET_PLAN_COUNT,
+        exhausted: recipePoolExhausted,
+        poolSize: recipePoolIds.length,
+        poolCap: RECIPE_POOL_CAP,
+        batchIndex: 0,
+        maxBatches: RECIPE_REFILL_MAX
+      })
     ) {
       const refilled = await refillRecipePool(
         city,
@@ -677,10 +742,20 @@ async function handleSwapOrReject(event, uid, user, kind) {
       recipePoolIds = refilled.recipePoolIds
       recipePoolExhausted = refilled.recipePoolExhausted
       built = refilled.built
+      refillBatches = refilled.refillBatches || 0
     }
   }
 
   const plans = built.plans || []
+  const planFill = buildPlanFill({
+    action: kind === 'reject' ? 'reject' : 'swap',
+    before: plansBeforeRefill,
+    count: plans.length,
+    target: TARGET_PLAN_COUNT,
+    pool: recipePoolIds.length,
+    exhausted: recipePoolExhausted,
+    refills: refillBatches
+  })
 
   // 凑不出新方案：保留当前展示方案，不推进 exclude/swap（弹窗告知即可）
   if (!plans.length) {
@@ -690,7 +765,8 @@ async function handleSwapOrReject(event, uid, user, kind) {
       plans: doc.plans || [],
       swapCount: doc.swapCount || 0,
       emptyReason: built.emptyReason || 'cannot_fill_combo',
-      noNewPlans: true
+      noNewPlans: true,
+      planFill
     }
   }
 
@@ -702,11 +778,12 @@ async function handleSwapOrReject(event, uid, user, kind) {
       feedback,
       recipePoolIds,
       recipePoolExhausted,
+      planFill,
       updatedAt: db.serverDate()
     }
   })
 
-  return { ok: true, requestId, plans, swapCount }
+  return { ok: true, requestId, plans, swapCount, planFill }
 }
 
 async function handleAccept(event, uid, user) {

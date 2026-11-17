@@ -654,6 +654,7 @@ Page({
   },
 
   onMarketScaleSkip() {
+    track('market_scale_sheet_skip', { source: 'page_switch' })
     this._commitMarketScale('default_medium')
   },
 
@@ -1319,9 +1320,18 @@ Page({
       .then((result) => {
         const plans = (result && result.plans) || []
         if (!plans.length) {
+          const pf = (result && result.planFill) || null
           track('empty_recommend', {
             reasonCode: (result && result.emptyReason) || null,
-            action: 'create'
+            action: 'create',
+            planFillAction: pf && pf.action,
+            planFillBefore: pf && pf.before,
+            planFillCount: pf && pf.count,
+            planFillTarget: pf && pf.target,
+            planFillPool: pf && pf.pool,
+            planFillExhausted: !!(pf && pf.exhausted),
+            planFillRefills: pf && pf.refills,
+            planUnderfilled: !!(pf && pf.underfilled)
           })
           this.setData({ submitting: false, showEmptyDialog: true })
           return
