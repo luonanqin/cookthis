@@ -21,9 +21,9 @@ const EMPTY_REASONS = {
 
 const REJECT_REASONS = [
   { id: 'dont_want', label: '不想吃' },
-  { id: 'wrong_ingredients', label: '食材不对' },
   { id: 'too_hard', label: '太麻烦' },
-  { id: 'ate_recently', label: '最近吃过' }
+  { id: 'cant_cook', label: '不会做' },
+  { id: 'wrong_ingredients', label: '没食材' }
 ]
 
 function emptyMessage(reason) {
@@ -107,24 +107,30 @@ function groupDishesByMeatVeg(dishes) {
   return groups
 }
 
-/** Build rows for reject sheet from pool + selections + active reason */
-function buildRejectDishRows(pool, selections, activeReason) {
+/** Group pool like plan cards: fixed 荤/素/汤 badge + dishes flowing right */
+function buildRejectDishGroups(pool, selections, activeReason) {
   const sel = selections || {}
-  return (pool || []).map((d) => {
+  const buckets = { meat: [], veg: [], soup: [] }
+  for (const d of pool || []) {
+    if (!d || !buckets[d.meatVeg]) continue
     const key = d.key
     const reasonsMap = sel[key] || {}
-    const reasonTags = []
-    for (let i = 0; i < REJECT_REASONS.length; i++) {
-      const rid = REJECT_REASONS[i].id
-      if (reasonsMap[rid]) {
-        reasonTags.push({ id: rid, label: REJECT_REASONS[i].label })
-      }
-    }
-    return Object.assign({}, d, {
-      checked: !!reasonsMap[activeReason],
-      reasonTags
+    buckets[d.meatVeg].push(
+      Object.assign({}, d, {
+        checked: !!reasonsMap[activeReason]
+      })
+    )
+  }
+  const groups = []
+  for (const k of MEAT_VEG_ORDER) {
+    if (!buckets[k].length) continue
+    groups.push({
+      type: k,
+      label: MEAT_VEG_LABELS[k],
+      dishes: buckets[k]
     })
-  })
+  }
+  return groups
 }
 
 function collectDishFeedback(pool, selections) {
@@ -189,7 +195,7 @@ Page({
     rejectReasons: REJECT_REASONS,
     rejectActiveReason: 'dont_want',
     rejectDishPool: [],
-    rejectDishRows: [],
+    rejectDishGroups: [],
     rejectSelections: {},
     fabDimmed: false,
     planShareEnabled: PLAN_SHARE_ENABLED
@@ -519,7 +525,7 @@ Page({
       rejectActiveReason,
       rejectDishPool: pool,
       rejectSelections,
-      rejectDishRows: buildRejectDishRows(pool, rejectSelections, rejectActiveReason)
+      rejectDishGroups: buildRejectDishGroups(pool, rejectSelections, rejectActiveReason)
     })
   },
 
@@ -534,7 +540,7 @@ Page({
     if (!id || id === this.data.rejectActiveReason) return
     this.setData({
       rejectActiveReason: id,
-      rejectDishRows: buildRejectDishRows(
+      rejectDishGroups: buildRejectDishGroups(
         this.data.rejectDishPool,
         this.data.rejectSelections,
         id
@@ -556,7 +562,7 @@ Page({
     else delete rejectSelections[key]
     this.setData({
       rejectSelections,
-      rejectDishRows: buildRejectDishRows(
+      rejectDishGroups: buildRejectDishGroups(
         this.data.rejectDishPool,
         rejectSelections,
         reason

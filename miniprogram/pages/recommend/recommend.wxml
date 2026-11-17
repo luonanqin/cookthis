@@ -77,15 +77,10 @@
 
   <view class="fab-stack {{fabDimmed ? 'fab-dimmed' : ''}}" wx:if="{{!empty}}">
     <button
-      class="fab fab-swap"
-      disabled="{{busy || fabDimmed}}"
-      bindtap="onSwap"
-    >换 菜</button>
-    <button
       class="fab fab-reject"
       disabled="{{busy || fabDimmed}}"
       bindtap="onRejectOpen"
-    >不行</button>
+    >换 菜</button>
   </view>
 
   <view class="footer">
@@ -108,27 +103,27 @@
           bindtap="onRejectReasonTab"
         >{{item.label}}</view>
       </view>
-      <scroll-view scroll-y class="reject-dish-scroll" wx:if="{{rejectDishRows.length}}">
+      <scroll-view scroll-y class="reject-dish-scroll" wx:if="{{rejectDishGroups.length}}">
         <view
-          class="reject-dish-row {{item.checked ? 'on' : ''}}"
-          wx:for="{{rejectDishRows}}"
-          wx:key="key"
-          data-key="{{item.key}}"
-          bindtap="onRejectDishToggle"
+          class="reject-dish-row"
+          wx:for="{{rejectDishGroups}}"
+          wx:for-item="group"
+          wx:key="type"
         >
-          <text class="type-badge type-{{item.meatVeg}}">{{item.typeLabel}}</text>
-          <view class="reject-dish-main">
-            <text class="reject-dish-name">{{item.name}}</text>
-            <view class="reject-reason-tags" wx:if="{{item.reasonTags.length}}">
-              <text
-                class="reject-reason-tag"
-                wx:for="{{item.reasonTags}}"
-                wx:for-item="tag"
-                wx:key="id"
-              >{{tag.label}}</text>
+          <text class="type-badge type-{{group.type}}">{{group.label}}</text>
+          <view class="reject-dish-names">
+            <view
+              class="reject-dish-item {{dish.checked ? 'on' : ''}}"
+              wx:for="{{group.dishes}}"
+              wx:for-item="dish"
+              wx:key="key"
+              data-key="{{dish.key}}"
+              bindtap="onRejectDishToggle"
+            >
+              <text class="reject-dish-name">{{dish.name}}</text>
+              <text wx:if="{{dish.checked}}" class="reject-dish-x" aria-hidden="true">×</text>
             </view>
           </view>
-          <text class="reject-check">{{item.checked ? '✓' : ''}}</text>
         </view>
       </scroll-view>
       <view wx:else class="reject-dish-empty">当前方案暂无可标菜，可直接完成或跳过</view>
