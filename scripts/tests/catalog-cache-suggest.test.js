@@ -84,16 +84,45 @@ describe('catalogCache manual suggest index', () => {
     assert.deepEqual(cache.readAliasesTable(), { 番茄: ['西红柿'] })
   })
 
-  it('stores an empty suggest index when getAliases omits suggestIndex', async () => {
+  it('does not cache a missing suggestIndex and ensureSuggestIndex retries getAliases', async () => {
     delete cloudResult.suggestIndex
     await cache.ensureAliases()
-    assert.deepEqual(cache.readSuggestIndex(), [])
+    assert.equal(cache.readSuggestIndex(), null)
+    assert.deepEqual(cache.readAliasesTable(), { 番茄: ['西红柿'] })
+
+    const entries = await cache.ensureSuggestIndex()
+    assert.deepEqual(entries, [])
+    assert.equal(cloudCalls.length, 2)
+    assert.equal(cache.readSuggestIndex(), null)
   })
 
-  it('stores an empty suggest index when suggestIndex is not an array', async () => {
+  it('does not cache a non-array suggestIndex and ensureSuggestIndex retries getAliases', async () => {
     cloudResult.suggestIndex = { entries: SAMPLE }
     await cache.ensureAliases()
-    assert.deepEqual(cache.readSuggestIndex(), [])
+    assert.equal(cache.readSuggestIndex(), null)
+
+    const entries = await cache.ensureSuggestIndex()
+    assert.deepEqual(entries, [])
+    assert.equal(cloudCalls.length, 2)
+    assert.equal(cache.readSuggestIndex(), null)
+  })
+
+  it('ensureSuggestIndex refetches when the stored suggest list is empty', async () => {
+    store.set('cookthis_manual_suggest_v1', {
+      _cacheEpoch: cache.SUGGEST_CACHE_EPOCH,
+      entries: []
+    })
+    const entries = await cache.ensureSuggestIndex()
+    assert.deepEqual(entries, SAMPLE)
+    assert.equal(cloudCalls.length, 1)
+    assert.deepEqual(cache.readSuggestIndex(), SAMPLE)
+  })
+
+  it('clearAliasesCache removes the suggest index key', () => {
+    cache.writeSuggestIndex(SAMPLE)
+    cache.clearAliasesCache()
+    assert.equal(store.has('cookthis_manual_suggest_v1'), false)
+    assert.equal(cache.readSuggestIndex(), null)
   })
 
   it('ensureSuggestIndex returns cached entries without calling catalog', async () => {

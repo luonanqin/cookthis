@@ -41,6 +41,7 @@ function clearAliasesCache() {
   removeKey(ALIASES_KEY)
   // 短暂用过的升 key 残留
   removeKey('cookthis_aliases_v2')
+  removeKey(SUGGEST_KEY)
 }
 
 function readAliasesTable() {
@@ -89,10 +90,14 @@ function fetchAliasesBundle() {
   aliasesInflight = callCloud('catalog', { action: 'getAliases' })
     .then((res) => {
       const table = loadAliases((res && res.aliases) || {})
-      const entries = Array.isArray(res && res.suggestIndex) ? res.suggestIndex : []
+      const suggestIndex = res && res.suggestIndex
       writeAliasesTable(table)
-      writeSuggestIndex(entries)
-      return { table, entries }
+      // 缺字段或非数组不能落成 entries:[]，否则旧云函数会把空索引冻成命中
+      if (!Array.isArray(suggestIndex)) {
+        return { table, entries: [] }
+      }
+      writeSuggestIndex(suggestIndex)
+      return { table, entries: suggestIndex }
     })
     .catch((err) => {
       track('catalog_aliases_fetch_fail', {
@@ -147,7 +152,8 @@ function ensureAliases() {
  */
 function ensureSuggestIndex() {
   const cached = readSuggestIndex()
-  if (cached) return Promise.resolve(cached)
+  // 空列表与未缓存一样要重拉：旧客户端可能已把缺字段写成 []
+  if (cached && cached.length) return Promise.resolve(cached)
   return fetchAliasesBundle()
     .then((bundle) => bundle.entries)
     .catch(() => [])
