@@ -60,6 +60,15 @@ function createMemoryDb() {
               }
               if (state.limitN != null) rows = rows.slice(0, state.limitN)
               return { data: rows.map(clone) }
+            },
+            async update({ data }) {
+              let updated = 0
+              for (const id of Object.keys(col)) {
+                if (!matches(col[id], state.query)) continue
+                Object.assign(col[id], clone(data))
+                updated++
+              }
+              return { stats: { updated } }
             }
           }
           return chain

@@ -68,6 +68,25 @@ describe('xpay.buildVirtualPayParams', () => {
     )
   })
 
+  it('returns a clear error when sessionKey is empty (does not HMAC an empty key)', () => {
+    const res = buildVirtualPayParams({
+      orderId: 'xxxxxx',
+      productId: 'testproductId',
+      goodsPrice: 10,
+      openid: 'oTEST',
+      attach: 'testdata',
+      sessionKey: '',
+      env: {
+        XPAY_OFFER_ID: '123',
+        XPAY_APP_KEY: APP_KEY,
+        XPAY_ENV: '0'
+      }
+    })
+    assert.equal(res.ok, false)
+    assert.equal(res.error, 'NO_SESSION_KEY')
+    assert.equal(res.payment, undefined)
+  })
+
   it('returns signData, paySig, signature, and short_series_goods mode', () => {
     const res = buildVirtualPayParams({
       orderId: 'xxxxxx',

@@ -86,6 +86,24 @@ describe('createOrder', () => {
     const res = await api(db).createOrder('user-1', 'week')
     assert.deepEqual(res, { ok: false, error: 'BAD_SKU' })
   })
+
+  it('returns a clear error when sessionKey is empty and does not write an order', async () => {
+    const db = createMemoryDb()
+    await seedUser(db)
+    const res = await createMembershipApi({
+      db,
+      xpay,
+      env: PAY_ENV,
+      nowMs: NOW,
+      openid: 'oTEST',
+      sessionKey: ''
+    }).createOrder('user-1', 'month')
+    assert.equal(res.ok, false)
+    assert.equal(res.error, 'NO_SESSION_KEY')
+    const orders = (await db.collection('membership_orders').where({ uid: 'user-1' }).get())
+      .data
+    assert.equal(orders.length, 0)
+  })
 })
 
 describe('getStatus', () => {
@@ -147,6 +165,20 @@ describe('push deliver notify', () => {
       { db, xpay, env: PAY_ENV, nowMs: NOW, wxContext: {} }
     )
     assert.deepEqual(res, { ErrCode: 0, ErrMsg: 'success' })
+  })
+
+  it('returns non-zero ErrCode when fulfill throws so WeChat retries', async () => {
+    const db = {
+      collection() {
+        throw new Error('db unavailable')
+      }
+    }
+    const res = await handleMain(
+      { Event: 'xpay_goods_deliver_notify', OutTradeNo: 'morder001abc' },
+      { db, xpay, env: PAY_ENV, nowMs: NOW, wxContext: {} }
+    )
+    assert.notEqual(res.ErrCode, 0)
+    assert.equal(typeof res.ErrCode, 'number')
   })
 })
 

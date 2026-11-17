@@ -44,6 +44,7 @@ function buildVirtualPayParams({
 }) {
   void openid
   if (!isPayConfigured(env)) return { ok: false, error: 'PAY_NOT_CONFIGURED' }
+  if (!String(sessionKey || '').trim()) return { ok: false, error: 'NO_SESSION_KEY' }
   const signData = JSON.stringify({
     offerId: String(env.XPAY_OFFER_ID),
     buyQuantity: 1,

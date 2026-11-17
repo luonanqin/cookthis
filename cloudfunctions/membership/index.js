@@ -147,6 +147,7 @@ function createMembershipApi(deps) {
     const item = getSku(sku)
     if (!item) return { ok: false, error: 'BAD_SKU' }
     if (!xpay.isPayConfigured(env)) return { ok: false, error: 'PAY_NOT_CONFIGURED' }
+    if (!String(sessionKey || '').trim()) return { ok: false, error: 'NO_SESSION_KEY' }
 
     const firstPurchaseUsed = await loadFirstPurchaseUsed(db, uid)
     const payFen = resolvePriceFen(sku, firstPurchaseUsed)
@@ -250,10 +251,11 @@ async function handleMain(event, ctx) {
         wxPayment: eventObj.WeChatPayInfo || {},
         nowMs: ctx.nowMs
       })
+      return { ErrCode: 0, ErrMsg: 'success' }
     } catch (err) {
       console.error('membership fulfill push failed', err)
+      return { ErrCode: -1, ErrMsg: 'fail' }
     }
-    return { ErrCode: 0, ErrMsg: 'success' }
   }
 
   const wxContext = ctx.wxContext || {}

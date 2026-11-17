@@ -54,7 +54,8 @@ async function markFirstPurchaseUsed(db, uid, sku) {
 
 /**
  * Idempotent grant: created → paid + stack membership.
- * Already paid returns current membership without stacking again.
+ * Claims the order with a conditional update (orderId + status=='created');
+ * only the caller that gets updated===1 stacks. Lost races return current membership.
  */
 async function fulfillPaidOrder({ db, orderId, wxPayment, nowMs }) {
   const ts = Number.isFinite(Number(nowMs)) ? Number(nowMs) : Date.now()
@@ -71,7 +72,15 @@ async function fulfillPaidOrder({ db, orderId, wxPayment, nowMs }) {
   const paidAt = nowIso(ts)
   const patch = { status: 'paid', paidAt }
   if (wxPayment != null) patch.wxPayment = wxPayment
-  await db.collection('membership_orders').doc(order._id).update({ data: patch })
+  const claimed = await db
+    .collection('membership_orders')
+    .where({ orderId, status: 'created' })
+    .update({ data: patch })
+  const updated = claimed && claimed.stats ? claimed.stats.updated : 0
+  if (updated !== 1) {
+    const membership = await loadMembership(db, order.uid)
+    return { ok: true, membership }
+  }
 
   const membership = await upsertMembership(db, order.uid, order.sku, ts)
   await markFirstPurchaseUsed(db, order.uid, order.sku)

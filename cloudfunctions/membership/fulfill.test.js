@@ -110,4 +110,67 @@ describe('fulfillPaidOrder', () => {
     assert.equal(missing.ok, false)
     assert.equal(missing.error, 'ORDER_NOT_FOUND')
   })
+
+  it('does not stack when a concurrent-style fulfill loses the created→paid claim', async () => {
+    const db = createMemoryDb()
+    const { orderId } = await seedCreatedOrder(db)
+    const first = await fulfillPaidOrder({ db, orderId, nowMs: NOW })
+    assert.equal(first.ok, true)
+    const expectedExpiry = first.membership.expiresAt
+
+    const racing = {
+      collection(name) {
+        const col = db.collection(name)
+        if (name !== 'membership_orders') return col
+        return {
+          where(query) {
+            const chain = col.where(query)
+            const wrapGet = (innerGet) => async () => {
+              const res = await innerGet()
+              if (query && query.orderId === orderId && query.status == null) {
+                return {
+                  data: res.data.map((row) => Object.assign({}, row, { status: 'created' }))
+                }
+              }
+              return res
+            }
+            const wrap = (inner) => ({
+              orderBy(...args) {
+                return wrap(inner.orderBy(...args))
+              },
+              limit(...args) {
+                return wrap(inner.limit(...args))
+              },
+              get: wrapGet(inner.get.bind(inner)),
+              update(payload) {
+                if (query && query.orderId === orderId && query.status === 'created') {
+                  return Promise.resolve({ stats: { updated: 0 } })
+                }
+                return inner.update(payload)
+              }
+            })
+            return wrap(chain)
+          },
+          doc(id) {
+            return col.doc(id)
+          },
+          add(payload) {
+            return col.add(payload)
+          }
+        }
+      }
+    }
+
+    const second = await fulfillPaidOrder({
+      db: racing,
+      orderId,
+      nowMs: NOW + DAY_MS
+    })
+    assert.equal(second.ok, true)
+    assert.equal(second.membership.expiresAt, expectedExpiry)
+
+    const memberships = await db.collection('memberships').where({ uid: 'user-1' }).get()
+    assert.equal(memberships.data.length, 1)
+    assert.equal(memberships.data[0].expiresAt, expectedExpiry)
+  })
 })
