@@ -198,9 +198,13 @@ Page({
     rejectDishGroups: [],
     rejectSelections: {},
     fabDimmed: false,
-    planShareEnabled: PLAN_SHARE_ENABLED
+    planShareEnabled: PLAN_SHARE_ENABLED,
+    showSwapCap: false,
+    swapCapUsed: 0,
+    swapCapLimit: 3
   },
 
+  _swapCooldownUntil: 0,
   _visibleMs: 0,
   _visibleSince: 0,
   _engagedSent: false,
@@ -510,12 +514,14 @@ Page({
   },
 
   onSwap() {
+    if (Date.now() < (this._swapCooldownUntil || 0)) return
     tapFeedback()
     this._reportBatchDwell('swap', 'recommend_swap', { swapIndex: 1 })
     this._rerun('swap')
   },
 
   onRejectOpen() {
+    if (Date.now() < (this._swapCooldownUntil || 0)) return
     tapFeedback()
     const pool = buildRejectDishPool(this.data.plans || [], { limit: 10 })
     const rejectActiveReason = 'dont_want'
@@ -645,12 +651,22 @@ Page({
         this.applySnap(snap)
         // 新一批方案重新计停留（认可度按批）
         this._startBatchDwellClock()
+        this._swapCooldownUntil = Date.now() + 2500
       })
       .catch((err) => {
         // 失败则允许同一批继续累计停留
         if (this._batchDwellReported) {
           this._batchDwellReported = false
           this._visibleSince = Date.now()
+        }
+        if (err && err.error === 'SWAP_CAP') {
+          track('swap_cap_show', { used: err.used, limit: err.limit })
+          this.setData({
+            showSwapCap: true,
+            swapCapUsed: err.used,
+            swapCapLimit: err.limit
+          })
+          return
         }
         wx.showToast({
           title: (err && err.error) || '操作失败',
@@ -697,6 +713,34 @@ Page({
         })
       })
       .then(() => this.setData({ busy: false, busyAction: '', busyPlanIndex: -1 }))
+  },
+
+  onSwapCapGoShopping() {
+    tapFeedback()
+    track('swap_cap_go_shopping')
+    const plans = this.data.plans || []
+    this.setData({ showSwapCap: false })
+    if (!plans.length) {
+      wx.showToast({ title: '请先点方案去买菜', icon: 'none' })
+      return
+    }
+    wx.navigateTo({
+      url: '/pages/shopping/shopping?planIndex=0'
+    })
+  },
+
+  onSwapCapGoMember() {
+    tapFeedback()
+    track('swap_cap_go_member')
+    this.setData({ showSwapCap: false })
+    wx.navigateTo({
+      url: '/pages/membership/index?from=swap_cap'
+    })
+  },
+
+  onSwapCapClose() {
+    tapFeedback()
+    this.setData({ showSwapCap: false })
   },
 
   onShareAppMessage(res) {

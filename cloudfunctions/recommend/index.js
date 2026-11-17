@@ -39,6 +39,11 @@ const {
 const { suggestPartyCombo } = require('./suggestCombo.js')
 // Vendored: keep in sync with cloudfunctions/_shared/cookSkill.js
 const { recipeDifficultyInFilter } = require('./cookSkill.js')
+// Vendored: keep in sync with cloudfunctions/_shared/membershipLogic.js
+require('./membershipLogic.js')
+// Vendored: keep in sync with cloudfunctions/_shared/swapQuota.js
+require('./swapQuota.js')
+const { evaluateSwapAccess, buildSwapQuotaUserPatch } = require('./swapGate.js')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
@@ -118,6 +123,11 @@ async function resolveUid(openid) {
 async function loadUser(uid) {
   const userRes = await db.collection('users').where({ uid }).limit(1).get()
   return userRes.data[0] || null
+}
+
+async function loadMembership(uid) {
+  const res = await db.collection('memberships').where({ uid }).limit(1).get()
+  return (res.data && res.data[0]) || null
 }
 
 async function findRecommendation(uid, requestId) {
@@ -633,6 +643,16 @@ async function handleSwapOrReject(event, uid, user, kind) {
   const doc = await findRecommendation(uid, requestId)
   if (!doc) return { ok: false, error: 'RECOMMENDATION_NOT_FOUND' }
 
+  const nowMs = Date.now()
+  const membership = await loadMembership(uid)
+  const access = evaluateSwapAccess({
+    membership,
+    swapDaily: user.swapDaily,
+    swapRateTimestamps: user.swapRateTimestamps,
+    nowMs
+  })
+  if (!access.ok) return access
+
   const city = user.city || null
   let recipePoolIds = Array.isArray(doc.recipePoolIds) ? doc.recipePoolIds.slice() : []
   let recipePoolExhausted = !!doc.recipePoolExhausted
@@ -758,7 +778,17 @@ async function handleSwapOrReject(event, uid, user, kind) {
   })
 
   // 凑不出新方案：保留当前展示方案，不推进 exclude/swap（弹窗告知即可）
+  // 空换不扣 used，仍记 rate timestamps
   if (!plans.length) {
+    await db.collection('users').where({ uid }).update({
+      data: buildSwapQuotaUserPatch({
+        consume: false,
+        swapDaily: access.swapDaily,
+        nextTimestamps: access.nextTimestamps,
+        nowMs,
+        serverDate: db.serverDate()
+      })
+    })
     return {
       ok: true,
       requestId,
@@ -781,6 +811,16 @@ async function handleSwapOrReject(event, uid, user, kind) {
       planFill,
       updatedAt: db.serverDate()
     }
+  })
+
+  await db.collection('users').where({ uid }).update({
+    data: buildSwapQuotaUserPatch({
+      consume: access.consume,
+      swapDaily: access.swapDaily,
+      nextTimestamps: access.nextTimestamps,
+      nowMs,
+      serverDate: db.serverDate()
+    })
   })
 
   return { ok: true, requestId, plans, swapCount, planFill }

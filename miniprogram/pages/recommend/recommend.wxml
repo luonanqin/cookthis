@@ -155,6 +155,21 @@
   </view>
 
   <view
+    wx:if="{{showSwapCap}}"
+    class="swap-cap-mask"
+    catchtouchmove="true"
+    bindtap="onSwapCapClose"
+  >
+    <view class="swap-cap-sheet" catchtap="noop">
+      <view class="swap-cap-title">今日免费换菜已用完</view>
+      <view class="swap-cap-desc">当前方案仍可去买菜</view>
+      <button class="btn-main" bindtap="onSwapCapGoShopping">去买菜</button>
+      <button class="btn-outline" bindtap="onSwapCapGoMember">开通会员，换菜不限次</button>
+      <button class="btn-outline" bindtap="onSwapCapClose">关闭</button>
+    </view>
+  </view>
+
+  <view
     class="mask mask-center"
     wx:if="{{showEmptyDialog}}"
     catchtouchmove="true"
