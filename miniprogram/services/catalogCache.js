@@ -6,7 +6,12 @@ const { track } = require('../utils/track.js')
 const ALIASES_KEY = 'cookthis_aliases_v1'
 /** 别名表不兼容变更时 +1：读到旧 epoch 会 removeStorage 再拉 */
 const ALIASES_CACHE_EPOCH = 2
+const SUGGEST_KEY = 'cookthis_manual_suggest_v1'
+/** 手补联想索引不兼容变更时 +1：读到旧 epoch 会 removeStorage 再拉 */
+const SUGGEST_CACHE_EPOCH = 1
 const SHELF_PREFIX = 'cookthis_shelf_v1_'
+/** 进行中的 getAliases，别名与联想索引共用，避免同一次冷启动打两次 */
+let aliasesInflight = null
 
 function shelfStorageKey(cityKey) {
   return SHELF_PREFIX + cityKey
@@ -56,6 +61,51 @@ function writeAliasesTable(aliases) {
   )
 }
 
+function readSuggestIndex() {
+  const raw = readJson(SUGGEST_KEY)
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null
+  if (Number(raw._cacheEpoch) !== SUGGEST_CACHE_EPOCH) {
+    removeKey(SUGGEST_KEY)
+    return null
+  }
+  if (!Array.isArray(raw.entries)) return null
+  return raw.entries.slice()
+}
+
+function writeSuggestIndex(entries) {
+  const list = Array.isArray(entries) ? entries.slice() : []
+  writeJson(SUGGEST_KEY, {
+    _cacheEpoch: SUGGEST_CACHE_EPOCH,
+    entries: list
+  })
+}
+
+/**
+ * 一次 getAliases 同时落地别名表和手补联想索引。
+ * @returns {Promise<{ table: object, entries: object[] }>}
+ */
+function fetchAliasesBundle() {
+  if (aliasesInflight) return aliasesInflight
+  aliasesInflight = callCloud('catalog', { action: 'getAliases' })
+    .then((res) => {
+      const table = loadAliases((res && res.aliases) || {})
+      const entries = Array.isArray(res && res.suggestIndex) ? res.suggestIndex : []
+      writeAliasesTable(table)
+      writeSuggestIndex(entries)
+      return { table, entries }
+    })
+    .catch((err) => {
+      track('catalog_aliases_fetch_fail', {
+        error: (err && err.error) || (err && err.errMsg) || 'unknown'
+      })
+      throw err
+    })
+    .finally(() => {
+      aliasesInflight = null
+    })
+  return aliasesInflight
+}
+
 function readShelfOrder(city) {
   const cityKey = normalizeCityKey(city)
   if (!cityKey) return null
@@ -87,18 +137,33 @@ function ensureAliases() {
   if (cached && Object.keys(cached).length) {
     return Promise.resolve(cached)
   }
-  return callCloud('catalog', { action: 'getAliases' })
-    .then((res) => {
-      const table = loadAliases((res && res.aliases) || {})
-      writeAliasesTable(table)
-      return table
+  return fetchAliasesBundle()
+    .then((bundle) => bundle.table)
+    .catch(() => cached || {})
+}
+
+/**
+ * @returns {Promise<object[]>}
+ */
+function ensureSuggestIndex() {
+  const cached = readSuggestIndex()
+  if (cached) return Promise.resolve(cached)
+  return fetchAliasesBundle()
+    .then((bundle) => bundle.entries)
+    .catch(() => [])
+}
+
+/**
+ * 确认页手补：联想条目 + 别名索引（规范名解析）。
+ * @returns {Promise<{ entries: object[], aliasIndex: object }>}
+ */
+function loadManualSuggestContext() {
+  return Promise.all([ensureSuggestIndex(), ensureAliases()]).then(
+    ([entries, aliases]) => ({
+      entries: Array.isArray(entries) ? entries : [],
+      aliasIndex: buildAliasIndex(aliases || {})
     })
-    .catch((err) => {
-      track('catalog_aliases_fetch_fail', {
-        error: (err && err.error) || (err && err.errMsg) || 'unknown'
-      })
-      return cached || {}
-    })
+  )
 }
 
 /**
@@ -145,13 +210,19 @@ function loadShoppingCatalog(city) {
 module.exports = {
   ALIASES_KEY,
   ALIASES_CACHE_EPOCH,
+  SUGGEST_KEY,
+  SUGGEST_CACHE_EPOCH,
   shelfStorageKey,
   ensureAliases,
+  ensureSuggestIndex,
   ensureShelfOrder,
   prefetchCatalog,
   loadShoppingCatalog,
+  loadManualSuggestContext,
   clearAliasesCache,
   clearShelfCache,
   readAliasesTable,
-  readShelfOrder
+  readShelfOrder,
+  readSuggestIndex,
+  writeSuggestIndex
 }
