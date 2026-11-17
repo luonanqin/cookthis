@@ -1,6 +1,7 @@
 'use strict'
 const cloud = require('wx-server-sdk')
 const aliasesRaw = require('./data/aliases.js')
+const suggestIndexRaw = require('./data/manual-suggest-index.json')
 const cityShelves = require('./data/city-shelves.js')
 const { normalizeCityKey } = require('./normalizeCityKey.js')
 // Vendored: keep in sync with cloudfunctions/_shared/accessGuard.js
@@ -48,12 +49,21 @@ function stripAliasesMeta(raw) {
   return out
 }
 
+function suggestIndexEntries(raw) {
+  if (!raw || typeof raw !== 'object') return []
+  return Array.isArray(raw.entries) ? raw.entries : []
+}
+
 async function handleGetAliases(user) {
   const nowMs = Date.now()
   const consumed = consumeCatalogAliasesCall(user.accessGuard, nowMs)
   if (!consumed.ok) return { ok: false, error: consumed.error }
   await persistGuard(user, consumed.next)
-  return { ok: true, aliases: stripAliasesMeta(aliasesRaw) }
+  return {
+    ok: true,
+    aliases: stripAliasesMeta(aliasesRaw),
+    suggestIndex: suggestIndexEntries(suggestIndexRaw)
+  }
 }
 
 async function handleGetCityShelf(user) {

@@ -35,25 +35,34 @@ node scripts/sync-city-scale-to-cloud.js
 | 脚本 | 作用 |
 |------|------|
 | `export-aliases-from-editor.py` | 把 `data/catalog/aliases-editor.json` 压成 `data/catalog/aliases.json` |
-| `sync-alias-runtime-data.js` | 把 `aliases.json` 同步到云函数 / 小程序，并生成各城货架名序 |
+| `build-manual-suggest-index.py` | 从 `aliases.json` 预计算手补联想索引 `data/catalog/manual-suggest-index.json` |
+| `sync-alias-runtime-data.js` | 把 `aliases.json` 同步到云函数 / 小程序，并把已有联想索引拷进 catalog 包，同时生成各城货架名序 |
 | `normalize-national-recipe-ingredients.js` | 全国菜主料/调味收成别名通用名；城菜不动（默认 dry-run） |
 
 **日常更新别名（分组改完后）：**
 
 ```bash
 python3 scripts/export-aliases-from-editor.py
+# 改 aliases.json 后必须重建手补联想索引（需 pypinyin；可用项目 .venv）
+python3 scripts/build-manual-suggest-index.py
 node scripts/sync-alias-runtime-data.js
 # 可选：全国菜食材名跟通用名对齐
 node scripts/normalize-national-recipe-ingredients.js --apply
 # → 再 node scripts/import-recipes.js 并导入云库 recipes
 ```
 
-然后在微信开发者工具**重新上传部署**云函数 `catalog` / `recommend`。
+`build-manual-suggest-index.py` 为每个规范名和每条别名写一行：`surface`、`canonical`、无调号全拼 `py`、首字母 `initials`。产物在 `data/catalog/manual-suggest-index.json`。`sync-alias-runtime-data.js` **只拷贝**该文件到 `cloudfunctions/catalog/data/manual-suggest-index.json`，不会重算拼音。漏跑 build 再部署，确认页联想仍是旧词表。
+
+本机若无 pypinyin：`pip install pypinyin`（或 `.venv/bin/pip install pypinyin`），再用对应解释器跑上面的 build。
+
+然后在微信开发者工具**重新上传部署**云函数 `catalog`（别名 + 联想索引）和 `recommend`（别名表）。
 
 | 文件 | 角色 |
 |------|------|
 | `data/catalog/aliases-editor.json` | 网页分组编辑稿（`tools/alias-editor`） |
 | `data/catalog/aliases.json` | 规范表：通用名 → 别名[] |
+| `data/catalog/manual-suggest-index.json` | 手补联想源文件（`build-manual-suggest-index.py` 写出） |
+| `cloudfunctions/catalog/data/manual-suggest-index.json` | 随 catalog 部署的联想索引（sync 拷贝，不重算） |
 | `cloudfunctions/recommend/data/aliases.json` | **实际上随 recommend 部署的文件**（sync 拷贝） |
 | `cloudfunctions/_shared/data/aliases.json` | 共享副本 |
 | `miniprogram/data/aliases.json` + `aliases.js` | 小程序运行时 |
@@ -267,7 +276,7 @@ FEEDBACK_ADMIN_KEY=xxx node scripts/reply-feedback.js <feedbackId> <回复正文
 
 | 你改了什么 | 跑什么 | 再部署 / 导入 |
 |------------|--------|----------------|
-| 别名分组（alias-editor「别名」Tab） | `export-aliases-from-editor.py` → `sync-alias-runtime-data.js` | 部署 `recommend` |
+| 别名分组（alias-editor「别名」Tab）或直接改 `aliases.json` | `export-aliases-from-editor.py`（从编辑器导出时）→ `build-manual-suggest-index.py` → `sync-alias-runtime-data.js` | 部署 `catalog` 与 `recommend` |
 | 忌口组或组成员（「忌口」Tab） | 编辑器「导出到 builtin」→ `sync-avoid-options.js` → `import-ingredients.js` | 导入 `ingredients`；部署 `profile`；编译小程序 |
 | 城市货架 / 热度 → 菜场分档 | `build-ingredient-popularity.py` → `build-city-ingredients-by-scale.py` → `sync-city-scale-to-cloud.js` | 部署 `ingredients` |
 | 仅菜谱 builtin | `import-recipes.js` | 导入 `recipes` |
@@ -287,9 +296,11 @@ python3 scripts/build-ingredient-popularity.py && \
   node scripts/sync-city-scale-to-cloud.js
 # → 部署 ingredients
 
-# 别名上线
-python3 scripts/export-aliases-from-editor.py && node scripts/sync-alias-runtime-data.js
-# → 部署 recommend
+# 别名上线（含手补联想索引；改 aliases.json 后必须重建再部署 catalog）
+python3 scripts/export-aliases-from-editor.py && \
+  python3 scripts/build-manual-suggest-index.py && \
+  node scripts/sync-alias-runtime-data.js
+# → 部署 catalog 与 recommend
 
 # 忌口词表 + 食材标签上线（导出 builtin 在网页完成后再跑）
 node scripts/sync-avoid-options.js && node scripts/import-ingredients.js

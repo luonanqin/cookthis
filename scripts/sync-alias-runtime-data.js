@@ -5,6 +5,10 @@ const path = require('path')
 
 const root = path.join(__dirname, '..')
 const aliasesSrc = path.join(root, 'data/catalog/aliases.json')
+const suggestIndexSrc = path.join(
+  root,
+  'data/catalog/manual-suggest-index.json'
+)
 const byCategorySrc = path.join(
   root,
   'data/catalog/ingredients-all-by-category.json'
@@ -44,6 +48,10 @@ const catalogAliasesJs = 'cloudfunctions/catalog/data/aliases.js'
 ensureDir(path.join(root, 'cloudfunctions/catalog/data'))
 writeJsModule(path.join(root, catalogAliasesJs), aliasesObj)
 console.log('wrote', catalogAliasesJs)
+
+const suggestIndexRel = 'cloudfunctions/catalog/data/manual-suggest-index.json'
+fs.writeFileSync(path.join(root, suggestIndexRel), fs.readFileSync(suggestIndexSrc))
+console.log('wrote', suggestIndexRel)
 
 const shelvesMap = {}
 for (const ent of fs.readdirSync(citiesDir, { withFileTypes: true })) {
