@@ -39,15 +39,31 @@
         </view>
       </view>
 
-      <view
-        class="home-type-scale"
-        hover-class="tap-hover"
-        hover-stay-time="80"
-        bindtap="onToggleTypeScale"
-        aria-role="button"
-        aria-label="{{largeText ? '切换为小字' : '切换为大字'}}"
-      >
-        <text class="home-type-scale__glyph">{{typeScaleLabel}}</text>
+      <view class="home-top-tools">
+        <view
+          class="home-vip-entry"
+          hover-class="tap-hover"
+          hover-stay-time="80"
+          bindtap="goMembership"
+          aria-role="button"
+          aria-label="会员"
+        >
+          <image
+            class="home-vip-entry__img"
+            src="/assets/images/membership-vip-spark.webp"
+            mode="aspectFit"
+          />
+        </view>
+        <view
+          class="home-type-scale"
+          hover-class="tap-hover"
+          hover-stay-time="80"
+          bindtap="onToggleTypeScale"
+          aria-role="button"
+          aria-label="{{largeText ? '切换为小字' : '切换为大字'}}"
+        >
+          <text class="home-type-scale__glyph">{{typeScaleLabel}}</text>
+        </view>
       </view>
 
       <!-- 开发/体验可见测试入口 -->

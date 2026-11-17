@@ -1,6 +1,12 @@
 const { ensureLogin, getUser, patchUser } = require('../../services/session.js')
 const { callCloud } = require('../../services/cloud.js')
 const {
+  getStatus,
+  memberStatusLabel,
+  getMembershipLite,
+  setMembershipLite
+} = require('../../services/membership.js')
+const {
   clearShelfCache,
   prefetchCatalog
 } = require('../../services/catalogCache.js')
@@ -212,6 +218,7 @@ Page({
     nickname: '',
     avatarSrc: '/assets/avatar-default.png',
     userNoLabel: '',
+    memberStatusLabel: '未开通会员',
     avoidOptions: AVOID_OPTIONS,
     formOptions: FORM_OPTIONS,
     formValues: FORM_VALUES,
@@ -393,6 +400,25 @@ Page({
         console.error(err)
         if (!cached) wx.showToast({ title: '登录失败', icon: 'none' })
       })
+    this._loadMembershipStatus()
+  },
+
+  _loadMembershipStatus() {
+    const lite = getMembershipLite()
+    if (lite) {
+      this.setData({ memberStatusLabel: memberStatusLabel(lite) })
+    }
+    getStatus()
+      .then((res) => {
+        setMembershipLite(res)
+        this.setData({ memberStatusLabel: memberStatusLabel(res) })
+      })
+      .catch(() => {})
+  },
+
+  goMembership() {
+    tapFeedback()
+    wx.navigateTo({ url: '/pages/membership/index?from=mine' })
   },
 
   /** 成员增删改后刷新：走 auth 带回最新 members */

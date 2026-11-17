@@ -902,6 +902,11 @@ Page({
     wx.navigateTo({ url: '/pages/mine/mine' })
   },
 
+  goMembership() {
+    tapFeedback()
+    wx.navigateTo({ url: '/pages/membership/index?from=home_vip' })
+  },
+
   onResetPreferenceTest() {
     tapFeedback()
     wx.showModal({

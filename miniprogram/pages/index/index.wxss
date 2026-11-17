@@ -92,9 +92,32 @@
   gap: 16rpx;
 }
 
-.home-type-scale {
+.home-top-tools {
   margin-top: 20rpx;
-  align-self: flex-end;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.home-vip-entry {
+  width: 88rpx;
+  height: 88rpx;
+  min-width: 88rpx;
+  min-height: 88rpx;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.home-vip-entry__img {
+  width: 64rpx;
+  height: 64rpx;
+}
+
+.home-type-scale {
   width: 64rpx;
   height: 64rpx;
   box-sizing: border-box;
