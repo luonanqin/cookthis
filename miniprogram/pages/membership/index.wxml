@@ -1,0 +1,140 @@
+<view class="page {{typeScaleClass}}">
+  <page-header title="会员" subtitle="买一次算一次，不自动续费" />
+  <view class="page-body membership-body">
+    <view class="status-card">
+      <text class="status-text">{{statusText}}</text>
+      <text wx:if="{{payUnavailable}}" class="pay-banner">当前环境暂无法支付</text>
+    </view>
+
+    <view class="surface-card benefits">
+      <view class="section-label">会员权益</view>
+      <view class="benefit-row">
+        <view class="benefit-copy">
+          <text class="benefit-title">换菜不限次</text>
+          <text class="benefit-desc">日常与聚会共用一池，会员不再扣每日 3 次</text>
+        </view>
+        <text wx:if="{{isMember}}" class="benefit-tag">已享有</text>
+      </view>
+      <view class="benefit-row">
+        <view class="benefit-copy">
+          <text class="benefit-title">日常菜数放宽</text>
+          <text class="benefit-desc">免费用户日常总菜数软限 12；会员不限</text>
+        </view>
+        <text wx:if="{{isMember}}" class="benefit-tag">已享有</text>
+      </view>
+      <view class="benefit-row">
+        <view class="benefit-copy">
+          <text class="benefit-title">免换菜激励预告</text>
+          <text class="benefit-desc">激励上线后，会员免看视频再换</text>
+        </view>
+        <text wx:if="{{isMember}}" class="benefit-tag">已享有</text>
+      </view>
+    </view>
+
+    <view class="surface-card usage">
+      <view class="section-label">今日换菜</view>
+      <text class="usage-text">{{usageText}}</text>
+    </view>
+
+    <view wx:if="{{!isMember || buyExpanded}}" class="offers">
+      <view class="section-label offers-label">选择套餐</view>
+      <view
+        wx:for="{{offers}}"
+        wx:key="sku"
+        class="offer-card {{selectedSku === item.sku ? 'on' : ''}}"
+        data-sku="{{item.sku}}"
+        hover-class="tap-hover"
+        bindtap="onSelectSku"
+      >
+        <view class="offer-main">
+          <view class="offer-title-row">
+            <text class="offer-title">{{item.title}}</text>
+            <text wx:if="{{item.isFirstPurchase}}" class="offer-badge">首购</text>
+          </view>
+          <text class="offer-hint">{{item.hint}}</text>
+        </view>
+        <view class="offer-price">
+          <text class="pay-price">¥{{item.labelYuan}}</text>
+          <text wx:if="{{item.showList}}" class="list-price">¥{{item.listYuan}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{isMember}}" class="surface-card member-info">
+      <view class="section-label">会员信息</view>
+      <view class="info-row">
+        <text class="info-k">档位</text>
+        <text class="info-v">{{tierLabel || '会员'}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-k">到期日</text>
+        <text class="info-v">{{expiresLabel || '—'}}</text>
+      </view>
+      <view
+        class="link-btn"
+        hover-class="tap-hover"
+        bindtap="onRefresh"
+      >刷新会员状态</view>
+      <view
+        wx:if="{{!buyExpanded}}"
+        class="link-btn fold-buy"
+        hover-class="tap-hover"
+        bindtap="onExpandBuy"
+      >续费/再买</view>
+    </view>
+
+    <view
+      class="notice-entry"
+      hover-class="tap-hover"
+      bindtap="onOpenNotice"
+    >购买须知</view>
+  </view>
+
+  <view wx:if="{{!isMember || buyExpanded}}" class="footer">
+    <button
+      wx:if="{{!isMember}}"
+      type="primary"
+      disabled="{{busy}}"
+      bindtap="onPay"
+    >立即开通</button>
+    <button
+      wx:else
+      type="primary"
+      disabled="{{busy}}"
+      bindtap="onPay"
+    >续费/再买</button>
+  </view>
+
+  <view
+    wx:if="{{showNotice}}"
+    class="mask"
+    catchtouchmove="true"
+    bindtap="onCloseNotice"
+  >
+    <view class="sheet notice-sheet" catchtap="noop">
+      <view class="sheet-title">购买须知</view>
+      <view class="notice-list">
+        <view class="notice-item" wx:for="{{noticeItems}}" wx:key="*this">
+          <text class="notice-idx">{{index + 1}}.</text>
+          <text class="notice-copy">{{item}}</text>
+        </view>
+      </view>
+      <view class="sheet-actions">
+        <button
+          wx:if="{{!noticeAcked}}"
+          type="primary"
+          size="mini"
+          bindtap="onAckNotice"
+        >已知晓</button>
+        <button
+          wx:else
+          class="btn-outline"
+          size="mini"
+          bindtap="onCloseNotice"
+        >关闭</button>
+      </view>
+    </view>
+  </view>
+
+  <busy-overlay show="{{busy}}" />
+</view>

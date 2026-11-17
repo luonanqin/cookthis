@@ -1,0 +1,232 @@
+.page {
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+.membership-body {
+  padding-bottom: calc(180rpx + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.status-card {
+  background: var(--color-primary-soft);
+  border: 1rpx solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 28rpx 24rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.status-text {
+  font-size: var(--fs-title);
+  font-weight: var(--fw-semibold);
+  color: var(--color-forest);
+  line-height: 1.4;
+}
+
+.pay-banner {
+  font-size: var(--fs-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.section-label {
+  font-size: var(--fs-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: 12rpx;
+}
+
+.benefit-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16rpx;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid var(--color-border);
+}
+
+.benefit-row:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.benefit-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.benefit-title {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text);
+}
+
+.benefit-desc {
+  font-size: var(--fs-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.benefit-tag {
+  flex-shrink: 0;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  border-radius: var(--radius-chip);
+  padding: 4rpx 12rpx;
+}
+
+.usage-text {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  color: var(--color-text);
+}
+
+.offers-label {
+  margin: 4rpx 8rpx 8rpx;
+}
+
+.offer-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  background: var(--color-surface);
+  border: 1rpx solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  box-sizing: border-box;
+  box-shadow: 0 4rpx 20rpx rgba(39, 51, 46, 0.05);
+}
+
+.offer-card.on {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.offer-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.offer-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.offer-title {
+  font-size: var(--fs-title);
+  font-weight: var(--fw-semibold);
+  color: var(--color-forest);
+}
+
+.offer-badge {
+  font-size: var(--fs-xxs);
+  font-weight: var(--fw-semibold);
+  color: var(--color-coral);
+  background: var(--color-coral-soft);
+  border-radius: var(--radius-pill);
+  padding: 2rpx 12rpx;
+}
+
+.offer-hint {
+  font-size: var(--fs-sm);
+  color: var(--color-text-secondary);
+}
+
+.offer-price {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4rpx;
+}
+
+.pay-price {
+  font-size: var(--fs-lead);
+  font-weight: var(--fw-bold);
+  color: var(--color-primary);
+  line-height: 1.2;
+}
+
+.list-price {
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+.info-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16rpx;
+  padding: 8rpx 0;
+}
+
+.info-k {
+  font-size: var(--fs-sm);
+  color: var(--color-text-secondary);
+}
+
+.info-v {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  color: var(--color-text);
+}
+
+.link-btn {
+  margin-top: 16rpx;
+  padding: 16rpx 8rpx;
+  text-align: center;
+  font-size: var(--fs-body);
+  color: var(--color-primary);
+}
+
+.fold-buy {
+  margin-top: 0;
+}
+
+.notice-entry {
+  padding: 24rpx 8rpx 8rpx;
+  text-align: center;
+  font-size: var(--fs-md);
+  color: var(--color-text-secondary);
+}
+
+.notice-list {
+  margin: 16rpx 0 8rpx;
+}
+
+.notice-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8rpx;
+  padding: 10rpx 0;
+  font-size: var(--fs-body);
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+.notice-idx {
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+}
+
+.notice-copy {
+  min-width: 0;
+}
+
+.notice-sheet .sheet-actions {
+  justify-content: flex-end;
+}
