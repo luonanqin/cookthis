@@ -46,6 +46,42 @@ describe('listAccepted helpers', () => {
     assert.equal(item.dishes.length, 2)
     assert.equal(item.dishes[0].ate, true)
     assert.equal(item.dishes[1].ate, false)
+    assert.equal(item.dishes[0].mealLabel, 'dinner')
+    assert.equal(item.dishes[1].mealLabel, 'dinner')
+  })
+
+  it('shapeAcceptedItem sets mealLabel from slot.label then slot.meal', () => {
+    const doc = {
+      _id: 'rec2',
+      requestId: 'req_2',
+      accepted: true,
+      acceptedAt: '2026-11-17T12:00:00.000Z',
+      acceptedPlanIndex: 0,
+      scene: { mealType: 'daily' },
+      plans: [
+        {
+          planIndex: 0,
+          meals: [
+            {
+              slot: { meal: 'lunch', label: '午饭①' },
+              dishes: [{ recipeId: 'a', name: '青椒肉丝', meatVeg: 'meat' }]
+            },
+            {
+              slot: { meal: 'dinner' },
+              dishes: [{ recipeId: 'b', name: '番茄炒蛋', meatVeg: 'veg' }]
+            },
+            {
+              slot: {},
+              dishes: [{ recipeId: 'c', name: '紫菜汤', meatVeg: 'soup' }]
+            }
+          ]
+        }
+      ]
+    }
+    const item = shapeAcceptedItem(doc, new Set())
+    assert.equal(item.dishes[0].mealLabel, '午饭①')
+    assert.equal(item.dishes[1].mealLabel, 'dinner')
+    assert.equal(item.dishes[2].mealLabel, '')
   })
 
   it('shapeSharedListItem uses share dishes, ate always false, badge 分享', () => {
@@ -75,7 +111,28 @@ describe('listAccepted helpers', () => {
     assert.equal(item.dishes[0].name, '红烧肉')
     assert.equal(item.dishes[0].ate, false)
     assert.equal(item.dishes[1].ate, false)
+    assert.equal(item.dishes[0].mealLabel, '')
     assert.equal(item.sharerNickname, '小明')
+  })
+
+  it('shapeSharedListItem passes through mealLabel', () => {
+    const received = {
+      shareId: 'sh_m',
+      savedAt: '2026-11-17T08:00:00.000Z',
+      dishNamesSummary: []
+    }
+    const share = {
+      shareId: 'sh_m',
+      dishes: [
+        { name: '红烧肉', mealLabel: '晚饭' },
+        { name: '青菜', mealLabel: '晚饭' },
+        { name: '旧菜' }
+      ]
+    }
+    const item = shapeSharedListItem(received, share)
+    assert.equal(item.dishes[0].mealLabel, '晚饭')
+    assert.equal(item.dishes[1].mealLabel, '晚饭')
+    assert.equal(item.dishes[2].mealLabel, '')
   })
 
   it('shapeSharedListItem falls back to dishNamesSummary without shareDoc', () => {

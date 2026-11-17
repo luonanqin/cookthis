@@ -52,6 +52,13 @@ function shapeAcceptedItem(doc, ateNamesSet) {
   const ateDishNames = []
 
   for (const meal of plan.meals || []) {
+    const slot = (meal && meal.slot) || {}
+    const mealLabel =
+      slot.label != null && String(slot.label) !== ''
+        ? String(slot.label)
+        : slot.meal != null && String(slot.meal) !== ''
+          ? String(slot.meal)
+          : ''
     for (const dish of meal.dishes || []) {
       if (!dish) continue
       const name = dish.name != null ? String(dish.name) : ''
@@ -61,6 +68,7 @@ function shapeAcceptedItem(doc, ateNamesSet) {
         recipeId: dish.recipeId,
         name,
         meatVeg: dish.meatVeg,
+        mealLabel,
         ate: !!didAte
       })
       if (didAte && name) {
@@ -92,11 +100,16 @@ function shapeSharedListItem(receivedDoc, shareDoc) {
   if (shareDoc && Array.isArray(shareDoc.dishes) && shareDoc.dishes.length) {
     dishes = shareDoc.dishes.map((d) => ({
       name: d && d.name != null ? String(d.name) : '',
+      mealLabel:
+        d && d.mealLabel != null && String(d.mealLabel) !== ''
+          ? String(d.mealLabel)
+          : '',
       ate: false
     }))
   } else {
     dishes = (receivedDoc.dishNamesSummary || []).map((name) => ({
       name: name != null ? String(name) : '',
+      mealLabel: '',
       ate: false
     }))
   }
