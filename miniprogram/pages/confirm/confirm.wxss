@@ -248,15 +248,57 @@
   line-height: 1.4;
 }
 
-.manual-item {
-  justify-content: space-between;
+.manual-chips {
+  margin-top: 16rpx;
 }
 
-.manual-unmatched {
+.manual-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  max-width: 100%;
+  padding: 10rpx 12rpx 10rpx 16rpx;
+  background: var(--color-primary-soft);
+  border: 1rpx solid var(--color-primary);
+  border-radius: var(--radius-chip);
+  box-sizing: border-box;
+  line-height: 1.25;
+}
+
+.manual-chip--unmatched {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+.manual-chip-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-sm);
+  color: var(--color-primary);
+}
+
+.manual-chip--unmatched .manual-chip-text {
+  color: var(--color-text);
+}
+
+.manual-chip-hint {
   flex-shrink: 0;
   font-size: var(--fs-xs);
   color: var(--color-text-muted);
-  line-height: 1.4;
+}
+
+.manual-chip-x {
+  flex-shrink: 0;
+  padding: 0 4rpx;
+  font-size: 28rpx;
+  line-height: 1;
+  color: var(--color-primary);
+}
+
+.manual-chip--unmatched .manual-chip-x {
+  color: var(--color-text-secondary);
 }
 
 .scene {

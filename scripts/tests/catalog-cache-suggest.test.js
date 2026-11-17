@@ -84,25 +84,31 @@ describe('catalogCache manual suggest index', () => {
     assert.deepEqual(cache.readAliasesTable(), { 番茄: ['西红柿'] })
   })
 
-  it('does not cache a missing suggestIndex and ensureSuggestIndex retries getAliases', async () => {
+  it('does not cache a missing suggestIndex; falls back to alias surfaces for 汉字', async () => {
     delete cloudResult.suggestIndex
     await cache.ensureAliases()
     assert.equal(cache.readSuggestIndex(), null)
     assert.deepEqual(cache.readAliasesTable(), { 番茄: ['西红柿'] })
 
     const entries = await cache.ensureSuggestIndex()
-    assert.deepEqual(entries, [])
+    assert.deepEqual(entries, [
+      { surface: '番茄', canonical: '番茄' },
+      { surface: '西红柿', canonical: '番茄' }
+    ])
     assert.equal(cloudCalls.length, 2)
     assert.equal(cache.readSuggestIndex(), null)
   })
 
-  it('does not cache a non-array suggestIndex and ensureSuggestIndex retries getAliases', async () => {
+  it('does not cache a non-array suggestIndex; falls back to alias surfaces', async () => {
     cloudResult.suggestIndex = { entries: SAMPLE }
     await cache.ensureAliases()
     assert.equal(cache.readSuggestIndex(), null)
 
     const entries = await cache.ensureSuggestIndex()
-    assert.deepEqual(entries, [])
+    assert.deepEqual(entries, [
+      { surface: '番茄', canonical: '番茄' },
+      { surface: '西红柿', canonical: '番茄' }
+    ])
     assert.equal(cloudCalls.length, 2)
     assert.equal(cache.readSuggestIndex(), null)
   })
@@ -141,7 +147,21 @@ describe('catalogCache manual suggest index', () => {
     assert.deepEqual(cache.readAliasesTable(), { 番茄: ['西红柿'] })
   })
 
-  it('ensureSuggestIndex resolves [] when getAliases fails', async () => {
+  it('ensureSuggestIndex falls back to cached aliases when getAliases fails', async () => {
+    store.set('cookthis_aliases_v1', {
+      _cacheEpoch: cache.ALIASES_CACHE_EPOCH,
+      番茄: ['西红柿']
+    })
+    cloudError = { error: 'RATE_LIMITED' }
+    const entries = await cache.ensureSuggestIndex()
+    assert.deepEqual(entries, [
+      { surface: '番茄', canonical: '番茄' },
+      { surface: '西红柿', canonical: '番茄' }
+    ])
+    assert.equal(cache.readSuggestIndex(), null)
+  })
+
+  it('ensureSuggestIndex resolves [] when getAliases fails and aliases are cold', async () => {
     cloudError = { error: 'RATE_LIMITED' }
     const entries = await cache.ensureSuggestIndex()
     assert.deepEqual(entries, [])

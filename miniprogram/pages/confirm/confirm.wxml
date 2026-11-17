@@ -98,15 +98,22 @@
         </view>
         <button size="mini" type="primary" bindtap="addManual">添 加</button>
       </view>
-      <view wx:if="{{manualSuggestEmpty}}" class="manual-suggest-empty">无匹配，可仍添加（可能无法出菜）</view>
-      <view
-        wx:for="{{manuals}}"
-        wx:key="id"
-        class="row manual-item"
-      >
-        <text class="name">{{item.displayName || item.name}}</text>
-        <text wx:if="{{item.matched === false}}" class="manual-unmatched">暂无法匹配菜谱</text>
-        <text class="link" data-id="{{item.id}}" bindtap="removeManual">移除</text>
+      <view wx:if="{{manualDedupeHint}}" class="manual-suggest-empty">{{manualDedupeHint}}</view>
+      <view wx:elif="{{manualSuggestEmpty}}" class="manual-suggest-empty">无匹配，可仍添加（可能无法出菜）</view>
+      <view class="chip-row manual-chips" wx:if="{{manuals.length}}">
+        <view
+          wx:for="{{manuals}}"
+          wx:key="id"
+          class="manual-chip {{item.matched === false ? 'manual-chip--unmatched' : ''}}"
+          hover-class="tap-hover"
+          hover-stay-time="80"
+          data-id="{{item.id}}"
+          bindtap="removeManual"
+        >
+          <text class="manual-chip-text">{{item.displayName || item.name}}</text>
+          <text wx:if="{{item.matched === false}}" class="manual-chip-hint">未匹配</text>
+          <text class="manual-chip-x" aria-label="移除">×</text>
+        </view>
       </view>
     </view>
 
@@ -175,10 +182,14 @@
 
       <view class="field" wx:else>
         <text class="field-label {{warnSlots ? 'title-warn' : ''}} {{warnSlots && warnPulse ? 'title-pulse' : ''}}">几顿</text>
-        <view class="slot-stepper">
-          <text class="step-btn" data-delta="-1" bindtap="bumpPartySlots">−</text>
-          <text class="slot-count">{{partySlotCount}}</text>
-          <text class="step-btn" data-delta="1" bindtap="bumpPartySlots">+</text>
+        <view class="chip-row">
+          <view
+            wx:for="{{partySlotOptions}}"
+            wx:key="*this"
+            class="chip {{partySlotCount === item ? 'chip-on' : ''}}"
+            data-count="{{item}}"
+            bindtap="onPartySlotPick"
+          >{{item}}</view>
         </view>
       </view>
 

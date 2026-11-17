@@ -1,6 +1,7 @@
 'use strict'
 const { callCloud } = require('./cloud.js')
 const { loadAliases, buildAliasIndex, normalizeCityKey } = require('../utils/aliasMatch.js')
+const { buildEntriesFromAliases } = require('../utils/manualSuggest.js')
 const { track } = require('../utils/track.js')
 
 const ALIASES_KEY = 'cookthis_aliases_v1'
@@ -12,6 +13,11 @@ const SUGGEST_CACHE_EPOCH = 1
 const SHELF_PREFIX = 'cookthis_shelf_v1_'
 /** 进行中的 getAliases，别名与联想索引共用，避免同一次冷启动打两次 */
 let aliasesInflight = null
+
+/** 云函数尚未下发 suggestIndex 时，用别名表拼汉字条目（无拼音）；不写入 SUGGEST_KEY */
+function fallbackSuggestEntries(table) {
+  return buildEntriesFromAliases(table || readAliasesTable() || {})
+}
 
 function shelfStorageKey(cityKey) {
   return SHELF_PREFIX + cityKey
@@ -155,8 +161,14 @@ function ensureSuggestIndex() {
   // 空列表与未缓存一样要重拉：旧客户端可能已把缺字段写成 []
   if (cached && cached.length) return Promise.resolve(cached)
   return fetchAliasesBundle()
-    .then((bundle) => bundle.entries)
-    .catch(() => [])
+    .then((bundle) => {
+      if (Array.isArray(bundle.entries) && bundle.entries.length) {
+        return bundle.entries
+      }
+      // 旧 catalog 无 suggestIndex：汉字仍可联想；勿把回退结果冻进缓存
+      return fallbackSuggestEntries(bundle.table)
+    })
+    .catch(() => fallbackSuggestEntries())
 }
 
 /**
@@ -193,7 +205,7 @@ function ensureShelfOrder(city) {
 /** 登录后预拉：失败静默 */
 function prefetchCatalog(user) {
   const u = user || {}
-  const tasks = [ensureAliases()]
+  const tasks = [ensureAliases(), ensureSuggestIndex()]
   if (String(u.city || '').trim()) {
     tasks.push(ensureShelfOrder(u.city))
   }

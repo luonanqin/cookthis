@@ -167,7 +167,7 @@ function isComboPresent(combo) {
 }
 
 function buildPartySlots(n) {
-  const count = Math.max(1, Math.min(7, Number(n) || 1))
+  const count = Math.max(1, Math.min(3, Number(n) || 1))
   const slots = []
   for (let i = 0; i < count; i++) {
     slots.push({
@@ -210,6 +210,7 @@ Page({
     manualInput: '',
     manualSuggestions: [],
     manualSuggestEmpty: false,
+    manualDedupeHint: '',
     count: 0,
     seasonalCount: 0,
     yearRoundCount: 0,
@@ -251,6 +252,7 @@ Page({
     draftLunchCount: 0,
     draftDinnerCount: 0,
     partySlotCount: 1,
+    partySlotOptions: [1, 2, 3],
     partyAvoidOptions: PARTY_AVOID_OPTIONS,
     partyAvoidChecked: {},
     warnSeason: false,
@@ -347,32 +349,48 @@ Page({
     }
   },
 
-  _selectedCanonicalSet() {
-    const set = new Set()
+  _canonicalOfName(name) {
+    const s = String(name || '')
+    if (!s) return ''
     const idx = this._aliasIndex
-    const canonicalOf = (name) => {
-      const s = String(name || '')
-      if (!s) return ''
-      if (idx && typeof idx.canonicalOf === 'function') return idx.canonicalOf(s)
-      return s
-    }
+    if (idx && typeof idx.canonicalOf === 'function') return idx.canonicalOf(s)
+    return s
+  },
+
+  _shelfCheckedCanonicalSet() {
+    const set = new Set()
     const add = (name) => {
-      const c = canonicalOf(name)
+      const c = this._canonicalOfName(name)
       if (c) set.add(c)
     }
-    const { seasonal, yearRound, seasonalChecked, yearRoundChecked, manuals } = this.data
+    const { seasonal, yearRound, seasonalChecked, yearRoundChecked } = this.data
     ;(seasonal || []).forEach((it) => {
       if (it && seasonalChecked && seasonalChecked[it.id]) add(it.name)
     })
     ;(yearRound || []).forEach((it) => {
       if (it && yearRoundChecked && yearRoundChecked[it.id]) add(it.name)
     })
-    ;(manuals || []).forEach((it) => {
+    return set
+  },
+
+  _selectedCanonicalSet() {
+    const set = this._shelfCheckedCanonicalSet()
+    const add = (name) => {
+      const c = this._canonicalOfName(name)
+      if (c) set.add(c)
+    }
+    ;(this.data.manuals || []).forEach((it) => {
       if (!it) return
       if (it.canonical) set.add(String(it.canonical))
       else add(it.name)
     })
     return set
+  },
+
+  _dedupeHintFor(canonical) {
+    if (!canonical) return '已添加'
+    if (this._shelfCheckedCanonicalSet().has(canonical)) return '已在菜场'
+    return '已添加'
   },
 
   _peopleLabel(n) {
@@ -851,7 +869,7 @@ Page({
 
   onManualInput(e) {
     const v = e.detail.value
-    this.setData({ manualInput: v })
+    this.setData({ manualInput: v, manualDedupeHint: '' })
     this._clearSuggestTimer()
     this._suggestTimer = setTimeout(() => this._refreshManualSuggest(v), 200)
   },
@@ -865,13 +883,23 @@ Page({
     })
     const candidates = r.candidates || []
     const trimmed = String(q || '').trim()
-    let manualSuggestEmpty = !!(trimmed && !candidates.length)
-    // Hits that exist only before exclude are already selected, not "无法出菜".
-    if (manualSuggestEmpty && excludeCanonicals && excludeCanonicals.size) {
+    let manualSuggestEmpty = false
+    let manualDedupeHint = ''
+    if (trimmed && entries.length && !candidates.length) {
       const open = suggestManualIngredients(q, entries, { limit: 1 })
-      if (open.candidates && open.candidates.length) manualSuggestEmpty = false
+      if (open.candidates && open.candidates.length) {
+        manualDedupeHint = this._dedupeHintFor(open.candidates[0].canonical)
+      } else {
+        manualSuggestEmpty = true
+      }
     }
-    return { entries, excludeCanonicals, candidates, manualSuggestEmpty }
+    return {
+      entries,
+      excludeCanonicals,
+      candidates,
+      manualSuggestEmpty,
+      manualDedupeHint
+    }
   },
 
   _refreshManualSuggest(q) {
@@ -884,7 +912,8 @@ Page({
     }
     this.setData({
       manualSuggestions: view.candidates,
-      manualSuggestEmpty: view.manualSuggestEmpty
+      manualSuggestEmpty: view.manualSuggestEmpty,
+      manualDedupeHint: view.manualDedupeHint
     })
   },
 
@@ -909,7 +938,8 @@ Page({
     const sug = view.candidates
     this.setData({
       manualSuggestions: sug,
-      manualSuggestEmpty: view.manualSuggestEmpty
+      manualSuggestEmpty: view.manualSuggestEmpty,
+      manualDedupeHint: view.manualDedupeHint
     })
     let resolved
     if (sug.length === 1) {
@@ -921,6 +951,7 @@ Page({
         via: 'pick'
       }
     } else {
+      // 含「已在菜场」唯一强命中：仍解析为 matched，提交时静默去重
       resolved = Object.assign(
         { via: 'free' },
         resolveManualAdd(q, view.entries, { excludeCanonicals: view.excludeCanonicals })
@@ -937,9 +968,9 @@ Page({
       this.setData({
         manualInput: '',
         manualSuggestions: [],
-        manualSuggestEmpty: false
+        manualSuggestEmpty: false,
+        manualDedupeHint: this._dedupeHintFor(canonical)
       })
-      wx.showToast({ title: '已在列表中', icon: 'none' })
       return
     }
     const item = {
@@ -957,6 +988,7 @@ Page({
       manualInput: '',
       manualSuggestions: [],
       manualSuggestEmpty: false,
+      manualDedupeHint: '',
       ...this._counts(this.data.seasonalChecked, this.data.yearRoundChecked, manuals)
     })
     track('ingredient_manual_add', {
@@ -1151,9 +1183,9 @@ Page({
     })
   },
 
-  bumpPartySlots(e) {
-    const delta = Number(e.currentTarget.dataset.delta) || 0
-    const next = Math.max(1, Math.min(7, (this.data.partySlotCount || 1) + delta))
+  onPartySlotPick(e) {
+    const next = Math.max(1, Math.min(3, Number(e.currentTarget.dataset.count) || 1))
+    if (next === this.data.partySlotCount) return
     this.setData({
       partySlotCount: next,
       mealSlots: buildPartySlots(next)
