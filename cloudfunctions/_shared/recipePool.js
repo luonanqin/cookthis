@@ -12,7 +12,7 @@ const RECIPE_POOL_CAP = 1000
  */
 function shouldContinueRecipeRefill(input) {
   const planCount = Number(input && input.planCount) || 0
-  const target = Math.max(1, Number(input && input.target) || 3)
+  const target = Math.max(1, Number(input && input.target) || 2)
   if (planCount >= target) return false
   if (input && input.exhausted) return false
   const poolSize = Number(input && input.poolSize) || 0

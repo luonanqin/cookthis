@@ -8,6 +8,7 @@ const { PLAN_SHARE_ENABLED, shareCardTitle } = require('../../utils/planShare.js
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 const { formatSceneSummaryLines } = require('../../utils/sceneSummary.js')
 const { computeProfileGaps } = require('../../utils/profileGaps.js')
+const { buildRejectDishPool } = require('../../utils/rejectDishPool.js')
 
 const RECOMMEND_KEY = 'cookthis_last_recommend'
 const SELECTED_KEY = 'cookthis_last_selected'
@@ -106,6 +107,42 @@ function groupDishesByMeatVeg(dishes) {
   return groups
 }
 
+/** Build rows for reject sheet from pool + selections + active reason */
+function buildRejectDishRows(pool, selections, activeReason) {
+  const sel = selections || {}
+  return (pool || []).map((d) => {
+    const key = d.key
+    const reasonsMap = sel[key] || {}
+    const reasonTags = []
+    for (let i = 0; i < REJECT_REASONS.length; i++) {
+      const rid = REJECT_REASONS[i].id
+      if (reasonsMap[rid]) {
+        reasonTags.push({ id: rid, label: REJECT_REASONS[i].label })
+      }
+    }
+    return Object.assign({}, d, {
+      checked: !!reasonsMap[activeReason],
+      reasonTags
+    })
+  })
+}
+
+function collectDishFeedback(pool, selections) {
+  const out = []
+  const sel = selections || {}
+  for (const d of pool || []) {
+    const reasonsMap = sel[d.key] || {}
+    const reasons = Object.keys(reasonsMap).filter((id) => reasonsMap[id])
+    if (!reasons.length) continue
+    out.push({
+      recipeId: d.recipeId,
+      name: d.name,
+      reasons
+    })
+  }
+  return out
+}
+
 function decoratePlans(plans, selectedNames) {
   return plans.map((p) => {
     const summary = buildPlanIngredientSummary({
@@ -150,6 +187,10 @@ Page({
     showQuickLite: false,
     quickLiteNeedCity: false,
     rejectReasons: REJECT_REASONS,
+    rejectActiveReason: 'dont_want',
+    rejectDishPool: [],
+    rejectDishRows: [],
+    rejectSelections: {},
     fabDimmed: false,
     planShareEnabled: PLAN_SHARE_ENABLED
   },
@@ -470,7 +511,16 @@ Page({
 
   onRejectOpen() {
     tapFeedback()
-    this.setData({ showReject: true })
+    const pool = buildRejectDishPool(this.data.plans || [], { limit: 10 })
+    const rejectActiveReason = 'dont_want'
+    const rejectSelections = {}
+    this.setData({
+      showReject: true,
+      rejectActiveReason,
+      rejectDishPool: pool,
+      rejectSelections,
+      rejectDishRows: buildRejectDishRows(pool, rejectSelections, rejectActiveReason)
+    })
   },
 
   onRejectClose() {
@@ -478,22 +528,70 @@ Page({
     this.setData({ showReject: false })
   },
 
+  onRejectReasonTab(e) {
+    tapFeedback()
+    const id = e.currentTarget.dataset.id
+    if (!id || id === this.data.rejectActiveReason) return
+    this.setData({
+      rejectActiveReason: id,
+      rejectDishRows: buildRejectDishRows(
+        this.data.rejectDishPool,
+        this.data.rejectSelections,
+        id
+      )
+    })
+  },
+
+  onRejectDishToggle(e) {
+    tapFeedback()
+    const key = e.currentTarget.dataset.key
+    if (!key) return
+    const reason = this.data.rejectActiveReason
+    const rejectSelections = Object.assign({}, this.data.rejectSelections)
+    const prev = Object.assign({}, rejectSelections[key] || {})
+    prev[reason] = !prev[reason]
+    if (!prev[reason]) delete prev[reason]
+    const ids = Object.keys(prev).filter((id) => prev[id])
+    if (ids.length) rejectSelections[key] = prev
+    else delete rejectSelections[key]
+    this.setData({
+      rejectSelections,
+      rejectDishRows: buildRejectDishRows(
+        this.data.rejectDishPool,
+        rejectSelections,
+        reason
+      )
+    })
+  },
+
   onRejectSkip() {
     tapFeedback()
     this.setData({ showReject: false })
     this._reportBatchDwell('reject', 'recommend_reject', { skippedReason: true })
-    this._rerun('reject', {})
+    this._rerun('reject', { skippedReason: true })
   },
 
-  onRejectReason(e) {
+  onRejectDone() {
     tapFeedback()
-    const reason = e.currentTarget.dataset.id
+    const dishFeedback = collectDishFeedback(
+      this.data.rejectDishPool,
+      this.data.rejectSelections
+    )
     this.setData({ showReject: false })
+    if (!dishFeedback.length) {
+      this._reportBatchDwell('reject', 'recommend_reject', { skippedReason: true })
+      this._rerun('reject', { skippedReason: true })
+      return
+    }
     this._reportBatchDwell('reject', 'recommend_reject', {
-      reason,
+      skippedReason: false,
+      dishCount: dishFeedback.length
+    })
+    this._rerun('reject', {
+      planIndex: 0,
+      dishFeedback,
       skippedReason: false
     })
-    this._rerun('reject', { reason, planIndex: 0 })
   },
 
   _rerun(action, extra) {

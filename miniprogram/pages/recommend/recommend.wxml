@@ -98,17 +98,43 @@
     catchtouchmove="true"
     bindtap="onRejectClose"
   >
-    <view class="sheet" catchtap="noop">
-      <view class="sheet-title">不太合适的原因（可选）</view>
-      <view
-        class="reason"
-        wx:for="{{rejectReasons}}"
-        wx:key="id"
-        data-id="{{item.id}}"
-        bindtap="onRejectReason"
-      >{{item.label}}</view>
+    <view class="sheet sheet-reject" catchtap="noop">
+      <view class="reject-reason-row">
+        <view
+          class="reject-reason-chip {{rejectActiveReason === item.id ? 'on' : ''}}"
+          wx:for="{{rejectReasons}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onRejectReasonTab"
+        >{{item.label}}</view>
+      </view>
+      <scroll-view scroll-y class="reject-dish-scroll" wx:if="{{rejectDishRows.length}}">
+        <view
+          class="reject-dish-row {{item.checked ? 'on' : ''}}"
+          wx:for="{{rejectDishRows}}"
+          wx:key="key"
+          data-key="{{item.key}}"
+          bindtap="onRejectDishToggle"
+        >
+          <text class="type-badge type-{{item.meatVeg}}">{{item.typeLabel}}</text>
+          <view class="reject-dish-main">
+            <text class="reject-dish-name">{{item.name}}</text>
+            <view class="reject-reason-tags" wx:if="{{item.reasonTags.length}}">
+              <text
+                class="reject-reason-tag"
+                wx:for="{{item.reasonTags}}"
+                wx:for-item="tag"
+                wx:key="id"
+              >{{tag.label}}</text>
+            </view>
+          </view>
+          <text class="reject-check">{{item.checked ? '✓' : ''}}</text>
+        </view>
+      </scroll-view>
+      <view wx:else class="reject-dish-empty">当前方案暂无可标菜，可直接完成或跳过</view>
       <view class="sheet-actions">
         <button size="mini" class="btn-outline" bindtap="onRejectSkip">跳 过</button>
+        <button size="mini" class="btn-outline" bindtap="onRejectDone">完 成</button>
         <button size="mini" class="btn-outline" bindtap="onRejectClose">取 消</button>
       </view>
     </view>

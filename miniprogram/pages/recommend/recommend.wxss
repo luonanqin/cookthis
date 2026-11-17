@@ -336,9 +336,89 @@
   z-index: 12;
 }
 
-.reason {
-  padding: 24rpx 0;
+.sheet-reject {
+  padding-top: 28rpx;
+}
+
+.reject-reason-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-bottom: 20rpx;
+}
+
+.reject-reason-chip {
+  padding: 10rpx 18rpx;
+  border-radius: 10rpx;
+  border: 1rpx solid var(--color-border);
+  font-size: var(--fs-sm);
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+.reject-reason-chip.on {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  font-weight: var(--fw-semibold);
+}
+
+.reject-dish-scroll {
+  max-height: 52vh;
+  margin-bottom: 8rpx;
+}
+
+.reject-dish-empty {
+  padding: 24rpx 0 32rpx;
+  font-size: var(--fs-sm);
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.reject-dish-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+  padding: 16rpx 8rpx;
   border-bottom: 1rpx solid var(--color-border);
+}
+
+.reject-dish-row.on {
+  background: var(--color-primary-soft);
+}
+
+.reject-dish-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.reject-dish-name {
   font-size: var(--fs-body);
   color: var(--color-text);
+  line-height: 1.4;
+}
+
+.reject-reason-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-top: 8rpx;
+}
+
+.reject-reason-tag {
+  padding: 2rpx 10rpx;
+  border-radius: 8rpx;
+  font-size: var(--fs-xs);
+  color: var(--color-forest);
+  background: var(--color-bg);
+  border: 1rpx solid var(--color-border);
+}
+
+.reject-check {
+  flex-shrink: 0;
+  width: 36rpx;
+  text-align: center;
+  font-size: var(--fs-body);
+  color: var(--color-primary);
+  line-height: 1.4;
 }

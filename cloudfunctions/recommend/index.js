@@ -48,7 +48,7 @@ const RECENT_MEAL_DAYS = 7
 const RECIPE_PAGE = 100
 const RECIPE_MAX_PAGES = 5
 /** 目标方案套数：尽量先凑满，候选不足才少出 */
-const TARGET_PLAN_COUNT = 3
+const TARGET_PLAN_COUNT = 2
 const IN_QUERY_CHUNK = 10
 
 /** @type {Map|null} */

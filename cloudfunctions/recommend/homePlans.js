@@ -434,7 +434,7 @@ function buildHomePlans(input) {
     diners = null,
     recentIngredientNames = [],
     recentIngredientDays = null,
-    maxPlans = 3,
+    maxPlans = 2,
     sessionSeed = '',
     cookSkill = null
   } = input || {}
