@@ -245,6 +245,9 @@
 
 .dish-name--locked {
   color: var(--color-text-secondary, #999);
+}
+
+.dish-name--locked .dish-name-text {
   opacity: 0.55;
 }
 

@@ -22,6 +22,13 @@ function handleSwapSource() {
   return indexJs.slice(start, end)
 }
 
+function handleAcceptSource() {
+  const start = indexJs.indexOf('async function handleAccept')
+  const end = indexJs.indexOf('async function handleGet')
+  assert.ok(start >= 0 && end > start)
+  return indexJs.slice(start, end)
+}
+
 describe('recommend daily dish soft cap wiring', () => {
   it('vendors dishSoftCap and reads isMemberActive', () => {
     assert.ok(fs.existsSync(path.join(dir, 'dishSoftCap.js')), 'dishSoftCap.js')
@@ -61,5 +68,22 @@ describe('recommend daily dish soft cap wiring', () => {
     assert.match(src.slice(lockAt), /dishSoftCap/)
     assert.match(src.slice(lockAt), /isMemberActive\(membership/)
     assert.doesNotMatch(src, /dishSoftCap:\s*null[\s\S]*applyDailyDishSoftLockPerPlan/)
+  })
+
+  it('handleAccept stamps response plans after persist so the client snap keeps softLocked', () => {
+    const src = handleAcceptSource()
+    assert.match(src, /loadMembership/)
+    assert.match(src, /isMemberActive\(membership/)
+    const updateAt = src.indexOf("collection('recommendations').doc")
+    const lockAt = src.indexOf('applyDailyDishSoftLockPerPlan')
+    const returnAt = src.lastIndexOf('return {')
+    assert.ok(updateAt >= 0, 'persist the accepted flag')
+    assert.ok(lockAt > updateAt, 'soft-lock the response after persist, not the stored plans')
+    assert.ok(returnAt > lockAt)
+    const returned = src.slice(lockAt)
+    assert.match(returned, /plans:\s*locked\.plans/)
+    assert.match(returned, /dishSoftCap:\s*locked\.dishSoftCap/)
+    assert.match(src, /mealType:\s*scene\.mealType/)
+    assert.doesNotMatch(src.slice(updateAt, lockAt), /softLocked/)
   })
 })

@@ -36,4 +36,20 @@ describe('recommend daily dish soft cap UI', () => {
     assert.doesNotMatch(accept, /softLocked|dishSoftCap|showDishCapTip/)
     assert.doesNotMatch(js, /filter\([^\)]*softLocked/)
   })
+
+  it('onAccept snap keeps dishSoftCap from the accept response', () => {
+    const accept = js.slice(js.indexOf('onAccept(e)'), js.indexOf('onSwapCapGoShopping'))
+    assert.match(accept, /writeSnap/)
+    assert.match(accept, /plans:\s*result\.plans/)
+    assert.match(accept, /dishSoftCap:\s*result\.dishSoftCap/)
+  })
+
+  it('applies lock opacity to the dish name, not 会员可展开', () => {
+    const lockedAt = wxss.indexOf('.dish-name--locked')
+    const lockedBlockEnd = wxss.indexOf('}', lockedAt)
+    const lockedBlock = wxss.slice(lockedAt, lockedBlockEnd + 1)
+    assert.doesNotMatch(lockedBlock, /opacity/)
+    assert.match(wxss, /\.dish-name--locked\s+\.dish-name-text[\s\S]*?opacity/)
+    assert.match(wxml, /class="dish-name-text"/)
+  })
 })

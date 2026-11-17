@@ -898,15 +898,21 @@ async function handleAccept(event, uid, user) {
     })
   }
 
+  const membership = await loadMembership(uid)
+  const locked = applyDailyDishSoftLockPerPlan(doc.plans || [], {
+    isMember: isMemberActive(membership, Date.now()),
+    mealType: scene.mealType
+  })
   return {
     ok: true,
     requestId,
     accepted: true,
     acceptedPlanIndex: planIndex,
     // 带回完整 plan，避免客户端 Storage 缺 mainIngredients 时清单空白
-    plans: doc.plans || [],
+    plans: locked.plans,
     scene,
-    plan: (doc.plans || [])[planIndex] || (doc.plans || [])[0] || null
+    plan: locked.plans[planIndex] || locked.plans[0] || null,
+    dishSoftCap: locked.dishSoftCap
   }
 }
 

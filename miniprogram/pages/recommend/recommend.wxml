@@ -71,7 +71,7 @@
                 wx:for-item="dish"
                 wx:key="name"
               >
-                <text>{{dish.name}}</text>
+                <text class="dish-name-text">{{dish.name}}</text>
                 <text wx:if="{{dish.softLocked}}" class="dish-locked-hint">会员可展开</text>
               </view>
             </view>

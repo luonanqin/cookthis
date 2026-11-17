@@ -717,7 +717,8 @@ Page({
             Object.assign({}, prev, {
               requestId: result.requestId || requestId,
               plans: result.plans,
-              scene: result.scene || prev.scene
+              scene: result.scene || prev.scene,
+              dishSoftCap: result.dishSoftCap || null
             })
           )
         }
