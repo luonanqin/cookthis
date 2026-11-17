@@ -53,7 +53,7 @@ Page({
     usageText: '',
     tierLabel: '',
     expiresLabel: '',
-    buyExpanded: true,
+    buyExpanded: false,
     ctaLabel: '立即开通',
     payUnavailable: false,
     noticeItems: NOTICE_ITEMS
@@ -76,6 +76,7 @@ Page({
 
   onShow() {
     this.applyTypeScale()
+    if (this.data.busy) return
     this._loadStatus()
   },
 
@@ -120,6 +121,7 @@ Page({
     if (this.data.busy) return
     tapFeedback('medium')
     track('membership_refresh_tap', { from: this.data.from })
+    this._loadGen += 1
     this.setData({ busy: true })
     membership
       .refresh()
@@ -153,9 +155,9 @@ Page({
     membership
       .createOrder(sku)
       .then((res) => {
-        this.setData({ busy: false })
         const p = res && res.payment
         if (!p || typeof wx.requestVirtualPayment !== 'function') {
+          this.setData({ busy: false })
           wx.showToast({ title: PAY_UNAVAILABLE, icon: 'none' })
           return
         }
@@ -171,6 +173,7 @@ Page({
             this._pollRefresh()
           },
           fail: (e) => {
+            this.setData({ busy: false })
             if (e && e.errCode === -2) track('membership_pay_cancel', { sku })
             wx.showToast({
               title: payFailToast(e, this.data.payUnavailable),
@@ -215,6 +218,7 @@ Page({
       clearTimeout(this._pollTimer)
       this._pollTimer = null
     }
+    this._loadGen += 1
     let attempt = 0
     const tick = () => {
       membership

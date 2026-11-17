@@ -93,7 +93,8 @@ describe('decorateOffers / applyStatus', () => {
         swap: { used: 1, limit: 3 },
         offers
       },
-      'year'
+      'year',
+      false
     )
     assert.equal(next.isMember, false)
     assert.equal(next.selectedSku, 'month')
@@ -111,7 +112,8 @@ describe('decorateOffers / applyStatus', () => {
         swap: { used: 0, limit: null },
         offers
       },
-      'quarter'
+      'quarter',
+      false
     )
     assert.equal(next.isMember, true)
     assert.equal(next.selectedSku, 'quarter')
@@ -119,6 +121,21 @@ describe('decorateOffers / applyStatus', () => {
     assert.equal(next.expiresLabel, '2027-02-19')
     assert.equal(next.buyExpanded, false)
     assert.equal(next.ctaLabel, '续费/再买')
+  })
+
+  it('keeps member buy panel expanded after the user unfolds', () => {
+    const next = applyStatus(
+      {
+        isMember: true,
+        tier: 'quarter',
+        expiresLabel: '2027-02-19',
+        swap: { used: 0, limit: null },
+        offers
+      },
+      'quarter',
+      true
+    )
+    assert.equal(next.buyExpanded, true)
   })
 })
 

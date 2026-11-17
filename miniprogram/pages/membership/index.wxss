@@ -197,6 +197,11 @@
   margin-top: 0;
 }
 
+.refresh-entry {
+  margin-top: 0;
+  padding: 8rpx;
+}
+
 .notice-entry {
   padding: 24rpx 8rpx 8rpx;
   text-align: center;

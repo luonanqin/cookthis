@@ -82,6 +82,12 @@
         bindtap="onExpandBuy"
       >续费/再买</view>
     </view>
+    <view
+      wx:else
+      class="link-btn refresh-entry"
+      hover-class="tap-hover"
+      bindtap="onRefresh"
+    >刷新会员状态</view>
 
     <view
       class="notice-entry"
@@ -108,7 +114,7 @@
   <view
     wx:if="{{showNotice}}"
     class="mask"
-    catchtouchmove="true"
+    catchtouchmove="noop"
     bindtap="onCloseNotice"
   >
     <view class="sheet notice-sheet" catchtap="noop">

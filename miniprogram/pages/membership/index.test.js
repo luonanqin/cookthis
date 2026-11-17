@@ -63,6 +63,41 @@ describe('membership page wiring', () => {
     assert.equal(wxss.includes('linear-gradient') && wxss.includes('purple'), false)
   })
 
+  it('folds member buy by default and passes buyExpanded like the page', () => {
+    assert.match(js, /buyExpanded:\s*false/)
+    assert.match(
+      js,
+      /applyStatus\(res,\s*this\.data\.selectedSku,\s*this\.data\.buyExpanded\)/
+    )
+  })
+
+  it('keeps busy through virtual pay and generation-guards onShow vs poll', () => {
+    const onPay = js.slice(js.indexOf('onPay()'), js.indexOf('_loadStatus() {'))
+    const thenBlock = onPay.slice(onPay.indexOf('.then'), onPay.indexOf('.catch'))
+    const gateAt = thenBlock.indexOf('if (!p')
+    const payAt = thenBlock.indexOf('requestVirtualPayment')
+    assert.ok(gateAt > 0 && payAt > gateAt)
+    assert.equal(thenBlock.slice(0, gateAt).includes('busy: false'), false)
+    assert.match(thenBlock, /fail:\s*\([^)]*\)\s*=>\s*\{[\s\S]*busy:\s*false/)
+    const successBlock = thenBlock.slice(
+      thenBlock.indexOf('success:'),
+      thenBlock.indexOf('fail:')
+    )
+    assert.match(successBlock, /_pollRefresh/)
+    assert.doesNotMatch(successBlock, /busy:\s*false/)
+    const onShow = js.slice(js.indexOf('onShow()'), js.indexOf('onUnload()'))
+    assert.match(onShow, /if \(this\.data\.busy\) return/)
+    const poll = js.slice(js.indexOf('_pollRefresh() {'))
+    assert.match(poll, /this\._loadGen \+= 1/)
+  })
+
+  it('shows 刷新会员状态 for non-members and uses a noop catchtouchmove', () => {
+    assert.ok((wxml.match(/刷新会员状态/g) || []).length >= 2)
+    assert.match(wxml, /wx:else[\s\S]{0,220}刷新会员状态/)
+    assert.match(wxml, /catchtouchmove="noop"/)
+    assert.doesNotMatch(wxml, /catchtouchmove="true"/)
+  })
+
   it('wraps membership cloud actions only', () => {
     assert.match(service, /callCloud\('membership', \{ action: 'getStatus' \}\)/)
     assert.match(service, /callCloud\('membership', \{ action: 'createOrder', sku \}\)/)
