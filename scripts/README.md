@@ -287,6 +287,18 @@ FEEDBACK_ADMIN_KEY=xxx node scripts/reply-feedback.js <feedbackId> <回复正文
 
 ---
 
+## 会员虚拟支付（运维）
+
+没有独立脚本。上传、消息推送与环境变量见 [`cloudfunctions/membership/README.md`](../cloudfunctions/membership/README.md)。
+
+- 云开发消息推送：`xpay_goods_deliver_notify` → 云函数 `membership`（回 `{ ErrCode: 0, ErrMsg: "success" }`）。
+- 环境变量：`XPAY_OFFER_ID`、`XPAY_APP_KEY`、`XPAY_ENV`（`0` 正式 / `1` 沙箱）。缺密钥时 `createOrder` 返回 `PAY_NOT_CONFIGURED`。
+- `MEMBERSHIP_ALLOW_DEV_GRANT=1` 时才允许 `action: devGrant`（模拟已支付订单并 `fulfillPaidOrder`）；其它环境返回 `FORBIDDEN`。
+- `queryOrder` 目前恒返回 `null`，刷新不能凭查单补发货。
+- 手测清单在会员 design §12，**未**在微信开发者工具勾选完成。
+
+---
+
 ## 速查命令
 
 ```bash

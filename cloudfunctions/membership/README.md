@@ -24,4 +24,8 @@ node --test cloudfunctions/membership/*.test.js
 4. 云开发「消息推送」：事件 `xpay_goods_deliver_notify` → 云函数 `membership`。推送入口必须回 `{ ErrCode: 0, ErrMsg: "success" }`。
 5. 数据库集合：`memberships`（每 uid 一条当前态）、`membership_orders`。
 6. 缺密钥时 `createOrder` 返回 `{ ok: false, error: "PAY_NOT_CONFIGURED" }`，不写订单。
+
+## 手测
+
+对照 `docs/superpowers/specs/2026-11-17-会员开通与权益-design.md` §12。2026-11-18 只登记了清单，**未**在微信开发者工具执行，条目保持未勾选。`queryOrder` 为 stub 时，延迟到账靠发货推送，不单靠刷新。
 )
