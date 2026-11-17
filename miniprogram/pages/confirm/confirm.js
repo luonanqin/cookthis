@@ -849,21 +849,35 @@ Page({
     this._suggestTimer = setTimeout(() => this._refreshManualSuggest(v), 200)
   },
 
-  _refreshManualSuggest(q) {
+  _manualSuggestFor(q) {
     const entries = this._suggestEntries || []
+    const excludeCanonicals = this._selectedCanonicalSet()
     const r = suggestManualIngredients(q, entries, {
       limit: 10,
-      excludeCanonicals: this._selectedCanonicalSet()
+      excludeCanonicals
     })
-    if ((r.candidates || []).length) {
+    const candidates = r.candidates || []
+    const trimmed = String(q || '').trim()
+    let manualSuggestEmpty = !!(trimmed && !candidates.length)
+    // Hits that exist only before exclude are already selected, not "无法出菜".
+    if (manualSuggestEmpty && excludeCanonicals && excludeCanonicals.size) {
+      const open = suggestManualIngredients(q, entries, { limit: 1 })
+      if (open.candidates && open.candidates.length) manualSuggestEmpty = false
+    }
+    return { entries, excludeCanonicals, candidates, manualSuggestEmpty }
+  },
+
+  _refreshManualSuggest(q) {
+    const view = this._manualSuggestFor(q)
+    if (view.candidates.length) {
       track('ingredient_manual_suggest_show', {
         queryLen: String(q || '').trim().length,
-        hitCount: r.candidates.length
+        hitCount: view.candidates.length
       })
     }
     this.setData({
-      manualSuggestions: r.candidates,
-      manualSuggestEmpty: !!(String(q || '').trim() && !r.candidates.length)
+      manualSuggestions: view.candidates,
+      manualSuggestEmpty: view.manualSuggestEmpty
     })
   },
 
@@ -883,8 +897,13 @@ Page({
   addManual() {
     const q = (this.data.manualInput || '').trim()
     if (!q) return
-    const entries = this._suggestEntries || []
-    const sug = this.data.manualSuggestions || []
+    this._clearSuggestTimer()
+    const view = this._manualSuggestFor(q)
+    const sug = view.candidates
+    this.setData({
+      manualSuggestions: sug,
+      manualSuggestEmpty: view.manualSuggestEmpty
+    })
     let resolved
     if (sug.length === 1) {
       resolved = {
@@ -897,7 +916,7 @@ Page({
     } else {
       resolved = Object.assign(
         { via: 'free' },
-        resolveManualAdd(q, entries, { excludeCanonicals: this._selectedCanonicalSet() })
+        resolveManualAdd(q, view.entries, { excludeCanonicals: view.excludeCanonicals })
       )
     }
     this._commitManual(resolved)
