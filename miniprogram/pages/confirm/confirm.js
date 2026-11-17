@@ -27,6 +27,7 @@ const {
   labelForChoice
 } = require('../../utils/marketScale.js')
 const {
+  CATEGORY_ORDER,
   CATEGORY_LABEL: CATEGORY_LABELS,
   normalizeCategory
 } = require('../../utils/categoryTaxonomy.js')
@@ -134,11 +135,17 @@ function groupByCategory(items) {
     if (!map.has(c)) map.set(c, [])
     map.get(c).push(it)
   })
-  return Array.from(map.entries()).map(([category, list]) => ({
-    category,
-    label: CATEGORY_LABELS[category] || category,
-    list
-  }))
+  const rank = (category) => {
+    const i = CATEGORY_ORDER.indexOf(category)
+    return i < 0 ? CATEGORY_ORDER.length : i
+  }
+  return Array.from(map.entries())
+    .sort((a, b) => rank(a[0]) - rank(b[0]))
+    .map(([category, list]) => ({
+      category,
+      label: CATEGORY_LABELS[category] || category,
+      list
+    }))
 }
 
 function countTrue(map) {
