@@ -220,9 +220,11 @@ Page({
       cancelText: '先逛逛',
       success: (res) => {
         if (res.confirm) {
+          track('onboarding_tip_go', {})
           wx.navigateTo({ url: '/pages/onboarding/onboarding' })
           return
         }
+        track('onboarding_tip_skip', {})
         callCloud('profile', { action: 'skipOnboarding' })
           .then(() => ensureLogin())
           .catch(() => {})
@@ -349,6 +351,9 @@ Page({
       this._ceremonyHoldTimer = null
       if (!this.data.showUserNoCeremony) return
       this.setData({ ceremonyPhase: 'steps' })
+      const u = getUser() || {}
+      const n = Number.isInteger(u.userNo) && u.userNo >= 1 ? u.userNo : null
+      track('user_no_reveal_steps', n != null ? { userNo: n } : {})
     }, CEREMONY_TRANSITION_MS)
   },
 
@@ -367,20 +372,20 @@ Page({
     this._clearCeremonyHoldTimer()
   },
 
-  _ackUserNoCeremony() {
+  _ackUserNoCeremony(via) {
     try {
       wx.setStorageSync('cookthis_user_no_reveal_seen', 1)
     } catch (e) {}
     patchUser({ userNoRevealSeen: true })
     callCloud('profile', { action: 'ackUserNoReveal' }).catch(() => {})
-    track('user_no_reveal_ack', {})
+    track('user_no_reveal_ack', { via: via || 'browse' })
   },
 
   onCeremonyGoOnboarding() {
     if (!this.data.showUserNoCeremony) return
     tapFeedback()
     this._clearCeremonyTimers()
-    this._ackUserNoCeremony()
+    this._ackUserNoCeremony('onboarding')
     this.setData({
       showUserNoCeremony: false,
       ceremonyPhase: 'roll',
@@ -396,7 +401,7 @@ Page({
     if (!this.data.showUserNoCeremony) return
     tapFeedback()
     this._clearCeremonyTimers()
-    this._ackUserNoCeremony()
+    this._ackUserNoCeremony('browse')
     this.setData({
       showUserNoCeremony: false,
       ceremonyPhase: 'roll',
@@ -839,6 +844,7 @@ Page({
   },
 
   onMarketScaleSkip() {
+    track('market_scale_sheet_skip', { source: 'sheet' })
     this._commitMarketScale('default_medium')
   },
 

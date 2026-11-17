@@ -262,7 +262,28 @@ Page({
     this._draftFamilyAvoidsNone = !!view.familyAvoidsNone
     this._draftFamilyAvoids = view.familyAvoids.slice()
     this._draftCuisineOk = !!view.cuisineOkChecked
-    this.setData(Object.assign({}, view, gapMarksFromState(view)))
+    const marks = gapMarksFromState(view)
+    this.setData(Object.assign({}, view, marks))
+    this._maybeTrackMineReminder(view)
+  },
+
+  _maybeTrackMineReminder(view) {
+    if (this._mineReminderTracked) return
+    const s = view || {}
+    const gaps = computeProfileGaps({
+      familyAvoids: s.familyAvoids || [],
+      familyAvoidsNone: !!(s.noneAvoidChecked || s.familyAvoidsNone),
+      membersCount: (s.members || []).length,
+      city: s.city || '',
+      cuisinePrefs: s.cuisinePrefs || {},
+      cuisinePrefsConfirmedAt: s.cuisineOkChecked
+        ? true
+        : s.cuisinePrefsConfirmedAt || null,
+      cookSkillProbeDishIds: dishIdsFromChecked(s.probeChecked)
+    })
+    if (!gaps.anyOpen) return
+    this._mineReminderTracked = true
+    track('profile_reminder_show', { surface: 'mine', gaps: gaps.gaps })
   },
 
   _syncGapMarks() {
@@ -354,6 +375,7 @@ Page({
 
   onShow() {
     this.applyTypeScale()
+    this._mineReminderTracked = false
     // auth 已带 members：本地缓存立刻上屏，无需再打 profile.get
     const cached = getUser()
     if (cached) this.applyProfile(cached)
@@ -467,6 +489,7 @@ Page({
       this._syncGapMarks()
       return
     }
+    track('city_change_confirm_show', { from: prevCity, to: next })
     wx.showModal({
       title: '确认更换城市',
       content:
@@ -474,7 +497,11 @@ Page({
       confirmText: '确定',
       cancelText: '取消',
       success: (res) => {
-        if (!res.confirm) return
+        if (!res.confirm) {
+          track('city_change_cancel', { from: prevCity, to: next })
+          return
+        }
+        track('city_change_confirm', { from: prevCity, to: next })
         this.setData({ region, city: next })
         this._syncGapMarks()
       }
@@ -838,6 +865,7 @@ Page({
           title = '云函数过旧，请重新部署 profile'
         } else if (code === 'CITY_CHANGE_WEEKLY_LIMIT') {
           title = '本周换城已达上限（2次）'
+          track('city_change_week_limit', {})
         } else if (code === 'EMPTY_PROBE') {
           title = '请勾选会做的菜'
           this._validateBeforeSave()

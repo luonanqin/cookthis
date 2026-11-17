@@ -300,15 +300,15 @@
                 </view>
               </view>
             </view>
-            <view class="ceremony-actions">
-              <button class="btn-outline ceremony-btn-secondary" bindtap="onCeremonyBrowseFirst"
-                >先逛逛</button>
-              <button
-                class="btn-main ceremony-btn-primary"
-                type="primary"
-                bindtap="onCeremonyGoOnboarding"
-              >完善偏好</button>
-            </view>
+          </view>
+          <view class="ceremony-actions">
+            <button class="btn-outline ceremony-btn-secondary" bindtap="onCeremonyBrowseFirst"
+              >先逛逛</button>
+            <button
+              class="btn-main ceremony-btn-primary"
+              type="primary"
+              bindtap="onCeremonyGoOnboarding"
+            >完善偏好</button>
           </view>
         </view>
       </view>
