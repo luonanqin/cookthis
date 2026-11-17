@@ -74,22 +74,38 @@
     <view class="manual surface-card">
       <view class="section-title confirm-title-row"><view class="plus-mark">+</view><text>补菜</text></view>
       <view class="manual-row">
-        <input
-          class="manual-input"
-          placeholder="输入菜名"
-          value="{{manualInput}}"
-          bindinput="onManualInput"
-          confirm-type="done"
-          bindconfirm="addManual"
-        />
+        <view class="manual-field">
+          <input
+            class="manual-input"
+            placeholder="菜名或拼音"
+            value="{{manualInput}}"
+            bindinput="onManualInput"
+            confirm-type="done"
+            bindconfirm="addManual"
+          />
+          <view class="manual-suggest" wx:if="{{manualSuggestions.length}}">
+            <view
+              wx:for="{{manualSuggestions}}"
+              wx:key="canonical"
+              class="manual-suggest-item"
+              hover-class="tap-hover"
+              hover-stay-time="80"
+              data-canonical="{{item.canonical}}"
+              data-surface="{{item.surface}}"
+              bindtap="onPickManualSuggest"
+            >{{item.label}}</view>
+          </view>
+        </view>
         <button size="mini" type="primary" bindtap="addManual">添 加</button>
       </view>
+      <view wx:if="{{manualSuggestEmpty}}" class="manual-suggest-empty">无匹配，可仍添加（可能无法出菜）</view>
       <view
         wx:for="{{manuals}}"
         wx:key="id"
         class="row manual-item"
       >
-        <text class="name">{{item.name}}</text>
+        <text class="name">{{item.displayName || item.name}}</text>
+        <text wx:if="{{item.matched === false}}" class="manual-unmatched">暂无法匹配菜谱</text>
         <text class="link" data-id="{{item.id}}" bindtap="removeManual">移除</text>
       </view>
     </view>

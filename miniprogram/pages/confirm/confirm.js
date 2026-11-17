@@ -1,6 +1,11 @@
 const { callCloud } = require('../../services/cloud.js')
 const { getUser, ensureLogin, patchUser } = require('../../services/session.js')
 const confirmIngredientsCache = require('../../services/confirmIngredientsCache.js')
+const catalogCache = require('../../services/catalogCache.js')
+const {
+  suggestManualIngredients,
+  resolveManualAdd
+} = require('../../utils/manualSuggest.js')
 const { suggestPartyCombo, suggestComboByPeople } = require('../../utils/suggestCombo.js')
 const { filterHolidays } = require('../../utils/filterHolidays.js')
 const { track } = require('../../utils/track.js')
@@ -196,6 +201,8 @@ Page({
     yearRoundExpanded: false,
     manuals: [],
     manualInput: '',
+    manualSuggestions: [],
+    manualSuggestEmpty: false,
     count: 0,
     seasonalCount: 0,
     yearRoundCount: 0,
@@ -264,8 +271,12 @@ Page({
 
   _pendingSelected: null,
   _pendingScene: null,
+  _suggestTimer: null,
+  _suggestEntries: null,
+  _aliasIndex: null,
 
   onLoad() {
+    this._loadManualSuggestContext()
     try {
       this._initSceneFromSession()
     } catch (err) {
@@ -300,10 +311,61 @@ Page({
 
   onShow() {
     this.applyTypeScale()
+    this._loadManualSuggestContext()
     // 从推荐页返回时清 busy，避免遮罩一直挡住
     if (this.data.submitting || this.data.liteBusy) {
       this.setData({ submitting: false, liteBusy: false })
     }
+  },
+
+  _loadManualSuggestContext() {
+    return catalogCache
+      .loadManualSuggestContext()
+      .then((ctx) => {
+        this._suggestEntries = (ctx && Array.isArray(ctx.entries) && ctx.entries) || []
+        this._aliasIndex = (ctx && ctx.aliasIndex) || null
+        const q = this.data.manualInput
+        if (q) this._refreshManualSuggest(q)
+      })
+      .catch((err) => {
+        console.warn('loadManualSuggestContext failed', err)
+        if (!Array.isArray(this._suggestEntries)) this._suggestEntries = []
+      })
+  },
+
+  _clearSuggestTimer() {
+    if (this._suggestTimer) {
+      clearTimeout(this._suggestTimer)
+      this._suggestTimer = null
+    }
+  },
+
+  _selectedCanonicalSet() {
+    const set = new Set()
+    const idx = this._aliasIndex
+    const canonicalOf = (name) => {
+      const s = String(name || '')
+      if (!s) return ''
+      if (idx && typeof idx.canonicalOf === 'function') return idx.canonicalOf(s)
+      return s
+    }
+    const add = (name) => {
+      const c = canonicalOf(name)
+      if (c) set.add(c)
+    }
+    const { seasonal, yearRound, seasonalChecked, yearRoundChecked, manuals } = this.data
+    ;(seasonal || []).forEach((it) => {
+      if (it && seasonalChecked && seasonalChecked[it.id]) add(it.name)
+    })
+    ;(yearRound || []).forEach((it) => {
+      if (it && yearRoundChecked && yearRoundChecked[it.id]) add(it.name)
+    })
+    ;(manuals || []).forEach((it) => {
+      if (!it) return
+      if (it.canonical) set.add(String(it.canonical))
+      else add(it.name)
+    })
+    return set
   },
 
   _peopleLabel(n) {
@@ -781,23 +843,105 @@ Page({
   },
 
   onManualInput(e) {
-    this.setData({ manualInput: e.detail.value })
+    const v = e.detail.value
+    this.setData({ manualInput: v })
+    this._clearSuggestTimer()
+    this._suggestTimer = setTimeout(() => this._refreshManualSuggest(v), 200)
+  },
+
+  _refreshManualSuggest(q) {
+    const entries = this._suggestEntries || []
+    const r = suggestManualIngredients(q, entries, {
+      limit: 10,
+      excludeCanonicals: this._selectedCanonicalSet()
+    })
+    if ((r.candidates || []).length) {
+      track('ingredient_manual_suggest_show', {
+        queryLen: String(q || '').trim().length,
+        hitCount: r.candidates.length
+      })
+    }
+    this.setData({
+      manualSuggestions: r.candidates,
+      manualSuggestEmpty: !!(String(q || '').trim() && !r.candidates.length)
+    })
+  },
+
+  onPickManualSuggest(e) {
+    const dataset = (e && e.currentTarget && e.currentTarget.dataset) || {}
+    const canonical = dataset.canonical
+    const surface = dataset.surface
+    this._commitManual({
+      matched: true,
+      name: canonical,
+      displayName: surface,
+      canonical,
+      via: 'pick'
+    })
   },
 
   addManual() {
-    const name = (this.data.manualInput || '').trim()
-    if (!name) return
+    const q = (this.data.manualInput || '').trim()
+    if (!q) return
+    const entries = this._suggestEntries || []
+    const sug = this.data.manualSuggestions || []
+    let resolved
+    if (sug.length === 1) {
+      resolved = {
+        matched: true,
+        name: sug[0].canonical,
+        displayName: sug[0].surface,
+        canonical: sug[0].canonical,
+        via: 'pick'
+      }
+    } else {
+      resolved = Object.assign(
+        { via: 'free' },
+        resolveManualAdd(q, entries, { excludeCanonicals: this._selectedCanonicalSet() })
+      )
+    }
+    this._commitManual(resolved)
+  },
+
+  _commitManual(resolved) {
+    if (!resolved || resolved.name == null || String(resolved.name).trim() === '') return
+    const canonical = resolved.canonical || resolved.name
+    if (resolved.matched && canonical && this._selectedCanonicalSet().has(canonical)) {
+      this._clearSuggestTimer()
+      this.setData({
+        manualInput: '',
+        manualSuggestions: [],
+        manualSuggestEmpty: false
+      })
+      wx.showToast({ title: '已在列表中', icon: 'none' })
+      return
+    }
     const item = {
       id: 'custom_' + Date.now(),
-      name,
+      name: resolved.name,
+      displayName: resolved.displayName || resolved.name,
+      canonical: resolved.canonical,
+      matched: !!resolved.matched,
       source: 'manual'
     }
     const manuals = this.data.manuals.concat(item)
+    this._clearSuggestTimer()
     this.setData({
       manuals,
       manualInput: '',
+      manualSuggestions: [],
+      manualSuggestEmpty: false,
       ...this._counts(this.data.seasonalChecked, this.data.yearRoundChecked, manuals)
     })
+    track('ingredient_manual_add', {
+      matched: !!resolved.matched,
+      via: resolved.via || 'free'
+    })
+    if (!resolved.matched) {
+      track('ingredient_manual_unmatched', {
+        nameLen: String(resolved.name || '').length
+      })
+    }
     this._syncWarnClears()
   },
 
@@ -1098,6 +1242,7 @@ Page({
 
   onUnload() {
     this._clearFlashTimers()
+    this._clearSuggestTimer()
   },
 
   _clearFlashTimers() {
