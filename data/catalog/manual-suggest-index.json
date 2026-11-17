@@ -1,0 +1,6111 @@
+{
+  "_meta": {
+    "builtAt": "2026-11-17T03:10:35Z",
+    "source": "aliases.json",
+    "engine": "pypinyin"
+  },
+  "entries": [
+    {
+      "surface": "五花肉",
+      "canonical": "五花肉",
+      "py": "wuhuarou",
+      "initials": "whr"
+    },
+    {
+      "surface": "三线肉",
+      "canonical": "五花肉",
+      "py": "sanxianrou",
+      "initials": "sxr"
+    },
+    {
+      "surface": "三层肉",
+      "canonical": "五花肉",
+      "py": "sancengrou",
+      "initials": "scr"
+    },
+    {
+      "surface": "肋条肉",
+      "canonical": "五花肉",
+      "py": "leitiaorou",
+      "initials": "ltr"
+    },
+    {
+      "surface": "乌鸡",
+      "canonical": "乌鸡",
+      "py": "wuji",
+      "initials": "wj"
+    },
+    {
+      "surface": "乌骨鸡",
+      "canonical": "乌鸡",
+      "py": "wuguji",
+      "initials": "wgj"
+    },
+    {
+      "surface": "竹丝鸡",
+      "canonical": "乌鸡",
+      "py": "zhusiji",
+      "initials": "zsj"
+    },
+    {
+      "surface": "乳鸽",
+      "canonical": "乳鸽",
+      "py": "ruge",
+      "initials": "rg"
+    },
+    {
+      "surface": "鸽子",
+      "canonical": "乳鸽",
+      "py": "gezi",
+      "initials": "gz"
+    },
+    {
+      "surface": "二刀肉",
+      "canonical": "二刀肉",
+      "py": "erdaorou",
+      "initials": "edr"
+    },
+    {
+      "surface": "坐臀肉",
+      "canonical": "二刀肉",
+      "py": "zuotunrou",
+      "initials": "ztr"
+    },
+    {
+      "surface": "猪二刀",
+      "canonical": "二刀肉",
+      "py": "zhuerdao",
+      "initials": "zed"
+    },
+    {
+      "surface": "亲亲肠",
+      "canonical": "亲亲肠",
+      "py": "qinqinchang",
+      "initials": "qqc"
+    },
+    {
+      "surface": "小香肠",
+      "canonical": "亲亲肠",
+      "py": "xiaoxiangchang",
+      "initials": "xxc"
+    },
+    {
+      "surface": "吊龙",
+      "canonical": "吊龙",
+      "py": "diaolong",
+      "initials": "dl"
+    },
+    {
+      "surface": "牛吊龙",
+      "canonical": "吊龙",
+      "py": "niudiaolong",
+      "initials": "ndl"
+    },
+    {
+      "surface": "牛柳",
+      "canonical": "吊龙",
+      "py": "niuliu",
+      "initials": "nl"
+    },
+    {
+      "surface": "牛里脊",
+      "canonical": "吊龙",
+      "py": "niuliji",
+      "initials": "nlj"
+    },
+    {
+      "surface": "菲力",
+      "canonical": "吊龙",
+      "py": "feili",
+      "initials": "fl"
+    },
+    {
+      "surface": "月牙骨",
+      "canonical": "月牙骨",
+      "py": "yueyagu",
+      "initials": "yyg"
+    },
+    {
+      "surface": "肩胛软骨",
+      "canonical": "月牙骨",
+      "py": "jianjiaruangu",
+      "initials": "jjrg"
+    },
+    {
+      "surface": "梅花肉",
+      "canonical": "梅花肉",
+      "py": "meihuarou",
+      "initials": "mhr"
+    },
+    {
+      "surface": "上肩肉",
+      "canonical": "梅花肉",
+      "py": "shangjianrou",
+      "initials": "sjr"
+    },
+    {
+      "surface": "猪颈肉",
+      "canonical": "梅花肉",
+      "py": "zhujingrou",
+      "initials": "zjr"
+    },
+    {
+      "surface": "眉毛肉",
+      "canonical": "梅花肉",
+      "py": "meimaorou",
+      "initials": "mmr"
+    },
+    {
+      "surface": "猪梅花",
+      "canonical": "梅花肉",
+      "py": "zhumeihua",
+      "initials": "zmh"
+    },
+    {
+      "surface": "梅头肉",
+      "canonical": "梅花肉",
+      "py": "meitourou",
+      "initials": "mtr"
+    },
+    {
+      "surface": "雪花猪肉",
+      "canonical": "梅花肉",
+      "py": "xuehuazhurou",
+      "initials": "xhzr"
+    },
+    {
+      "surface": "母鸡",
+      "canonical": "母鸡",
+      "py": "muji",
+      "initials": "mj"
+    },
+    {
+      "surface": "老母鸡",
+      "canonical": "母鸡",
+      "py": "laomuji",
+      "initials": "lmj"
+    },
+    {
+      "surface": "三黄鸡",
+      "canonical": "母鸡",
+      "py": "sanhuangji",
+      "initials": "shj"
+    },
+    {
+      "surface": "土鸡",
+      "canonical": "母鸡",
+      "py": "tuji",
+      "initials": "tj"
+    },
+    {
+      "surface": "文昌鸡",
+      "canonical": "母鸡",
+      "py": "wenchangji",
+      "initials": "wcj"
+    },
+    {
+      "surface": "火腿",
+      "canonical": "火腿",
+      "py": "huotui",
+      "initials": "ht"
+    },
+    {
+      "surface": "金华火腿",
+      "canonical": "火腿",
+      "py": "jinhuahuotui",
+      "initials": "jhht"
+    },
+    {
+      "surface": "牛上脑",
+      "canonical": "牛上脑",
+      "py": "niushangnao",
+      "initials": "nsn"
+    },
+    {
+      "surface": "牛上肩",
+      "canonical": "牛上脑",
+      "py": "niushangjian",
+      "initials": "nsj"
+    },
+    {
+      "surface": "牛嫩肩",
+      "canonical": "牛上脑",
+      "py": "niunenjian",
+      "initials": "nnj"
+    },
+    {
+      "surface": "牛尾",
+      "canonical": "牛尾",
+      "py": "niuwei",
+      "initials": "nw"
+    },
+    {
+      "surface": "牛尾骨",
+      "canonical": "牛尾",
+      "py": "niuweigu",
+      "initials": "nwg"
+    },
+    {
+      "surface": "牛排",
+      "canonical": "牛排",
+      "py": "niupai",
+      "initials": "np"
+    },
+    {
+      "surface": "牛排骨",
+      "canonical": "牛排",
+      "py": "niupaigu",
+      "initials": "npg"
+    },
+    {
+      "surface": "牛肋排",
+      "canonical": "牛排",
+      "py": "niulepai",
+      "initials": "nlp"
+    },
+    {
+      "surface": "牛眼肉",
+      "canonical": "牛眼肉",
+      "py": "niuyanrou",
+      "initials": "nyr"
+    },
+    {
+      "surface": "肋眼",
+      "canonical": "牛眼肉",
+      "py": "leyan",
+      "initials": "ly"
+    },
+    {
+      "surface": "牛肉",
+      "canonical": "牛肉",
+      "py": "niurou",
+      "initials": "nr"
+    },
+    {
+      "surface": "黄牛肉",
+      "canonical": "牛肉",
+      "py": "huangniurou",
+      "initials": "hnr"
+    },
+    {
+      "surface": "牛胸肉",
+      "canonical": "牛胸肉",
+      "py": "niuxiongrou",
+      "initials": "nxr"
+    },
+    {
+      "surface": "牛胸脯",
+      "canonical": "牛胸肉",
+      "py": "niuxiongpu",
+      "initials": "nxp"
+    },
+    {
+      "surface": "牛腩",
+      "canonical": "牛腩",
+      "py": "niunan",
+      "initials": "nn"
+    },
+    {
+      "surface": "牛腹肉",
+      "canonical": "牛腩",
+      "py": "niufurou",
+      "initials": "nfr"
+    },
+    {
+      "surface": "黄牛腩",
+      "canonical": "牛腩",
+      "py": "huangniunan",
+      "initials": "hnn"
+    },
+    {
+      "surface": "牛肋条",
+      "canonical": "牛腩",
+      "py": "niuleitiao",
+      "initials": "nlt"
+    },
+    {
+      "surface": "牛蝎子",
+      "canonical": "牛蝎子",
+      "py": "niuxiezi",
+      "initials": "nxz"
+    },
+    {
+      "surface": "牛脊骨",
+      "canonical": "牛蝎子",
+      "py": "niujigu",
+      "initials": "njg"
+    },
+    {
+      "surface": "牛霖肉",
+      "canonical": "牛霖肉",
+      "py": "niulinrou",
+      "initials": "nlr"
+    },
+    {
+      "surface": "和尚头",
+      "canonical": "牛霖肉",
+      "py": "heshangtou",
+      "initials": "hst"
+    },
+    {
+      "surface": "牦牛肉",
+      "canonical": "牦牛肉",
+      "py": "maoniurou",
+      "initials": "mnr"
+    },
+    {
+      "surface": "牦牛牛肉",
+      "canonical": "牦牛肉",
+      "py": "maoniuniurou",
+      "initials": "mnnr"
+    },
+    {
+      "surface": "猪爪",
+      "canonical": "猪爪",
+      "py": "zhuzhao",
+      "initials": "zz"
+    },
+    {
+      "surface": "猪手",
+      "canonical": "猪爪",
+      "py": "zhushou",
+      "initials": "zs"
+    },
+    {
+      "surface": "猪脚",
+      "canonical": "猪爪",
+      "py": "zhujiao",
+      "initials": "zj"
+    },
+    {
+      "surface": "猪蹄",
+      "canonical": "猪爪",
+      "py": "zhuti",
+      "initials": "zt"
+    },
+    {
+      "surface": "猪后蹄",
+      "canonical": "猪爪",
+      "py": "zhuhouti",
+      "initials": "zht"
+    },
+    {
+      "surface": "猪后腿",
+      "canonical": "猪爪",
+      "py": "zhuhoutui",
+      "initials": "zht"
+    },
+    {
+      "surface": "猪牙梗",
+      "canonical": "猪牙梗",
+      "py": "zhuyageng",
+      "initials": "zyg"
+    },
+    {
+      "surface": "猪牙龈",
+      "canonical": "猪牙梗",
+      "py": "zhuyayin",
+      "initials": "zyy"
+    },
+    {
+      "surface": "羊腩",
+      "canonical": "羊腩",
+      "py": "yangnan",
+      "initials": "yn"
+    },
+    {
+      "surface": "羊五花",
+      "canonical": "羊腩",
+      "py": "yangwuhua",
+      "initials": "ywh"
+    },
+    {
+      "surface": "羊蝎子",
+      "canonical": "羊蝎子",
+      "py": "yangxiezi",
+      "initials": "yxz"
+    },
+    {
+      "surface": "羊脊骨",
+      "canonical": "羊蝎子",
+      "py": "yangjigu",
+      "initials": "yjg"
+    },
+    {
+      "surface": "背柳肉",
+      "canonical": "背柳肉",
+      "py": "beiliurou",
+      "initials": "blr"
+    },
+    {
+      "surface": "外脊",
+      "canonical": "背柳肉",
+      "py": "waiji",
+      "initials": "wj"
+    },
+    {
+      "surface": "猪通脊",
+      "canonical": "背柳肉",
+      "py": "zhutongji",
+      "initials": "ztj"
+    },
+    {
+      "surface": "猪软骨",
+      "canonical": "猪软骨",
+      "py": "zhuruangu",
+      "initials": "zrg"
+    },
+    {
+      "surface": "脆骨",
+      "canonical": "猪软骨",
+      "py": "cuigu",
+      "initials": "cg"
+    },
+    {
+      "surface": "软骨",
+      "canonical": "猪软骨",
+      "py": "ruangu",
+      "initials": "rg"
+    },
+    {
+      "surface": "腊肉",
+      "canonical": "腊肉",
+      "py": "larou",
+      "initials": "lr"
+    },
+    {
+      "surface": "烟熏肉",
+      "canonical": "腊肉",
+      "py": "yanxunrou",
+      "initials": "yxr"
+    },
+    {
+      "surface": "腊排骨",
+      "canonical": "腊肉",
+      "py": "lapaigu",
+      "initials": "lpg"
+    },
+    {
+      "surface": "腊肠",
+      "canonical": "腊肠",
+      "py": "lachang",
+      "initials": "lc"
+    },
+    {
+      "surface": "香肠",
+      "canonical": "腊肠",
+      "py": "xiangchang",
+      "initials": "xc"
+    },
+    {
+      "surface": "广味腊肠",
+      "canonical": "腊肠",
+      "py": "guangweilachang",
+      "initials": "gwlc"
+    },
+    {
+      "surface": "鸡架",
+      "canonical": "鸡架",
+      "py": "jijia",
+      "initials": "jj"
+    },
+    {
+      "surface": "鸡骨架",
+      "canonical": "鸡架",
+      "py": "jigujia",
+      "initials": "jgj"
+    },
+    {
+      "surface": "鸡爪",
+      "canonical": "鸡爪",
+      "py": "jizhao",
+      "initials": "jz"
+    },
+    {
+      "surface": "凤爪",
+      "canonical": "鸡爪",
+      "py": "fengzhao",
+      "initials": "fz"
+    },
+    {
+      "surface": "生鸡爪",
+      "canonical": "鸡爪",
+      "py": "shengjizhao",
+      "initials": "sjz"
+    },
+    {
+      "surface": "鸡脚",
+      "canonical": "鸡爪",
+      "py": "jijiao",
+      "initials": "jj"
+    },
+    {
+      "surface": "鸡爪子",
+      "canonical": "鸡爪",
+      "py": "jizhuazi",
+      "initials": "jzz"
+    },
+    {
+      "surface": "无骨鸡爪",
+      "canonical": "鸡爪",
+      "py": "wugujizhao",
+      "initials": "wgjz"
+    },
+    {
+      "surface": "鸡翅",
+      "canonical": "鸡翅",
+      "py": "jichi",
+      "initials": "jc"
+    },
+    {
+      "surface": "鸡翅中",
+      "canonical": "鸡翅",
+      "py": "jichizhong",
+      "initials": "jcz"
+    },
+    {
+      "surface": "鸡翅尖",
+      "canonical": "鸡翅",
+      "py": "jichijian",
+      "initials": "jcj"
+    },
+    {
+      "surface": "鸡翅根",
+      "canonical": "鸡翅",
+      "py": "jichigen",
+      "initials": "jcg"
+    },
+    {
+      "surface": "鸡中翅",
+      "canonical": "鸡翅",
+      "py": "jizhongchi",
+      "initials": "jzc"
+    },
+    {
+      "surface": "鸡尖翅",
+      "canonical": "鸡翅",
+      "py": "jijianchi",
+      "initials": "jjc"
+    },
+    {
+      "surface": "鸡全翅",
+      "canonical": "鸡翅",
+      "py": "jiquanchi",
+      "initials": "jqc"
+    },
+    {
+      "surface": "鸡胸",
+      "canonical": "鸡胸",
+      "py": "jixiong",
+      "initials": "jx"
+    },
+    {
+      "surface": "鸡胸肉",
+      "canonical": "鸡胸",
+      "py": "jixiongrou",
+      "initials": "jxr"
+    },
+    {
+      "surface": "鸡脯肉",
+      "canonical": "鸡胸",
+      "py": "jipurou",
+      "initials": "jpr"
+    },
+    {
+      "surface": "鸡大胸",
+      "canonical": "鸡胸",
+      "py": "jidaxiong",
+      "initials": "jdx"
+    },
+    {
+      "surface": "鸡小胸",
+      "canonical": "鸡胸",
+      "py": "jixiaoxiong",
+      "initials": "jxx"
+    },
+    {
+      "surface": "鸡腿",
+      "canonical": "鸡腿",
+      "py": "jitui",
+      "initials": "jt"
+    },
+    {
+      "surface": "大鸡腿",
+      "canonical": "鸡腿",
+      "py": "dajitui",
+      "initials": "djt"
+    },
+    {
+      "surface": "小鸡腿",
+      "canonical": "鸡腿",
+      "py": "xiaojitui",
+      "initials": "xjt"
+    },
+    {
+      "surface": "琵琶腿",
+      "canonical": "鸡腿",
+      "py": "pipatui",
+      "initials": "ppt"
+    },
+    {
+      "surface": "鸡大腿",
+      "canonical": "鸡腿",
+      "py": "jidatui",
+      "initials": "jdt"
+    },
+    {
+      "surface": "鸡全腿",
+      "canonical": "鸡腿",
+      "py": "jiquantui",
+      "initials": "jqt"
+    },
+    {
+      "surface": "鸡腿肉",
+      "canonical": "鸡腿",
+      "py": "jituirou",
+      "initials": "jtr"
+    },
+    {
+      "surface": "鸡边腿",
+      "canonical": "鸡腿",
+      "py": "jibiantui",
+      "initials": "jbt"
+    },
+    {
+      "surface": "鸡小腿",
+      "canonical": "鸡腿",
+      "py": "jixiaotui",
+      "initials": "jxt"
+    },
+    {
+      "surface": "鸭翅",
+      "canonical": "鸭翅",
+      "py": "yachi",
+      "initials": "yc"
+    },
+    {
+      "surface": "鸭翅中",
+      "canonical": "鸭翅",
+      "py": "yachizhong",
+      "initials": "ycz"
+    },
+    {
+      "surface": "鸭肉",
+      "canonical": "鸭肉",
+      "py": "yarou",
+      "initials": "yr"
+    },
+    {
+      "surface": "仔鸭肉",
+      "canonical": "鸭肉",
+      "py": "zaiyarou",
+      "initials": "zyr"
+    },
+    {
+      "surface": "老鸭",
+      "canonical": "鸭肉",
+      "py": "laoya",
+      "initials": "ly"
+    },
+    {
+      "surface": "土鸭",
+      "canonical": "鸭肉",
+      "py": "tuya",
+      "initials": "ty"
+    },
+    {
+      "surface": "整鸭",
+      "canonical": "鸭肉",
+      "py": "zhengya",
+      "initials": "zy"
+    },
+    {
+      "surface": "鸭子",
+      "canonical": "鸭肉",
+      "py": "yazi",
+      "initials": "yz"
+    },
+    {
+      "surface": "白条鸭",
+      "canonical": "鸭肉",
+      "py": "baitiaoya",
+      "initials": "bty"
+    },
+    {
+      "surface": "白鸭",
+      "canonical": "鸭肉",
+      "py": "baiya",
+      "initials": "by"
+    },
+    {
+      "surface": "老鸭子",
+      "canonical": "鸭肉",
+      "py": "laoyazi",
+      "initials": "lyz"
+    },
+    {
+      "surface": "麻鸭",
+      "canonical": "麻鸭",
+      "py": "maya",
+      "initials": "my"
+    },
+    {
+      "surface": "老麻鸭",
+      "canonical": "麻鸭",
+      "py": "laomaya",
+      "initials": "lmy"
+    },
+    {
+      "surface": "兔肉",
+      "canonical": "兔肉",
+      "py": "turou",
+      "initials": "tr"
+    },
+    {
+      "surface": "兔子肉",
+      "canonical": "兔肉",
+      "py": "tuzirou",
+      "initials": "tzr"
+    },
+    {
+      "surface": "兔子",
+      "canonical": "兔肉",
+      "py": "tuzi",
+      "initials": "tz"
+    },
+    {
+      "surface": "猪肘",
+      "canonical": "猪肘",
+      "py": "zhuzhou",
+      "initials": "zz"
+    },
+    {
+      "surface": "猪肘子",
+      "canonical": "猪肘",
+      "py": "zhuzhouzi",
+      "initials": "zzz"
+    },
+    {
+      "surface": "猪前肘",
+      "canonical": "猪肘",
+      "py": "zhuqianzhou",
+      "initials": "zqz"
+    },
+    {
+      "surface": "猪前肘子",
+      "canonical": "猪肘",
+      "py": "zhuqianzhouzi",
+      "initials": "zqzz"
+    },
+    {
+      "surface": "猪后肘子",
+      "canonical": "猪肘",
+      "py": "zhuhouzhouzi",
+      "initials": "zhzz"
+    },
+    {
+      "surface": "肘子",
+      "canonical": "猪肘",
+      "py": "zhouzi",
+      "initials": "zz"
+    },
+    {
+      "surface": "猪棒骨",
+      "canonical": "猪棒骨",
+      "py": "zhubanggu",
+      "initials": "zbg"
+    },
+    {
+      "surface": "猪棒子骨",
+      "canonical": "猪棒骨",
+      "py": "zhubangzigu",
+      "initials": "zbzg"
+    },
+    {
+      "surface": "猪大骨",
+      "canonical": "猪棒骨",
+      "py": "zhudagu",
+      "initials": "zdg"
+    },
+    {
+      "surface": "筒骨",
+      "canonical": "猪棒骨",
+      "py": "tonggu",
+      "initials": "tg"
+    },
+    {
+      "surface": "筒子骨",
+      "canonical": "猪棒骨",
+      "py": "tongzigu",
+      "initials": "tzg"
+    },
+    {
+      "surface": "棒骨",
+      "canonical": "猪棒骨",
+      "py": "banggu",
+      "initials": "bg"
+    },
+    {
+      "surface": "猪筒骨",
+      "canonical": "猪棒骨",
+      "py": "zhutonggu",
+      "initials": "ztg"
+    },
+    {
+      "surface": "猪尾巴",
+      "canonical": "猪尾巴",
+      "py": "zhuweiba",
+      "initials": "zwb"
+    },
+    {
+      "surface": "猪尾骨",
+      "canonical": "猪尾巴",
+      "py": "zhuweigu",
+      "initials": "zwg"
+    },
+    {
+      "surface": "鸭脚",
+      "canonical": "鸭脚",
+      "py": "yajiao",
+      "initials": "yj"
+    },
+    {
+      "surface": "鸭脚板",
+      "canonical": "鸭脚",
+      "py": "yajiaoban",
+      "initials": "yjb"
+    },
+    {
+      "surface": "无骨鸭掌",
+      "canonical": "鸭脚",
+      "py": "wuguyazhang",
+      "initials": "wgyz"
+    },
+    {
+      "surface": "鸭爪",
+      "canonical": "鸭脚",
+      "py": "yazhao",
+      "initials": "yz"
+    },
+    {
+      "surface": "鸭掌",
+      "canonical": "鸭脚",
+      "py": "yazhang",
+      "initials": "yz"
+    },
+    {
+      "surface": "猪肋排",
+      "canonical": "猪肋排",
+      "py": "zhulepai",
+      "initials": "zlp"
+    },
+    {
+      "surface": "猪前排",
+      "canonical": "猪肋排",
+      "py": "zhuqianpai",
+      "initials": "zqp"
+    },
+    {
+      "surface": "猪前小排",
+      "canonical": "猪肋排",
+      "py": "zhuqianxiaopai",
+      "initials": "zqxp"
+    },
+    {
+      "surface": "猪小排",
+      "canonical": "猪肋排",
+      "py": "zhuxiaopai",
+      "initials": "zxp"
+    },
+    {
+      "surface": "猪排骨",
+      "canonical": "猪肋排",
+      "py": "zhupaigu",
+      "initials": "zpg"
+    },
+    {
+      "surface": "排骨",
+      "canonical": "猪肋排",
+      "py": "paigu",
+      "initials": "pg"
+    },
+    {
+      "surface": "肋排",
+      "canonical": "猪肋排",
+      "py": "lepai",
+      "initials": "lp"
+    },
+    {
+      "surface": "肋排骨",
+      "canonical": "猪肋排",
+      "py": "lepaigu",
+      "initials": "lpg"
+    },
+    {
+      "surface": "猪里脊",
+      "canonical": "猪里脊",
+      "py": "zhuliji",
+      "initials": "zlj"
+    },
+    {
+      "surface": "猪里脊肉",
+      "canonical": "猪里脊",
+      "py": "zhulijirou",
+      "initials": "zljr"
+    },
+    {
+      "surface": "梅条肉",
+      "canonical": "猪里脊",
+      "py": "meitiaorou",
+      "initials": "mtr"
+    },
+    {
+      "surface": "小里脊",
+      "canonical": "猪里脊",
+      "py": "xiaoliji",
+      "initials": "xlj"
+    },
+    {
+      "surface": "里脊肉",
+      "canonical": "猪里脊",
+      "py": "lijirou",
+      "initials": "ljr"
+    },
+    {
+      "surface": "猪前夹肉",
+      "canonical": "猪前夹肉",
+      "py": "zhuqianjiarou",
+      "initials": "zqjr"
+    },
+    {
+      "surface": "猪前膈肉",
+      "canonical": "猪前夹肉",
+      "py": "zhuqiangerou",
+      "initials": "zqgr"
+    },
+    {
+      "surface": "前夹肉",
+      "canonical": "猪前夹肉",
+      "py": "qianjiarou",
+      "initials": "qjr"
+    },
+    {
+      "surface": "猪脊骨",
+      "canonical": "猪脊骨",
+      "py": "zhujigu",
+      "initials": "zjg"
+    },
+    {
+      "surface": "猪龙骨",
+      "canonical": "猪脊骨",
+      "py": "zhulonggu",
+      "initials": "zlg"
+    },
+    {
+      "surface": "猪颈骨",
+      "canonical": "猪脊骨",
+      "py": "zhujinggu",
+      "initials": "zjg"
+    },
+    {
+      "surface": "龙骨",
+      "canonical": "猪脊骨",
+      "py": "longgu",
+      "initials": "lg"
+    },
+    {
+      "surface": "脊骨",
+      "canonical": "猪脊骨",
+      "py": "jigu",
+      "initials": "jg"
+    },
+    {
+      "surface": "鸭脖",
+      "canonical": "鸭脖",
+      "py": "yabo",
+      "initials": "yb"
+    },
+    {
+      "surface": "鸭脖子",
+      "canonical": "鸭脖",
+      "py": "yabozi",
+      "initials": "ybz"
+    },
+    {
+      "surface": "鸭胸肉",
+      "canonical": "鸭胸肉",
+      "py": "yaxiongrou",
+      "initials": "yxr"
+    },
+    {
+      "surface": "鸭胸脯肉",
+      "canonical": "鸭胸肉",
+      "py": "yaxiongpurou",
+      "initials": "yxpr"
+    },
+    {
+      "surface": "蹄膀",
+      "canonical": "蹄膀",
+      "py": "tibang",
+      "initials": "tb"
+    },
+    {
+      "surface": "蹄花",
+      "canonical": "蹄膀",
+      "py": "tihua",
+      "initials": "th"
+    },
+    {
+      "surface": "猪腿肉",
+      "canonical": "猪腿肉",
+      "py": "zhutuirou",
+      "initials": "ztr"
+    },
+    {
+      "surface": "猪后膈肉",
+      "canonical": "猪腿肉",
+      "py": "zhuhougerou",
+      "initials": "zhgr"
+    },
+    {
+      "surface": "后腿肉",
+      "canonical": "猪腿肉",
+      "py": "houtuirou",
+      "initials": "htr"
+    },
+    {
+      "surface": "猪展肉",
+      "canonical": "猪腿肉",
+      "py": "zhuzhanrou",
+      "initials": "zzr"
+    },
+    {
+      "surface": "羊腿",
+      "canonical": "羊腿",
+      "py": "yangtui",
+      "initials": "yt"
+    },
+    {
+      "surface": "羊前腿",
+      "canonical": "羊腿",
+      "py": "yangqiantui",
+      "initials": "yqt"
+    },
+    {
+      "surface": "羊后腿",
+      "canonical": "羊腿",
+      "py": "yanghoutui",
+      "initials": "yht"
+    },
+    {
+      "surface": "猪瘦肉",
+      "canonical": "猪瘦肉",
+      "py": "zhushourou",
+      "initials": "zsr"
+    },
+    {
+      "surface": "精瘦肉",
+      "canonical": "猪瘦肉",
+      "py": "jingshourou",
+      "initials": "jsr"
+    },
+    {
+      "surface": "猪腱子肉",
+      "canonical": "猪瘦肉",
+      "py": "zhujianzirou",
+      "initials": "zjzr"
+    },
+    {
+      "surface": "纯瘦肉",
+      "canonical": "猪瘦肉",
+      "py": "chunshourou",
+      "initials": "csr"
+    },
+    {
+      "surface": "猪肉",
+      "canonical": "猪瘦肉",
+      "py": "zhurou",
+      "initials": "zr"
+    },
+    {
+      "surface": "牛板腱",
+      "canonical": "牛板腱",
+      "py": "niubanjian",
+      "initials": "nbj"
+    },
+    {
+      "surface": "牛腱肉",
+      "canonical": "牛板腱",
+      "py": "niujianrou",
+      "initials": "njr"
+    },
+    {
+      "surface": "牛腱子",
+      "canonical": "牛板腱",
+      "py": "niujianzi",
+      "initials": "njz"
+    },
+    {
+      "surface": "金钱腱",
+      "canonical": "牛板腱",
+      "py": "jinqianjian",
+      "initials": "jqj"
+    },
+    {
+      "surface": "牛棒骨",
+      "canonical": "牛棒骨",
+      "py": "niubanggu",
+      "initials": "nbg"
+    },
+    {
+      "surface": "牛大骨",
+      "canonical": "牛棒骨",
+      "py": "niudagu",
+      "initials": "ndg"
+    },
+    {
+      "surface": "牛筒骨",
+      "canonical": "牛棒骨",
+      "py": "niutonggu",
+      "initials": "ntg"
+    },
+    {
+      "surface": "公鸡",
+      "canonical": "公鸡",
+      "py": "gongji",
+      "initials": "gj"
+    },
+    {
+      "surface": "仔鸡",
+      "canonical": "公鸡",
+      "py": "ziji",
+      "initials": "zj"
+    },
+    {
+      "surface": "牛筋",
+      "canonical": "牛筋",
+      "py": "niujin",
+      "initials": "nj"
+    },
+    {
+      "surface": "牛蹄筋",
+      "canonical": "牛筋",
+      "py": "niutijin",
+      "initials": "ntj"
+    },
+    {
+      "surface": "水发牛蹄筋",
+      "canonical": "牛筋",
+      "py": "shuifaniutijin",
+      "initials": "sfntj"
+    },
+    {
+      "surface": "水发牛筋",
+      "canonical": "牛筋",
+      "py": "shuifaniujin",
+      "initials": "sfnj"
+    },
+    {
+      "surface": "猪扇骨",
+      "canonical": "猪扇骨",
+      "py": "zhushangu",
+      "initials": "zsg"
+    },
+    {
+      "surface": "扇骨",
+      "canonical": "猪扇骨",
+      "py": "shangu",
+      "initials": "sg"
+    },
+    {
+      "surface": "牛腿肉",
+      "canonical": "牛腿肉",
+      "py": "niutuirou",
+      "initials": "ntr"
+    },
+    {
+      "surface": "黄牛腿",
+      "canonical": "牛腿肉",
+      "py": "huangniutui",
+      "initials": "hnt"
+    },
+    {
+      "surface": "牛前腿肉",
+      "canonical": "牛腿肉",
+      "py": "niuqiantuirou",
+      "initials": "nqtr"
+    },
+    {
+      "surface": "掌中宝",
+      "canonical": "掌中宝",
+      "py": "zhangzhongbao",
+      "initials": "zzb"
+    },
+    {
+      "surface": "鸡膝软骨",
+      "canonical": "掌中宝",
+      "py": "jixiruangu",
+      "initials": "jxrg"
+    },
+    {
+      "surface": "猪前腿肉",
+      "canonical": "猪前腿肉",
+      "py": "zhuqiantuirou",
+      "initials": "zqtr"
+    },
+    {
+      "surface": "前腿肉",
+      "canonical": "猪前腿肉",
+      "py": "qiantuirou",
+      "initials": "qtr"
+    },
+    {
+      "surface": "猪前腿",
+      "canonical": "猪前腿肉",
+      "py": "zhuqiantui",
+      "initials": "zqt"
+    },
+    {
+      "surface": "腊鸭",
+      "canonical": "腊鸭",
+      "py": "laya",
+      "initials": "ly"
+    },
+    {
+      "surface": "板鸭",
+      "canonical": "腊鸭",
+      "py": "banya",
+      "initials": "by"
+    },
+    {
+      "surface": "腊鸭腿",
+      "canonical": "腊鸭",
+      "py": "layatui",
+      "initials": "lyt"
+    },
+    {
+      "surface": "腊猪脚",
+      "canonical": "腊猪脚",
+      "py": "lazhujiao",
+      "initials": "lzj"
+    },
+    {
+      "surface": "腊猪蹄膀",
+      "canonical": "腊猪脚",
+      "py": "lazhutibang",
+      "initials": "lztb"
+    },
+    {
+      "surface": "熏肉",
+      "canonical": "熏肉",
+      "py": "xunrou",
+      "initials": "xr"
+    },
+    {
+      "surface": "熏蹄",
+      "canonical": "熏肉",
+      "py": "xunti",
+      "initials": "xt"
+    },
+    {
+      "surface": "熏猪蹄",
+      "canonical": "熏肉",
+      "py": "xunzhuti",
+      "initials": "xzt"
+    },
+    {
+      "surface": "猪大肠",
+      "canonical": "猪大肠",
+      "py": "zhudachang",
+      "initials": "zdc"
+    },
+    {
+      "surface": "大肠",
+      "canonical": "猪大肠",
+      "py": "dachang",
+      "initials": "dc"
+    },
+    {
+      "surface": "肥肠",
+      "canonical": "猪大肠",
+      "py": "feichang",
+      "initials": "fc"
+    },
+    {
+      "surface": "猪肠",
+      "canonical": "猪大肠",
+      "py": "zhuchang",
+      "initials": "zc"
+    },
+    {
+      "surface": "毛肚",
+      "canonical": "毛肚",
+      "py": "maodu",
+      "initials": "md"
+    },
+    {
+      "surface": "白毛肚",
+      "canonical": "毛肚",
+      "py": "baimaodu",
+      "initials": "bmd"
+    },
+    {
+      "surface": "黑毛肚",
+      "canonical": "毛肚",
+      "py": "heimaodu",
+      "initials": "hmd"
+    },
+    {
+      "surface": "猪红",
+      "canonical": "猪红",
+      "py": "zhuhong",
+      "initials": "zh"
+    },
+    {
+      "surface": "猪血",
+      "canonical": "猪红",
+      "py": "zhuxue",
+      "initials": "zx"
+    },
+    {
+      "surface": "血旺",
+      "canonical": "猪红",
+      "py": "xuewang",
+      "initials": "xw"
+    },
+    {
+      "surface": "猪耳",
+      "canonical": "猪耳",
+      "py": "zhuer",
+      "initials": "ze"
+    },
+    {
+      "surface": "猪耳朵",
+      "canonical": "猪耳",
+      "py": "zhuerduo",
+      "initials": "zed"
+    },
+    {
+      "surface": "猪肚",
+      "canonical": "猪肚",
+      "py": "zhudu",
+      "initials": "zd"
+    },
+    {
+      "surface": "猪肚子",
+      "canonical": "猪肚",
+      "py": "zhuduzi",
+      "initials": "zdz"
+    },
+    {
+      "surface": "猪小肚",
+      "canonical": "猪肚",
+      "py": "zhuxiaodu",
+      "initials": "zxd"
+    },
+    {
+      "surface": "猪脑",
+      "canonical": "猪脑",
+      "py": "zhunao",
+      "initials": "zn"
+    },
+    {
+      "surface": "猪脑花",
+      "canonical": "猪脑",
+      "py": "zhunaohua",
+      "initials": "znh"
+    },
+    {
+      "surface": "脑花",
+      "canonical": "猪脑",
+      "py": "naohua",
+      "initials": "nh"
+    },
+    {
+      "surface": "猪腰",
+      "canonical": "猪腰",
+      "py": "zhuyao",
+      "initials": "zy"
+    },
+    {
+      "surface": "猪腰子",
+      "canonical": "猪腰",
+      "py": "zhuyaozi",
+      "initials": "zyz"
+    },
+    {
+      "surface": "猪舌",
+      "canonical": "猪舌",
+      "py": "zhushe",
+      "initials": "zs"
+    },
+    {
+      "surface": "口条",
+      "canonical": "猪舌",
+      "py": "koutiao",
+      "initials": "kt"
+    },
+    {
+      "surface": "猪利",
+      "canonical": "猪舌",
+      "py": "zhuli",
+      "initials": "zl"
+    },
+    {
+      "surface": "猪舌头",
+      "canonical": "猪舌",
+      "py": "zhushetou",
+      "initials": "zst"
+    },
+    {
+      "surface": "鸭胗",
+      "canonical": "鸭胗",
+      "py": "yazhen",
+      "initials": "yz"
+    },
+    {
+      "surface": "鸭君",
+      "canonical": "鸭胗",
+      "py": "yajun",
+      "initials": "yj"
+    },
+    {
+      "surface": "鸭肫",
+      "canonical": "鸭胗",
+      "py": "yazhun",
+      "initials": "yz"
+    },
+    {
+      "surface": "鸭郡",
+      "canonical": "鸭胗",
+      "py": "yajun",
+      "initials": "yj"
+    },
+    {
+      "surface": "鸭菌子",
+      "canonical": "鸭胗",
+      "py": "yajunzi",
+      "initials": "yjz"
+    },
+    {
+      "surface": "鸡肾",
+      "canonical": "鸡肾",
+      "py": "jishen",
+      "initials": "js"
+    },
+    {
+      "surface": "鸡腰子",
+      "canonical": "鸡肾",
+      "py": "jiyaozi",
+      "initials": "jyz"
+    },
+    {
+      "surface": "鸡睾丸",
+      "canonical": "鸡肾",
+      "py": "jigaowan",
+      "initials": "jgw"
+    },
+    {
+      "surface": "黄喉",
+      "canonical": "黄喉",
+      "py": "huanghou",
+      "initials": "hh"
+    },
+    {
+      "surface": "心管",
+      "canonical": "黄喉",
+      "py": "xinguan",
+      "initials": "xg"
+    },
+    {
+      "surface": "猪心管",
+      "canonical": "黄喉",
+      "py": "zhuxinguan",
+      "initials": "zxg"
+    },
+    {
+      "surface": "猪黄喉",
+      "canonical": "黄喉",
+      "py": "zhuhuanghou",
+      "initials": "zhh"
+    },
+    {
+      "surface": "鸡杂",
+      "canonical": "鸡杂",
+      "py": "jiza",
+      "initials": "jz"
+    },
+    {
+      "surface": "鸡肝",
+      "canonical": "鸡杂",
+      "py": "jigan",
+      "initials": "jg"
+    },
+    {
+      "surface": "鸡心",
+      "canonical": "鸡杂",
+      "py": "jixin",
+      "initials": "jx"
+    },
+    {
+      "surface": "鸡肠",
+      "canonical": "鸡杂",
+      "py": "jichang",
+      "initials": "jc"
+    },
+    {
+      "surface": "鸡肫",
+      "canonical": "鸡肫",
+      "py": "jizhun",
+      "initials": "jz"
+    },
+    {
+      "surface": "鸡胗",
+      "canonical": "鸡肫",
+      "py": "jizhen",
+      "initials": "jz"
+    },
+    {
+      "surface": "鸡郡肝",
+      "canonical": "鸡肫",
+      "py": "jijungan",
+      "initials": "jjg"
+    },
+    {
+      "surface": "鸡菌",
+      "canonical": "鸡肫",
+      "py": "jijun",
+      "initials": "jj"
+    },
+    {
+      "surface": "猪上颚",
+      "canonical": "猪上颚",
+      "py": "zhushange",
+      "initials": "zse"
+    },
+    {
+      "surface": "猪天梯",
+      "canonical": "猪上颚",
+      "py": "zhutianti",
+      "initials": "ztt"
+    },
+    {
+      "surface": "鸭郡肝",
+      "canonical": "鸭郡肝",
+      "py": "yajungan",
+      "initials": "yjg"
+    },
+    {
+      "surface": "鸭郡把",
+      "canonical": "鸭郡肝",
+      "py": "yajunba",
+      "initials": "yjb"
+    },
+    {
+      "surface": "鸭食管",
+      "canonical": "鸭郡肝",
+      "py": "yashiguan",
+      "initials": "ysg"
+    },
+    {
+      "surface": "千层肚",
+      "canonical": "千层肚",
+      "py": "qiancengdu",
+      "initials": "qcd"
+    },
+    {
+      "surface": "牛百叶",
+      "canonical": "千层肚",
+      "py": "niubaiye",
+      "initials": "nby"
+    },
+    {
+      "surface": "白千层",
+      "canonical": "千层肚",
+      "py": "baiqianceng",
+      "initials": "bqc"
+    },
+    {
+      "surface": "撒尿牛丸",
+      "canonical": "撒尿牛丸",
+      "py": "saniaoniuwan",
+      "initials": "snnw"
+    },
+    {
+      "surface": "濑尿牛肉丸",
+      "canonical": "撒尿牛丸",
+      "py": "lainiaoniurouwan",
+      "initials": "lnnrw"
+    },
+    {
+      "surface": "牛肉丸",
+      "canonical": "牛肉丸",
+      "py": "niurouwan",
+      "initials": "nrw"
+    },
+    {
+      "surface": "牛丸",
+      "canonical": "牛肉丸",
+      "py": "niuwan",
+      "initials": "nw"
+    },
+    {
+      "surface": "鱼丸",
+      "canonical": "鱼丸",
+      "py": "yuwan",
+      "initials": "yw"
+    },
+    {
+      "surface": "鱼蛋",
+      "canonical": "鱼丸",
+      "py": "yudan",
+      "initials": "yd"
+    },
+    {
+      "surface": "虾滑",
+      "canonical": "虾滑",
+      "py": "xiahua",
+      "initials": "xh"
+    },
+    {
+      "surface": "虾泥",
+      "canonical": "虾滑",
+      "py": "xiani",
+      "initials": "xn"
+    },
+    {
+      "surface": "虾胶",
+      "canonical": "虾滑",
+      "py": "xiajiao",
+      "initials": "xj"
+    },
+    {
+      "surface": "娃儿菜",
+      "canonical": "娃儿菜",
+      "py": "waercai",
+      "initials": "wec"
+    },
+    {
+      "surface": "儿菜",
+      "canonical": "娃儿菜",
+      "py": "ercai",
+      "initials": "ec"
+    },
+    {
+      "surface": "南充菜",
+      "canonical": "娃儿菜",
+      "py": "nanchongcai",
+      "initials": "ncc"
+    },
+    {
+      "surface": "抱子芥",
+      "canonical": "娃儿菜",
+      "py": "baozijie",
+      "initials": "bzj"
+    },
+    {
+      "surface": "娃娃菜",
+      "canonical": "娃娃菜",
+      "py": "wawacai",
+      "initials": "wwc"
+    },
+    {
+      "surface": "小娃娃菜",
+      "canonical": "娃娃菜",
+      "py": "xiaowawacai",
+      "initials": "xwwc"
+    },
+    {
+      "surface": "折耳根",
+      "canonical": "折耳根",
+      "py": "zheergen",
+      "initials": "zeg"
+    },
+    {
+      "surface": "侧耳根",
+      "canonical": "折耳根",
+      "py": "ceergen",
+      "initials": "ceg"
+    },
+    {
+      "surface": "鱼腥草",
+      "canonical": "折耳根",
+      "py": "yuxingcao",
+      "initials": "yxc"
+    },
+    {
+      "surface": "梅干菜",
+      "canonical": "梅干菜",
+      "py": "meigancai",
+      "initials": "mgc"
+    },
+    {
+      "surface": "乌干菜",
+      "canonical": "梅干菜",
+      "py": "wugancai",
+      "initials": "wgc"
+    },
+    {
+      "surface": "霉干菜",
+      "canonical": "梅干菜",
+      "py": "meigancai",
+      "initials": "mgc"
+    },
+    {
+      "surface": "油菜",
+      "canonical": "油菜",
+      "py": "youcai",
+      "initials": "yc"
+    },
+    {
+      "surface": "小油菜",
+      "canonical": "油菜",
+      "py": "xiaoyoucai",
+      "initials": "xyc"
+    },
+    {
+      "surface": "油菜心",
+      "canonical": "油菜",
+      "py": "youcaixin",
+      "initials": "ycx"
+    },
+    {
+      "surface": "油麦菜",
+      "canonical": "油麦菜",
+      "py": "youmaicai",
+      "initials": "ymc"
+    },
+    {
+      "surface": "莜麦菜",
+      "canonical": "油麦菜",
+      "py": "youmaicai",
+      "initials": "ymc"
+    },
+    {
+      "surface": "生菜",
+      "canonical": "生菜",
+      "py": "shengcai",
+      "initials": "sc"
+    },
+    {
+      "surface": "球生菜",
+      "canonical": "生菜",
+      "py": "qiushengcai",
+      "initials": "qsc"
+    },
+    {
+      "surface": "西生菜",
+      "canonical": "生菜",
+      "py": "xishengcai",
+      "initials": "xsc"
+    },
+    {
+      "surface": "罗马生菜",
+      "canonical": "生菜",
+      "py": "luomashengcai",
+      "initials": "lmsc"
+    },
+    {
+      "surface": "叶生菜",
+      "canonical": "生菜",
+      "py": "yeshengcai",
+      "initials": "ysc"
+    },
+    {
+      "surface": "沙拉菜",
+      "canonical": "生菜",
+      "py": "shalacai",
+      "initials": "slc"
+    },
+    {
+      "surface": "白菜",
+      "canonical": "白菜",
+      "py": "baicai",
+      "initials": "bc"
+    },
+    {
+      "surface": "大白菜",
+      "canonical": "白菜",
+      "py": "dabaicai",
+      "initials": "dbc"
+    },
+    {
+      "surface": "黄白菜",
+      "canonical": "白菜",
+      "py": "huangbaicai",
+      "initials": "hbc"
+    },
+    {
+      "surface": "奶白菜",
+      "canonical": "白菜",
+      "py": "naibaicai",
+      "initials": "nbc"
+    },
+    {
+      "surface": "通菜",
+      "canonical": "通菜",
+      "py": "tongcai",
+      "initials": "tc"
+    },
+    {
+      "surface": "空心菜",
+      "canonical": "通菜",
+      "py": "kongxincai",
+      "initials": "kxc"
+    },
+    {
+      "surface": "蕹菜",
+      "canonical": "通菜",
+      "py": "wengcai",
+      "initials": "wc"
+    },
+    {
+      "surface": "藤藤菜",
+      "canonical": "通菜",
+      "py": "tengtengcai",
+      "initials": "ttc"
+    },
+    {
+      "surface": "汉菜",
+      "canonical": "汉菜",
+      "py": "hancai",
+      "initials": "hc"
+    },
+    {
+      "surface": "苋菜",
+      "canonical": "汉菜",
+      "py": "xiancai",
+      "initials": "xc"
+    },
+    {
+      "surface": "红汉菜",
+      "canonical": "汉菜",
+      "py": "honghancai",
+      "initials": "hhc"
+    },
+    {
+      "surface": "红苋菜",
+      "canonical": "汉菜",
+      "py": "hongxiancai",
+      "initials": "hxc"
+    },
+    {
+      "surface": "白苋菜",
+      "canonical": "汉菜",
+      "py": "baixiancai",
+      "initials": "bxc"
+    },
+    {
+      "surface": "芥菜",
+      "canonical": "芥菜",
+      "py": "jiecai",
+      "initials": "jc"
+    },
+    {
+      "surface": "盖菜",
+      "canonical": "芥菜",
+      "py": "gaicai",
+      "initials": "gc"
+    },
+    {
+      "surface": "芥兰苗",
+      "canonical": "芥菜",
+      "py": "jielanmiao",
+      "initials": "jlm"
+    },
+    {
+      "surface": "小芥蓝",
+      "canonical": "芥菜",
+      "py": "xiaojielan",
+      "initials": "xjl"
+    },
+    {
+      "surface": "大芥蓝",
+      "canonical": "芥菜",
+      "py": "dajielan",
+      "initials": "djl"
+    },
+    {
+      "surface": "芹菜",
+      "canonical": "芹菜",
+      "py": "qincai",
+      "initials": "qc"
+    },
+    {
+      "surface": "旱芹",
+      "canonical": "芹菜",
+      "py": "hanqin",
+      "initials": "hq"
+    },
+    {
+      "surface": "芽菜",
+      "canonical": "芽菜",
+      "py": "yacai",
+      "initials": "yc"
+    },
+    {
+      "surface": "黄芽菜",
+      "canonical": "芽菜",
+      "py": "huangyacai",
+      "initials": "hyc"
+    },
+    {
+      "surface": "苦菊",
+      "canonical": "苦菊",
+      "py": "kuju",
+      "initials": "kj"
+    },
+    {
+      "surface": "苦菜",
+      "canonical": "苦菊",
+      "py": "kucai",
+      "initials": "kc"
+    },
+    {
+      "surface": "苦苣",
+      "canonical": "苦菊",
+      "py": "kuju",
+      "initials": "kj"
+    },
+    {
+      "surface": "茼蒿",
+      "canonical": "茼蒿",
+      "py": "tonghao",
+      "initials": "th"
+    },
+    {
+      "surface": "皇帝菜",
+      "canonical": "茼蒿",
+      "py": "huangdicai",
+      "initials": "hdc"
+    },
+    {
+      "surface": "蓬蒿",
+      "canonical": "茼蒿",
+      "py": "penghao",
+      "initials": "ph"
+    },
+    {
+      "surface": "茼蒿菜",
+      "canonical": "茼蒿",
+      "py": "tonghaocai",
+      "initials": "thc"
+    },
+    {
+      "surface": "筒蒿",
+      "canonical": "茼蒿",
+      "py": "tonghao",
+      "initials": "th"
+    },
+    {
+      "surface": "菜心",
+      "canonical": "菜心",
+      "py": "caixin",
+      "initials": "cx"
+    },
+    {
+      "surface": "白菜心",
+      "canonical": "菜心",
+      "py": "baicaixin",
+      "initials": "bcx"
+    },
+    {
+      "surface": "菜心苗",
+      "canonical": "菜心",
+      "py": "caixinmiao",
+      "initials": "cxm"
+    },
+    {
+      "surface": "菜花",
+      "canonical": "菜花",
+      "py": "caihua",
+      "initials": "ch"
+    },
+    {
+      "surface": "白菜花",
+      "canonical": "菜花",
+      "py": "baicaihua",
+      "initials": "bch"
+    },
+    {
+      "surface": "花菜",
+      "canonical": "菜花",
+      "py": "huacai",
+      "initials": "hc"
+    },
+    {
+      "surface": "白花菜",
+      "canonical": "菜花",
+      "py": "baihuacai",
+      "initials": "bhc"
+    },
+    {
+      "surface": "花椰菜",
+      "canonical": "菜花",
+      "py": "huayecai",
+      "initials": "hyc"
+    },
+    {
+      "surface": "散花菜",
+      "canonical": "菜花",
+      "py": "sanhuacai",
+      "initials": "shc"
+    },
+    {
+      "surface": "松花菜",
+      "canonical": "菜花",
+      "py": "songhuacai",
+      "initials": "shc"
+    },
+    {
+      "surface": "菜苔",
+      "canonical": "菜苔",
+      "py": "caitai",
+      "initials": "ct"
+    },
+    {
+      "surface": "油菜苔",
+      "canonical": "菜苔",
+      "py": "youcaitai",
+      "initials": "yct"
+    },
+    {
+      "surface": "菜薹",
+      "canonical": "菜苔",
+      "py": "caitai",
+      "initials": "ct"
+    },
+    {
+      "surface": "蒜苔",
+      "canonical": "蒜苔",
+      "py": "suantai",
+      "initials": "st"
+    },
+    {
+      "surface": "蒜薹",
+      "canonical": "蒜苔",
+      "py": "suantai",
+      "initials": "st"
+    },
+    {
+      "surface": "蒜苗",
+      "canonical": "蒜苗",
+      "py": "suanmiao",
+      "initials": "sm"
+    },
+    {
+      "surface": "嫩蒜苗",
+      "canonical": "蒜苗",
+      "py": "nensuanmiao",
+      "initials": "nsm"
+    },
+    {
+      "surface": "大蒜叶",
+      "canonical": "蒜苗",
+      "py": "dasuanye",
+      "initials": "dsy"
+    },
+    {
+      "surface": "西蓝花",
+      "canonical": "西蓝花",
+      "py": "xilanhua",
+      "initials": "xlh"
+    },
+    {
+      "surface": "西兰花",
+      "canonical": "西蓝花",
+      "py": "xilanhua",
+      "initials": "xlh"
+    },
+    {
+      "surface": "绿花菜",
+      "canonical": "西蓝花",
+      "py": "lvhuacai",
+      "initials": "lhc"
+    },
+    {
+      "surface": "青花菜",
+      "canonical": "西蓝花",
+      "py": "qinghuacai",
+      "initials": "qhc"
+    },
+    {
+      "surface": "西兰苔",
+      "canonical": "西蓝花",
+      "py": "xilantai",
+      "initials": "xlt"
+    },
+    {
+      "surface": "西芹",
+      "canonical": "西芹",
+      "py": "xiqin",
+      "initials": "xq"
+    },
+    {
+      "surface": "洋芹",
+      "canonical": "西芹",
+      "py": "yangqin",
+      "initials": "yq"
+    },
+    {
+      "surface": "贡菜",
+      "canonical": "贡菜",
+      "py": "gongcai",
+      "initials": "gc"
+    },
+    {
+      "surface": "干贡菜",
+      "canonical": "贡菜",
+      "py": "gangongcai",
+      "initials": "ggc"
+    },
+    {
+      "surface": "雪菜",
+      "canonical": "雪菜",
+      "py": "xuecai",
+      "initials": "xc"
+    },
+    {
+      "surface": "雪里红",
+      "canonical": "雪菜",
+      "py": "xuelihong",
+      "initials": "xlh"
+    },
+    {
+      "surface": "雪里蕻",
+      "canonical": "雪菜",
+      "py": "xuelihong",
+      "initials": "xlh"
+    },
+    {
+      "surface": "春不老",
+      "canonical": "雪菜",
+      "py": "chunbulao",
+      "initials": "cbl"
+    },
+    {
+      "surface": "青菜",
+      "canonical": "青菜",
+      "py": "qingcai",
+      "initials": "qc"
+    },
+    {
+      "surface": "小青菜",
+      "canonical": "青菜",
+      "py": "xiaoqingcai",
+      "initials": "xqc"
+    },
+    {
+      "surface": "韭菜",
+      "canonical": "韭菜",
+      "py": "jiucai",
+      "initials": "jc"
+    },
+    {
+      "surface": "土韭菜",
+      "canonical": "韭菜",
+      "py": "tujiucai",
+      "initials": "tjc"
+    },
+    {
+      "surface": "香菜",
+      "canonical": "香菜",
+      "py": "xiangcai",
+      "initials": "xc"
+    },
+    {
+      "surface": "胡荽",
+      "canonical": "香菜",
+      "py": "husui",
+      "initials": "hs"
+    },
+    {
+      "surface": "芫荽",
+      "canonical": "香菜",
+      "py": "yansui",
+      "initials": "ys"
+    },
+    {
+      "surface": "包菜",
+      "canonical": "包菜",
+      "py": "baocai",
+      "initials": "bc"
+    },
+    {
+      "surface": "卷心菜",
+      "canonical": "包菜",
+      "py": "juanxincai",
+      "initials": "jxc"
+    },
+    {
+      "surface": "圆包菜",
+      "canonical": "包菜",
+      "py": "yuanbaocai",
+      "initials": "ybc"
+    },
+    {
+      "surface": "圆白菜",
+      "canonical": "包菜",
+      "py": "yuanbaicai",
+      "initials": "ybc"
+    },
+    {
+      "surface": "牛心菜",
+      "canonical": "包菜",
+      "py": "niuxincai",
+      "initials": "nxc"
+    },
+    {
+      "surface": "莲花白",
+      "canonical": "包菜",
+      "py": "lianhuabai",
+      "initials": "lhb"
+    },
+    {
+      "surface": "洋白菜",
+      "canonical": "包菜",
+      "py": "yangbaicai",
+      "initials": "ybc"
+    },
+    {
+      "surface": "高丽菜",
+      "canonical": "包菜",
+      "py": "gaolicai",
+      "initials": "glc"
+    },
+    {
+      "surface": "莲白",
+      "canonical": "包菜",
+      "py": "lianbai",
+      "initials": "lb"
+    },
+    {
+      "surface": "平包菜",
+      "canonical": "包菜",
+      "py": "pingbaocai",
+      "initials": "pbc"
+    },
+    {
+      "surface": "卷窝菜",
+      "canonical": "包菜",
+      "py": "juanwocai",
+      "initials": "jwc"
+    },
+    {
+      "surface": "紫包菜",
+      "canonical": "紫包菜",
+      "py": "zibaocai",
+      "initials": "zbc"
+    },
+    {
+      "surface": "紫甘蓝",
+      "canonical": "紫包菜",
+      "py": "ziganlan",
+      "initials": "zgl"
+    },
+    {
+      "surface": "红薯尖",
+      "canonical": "红薯尖",
+      "py": "hongshujian",
+      "initials": "hsj"
+    },
+    {
+      "surface": "红薯叶",
+      "canonical": "红薯尖",
+      "py": "hongshuye",
+      "initials": "hsy"
+    },
+    {
+      "surface": "苕尖",
+      "canonical": "红薯尖",
+      "py": "shaojian",
+      "initials": "sj"
+    },
+    {
+      "surface": "干黄花菜",
+      "canonical": "干黄花菜",
+      "py": "ganhuanghuacai",
+      "initials": "ghhc"
+    },
+    {
+      "surface": "黄花菜",
+      "canonical": "干黄花菜",
+      "py": "huanghuacai",
+      "initials": "hhc"
+    },
+    {
+      "surface": "荠菜",
+      "canonical": "荠菜",
+      "py": "jicai",
+      "initials": "jc"
+    },
+    {
+      "surface": "地菜",
+      "canonical": "荠菜",
+      "py": "dicai",
+      "initials": "dc"
+    },
+    {
+      "surface": "豌豆尖",
+      "canonical": "豌豆尖",
+      "py": "wandoujian",
+      "initials": "wdj"
+    },
+    {
+      "surface": "豌豆苗",
+      "canonical": "豌豆尖",
+      "py": "wandoumiao",
+      "initials": "wdm"
+    },
+    {
+      "surface": "鱼腥草叶",
+      "canonical": "鱼腥草叶",
+      "py": "yuxingcaoye",
+      "initials": "yxcy"
+    },
+    {
+      "surface": "折耳根叶",
+      "canonical": "鱼腥草叶",
+      "py": "zheergenye",
+      "initials": "zegy"
+    },
+    {
+      "surface": "杭白菜",
+      "canonical": "杭白菜",
+      "py": "hangbaicai",
+      "initials": "hbc"
+    },
+    {
+      "surface": "小白菜",
+      "canonical": "杭白菜",
+      "py": "xiaobaicai",
+      "initials": "xbc"
+    },
+    {
+      "surface": "草头",
+      "canonical": "草头",
+      "py": "caotou",
+      "initials": "ct"
+    },
+    {
+      "surface": "苜蓿",
+      "canonical": "草头",
+      "py": "muxu",
+      "initials": "mx"
+    },
+    {
+      "surface": "芦蒿",
+      "canonical": "芦蒿",
+      "py": "luhao",
+      "initials": "lh"
+    },
+    {
+      "surface": "藜蒿",
+      "canonical": "芦蒿",
+      "py": "lihao",
+      "initials": "lh"
+    },
+    {
+      "surface": "蒿子秆",
+      "canonical": "芦蒿",
+      "py": "haozigan",
+      "initials": "hzg"
+    },
+    {
+      "surface": "菠菜",
+      "canonical": "菠菜",
+      "py": "bocai",
+      "initials": "bc"
+    },
+    {
+      "surface": "菠菜苗",
+      "canonical": "菠菜",
+      "py": "bocaimiao",
+      "initials": "bcm"
+    },
+    {
+      "surface": "红菜苔",
+      "canonical": "红菜苔",
+      "py": "hongcaitai",
+      "initials": "hct"
+    },
+    {
+      "surface": "红油菜苔",
+      "canonical": "红菜苔",
+      "py": "hongyoucaitai",
+      "initials": "hyct"
+    },
+    {
+      "surface": "丝瓜",
+      "canonical": "丝瓜",
+      "py": "sigua",
+      "initials": "sg"
+    },
+    {
+      "surface": "土丝瓜",
+      "canonical": "丝瓜",
+      "py": "tusigua",
+      "initials": "tsg"
+    },
+    {
+      "surface": "长丝瓜",
+      "canonical": "丝瓜",
+      "py": "zhangsigua",
+      "initials": "zsg"
+    },
+    {
+      "surface": "青丝瓜",
+      "canonical": "丝瓜",
+      "py": "qingsigua",
+      "initials": "qsg"
+    },
+    {
+      "surface": "南瓜",
+      "canonical": "南瓜",
+      "py": "nangua",
+      "initials": "ng"
+    },
+    {
+      "surface": "甜南瓜",
+      "canonical": "南瓜",
+      "py": "tiannangua",
+      "initials": "tng"
+    },
+    {
+      "surface": "老南瓜",
+      "canonical": "南瓜",
+      "py": "laonangua",
+      "initials": "lng"
+    },
+    {
+      "surface": "贝贝南瓜",
+      "canonical": "南瓜",
+      "py": "beibeinangua",
+      "initials": "bbng"
+    },
+    {
+      "surface": "杭椒",
+      "canonical": "杭椒",
+      "py": "hangjiao",
+      "initials": "hj"
+    },
+    {
+      "surface": "红杭椒",
+      "canonical": "杭椒",
+      "py": "honghangjiao",
+      "initials": "hhj"
+    },
+    {
+      "surface": "青杭椒",
+      "canonical": "杭椒",
+      "py": "qinghangjiao",
+      "initials": "qhj"
+    },
+    {
+      "surface": "玉米",
+      "canonical": "玉米",
+      "py": "yumi",
+      "initials": "ym"
+    },
+    {
+      "surface": "甜玉米",
+      "canonical": "玉米",
+      "py": "tianyumi",
+      "initials": "tym"
+    },
+    {
+      "surface": "黄玉米",
+      "canonical": "玉米",
+      "py": "huangyumi",
+      "initials": "hym"
+    },
+    {
+      "surface": "水果玉米",
+      "canonical": "玉米",
+      "py": "shuiguoyumi",
+      "initials": "sgym"
+    },
+    {
+      "surface": "黑玉米",
+      "canonical": "玉米",
+      "py": "heiyumi",
+      "initials": "hym"
+    },
+    {
+      "surface": "番茄",
+      "canonical": "番茄",
+      "py": "fanqie",
+      "initials": "fq"
+    },
+    {
+      "surface": "西红柿",
+      "canonical": "番茄",
+      "py": "xihongshi",
+      "initials": "xhs"
+    },
+    {
+      "surface": "秋葵",
+      "canonical": "秋葵",
+      "py": "qiukui",
+      "initials": "qk"
+    },
+    {
+      "surface": "羊角豆",
+      "canonical": "秋葵",
+      "py": "yangjiaodou",
+      "initials": "yjd"
+    },
+    {
+      "surface": "线椒",
+      "canonical": "线椒",
+      "py": "xianjiao",
+      "initials": "xj"
+    },
+    {
+      "surface": "红线椒",
+      "canonical": "线椒",
+      "py": "hongxianjiao",
+      "initials": "hxj"
+    },
+    {
+      "surface": "青线椒",
+      "canonical": "线椒",
+      "py": "qingxianjiao",
+      "initials": "qxj"
+    },
+    {
+      "surface": "美人椒",
+      "canonical": "美人椒",
+      "py": "meirenjiao",
+      "initials": "mrj"
+    },
+    {
+      "surface": "红美人椒",
+      "canonical": "美人椒",
+      "py": "hongmeirenjiao",
+      "initials": "hmrj"
+    },
+    {
+      "surface": "茄子",
+      "canonical": "茄子",
+      "py": "qiezi",
+      "initials": "qz"
+    },
+    {
+      "surface": "圆茄子",
+      "canonical": "茄子",
+      "py": "yuanqiezi",
+      "initials": "yqz"
+    },
+    {
+      "surface": "白茄子",
+      "canonical": "茄子",
+      "py": "baiqiezi",
+      "initials": "bqz"
+    },
+    {
+      "surface": "粗茄子",
+      "canonical": "茄子",
+      "py": "cuqiezi",
+      "initials": "cqz"
+    },
+    {
+      "surface": "紫茄子",
+      "canonical": "茄子",
+      "py": "ziqiezi",
+      "initials": "zqz"
+    },
+    {
+      "surface": "青椒",
+      "canonical": "青椒",
+      "py": "qingjiao",
+      "initials": "qj"
+    },
+    {
+      "surface": "青彩椒",
+      "canonical": "青椒",
+      "py": "qingcaijiao",
+      "initials": "qcj"
+    },
+    {
+      "surface": "青尖椒",
+      "canonical": "青椒",
+      "py": "qingjianjiao",
+      "initials": "qjj"
+    },
+    {
+      "surface": "黄瓜",
+      "canonical": "黄瓜",
+      "py": "huanggua",
+      "initials": "hg"
+    },
+    {
+      "surface": "长黄瓜",
+      "canonical": "黄瓜",
+      "py": "zhanghuanggua",
+      "initials": "zhg"
+    },
+    {
+      "surface": "青黄瓜",
+      "canonical": "黄瓜",
+      "py": "qinghuanggua",
+      "initials": "qhg"
+    },
+    {
+      "surface": "青瓜",
+      "canonical": "黄瓜",
+      "py": "qinggua",
+      "initials": "qg"
+    },
+    {
+      "surface": "清瓜",
+      "canonical": "黄瓜",
+      "py": "qinggua",
+      "initials": "qg"
+    },
+    {
+      "surface": "青南瓜",
+      "canonical": "青南瓜",
+      "py": "qingnangua",
+      "initials": "qng"
+    },
+    {
+      "surface": "圆嫩南瓜",
+      "canonical": "青南瓜",
+      "py": "yuannennangua",
+      "initials": "ynng"
+    },
+    {
+      "surface": "嫩南瓜",
+      "canonical": "青南瓜",
+      "py": "nennangua",
+      "initials": "nng"
+    },
+    {
+      "surface": "菜南瓜",
+      "canonical": "青南瓜",
+      "py": "cainangua",
+      "initials": "cng"
+    },
+    {
+      "surface": "糯白玉米",
+      "canonical": "糯白玉米",
+      "py": "nuobaiyumi",
+      "initials": "nbym"
+    },
+    {
+      "surface": "糯玉米",
+      "canonical": "糯白玉米",
+      "py": "nuoyumi",
+      "initials": "nym"
+    },
+    {
+      "surface": "绿茄子",
+      "canonical": "绿茄子",
+      "py": "lvqiezi",
+      "initials": "lqz"
+    },
+    {
+      "surface": "青茄子",
+      "canonical": "绿茄子",
+      "py": "qingqiezi",
+      "initials": "qqz"
+    },
+    {
+      "surface": "长茄子",
+      "canonical": "长茄子",
+      "py": "zhangqiezi",
+      "initials": "zqz"
+    },
+    {
+      "surface": "细茄子",
+      "canonical": "长茄子",
+      "py": "xiqiezi",
+      "initials": "xqz"
+    },
+    {
+      "surface": "三月茄",
+      "canonical": "长茄子",
+      "py": "sanyuejia",
+      "initials": "syj"
+    },
+    {
+      "surface": "线茄子",
+      "canonical": "长茄子",
+      "py": "xianqiezi",
+      "initials": "xqz"
+    },
+    {
+      "surface": "圆椒",
+      "canonical": "圆椒",
+      "py": "yuanjiao",
+      "initials": "yj"
+    },
+    {
+      "surface": "圆青椒",
+      "canonical": "圆椒",
+      "py": "yuanqingjiao",
+      "initials": "yqj"
+    },
+    {
+      "surface": "圆彩椒",
+      "canonical": "圆椒",
+      "py": "yuancaijiao",
+      "initials": "ycj"
+    },
+    {
+      "surface": "皱皮椒",
+      "canonical": "皱皮椒",
+      "py": "zhoupijiao",
+      "initials": "zpj"
+    },
+    {
+      "surface": "皱皮青椒",
+      "canonical": "皱皮椒",
+      "py": "zhoupiqingjiao",
+      "initials": "zpqj"
+    },
+    {
+      "surface": "小米椒",
+      "canonical": "小米椒",
+      "py": "xiaomijiao",
+      "initials": "xmj"
+    },
+    {
+      "surface": "青小米椒",
+      "canonical": "小米椒",
+      "py": "qingxiaomijiao",
+      "initials": "qxmj"
+    },
+    {
+      "surface": "瓠瓜",
+      "canonical": "瓠瓜",
+      "py": "hugua",
+      "initials": "hg"
+    },
+    {
+      "surface": "瓠子瓜",
+      "canonical": "瓠瓜",
+      "py": "huzigua",
+      "initials": "hzg"
+    },
+    {
+      "surface": "蒲瓜",
+      "canonical": "瓠瓜",
+      "py": "pugua",
+      "initials": "pg"
+    },
+    {
+      "surface": "付子瓜",
+      "canonical": "瓠瓜",
+      "py": "fuzigua",
+      "initials": "fzg"
+    },
+    {
+      "surface": "瓠子",
+      "canonical": "瓠瓜",
+      "py": "huzi",
+      "initials": "hz"
+    },
+    {
+      "surface": "土豆",
+      "canonical": "土豆",
+      "py": "tudou",
+      "initials": "td"
+    },
+    {
+      "surface": "洋芋",
+      "canonical": "土豆",
+      "py": "yangyu",
+      "initials": "yy"
+    },
+    {
+      "surface": "薯仔",
+      "canonical": "土豆",
+      "py": "shuzai",
+      "initials": "sz"
+    },
+    {
+      "surface": "马铃薯",
+      "canonical": "土豆",
+      "py": "malingshu",
+      "initials": "mls"
+    },
+    {
+      "surface": "洋姜",
+      "canonical": "洋姜",
+      "py": "yangjiang",
+      "initials": "yj"
+    },
+    {
+      "surface": "菊芋",
+      "canonical": "洋姜",
+      "py": "juyu",
+      "initials": "jy"
+    },
+    {
+      "surface": "黑洋姜",
+      "canonical": "洋姜",
+      "py": "heiyangjiang",
+      "initials": "hyj"
+    },
+    {
+      "surface": "洋葱",
+      "canonical": "洋葱",
+      "py": "yangcong",
+      "initials": "yc"
+    },
+    {
+      "surface": "白洋葱",
+      "canonical": "洋葱",
+      "py": "baiyangcong",
+      "initials": "byc"
+    },
+    {
+      "surface": "紫洋葱",
+      "canonical": "洋葱",
+      "py": "ziyangcong",
+      "initials": "zyc"
+    },
+    {
+      "surface": "红洋葱",
+      "canonical": "洋葱",
+      "py": "hongyangcong",
+      "initials": "hyc"
+    },
+    {
+      "surface": "黄洋葱",
+      "canonical": "洋葱",
+      "py": "huangyangcong",
+      "initials": "hyc"
+    },
+    {
+      "surface": "红薯",
+      "canonical": "红薯",
+      "py": "hongshu",
+      "initials": "hs"
+    },
+    {
+      "surface": "地瓜",
+      "canonical": "红薯",
+      "py": "digua",
+      "initials": "dg"
+    },
+    {
+      "surface": "番薯",
+      "canonical": "红薯",
+      "py": "fanshu",
+      "initials": "fs"
+    },
+    {
+      "surface": "红苕",
+      "canonical": "红薯",
+      "py": "hongshao",
+      "initials": "hs"
+    },
+    {
+      "surface": "烟薯",
+      "canonical": "红薯",
+      "py": "yanshu",
+      "initials": "ys"
+    },
+    {
+      "surface": "茭白",
+      "canonical": "茭白",
+      "py": "jiaobai",
+      "initials": "jb"
+    },
+    {
+      "surface": "高笋",
+      "canonical": "茭白",
+      "py": "gaosun",
+      "initials": "gs"
+    },
+    {
+      "surface": "莴笋",
+      "canonical": "莴笋",
+      "py": "wosun",
+      "initials": "ws"
+    },
+    {
+      "surface": "莴笋头",
+      "canonical": "莴笋",
+      "py": "wosuntou",
+      "initials": "wst"
+    },
+    {
+      "surface": "莴苣",
+      "canonical": "莴笋",
+      "py": "woju",
+      "initials": "wj"
+    },
+    {
+      "surface": "青笋",
+      "canonical": "莴笋",
+      "py": "qingsun",
+      "initials": "qs"
+    },
+    {
+      "surface": "青笋头",
+      "canonical": "莴笋",
+      "py": "qingsuntou",
+      "initials": "qst"
+    },
+    {
+      "surface": "香笋",
+      "canonical": "莴笋",
+      "py": "xiangsun",
+      "initials": "xs"
+    },
+    {
+      "surface": "莴笋杆",
+      "canonical": "莴笋",
+      "py": "wosungan",
+      "initials": "wsg"
+    },
+    {
+      "surface": "青笋杆",
+      "canonical": "莴笋",
+      "py": "qingsungan",
+      "initials": "qsg"
+    },
+    {
+      "surface": "萝卜",
+      "canonical": "萝卜",
+      "py": "luobo",
+      "initials": "lb"
+    },
+    {
+      "surface": "白萝卜",
+      "canonical": "萝卜",
+      "py": "bailuobo",
+      "initials": "blb"
+    },
+    {
+      "surface": "长白萝卜",
+      "canonical": "萝卜",
+      "py": "zhangbailuobo",
+      "initials": "zblb"
+    },
+    {
+      "surface": "马蹄",
+      "canonical": "马蹄",
+      "py": "mati",
+      "initials": "mt"
+    },
+    {
+      "surface": "地栗",
+      "canonical": "马蹄",
+      "py": "dili",
+      "initials": "dl"
+    },
+    {
+      "surface": "荸荠",
+      "canonical": "马蹄",
+      "py": "biqi",
+      "initials": "bq"
+    },
+    {
+      "surface": "山药",
+      "canonical": "山药",
+      "py": "shanyao",
+      "initials": "sy"
+    },
+    {
+      "surface": "毛山药",
+      "canonical": "山药",
+      "py": "maoshanyao",
+      "initials": "msy"
+    },
+    {
+      "surface": "淮山药",
+      "canonical": "山药",
+      "py": "huaishanyao",
+      "initials": "hsy"
+    },
+    {
+      "surface": "香芋",
+      "canonical": "香芋",
+      "py": "xiangyu",
+      "initials": "xy"
+    },
+    {
+      "surface": "槟榔芋",
+      "canonical": "香芋",
+      "py": "binglangyu",
+      "initials": "bly"
+    },
+    {
+      "surface": "芋儿",
+      "canonical": "香芋",
+      "py": "yuer",
+      "initials": "ye"
+    },
+    {
+      "surface": "芋艿",
+      "canonical": "香芋",
+      "py": "yunai",
+      "initials": "yn"
+    },
+    {
+      "surface": "芋头",
+      "canonical": "香芋",
+      "py": "yutou",
+      "initials": "yt"
+    },
+    {
+      "surface": "芋仔",
+      "canonical": "香芋",
+      "py": "yuzai",
+      "initials": "yz"
+    },
+    {
+      "surface": "菱角",
+      "canonical": "菱角",
+      "py": "lingjiao",
+      "initials": "lj"
+    },
+    {
+      "surface": "老棱角",
+      "canonical": "菱角",
+      "py": "laolengjiao",
+      "initials": "llj"
+    },
+    {
+      "surface": "熟棱角",
+      "canonical": "菱角",
+      "py": "shulengjiao",
+      "initials": "slj"
+    },
+    {
+      "surface": "莲藕",
+      "canonical": "莲藕",
+      "py": "lianou",
+      "initials": "lo"
+    },
+    {
+      "surface": "藕",
+      "canonical": "莲藕",
+      "py": "ou",
+      "initials": "o"
+    },
+    {
+      "surface": "面藕",
+      "canonical": "莲藕",
+      "py": "mianou",
+      "initials": "mo"
+    },
+    {
+      "surface": "藕尖",
+      "canonical": "莲藕",
+      "py": "oujian",
+      "initials": "oj"
+    },
+    {
+      "surface": "粉藕",
+      "canonical": "莲藕",
+      "py": "fenou",
+      "initials": "fo"
+    },
+    {
+      "surface": "水笋",
+      "canonical": "水笋",
+      "py": "shuisun",
+      "initials": "ss"
+    },
+    {
+      "surface": "清水笋",
+      "canonical": "水笋",
+      "py": "qingshuisun",
+      "initials": "qss"
+    },
+    {
+      "surface": "竹笋",
+      "canonical": "竹笋",
+      "py": "zhusun",
+      "initials": "zs"
+    },
+    {
+      "surface": "方竹笋",
+      "canonical": "竹笋",
+      "py": "fangzhusun",
+      "initials": "fzs"
+    },
+    {
+      "surface": "笋子",
+      "canonical": "竹笋",
+      "py": "sunzi",
+      "initials": "sz"
+    },
+    {
+      "surface": "笋尖",
+      "canonical": "竹笋",
+      "py": "sunjian",
+      "initials": "sj"
+    },
+    {
+      "surface": "笋条",
+      "canonical": "竹笋",
+      "py": "suntiao",
+      "initials": "st"
+    },
+    {
+      "surface": "茅根",
+      "canonical": "茅根",
+      "py": "maogen",
+      "initials": "mg"
+    },
+    {
+      "surface": "茅草根",
+      "canonical": "茅根",
+      "py": "maocaogen",
+      "initials": "mcg"
+    },
+    {
+      "surface": "胡萝卜",
+      "canonical": "胡萝卜",
+      "py": "huluobo",
+      "initials": "hlb"
+    },
+    {
+      "surface": "红萝卜",
+      "canonical": "胡萝卜",
+      "py": "hongluobo",
+      "initials": "hlb"
+    },
+    {
+      "surface": "蜜薯",
+      "canonical": "蜜薯",
+      "py": "mishu",
+      "initials": "ms"
+    },
+    {
+      "surface": "榴莲蜜薯",
+      "canonical": "蜜薯",
+      "py": "liulianmishu",
+      "initials": "llms"
+    },
+    {
+      "surface": "藠头",
+      "canonical": "藠头",
+      "py": "jiaotou",
+      "initials": "jt"
+    },
+    {
+      "surface": "叫头",
+      "canonical": "藠头",
+      "py": "jiaotou",
+      "initials": "jt"
+    },
+    {
+      "surface": "水果萝卜",
+      "canonical": "水果萝卜",
+      "py": "shuiguoluobo",
+      "initials": "sglb"
+    },
+    {
+      "surface": "樱桃萝卜",
+      "canonical": "水果萝卜",
+      "py": "yingtaoluobo",
+      "initials": "ytlb"
+    },
+    {
+      "surface": "胭脂萝卜",
+      "canonical": "水果萝卜",
+      "py": "yanzhiluobo",
+      "initials": "yzlb"
+    },
+    {
+      "surface": "红皮萝卜",
+      "canonical": "水果萝卜",
+      "py": "hongpiluobo",
+      "initials": "hplb"
+    },
+    {
+      "surface": "凉薯",
+      "canonical": "凉薯",
+      "py": "liangshu",
+      "initials": "ls"
+    },
+    {
+      "surface": "沙葛",
+      "canonical": "凉薯",
+      "py": "shage",
+      "initials": "sg"
+    },
+    {
+      "surface": "豆薯",
+      "canonical": "凉薯",
+      "py": "doushu",
+      "initials": "ds"
+    },
+    {
+      "surface": "板栗",
+      "canonical": "板栗",
+      "py": "banli",
+      "initials": "bl"
+    },
+    {
+      "surface": "板栗仁",
+      "canonical": "板栗",
+      "py": "banliren",
+      "initials": "blr"
+    },
+    {
+      "surface": "生板栗",
+      "canonical": "板栗",
+      "py": "shengbanli",
+      "initials": "sbl"
+    },
+    {
+      "surface": "葡萄",
+      "canonical": "葡萄",
+      "py": "putao",
+      "initials": "pt"
+    },
+    {
+      "surface": "葡萄干",
+      "canonical": "葡萄",
+      "py": "putaogan",
+      "initials": "ptg"
+    },
+    {
+      "surface": "雪梨",
+      "canonical": "雪梨",
+      "py": "xueli",
+      "initials": "xl"
+    },
+    {
+      "surface": "雪花梨",
+      "canonical": "雪梨",
+      "py": "xuehuali",
+      "initials": "xhl"
+    },
+    {
+      "surface": "刀豆",
+      "canonical": "刀豆",
+      "py": "daodou",
+      "initials": "dd"
+    },
+    {
+      "surface": "大刀豆",
+      "canonical": "刀豆",
+      "py": "dadaodou",
+      "initials": "ddd"
+    },
+    {
+      "surface": "毛豆",
+      "canonical": "毛豆",
+      "py": "maodou",
+      "initials": "md"
+    },
+    {
+      "surface": "毛豆米",
+      "canonical": "毛豆",
+      "py": "maodoumi",
+      "initials": "mdm"
+    },
+    {
+      "surface": "毛豆粒",
+      "canonical": "毛豆",
+      "py": "maodouli",
+      "initials": "mdl"
+    },
+    {
+      "surface": "毛豆角",
+      "canonical": "毛豆",
+      "py": "maodoujiao",
+      "initials": "mdj"
+    },
+    {
+      "surface": "甜豆",
+      "canonical": "甜豆",
+      "py": "tiandou",
+      "initials": "td"
+    },
+    {
+      "surface": "甜豆粒",
+      "canonical": "甜豆",
+      "py": "tiandouli",
+      "initials": "tdl"
+    },
+    {
+      "surface": "花生",
+      "canonical": "花生",
+      "py": "huasheng",
+      "initials": "hs"
+    },
+    {
+      "surface": "干花生",
+      "canonical": "花生",
+      "py": "ganhuasheng",
+      "initials": "ghs"
+    },
+    {
+      "surface": "湿花生",
+      "canonical": "花生",
+      "py": "shihuasheng",
+      "initials": "shs"
+    },
+    {
+      "surface": "生花生",
+      "canonical": "花生",
+      "py": "shenghuasheng",
+      "initials": "shs"
+    },
+    {
+      "surface": "蚕豆",
+      "canonical": "蚕豆",
+      "py": "candou",
+      "initials": "cd"
+    },
+    {
+      "surface": "佛豆",
+      "canonical": "蚕豆",
+      "py": "fudou",
+      "initials": "fd"
+    },
+    {
+      "surface": "胡豆",
+      "canonical": "蚕豆",
+      "py": "hudou",
+      "initials": "hd"
+    },
+    {
+      "surface": "蚕豆米",
+      "canonical": "蚕豆",
+      "py": "candoumi",
+      "initials": "cdm"
+    },
+    {
+      "surface": "耙胡豆",
+      "canonical": "蚕豆",
+      "py": "bahudou",
+      "initials": "bhd"
+    },
+    {
+      "surface": "豆芽",
+      "canonical": "豆芽",
+      "py": "douya",
+      "initials": "dy"
+    },
+    {
+      "surface": "黄豆芽",
+      "canonical": "豆芽",
+      "py": "huangdouya",
+      "initials": "hdy"
+    },
+    {
+      "surface": "豆角",
+      "canonical": "豆角",
+      "py": "doujiao",
+      "initials": "dj"
+    },
+    {
+      "surface": "白豆角",
+      "canonical": "豆角",
+      "py": "baidoujiao",
+      "initials": "bdj"
+    },
+    {
+      "surface": "白长豆角",
+      "canonical": "豆角",
+      "py": "baizhangdoujiao",
+      "initials": "bzdj"
+    },
+    {
+      "surface": "胖豆角",
+      "canonical": "豆角",
+      "py": "pangdoujiao",
+      "initials": "pdj"
+    },
+    {
+      "surface": "长豆角",
+      "canonical": "豆角",
+      "py": "zhangdoujiao",
+      "initials": "zdj"
+    },
+    {
+      "surface": "青豆角",
+      "canonical": "豆角",
+      "py": "qingdoujiao",
+      "initials": "qdj"
+    },
+    {
+      "surface": "豌豆",
+      "canonical": "豌豆",
+      "py": "wandou",
+      "initials": "wd"
+    },
+    {
+      "surface": "豌豆米",
+      "canonical": "豌豆",
+      "py": "wandoumi",
+      "initials": "wdm"
+    },
+    {
+      "surface": "豌豆粒",
+      "canonical": "豌豆",
+      "py": "wandouli",
+      "initials": "wdl"
+    },
+    {
+      "surface": "青豆",
+      "canonical": "豌豆",
+      "py": "qingdou",
+      "initials": "qd"
+    },
+    {
+      "surface": "青豌豆",
+      "canonical": "豌豆",
+      "py": "qingwandou",
+      "initials": "qwd"
+    },
+    {
+      "surface": "耙豌豆",
+      "canonical": "豌豆",
+      "py": "bawandou",
+      "initials": "bwd"
+    },
+    {
+      "surface": "无筋豆",
+      "canonical": "无筋豆",
+      "py": "wujindou",
+      "initials": "wjd"
+    },
+    {
+      "surface": "无筋豆角",
+      "canonical": "无筋豆",
+      "py": "wujindoujiao",
+      "initials": "wjdj"
+    },
+    {
+      "surface": "豇豆",
+      "canonical": "豇豆",
+      "py": "jiangdou",
+      "initials": "jd"
+    },
+    {
+      "surface": "长豇豆",
+      "canonical": "豇豆",
+      "py": "zhangjiangdou",
+      "initials": "zjd"
+    },
+    {
+      "surface": "青豇豆",
+      "canonical": "豇豆",
+      "py": "qingjiangdou",
+      "initials": "qjd"
+    },
+    {
+      "surface": "白豇豆",
+      "canonical": "豇豆",
+      "py": "baijiangdou",
+      "initials": "bjd"
+    },
+    {
+      "surface": "胖白豇豆",
+      "canonical": "豇豆",
+      "py": "pangbaijiangdou",
+      "initials": "pbjd"
+    },
+    {
+      "surface": "红豆",
+      "canonical": "红豆",
+      "py": "hongdou",
+      "initials": "hd"
+    },
+    {
+      "surface": "赤小豆",
+      "canonical": "红豆",
+      "py": "chixiaodou",
+      "initials": "cxd"
+    },
+    {
+      "surface": "荷兰豆",
+      "canonical": "荷兰豆",
+      "py": "helandou",
+      "initials": "hld"
+    },
+    {
+      "surface": "豌豆荚",
+      "canonical": "荷兰豆",
+      "py": "wandoujia",
+      "initials": "wdj"
+    },
+    {
+      "surface": "千叶豆腐",
+      "canonical": "千叶豆腐",
+      "py": "qianyedoufu",
+      "initials": "qydf"
+    },
+    {
+      "surface": "千页豆腐",
+      "canonical": "千叶豆腐",
+      "py": "qianyedoufu",
+      "initials": "qydf"
+    },
+    {
+      "surface": "日本豆腐",
+      "canonical": "日本豆腐",
+      "py": "ribendoufu",
+      "initials": "rbdf"
+    },
+    {
+      "surface": "玉子豆腐",
+      "canonical": "日本豆腐",
+      "py": "yuzidoufu",
+      "initials": "yzdf"
+    },
+    {
+      "surface": "鸡蛋豆腐",
+      "canonical": "日本豆腐",
+      "py": "jidandoufu",
+      "initials": "jddf"
+    },
+    {
+      "surface": "油豆皮",
+      "canonical": "油豆皮",
+      "py": "youdoupi",
+      "initials": "ydp"
+    },
+    {
+      "surface": "干油豆皮",
+      "canonical": "油豆皮",
+      "py": "ganyoudoupi",
+      "initials": "gydp"
+    },
+    {
+      "surface": "豆油皮",
+      "canonical": "油豆皮",
+      "py": "douyoupi",
+      "initials": "dyp"
+    },
+    {
+      "surface": "豆腐泡",
+      "canonical": "豆腐泡",
+      "py": "doufupao",
+      "initials": "dfp"
+    },
+    {
+      "surface": "油豆腐",
+      "canonical": "豆腐泡",
+      "py": "youdoufu",
+      "initials": "ydf"
+    },
+    {
+      "surface": "豆泡",
+      "canonical": "豆腐泡",
+      "py": "doupao",
+      "initials": "dp"
+    },
+    {
+      "surface": "油豆泡",
+      "canonical": "豆腐泡",
+      "py": "youdoupao",
+      "initials": "ydp"
+    },
+    {
+      "surface": "油豆腐泡",
+      "canonical": "豆腐泡",
+      "py": "youdoufupao",
+      "initials": "ydfp"
+    },
+    {
+      "surface": "豆腐圆",
+      "canonical": "豆腐泡",
+      "py": "doufuyuan",
+      "initials": "dfy"
+    },
+    {
+      "surface": "大豆泡",
+      "canonical": "豆腐泡",
+      "py": "dadoupao",
+      "initials": "ddp"
+    },
+    {
+      "surface": "油面筋",
+      "canonical": "油面筋",
+      "py": "youmianjin",
+      "initials": "ymj"
+    },
+    {
+      "surface": "面筋球",
+      "canonical": "油面筋",
+      "py": "mianjinqiu",
+      "initials": "mjq"
+    },
+    {
+      "surface": "烤麸",
+      "canonical": "烤麸",
+      "py": "kaofu",
+      "initials": "kf"
+    },
+    {
+      "surface": "面筋",
+      "canonical": "烤麸",
+      "py": "mianjin",
+      "initials": "mj"
+    },
+    {
+      "surface": "腐竹",
+      "canonical": "腐竹",
+      "py": "fuzhu",
+      "initials": "fz"
+    },
+    {
+      "surface": "干腐竹",
+      "canonical": "腐竹",
+      "py": "ganfuzhu",
+      "initials": "gfz"
+    },
+    {
+      "surface": "支竹",
+      "canonical": "腐竹",
+      "py": "zhizhu",
+      "initials": "zz"
+    },
+    {
+      "surface": "腐皮",
+      "canonical": "腐竹",
+      "py": "fupi",
+      "initials": "fp"
+    },
+    {
+      "surface": "臭豆腐",
+      "canonical": "臭豆腐",
+      "py": "choudoufu",
+      "initials": "cdf"
+    },
+    {
+      "surface": "臭干子",
+      "canonical": "臭豆腐",
+      "py": "chouganzi",
+      "initials": "cgz"
+    },
+    {
+      "surface": "豆干",
+      "canonical": "豆干",
+      "py": "dougan",
+      "initials": "dg"
+    },
+    {
+      "surface": "厚豆干",
+      "canonical": "豆干",
+      "py": "houdougan",
+      "initials": "hdg"
+    },
+    {
+      "surface": "嫩豆干",
+      "canonical": "豆干",
+      "py": "nendougan",
+      "initials": "ndg"
+    },
+    {
+      "surface": "白豆干",
+      "canonical": "豆干",
+      "py": "baidougan",
+      "initials": "bdg"
+    },
+    {
+      "surface": "薄豆干",
+      "canonical": "豆干",
+      "py": "baodougan",
+      "initials": "bdg"
+    },
+    {
+      "surface": "五香豆干",
+      "canonical": "豆干",
+      "py": "wuxiangdougan",
+      "initials": "wxdg"
+    },
+    {
+      "surface": "豆香干",
+      "canonical": "豆干",
+      "py": "douxianggan",
+      "initials": "dxg"
+    },
+    {
+      "surface": "豆腐",
+      "canonical": "豆腐",
+      "py": "doufu",
+      "initials": "df"
+    },
+    {
+      "surface": "内酯豆腐",
+      "canonical": "豆腐",
+      "py": "neizhidoufu",
+      "initials": "nzdf"
+    },
+    {
+      "surface": "北豆腐",
+      "canonical": "豆腐",
+      "py": "beidoufu",
+      "initials": "bdf"
+    },
+    {
+      "surface": "卤水豆腐",
+      "canonical": "豆腐",
+      "py": "lushuidoufu",
+      "initials": "lsdf"
+    },
+    {
+      "surface": "嫩豆腐",
+      "canonical": "豆腐",
+      "py": "nendoufu",
+      "initials": "ndf"
+    },
+    {
+      "surface": "干豆腐",
+      "canonical": "豆腐",
+      "py": "gandoufu",
+      "initials": "gdf"
+    },
+    {
+      "surface": "水豆腐",
+      "canonical": "豆腐",
+      "py": "shuidoufu",
+      "initials": "sdf"
+    },
+    {
+      "surface": "白豆腐",
+      "canonical": "豆腐",
+      "py": "baidoufu",
+      "initials": "bdf"
+    },
+    {
+      "surface": "老豆腐",
+      "canonical": "豆腐",
+      "py": "laodoufu",
+      "initials": "ldf"
+    },
+    {
+      "surface": "黑豆腐",
+      "canonical": "豆腐",
+      "py": "heidoufu",
+      "initials": "hdf"
+    },
+    {
+      "surface": "胆水豆腐",
+      "canonical": "豆腐",
+      "py": "danshuidoufu",
+      "initials": "dsdf"
+    },
+    {
+      "surface": "香干",
+      "canonical": "香干",
+      "py": "xianggan",
+      "initials": "xg"
+    },
+    {
+      "surface": "薄香干",
+      "canonical": "香干",
+      "py": "baoxianggan",
+      "initials": "bxg"
+    },
+    {
+      "surface": "黑香干",
+      "canonical": "香干",
+      "py": "heixianggan",
+      "initials": "hxg"
+    },
+    {
+      "surface": "五香干",
+      "canonical": "香干",
+      "py": "wuxianggan",
+      "initials": "wxg"
+    },
+    {
+      "surface": "千张",
+      "canonical": "千张",
+      "py": "qianzhang",
+      "initials": "qz"
+    },
+    {
+      "surface": "厚千张",
+      "canonical": "千张",
+      "py": "houqianzhang",
+      "initials": "hqz"
+    },
+    {
+      "surface": "百叶",
+      "canonical": "千张",
+      "py": "baiye",
+      "initials": "by"
+    },
+    {
+      "surface": "薄千张",
+      "canonical": "千张",
+      "py": "baoqianzhang",
+      "initials": "bqz"
+    },
+    {
+      "surface": "霉千张",
+      "canonical": "千张",
+      "py": "meiqianzhang",
+      "initials": "mqz"
+    },
+    {
+      "surface": "豆腐皮",
+      "canonical": "豆腐皮",
+      "py": "doufupi",
+      "initials": "dfp"
+    },
+    {
+      "surface": "薄豆皮",
+      "canonical": "豆腐皮",
+      "py": "baodoupi",
+      "initials": "bdp"
+    },
+    {
+      "surface": "湿豆皮",
+      "canonical": "豆腐皮",
+      "py": "shidoupi",
+      "initials": "sdp"
+    },
+    {
+      "surface": "厚豆皮",
+      "canonical": "豆腐皮",
+      "py": "houdoupi",
+      "initials": "hdp"
+    },
+    {
+      "surface": "厚豆腐皮",
+      "canonical": "豆腐皮",
+      "py": "houdoufupi",
+      "initials": "hdfp"
+    },
+    {
+      "surface": "五香豆皮",
+      "canonical": "豆腐皮",
+      "py": "wuxiangdoupi",
+      "initials": "wxdp"
+    },
+    {
+      "surface": "豆皮",
+      "canonical": "豆腐皮",
+      "py": "doupi",
+      "initials": "dp"
+    },
+    {
+      "surface": "干豆皮",
+      "canonical": "豆腐皮",
+      "py": "gandoupi",
+      "initials": "gdp"
+    },
+    {
+      "surface": "干豆棍",
+      "canonical": "干豆棍",
+      "py": "gandougun",
+      "initials": "gdg"
+    },
+    {
+      "surface": "干豆筋棍",
+      "canonical": "干豆棍",
+      "py": "gandoujingun",
+      "initials": "gdjg"
+    },
+    {
+      "surface": "豆筋棍",
+      "canonical": "干豆棍",
+      "py": "doujingun",
+      "initials": "djg"
+    },
+    {
+      "surface": "烟熏豆腐干",
+      "canonical": "烟熏豆腐干",
+      "py": "yanxundoufugan",
+      "initials": "yxdfg"
+    },
+    {
+      "surface": "烟熏豆干",
+      "canonical": "烟熏豆腐干",
+      "py": "yanxundougan",
+      "initials": "yxdg"
+    },
+    {
+      "surface": "泡泡豆干",
+      "canonical": "泡泡豆干",
+      "py": "paopaodougan",
+      "initials": "ppdg"
+    },
+    {
+      "surface": "起泡豆干",
+      "canonical": "泡泡豆干",
+      "py": "qipaodougan",
+      "initials": "qpdg"
+    },
+    {
+      "surface": "牛皮豆干",
+      "canonical": "泡泡豆干",
+      "py": "niupidougan",
+      "initials": "npdg"
+    },
+    {
+      "surface": "豆干丝",
+      "canonical": "豆干丝",
+      "py": "dougansi",
+      "initials": "dgs"
+    },
+    {
+      "surface": "干豆腐丝",
+      "canonical": "豆干丝",
+      "py": "gandoufusi",
+      "initials": "gdfs"
+    },
+    {
+      "surface": "千张丝",
+      "canonical": "豆干丝",
+      "py": "qianzhangsi",
+      "initials": "qzs"
+    },
+    {
+      "surface": "干豆皮丝",
+      "canonical": "豆干丝",
+      "py": "gandoupisi",
+      "initials": "gdps"
+    },
+    {
+      "surface": "薄豆腐干",
+      "canonical": "薄豆腐干",
+      "py": "baodoufugan",
+      "initials": "bdfg"
+    },
+    {
+      "surface": "豆腐干",
+      "canonical": "薄豆腐干",
+      "py": "doufugan",
+      "initials": "dfg"
+    },
+    {
+      "surface": "脆皮豆腐",
+      "canonical": "脆皮豆腐",
+      "py": "cuipidoufu",
+      "initials": "cpdf"
+    },
+    {
+      "surface": "脆豆腐",
+      "canonical": "脆皮豆腐",
+      "py": "cuidoufu",
+      "initials": "cdf"
+    },
+    {
+      "surface": "干豆腐结",
+      "canonical": "干豆腐结",
+      "py": "gandoufujie",
+      "initials": "gdfj"
+    },
+    {
+      "surface": "千张结",
+      "canonical": "干豆腐结",
+      "py": "qianzhangjie",
+      "initials": "qzj"
+    },
+    {
+      "surface": "响铃卷",
+      "canonical": "响铃卷",
+      "py": "xianglingjuan",
+      "initials": "xlj"
+    },
+    {
+      "surface": "炸响铃",
+      "canonical": "响铃卷",
+      "py": "zhaxiangling",
+      "initials": "zxl"
+    },
+    {
+      "surface": "凉皮",
+      "canonical": "凉皮",
+      "py": "liangpi",
+      "initials": "lp"
+    },
+    {
+      "surface": "面皮",
+      "canonical": "凉皮",
+      "py": "mianpi",
+      "initials": "mp"
+    },
+    {
+      "surface": "凉粉",
+      "canonical": "凉粉",
+      "py": "liangfen",
+      "initials": "lf"
+    },
+    {
+      "surface": "白凉粉",
+      "canonical": "凉粉",
+      "py": "bailiangfen",
+      "initials": "blf"
+    },
+    {
+      "surface": "列巴",
+      "canonical": "列巴",
+      "py": "lieba",
+      "initials": "lb"
+    },
+    {
+      "surface": "大列巴",
+      "canonical": "列巴",
+      "py": "dalieba",
+      "initials": "dlb"
+    },
+    {
+      "surface": "小米",
+      "canonical": "小米",
+      "py": "xiaomi",
+      "initials": "xm"
+    },
+    {
+      "surface": "小米辣",
+      "canonical": "小米",
+      "py": "xiaomila",
+      "initials": "xml"
+    },
+    {
+      "surface": "青小米辣",
+      "canonical": "小米",
+      "py": "qingxiaomila",
+      "initials": "qxml"
+    },
+    {
+      "surface": "抄手皮",
+      "canonical": "抄手皮",
+      "py": "chaoshoupi",
+      "initials": "csp"
+    },
+    {
+      "surface": "馄饨皮",
+      "canonical": "抄手皮",
+      "py": "huntunpi",
+      "initials": "htp"
+    },
+    {
+      "surface": "猫耳面",
+      "canonical": "猫耳面",
+      "py": "maoermian",
+      "initials": "mem"
+    },
+    {
+      "surface": "猫耳朵面",
+      "canonical": "猫耳面",
+      "py": "maoerduomian",
+      "initials": "medm"
+    },
+    {
+      "surface": "白吉馍",
+      "canonical": "白吉馍",
+      "py": "baijimo",
+      "initials": "bjm"
+    },
+    {
+      "surface": "白吉饼",
+      "canonical": "白吉馍",
+      "py": "baijibing",
+      "initials": "bjb"
+    },
+    {
+      "surface": "米线",
+      "canonical": "米线",
+      "py": "mixian",
+      "initials": "mx"
+    },
+    {
+      "surface": "米粉",
+      "canonical": "米线",
+      "py": "mifen",
+      "initials": "mf"
+    },
+    {
+      "surface": "细米线",
+      "canonical": "米线",
+      "py": "ximixian",
+      "initials": "xmx"
+    },
+    {
+      "surface": "陈村粉",
+      "canonical": "米线",
+      "py": "chencunfen",
+      "initials": "ccf"
+    },
+    {
+      "surface": "裤带面",
+      "canonical": "裤带面",
+      "py": "kudaimian",
+      "initials": "kdm"
+    },
+    {
+      "surface": "宽面",
+      "canonical": "裤带面",
+      "py": "kuanmian",
+      "initials": "km"
+    },
+    {
+      "surface": "馒头",
+      "canonical": "馒头",
+      "py": "mantou",
+      "initials": "mt"
+    },
+    {
+      "surface": "白馒头",
+      "canonical": "馒头",
+      "py": "baimantou",
+      "initials": "bmt"
+    },
+    {
+      "surface": "馕",
+      "canonical": "馕",
+      "py": "nang",
+      "initials": "n"
+    },
+    {
+      "surface": "烤馕",
+      "canonical": "馕",
+      "py": "kaonang",
+      "initials": "kn"
+    },
+    {
+      "surface": "魔芋",
+      "canonical": "魔芋",
+      "py": "moyu",
+      "initials": "my"
+    },
+    {
+      "surface": "蒟蒻",
+      "canonical": "魔芋",
+      "py": "juruo",
+      "initials": "jr"
+    },
+    {
+      "surface": "魔芋丝",
+      "canonical": "魔芋",
+      "py": "moyusi",
+      "initials": "mys"
+    },
+    {
+      "surface": "魔芋结",
+      "canonical": "魔芋",
+      "py": "moyujie",
+      "initials": "myj"
+    },
+    {
+      "surface": "粉条",
+      "canonical": "粉条",
+      "py": "fentiao",
+      "initials": "ft"
+    },
+    {
+      "surface": "粉皮",
+      "canonical": "粉条",
+      "py": "fenpi",
+      "initials": "fp"
+    },
+    {
+      "surface": "红薯粉条",
+      "canonical": "粉条",
+      "py": "hongshufentiao",
+      "initials": "hsft"
+    },
+    {
+      "surface": "宽粉",
+      "canonical": "粉条",
+      "py": "kuanfen",
+      "initials": "kf"
+    },
+    {
+      "surface": "馍",
+      "canonical": "馍",
+      "py": "mo",
+      "initials": "m"
+    },
+    {
+      "surface": "馍馍",
+      "canonical": "馍",
+      "py": "momo",
+      "initials": "mm"
+    },
+    {
+      "surface": "平菇",
+      "canonical": "平菇",
+      "py": "pinggu",
+      "initials": "pg"
+    },
+    {
+      "surface": "蚝菇",
+      "canonical": "平菇",
+      "py": "haogu",
+      "initials": "hg"
+    },
+    {
+      "surface": "黑平菇",
+      "canonical": "平菇",
+      "py": "heipinggu",
+      "initials": "hpg"
+    },
+    {
+      "surface": "木耳",
+      "canonical": "木耳",
+      "py": "muer",
+      "initials": "me"
+    },
+    {
+      "surface": "黑木耳",
+      "canonical": "木耳",
+      "py": "heimuer",
+      "initials": "hme"
+    },
+    {
+      "surface": "海鲜菇",
+      "canonical": "海鲜菇",
+      "py": "haixiangu",
+      "initials": "hxg"
+    },
+    {
+      "surface": "真姬菇",
+      "canonical": "海鲜菇",
+      "py": "zhenjigu",
+      "initials": "zjg"
+    },
+    {
+      "surface": "牛肝菌",
+      "canonical": "牛肝菌",
+      "py": "niuganjun",
+      "initials": "ngj"
+    },
+    {
+      "surface": "黑牛肝菌",
+      "canonical": "牛肝菌",
+      "py": "heiniuganjun",
+      "initials": "hngj"
+    },
+    {
+      "surface": "牛杆菌",
+      "canonical": "牛肝菌",
+      "py": "niuganjun",
+      "initials": "ngj"
+    },
+    {
+      "surface": "秀珍菇",
+      "canonical": "秀珍菇",
+      "py": "xiuzhengu",
+      "initials": "xzg"
+    },
+    {
+      "surface": "小平菇",
+      "canonical": "秀珍菇",
+      "py": "xiaopinggu",
+      "initials": "xpg"
+    },
+    {
+      "surface": "竹荪",
+      "canonical": "竹荪",
+      "py": "zhusun",
+      "initials": "zs"
+    },
+    {
+      "surface": "竹笙",
+      "canonical": "竹荪",
+      "py": "zhusheng",
+      "initials": "zs"
+    },
+    {
+      "surface": "茶树菇",
+      "canonical": "茶树菇",
+      "py": "chashugu",
+      "initials": "csg"
+    },
+    {
+      "surface": "干茶树菇",
+      "canonical": "茶树菇",
+      "py": "ganchashugu",
+      "initials": "gcsg"
+    },
+    {
+      "surface": "白蘑菇",
+      "canonical": "白蘑菇",
+      "py": "baimogu",
+      "initials": "bmg"
+    },
+    {
+      "surface": "口蘑",
+      "canonical": "白蘑菇",
+      "py": "koumo",
+      "initials": "km"
+    },
+    {
+      "surface": "蟹味菇",
+      "canonical": "蟹味菇",
+      "py": "xieweigu",
+      "initials": "xwg"
+    },
+    {
+      "surface": "鸿喜菇",
+      "canonical": "蟹味菇",
+      "py": "hongxigu",
+      "initials": "hxg"
+    },
+    {
+      "surface": "金针菇",
+      "canonical": "金针菇",
+      "py": "jinzhengu",
+      "initials": "jzg"
+    },
+    {
+      "surface": "朴菇",
+      "canonical": "金针菇",
+      "py": "pugu",
+      "initials": "pg"
+    },
+    {
+      "surface": "金菇",
+      "canonical": "金针菇",
+      "py": "jingu",
+      "initials": "jg"
+    },
+    {
+      "surface": "黄金针菇",
+      "canonical": "金针菇",
+      "py": "huangjinzhengu",
+      "initials": "hjzg"
+    },
+    {
+      "surface": "银耳",
+      "canonical": "银耳",
+      "py": "yiner",
+      "initials": "ye"
+    },
+    {
+      "surface": "白木耳",
+      "canonical": "银耳",
+      "py": "baimuer",
+      "initials": "bme"
+    },
+    {
+      "surface": "雪耳",
+      "canonical": "银耳",
+      "py": "xueer",
+      "initials": "xe"
+    },
+    {
+      "surface": "香菇",
+      "canonical": "香菇",
+      "py": "xianggu",
+      "initials": "xg"
+    },
+    {
+      "surface": "冬菇",
+      "canonical": "香菇",
+      "py": "donggu",
+      "initials": "dg"
+    },
+    {
+      "surface": "干香菇",
+      "canonical": "香菇",
+      "py": "ganxianggu",
+      "initials": "gxg"
+    },
+    {
+      "surface": "香蕈",
+      "canonical": "香菇",
+      "py": "xiangxun",
+      "initials": "xx"
+    },
+    {
+      "surface": "干冬菇",
+      "canonical": "香菇",
+      "py": "gandonggu",
+      "initials": "gdg"
+    },
+    {
+      "surface": "花菇",
+      "canonical": "香菇",
+      "py": "huagu",
+      "initials": "hg"
+    },
+    {
+      "surface": "鸡枞",
+      "canonical": "鸡枞",
+      "py": "jicong",
+      "initials": "jc"
+    },
+    {
+      "surface": "黑鸡枞菌",
+      "canonical": "鸡枞",
+      "py": "heijicongjun",
+      "initials": "hjcj"
+    },
+    {
+      "surface": "鹿茸菇",
+      "canonical": "鹿茸菇",
+      "py": "luronggu",
+      "initials": "lrg"
+    },
+    {
+      "surface": "鹿茸菌",
+      "canonical": "鹿茸菇",
+      "py": "lurongjun",
+      "initials": "lrj"
+    },
+    {
+      "surface": "虫草菇",
+      "canonical": "虫草菇",
+      "py": "chongcaogu",
+      "initials": "ccg"
+    },
+    {
+      "surface": "虫草花",
+      "canonical": "虫草菇",
+      "py": "chongcaohua",
+      "initials": "cch"
+    },
+    {
+      "surface": "黑鱼",
+      "canonical": "黑鱼",
+      "py": "heiyu",
+      "initials": "hy"
+    },
+    {
+      "surface": "财鱼",
+      "canonical": "黑鱼",
+      "py": "caiyu",
+      "initials": "cy"
+    },
+    {
+      "surface": "乌鱼",
+      "canonical": "黑鱼",
+      "py": "wuyu",
+      "initials": "wy"
+    },
+    {
+      "surface": "乌棒",
+      "canonical": "黑鱼",
+      "py": "wubang",
+      "initials": "wb"
+    },
+    {
+      "surface": "刀鱼",
+      "canonical": "刀鱼",
+      "py": "daoyu",
+      "initials": "dy"
+    },
+    {
+      "surface": "刀鲚",
+      "canonical": "刀鱼",
+      "py": "daoji",
+      "initials": "dj"
+    },
+    {
+      "surface": "毛刀鱼",
+      "canonical": "刀鱼",
+      "py": "maodaoyu",
+      "initials": "mdy"
+    },
+    {
+      "surface": "剥皮鱼",
+      "canonical": "剥皮鱼",
+      "py": "baopiyu",
+      "initials": "bpy"
+    },
+    {
+      "surface": "扒皮鱼",
+      "canonical": "剥皮鱼",
+      "py": "bapiyu",
+      "initials": "bpy"
+    },
+    {
+      "surface": "耗儿鱼",
+      "canonical": "剥皮鱼",
+      "py": "haoeryu",
+      "initials": "hey"
+    },
+    {
+      "surface": "马面鱼",
+      "canonical": "剥皮鱼",
+      "py": "mamianyu",
+      "initials": "mmy"
+    },
+    {
+      "surface": "薄皮鱼",
+      "canonical": "剥皮鱼",
+      "py": "baopiyu",
+      "initials": "bpy"
+    },
+    {
+      "surface": "嘎鱼",
+      "canonical": "嘎鱼",
+      "py": "gayu",
+      "initials": "gy"
+    },
+    {
+      "surface": "昂刺鱼",
+      "canonical": "嘎鱼",
+      "py": "angciyu",
+      "initials": "acy"
+    },
+    {
+      "surface": "黄辣丁",
+      "canonical": "嘎鱼",
+      "py": "huanglading",
+      "initials": "hld"
+    },
+    {
+      "surface": "黄颡鱼",
+      "canonical": "嘎鱼",
+      "py": "huangsangyu",
+      "initials": "hsy"
+    },
+    {
+      "surface": "黄骨鱼",
+      "canonical": "嘎鱼",
+      "py": "huangguyu",
+      "initials": "hgy"
+    },
+    {
+      "surface": "比目鱼",
+      "canonical": "比目鱼",
+      "py": "bimuyu",
+      "initials": "bmy"
+    },
+    {
+      "surface": "偏口鱼",
+      "canonical": "比目鱼",
+      "py": "piankouyu",
+      "initials": "pky"
+    },
+    {
+      "surface": "鲽鱼",
+      "canonical": "比目鱼",
+      "py": "dieyu",
+      "initials": "dy"
+    },
+    {
+      "surface": "鞋底鱼",
+      "canonical": "比目鱼",
+      "py": "xiediyu",
+      "initials": "xdy"
+    },
+    {
+      "surface": "龙利鱼",
+      "canonical": "比目鱼",
+      "py": "longliyu",
+      "initials": "lly"
+    },
+    {
+      "surface": "巴沙鱼",
+      "canonical": "巴沙鱼",
+      "py": "bashayu",
+      "initials": "bsy"
+    },
+    {
+      "surface": "巴丁鱼",
+      "canonical": "巴沙鱼",
+      "py": "badingyu",
+      "initials": "bdy"
+    },
+    {
+      "surface": "带鱼",
+      "canonical": "带鱼",
+      "py": "daiyu",
+      "initials": "dy"
+    },
+    {
+      "surface": "裙带鱼",
+      "canonical": "带鱼",
+      "py": "qundaiyu",
+      "initials": "qdy"
+    },
+    {
+      "surface": "鳜鱼",
+      "canonical": "鳜鱼",
+      "py": "guiyu",
+      "initials": "gy"
+    },
+    {
+      "surface": "桂鱼",
+      "canonical": "鳜鱼",
+      "py": "guiyu",
+      "initials": "gy"
+    },
+    {
+      "surface": "季花鱼",
+      "canonical": "鳜鱼",
+      "py": "jihuayu",
+      "initials": "jhy"
+    },
+    {
+      "surface": "桂花鱼",
+      "canonical": "鳜鱼",
+      "py": "guihuayu",
+      "initials": "ghy"
+    },
+    {
+      "surface": "黔鱼",
+      "canonical": "黔鱼",
+      "py": "qianyu",
+      "initials": "qy"
+    },
+    {
+      "surface": "梭边鱼",
+      "canonical": "黔鱼",
+      "py": "suobianyu",
+      "initials": "sby"
+    },
+    {
+      "surface": "钳鱼",
+      "canonical": "黔鱼",
+      "py": "qianyu",
+      "initials": "qy"
+    },
+    {
+      "surface": "清江鱼",
+      "canonical": "黔鱼",
+      "py": "qingjiangyu",
+      "initials": "qjy"
+    },
+    {
+      "surface": "白鳗",
+      "canonical": "白鳗",
+      "py": "baiman",
+      "initials": "bm"
+    },
+    {
+      "surface": "白鳝",
+      "canonical": "白鳗",
+      "py": "baishan",
+      "initials": "bs"
+    },
+    {
+      "surface": "鳗鱼",
+      "canonical": "白鳗",
+      "py": "manyu",
+      "initials": "my"
+    },
+    {
+      "surface": "目鱼花",
+      "canonical": "目鱼花",
+      "py": "muyuhua",
+      "initials": "myh"
+    },
+    {
+      "surface": "墨鱼花",
+      "canonical": "目鱼花",
+      "py": "moyuhua",
+      "initials": "myh"
+    },
+    {
+      "surface": "石斑鱼",
+      "canonical": "石斑鱼",
+      "py": "shibanyu",
+      "initials": "sby"
+    },
+    {
+      "surface": "过鱼",
+      "canonical": "石斑鱼",
+      "py": "guoyu",
+      "initials": "gy"
+    },
+    {
+      "surface": "鲙鱼",
+      "canonical": "石斑鱼",
+      "py": "kuaiyu",
+      "initials": "ky"
+    },
+    {
+      "surface": "大头鱼",
+      "canonical": "大头鱼",
+      "py": "datouyu",
+      "initials": "dty"
+    },
+    {
+      "surface": "花鲢鱼",
+      "canonical": "大头鱼",
+      "py": "hualianyu",
+      "initials": "hly"
+    },
+    {
+      "surface": "花鲢",
+      "canonical": "大头鱼",
+      "py": "hualian",
+      "initials": "hl"
+    },
+    {
+      "surface": "胖头鱼",
+      "canonical": "大头鱼",
+      "py": "pangtouyu",
+      "initials": "pty"
+    },
+    {
+      "surface": "鳙鱼",
+      "canonical": "大头鱼",
+      "py": "yongyu",
+      "initials": "yy"
+    },
+    {
+      "surface": "黄鲢",
+      "canonical": "大头鱼",
+      "py": "huanglian",
+      "initials": "hl"
+    },
+    {
+      "surface": "黑鲢",
+      "canonical": "大头鱼",
+      "py": "heilian",
+      "initials": "hl"
+    },
+    {
+      "surface": "花鲢鱼头",
+      "canonical": "大头鱼",
+      "py": "hualianyutou",
+      "initials": "hlyt"
+    },
+    {
+      "surface": "花鲢鱼尾",
+      "canonical": "大头鱼",
+      "py": "hualianyuwei",
+      "initials": "hlyw"
+    },
+    {
+      "surface": "草鱼",
+      "canonical": "草鱼",
+      "py": "caoyu",
+      "initials": "cy"
+    },
+    {
+      "surface": "鲩鱼",
+      "canonical": "草鱼",
+      "py": "huanyu",
+      "initials": "hy"
+    },
+    {
+      "surface": "混子",
+      "canonical": "草鱼",
+      "py": "hunzi",
+      "initials": "hz"
+    },
+    {
+      "surface": "草鲩",
+      "canonical": "草鱼",
+      "py": "caohuan",
+      "initials": "ch"
+    },
+    {
+      "surface": "金昌鱼",
+      "canonical": "金昌鱼",
+      "py": "jinchangyu",
+      "initials": "jcy"
+    },
+    {
+      "surface": "金鲳鱼",
+      "canonical": "金昌鱼",
+      "py": "jinchangyu",
+      "initials": "jcy"
+    },
+    {
+      "surface": "银鱼",
+      "canonical": "银鱼",
+      "py": "yinyu",
+      "initials": "yy"
+    },
+    {
+      "surface": "面丈鱼",
+      "canonical": "银鱼",
+      "py": "mianzhangyu",
+      "initials": "mzy"
+    },
+    {
+      "surface": "花胶",
+      "canonical": "花胶",
+      "py": "huajiao",
+      "initials": "hj"
+    },
+    {
+      "surface": "鱼鳔",
+      "canonical": "花胶",
+      "py": "yubiao",
+      "initials": "yb"
+    },
+    {
+      "surface": "鲅鱼",
+      "canonical": "鲅鱼",
+      "py": "bayu",
+      "initials": "by"
+    },
+    {
+      "surface": "燕鱼",
+      "canonical": "鲅鱼",
+      "py": "yanyu",
+      "initials": "yy"
+    },
+    {
+      "surface": "马鲛鱼",
+      "canonical": "鲅鱼",
+      "py": "majiaoyu",
+      "initials": "mjy"
+    },
+    {
+      "surface": "鲇鱼",
+      "canonical": "鲇鱼",
+      "py": "nianyu",
+      "initials": "ny"
+    },
+    {
+      "surface": "鲶鱼",
+      "canonical": "鲇鱼",
+      "py": "nianyu",
+      "initials": "ny"
+    },
+    {
+      "surface": "鲈鱼",
+      "canonical": "鲈鱼",
+      "py": "luyu",
+      "initials": "ly"
+    },
+    {
+      "surface": "五道黑",
+      "canonical": "鲈鱼",
+      "py": "wudaohei",
+      "initials": "wdh"
+    },
+    {
+      "surface": "寨花",
+      "canonical": "鲈鱼",
+      "py": "zhaihua",
+      "initials": "zh"
+    },
+    {
+      "surface": "河鲈鱼",
+      "canonical": "鲈鱼",
+      "py": "heluyu",
+      "initials": "hly"
+    },
+    {
+      "surface": "花鲈",
+      "canonical": "鲈鱼",
+      "py": "hualu",
+      "initials": "hl"
+    },
+    {
+      "surface": "鲑鱼",
+      "canonical": "鲑鱼",
+      "py": "guiyu",
+      "initials": "gy"
+    },
+    {
+      "surface": "三文鱼",
+      "canonical": "鲑鱼",
+      "py": "sanwenyu",
+      "initials": "swy"
+    },
+    {
+      "surface": "大马哈鱼",
+      "canonical": "鲑鱼",
+      "py": "damahayu",
+      "initials": "dmhy"
+    },
+    {
+      "surface": "鲟鱼",
+      "canonical": "鲟鱼",
+      "py": "xunyu",
+      "initials": "xy"
+    },
+    {
+      "surface": "鲟龙鱼",
+      "canonical": "鲟鱼",
+      "py": "xunlongyu",
+      "initials": "xly"
+    },
+    {
+      "surface": "鲤鱼",
+      "canonical": "鲤鱼",
+      "py": "liyu",
+      "initials": "ly"
+    },
+    {
+      "surface": "毛子",
+      "canonical": "鲤鱼",
+      "py": "maozi",
+      "initials": "mz"
+    },
+    {
+      "surface": "鲤拐子",
+      "canonical": "鲤鱼",
+      "py": "liguaizi",
+      "initials": "lgz"
+    },
+    {
+      "surface": "鲫鱼",
+      "canonical": "鲫鱼",
+      "py": "jiyu",
+      "initials": "jy"
+    },
+    {
+      "surface": "月鲫",
+      "canonical": "鲫鱼",
+      "py": "yueji",
+      "initials": "yj"
+    },
+    {
+      "surface": "鲫瓜子",
+      "canonical": "鲫鱼",
+      "py": "jiguazi",
+      "initials": "jgz"
+    },
+    {
+      "surface": "鲮鱼",
+      "canonical": "鲮鱼",
+      "py": "lingyu",
+      "initials": "ly"
+    },
+    {
+      "surface": "土鲮",
+      "canonical": "鲮鱼",
+      "py": "tuling",
+      "initials": "tl"
+    },
+    {
+      "surface": "鲮公",
+      "canonical": "鲮鱼",
+      "py": "linggong",
+      "initials": "lg"
+    },
+    {
+      "surface": "鳕鱼",
+      "canonical": "鳕鱼",
+      "py": "xueyu",
+      "initials": "xy"
+    },
+    {
+      "surface": "大头鳕",
+      "canonical": "鳕鱼",
+      "py": "datouxue",
+      "initials": "dtx"
+    },
+    {
+      "surface": "银鳕鱼",
+      "canonical": "鳕鱼",
+      "py": "yinxueyu",
+      "initials": "yxy"
+    },
+    {
+      "surface": "鳝鱼",
+      "canonical": "鳝鱼",
+      "py": "shanyu",
+      "initials": "sy"
+    },
+    {
+      "surface": "黄鳝",
+      "canonical": "鳝鱼",
+      "py": "huangshan",
+      "initials": "hs"
+    },
+    {
+      "surface": "黄鳝鱼",
+      "canonical": "鳝鱼",
+      "py": "huangshanyu",
+      "initials": "hsy"
+    },
+    {
+      "surface": "黄鱼",
+      "canonical": "黄鱼",
+      "py": "huangyu",
+      "initials": "hy"
+    },
+    {
+      "surface": "黄花鱼",
+      "canonical": "黄鱼",
+      "py": "huanghuayu",
+      "initials": "hhy"
+    },
+    {
+      "surface": "大黄鱼",
+      "canonical": "黄鱼",
+      "py": "daihuangyu",
+      "initials": "dhy"
+    },
+    {
+      "surface": "鱿鱼花",
+      "canonical": "鱿鱼花",
+      "py": "youyuhua",
+      "initials": "yyh"
+    },
+    {
+      "surface": "鱿鱼圈",
+      "canonical": "鱿鱼花",
+      "py": "youyuquan",
+      "initials": "yyq"
+    },
+    {
+      "surface": "白鱼",
+      "canonical": "白鱼",
+      "py": "baiyu",
+      "initials": "by"
+    },
+    {
+      "surface": "翘嘴鱼",
+      "canonical": "白鱼",
+      "py": "qiaozuiyu",
+      "initials": "qzy"
+    },
+    {
+      "surface": "小银鲳鱼",
+      "canonical": "小银鲳鱼",
+      "py": "xiaoyinchangyu",
+      "initials": "xycy"
+    },
+    {
+      "surface": "银昌",
+      "canonical": "小银鲳鱼",
+      "py": "yinchang",
+      "initials": "yc"
+    },
+    {
+      "surface": "鮰鱼",
+      "canonical": "鮰鱼",
+      "py": "huiyu",
+      "initials": "hy"
+    },
+    {
+      "surface": "江团鱼",
+      "canonical": "鮰鱼",
+      "py": "jiangtuanyu",
+      "initials": "jty"
+    },
+    {
+      "surface": "江团",
+      "canonical": "鮰鱼",
+      "py": "jiangtuan",
+      "initials": "jt"
+    },
+    {
+      "surface": "肥沱",
+      "canonical": "鮰鱼",
+      "py": "feituo",
+      "initials": "ft"
+    },
+    {
+      "surface": "大闸蟹",
+      "canonical": "大闸蟹",
+      "py": "dazhaxie",
+      "initials": "dzx"
+    },
+    {
+      "surface": "毛蟹",
+      "canonical": "大闸蟹",
+      "py": "maoxie",
+      "initials": "mx"
+    },
+    {
+      "surface": "河蟹",
+      "canonical": "大闸蟹",
+      "py": "hexie",
+      "initials": "hx"
+    },
+    {
+      "surface": "泥螺",
+      "canonical": "泥螺",
+      "py": "niluo",
+      "initials": "nl"
+    },
+    {
+      "surface": "吐铁",
+      "canonical": "泥螺",
+      "py": "tutie",
+      "initials": "tt"
+    },
+    {
+      "surface": "麦螺",
+      "canonical": "泥螺",
+      "py": "mailuo",
+      "initials": "ml"
+    },
+    {
+      "surface": "田螺",
+      "canonical": "田螺",
+      "py": "tianluo",
+      "initials": "tl"
+    },
+    {
+      "surface": "石螺",
+      "canonical": "田螺",
+      "py": "shiluo",
+      "initials": "sl"
+    },
+    {
+      "surface": "螺蛳",
+      "canonical": "田螺",
+      "py": "luosi",
+      "initials": "ls"
+    },
+    {
+      "surface": "甲鱼",
+      "canonical": "甲鱼",
+      "py": "jiayu",
+      "initials": "jy"
+    },
+    {
+      "surface": "团鱼",
+      "canonical": "甲鱼",
+      "py": "tuanyu",
+      "initials": "ty"
+    },
+    {
+      "surface": "王八",
+      "canonical": "甲鱼",
+      "py": "wangba",
+      "initials": "wb"
+    },
+    {
+      "surface": "鳖",
+      "canonical": "甲鱼",
+      "py": "bie",
+      "initials": "b"
+    },
+    {
+      "surface": "罗氏虾",
+      "canonical": "罗氏虾",
+      "py": "luoshixia",
+      "initials": "lsx"
+    },
+    {
+      "surface": "大头虾",
+      "canonical": "罗氏虾",
+      "py": "datouxia",
+      "initials": "dtx"
+    },
+    {
+      "surface": "八爪鱼",
+      "canonical": "八爪鱼",
+      "py": "bazhaoyu",
+      "initials": "bzy"
+    },
+    {
+      "surface": "章鱼",
+      "canonical": "八爪鱼",
+      "py": "zhangyu",
+      "initials": "zy"
+    },
+    {
+      "surface": "虾",
+      "canonical": "虾",
+      "py": "xia",
+      "initials": "x"
+    },
+    {
+      "surface": "对虾",
+      "canonical": "虾",
+      "py": "duixia",
+      "initials": "dx"
+    },
+    {
+      "surface": "明虾",
+      "canonical": "虾",
+      "py": "mingxia",
+      "initials": "mx"
+    },
+    {
+      "surface": "基围虾",
+      "canonical": "虾",
+      "py": "jiweixia",
+      "initials": "jwx"
+    },
+    {
+      "surface": "麻虾",
+      "canonical": "虾",
+      "py": "maxia",
+      "initials": "mx"
+    },
+    {
+      "surface": "北极虾",
+      "canonical": "虾",
+      "py": "beijixia",
+      "initials": "bjx"
+    },
+    {
+      "surface": "青虾",
+      "canonical": "虾",
+      "py": "qingxia",
+      "initials": "qx"
+    },
+    {
+      "surface": "干贝柱",
+      "canonical": "干贝柱",
+      "py": "ganbeizhu",
+      "initials": "gbz"
+    },
+    {
+      "surface": "瑶柱",
+      "canonical": "干贝柱",
+      "py": "yaozhu",
+      "initials": "yz"
+    },
+    {
+      "surface": "扇贝",
+      "canonical": "扇贝",
+      "py": "shanbei",
+      "initials": "sb"
+    },
+    {
+      "surface": "海扇",
+      "canonical": "扇贝",
+      "py": "haishan",
+      "initials": "hs"
+    },
+    {
+      "surface": "文蛤",
+      "canonical": "文蛤",
+      "py": "wenge",
+      "initials": "wg"
+    },
+    {
+      "surface": "文哈",
+      "canonical": "文蛤",
+      "py": "wenha",
+      "initials": "wh"
+    },
+    {
+      "surface": "草虾",
+      "canonical": "草虾",
+      "py": "caoxia",
+      "initials": "cx"
+    },
+    {
+      "surface": "黑虎虾",
+      "canonical": "草虾",
+      "py": "heihuxia",
+      "initials": "hhx"
+    },
+    {
+      "surface": "梭子蟹",
+      "canonical": "梭子蟹",
+      "py": "suozixie",
+      "initials": "szx"
+    },
+    {
+      "surface": "枪蟹",
+      "canonical": "梭子蟹",
+      "py": "qiangxie",
+      "initials": "qx"
+    },
+    {
+      "surface": "白蟹",
+      "canonical": "梭子蟹",
+      "py": "baixie",
+      "initials": "bx"
+    },
+    {
+      "surface": "海参",
+      "canonical": "海参",
+      "py": "haishen",
+      "initials": "hs"
+    },
+    {
+      "surface": "刺参",
+      "canonical": "海参",
+      "py": "cican",
+      "initials": "cc"
+    },
+    {
+      "surface": "辽参",
+      "canonical": "海参",
+      "py": "liaocan",
+      "initials": "lc"
+    },
+    {
+      "surface": "海带",
+      "canonical": "海带",
+      "py": "haidai",
+      "initials": "hd"
+    },
+    {
+      "surface": "昆布",
+      "canonical": "海带",
+      "py": "kunbu",
+      "initials": "kb"
+    },
+    {
+      "surface": "江白菜",
+      "canonical": "海带",
+      "py": "jiangbaicai",
+      "initials": "jbc"
+    },
+    {
+      "surface": "澳龙",
+      "canonical": "澳龙",
+      "py": "aolong",
+      "initials": "al"
+    },
+    {
+      "surface": "澳洲龙虾",
+      "canonical": "澳龙",
+      "py": "aozhoulongxia",
+      "initials": "azlx"
+    },
+    {
+      "surface": "火箭鱿",
+      "canonical": "火箭鱿",
+      "py": "huojianyou",
+      "initials": "hjy"
+    },
+    {
+      "surface": "火箭鱿鱼",
+      "canonical": "火箭鱿",
+      "py": "huojianyouyu",
+      "initials": "hjyy"
+    },
+    {
+      "surface": "生蚝",
+      "canonical": "生蚝",
+      "py": "shenghao",
+      "initials": "sh"
+    },
+    {
+      "surface": "海蛎子",
+      "canonical": "生蚝",
+      "py": "hailizi",
+      "initials": "hlz"
+    },
+    {
+      "surface": "牡蛎",
+      "canonical": "生蚝",
+      "py": "muli",
+      "initials": "ml"
+    },
+    {
+      "surface": "牡蛎肉",
+      "canonical": "生蚝",
+      "py": "mulirou",
+      "initials": "mlr"
+    },
+    {
+      "surface": "白虾",
+      "canonical": "白虾",
+      "py": "baixia",
+      "initials": "bx"
+    },
+    {
+      "surface": "海白虾",
+      "canonical": "白虾",
+      "py": "haibaixia",
+      "initials": "hbx"
+    },
+    {
+      "surface": "海虾",
+      "canonical": "白虾",
+      "py": "haixia",
+      "initials": "hx"
+    },
+    {
+      "surface": "红虾",
+      "canonical": "红虾",
+      "py": "hongxia",
+      "initials": "hx"
+    },
+    {
+      "surface": "阿根廷红虾",
+      "canonical": "红虾",
+      "py": "agentinghongxia",
+      "initials": "agthx"
+    },
+    {
+      "surface": "虾仁",
+      "canonical": "虾仁",
+      "py": "xiaren",
+      "initials": "xr"
+    },
+    {
+      "surface": "海虾仁",
+      "canonical": "虾仁",
+      "py": "haixiaren",
+      "initials": "hxr"
+    },
+    {
+      "surface": "红虾仁",
+      "canonical": "虾仁",
+      "py": "hongxiaren",
+      "initials": "hxr"
+    },
+    {
+      "surface": "青虾仁",
+      "canonical": "虾仁",
+      "py": "qingxiaren",
+      "initials": "qxr"
+    },
+    {
+      "surface": "虾皮",
+      "canonical": "虾皮",
+      "py": "xiapi",
+      "initials": "xp"
+    },
+    {
+      "surface": "干虾皮",
+      "canonical": "虾皮",
+      "py": "ganxiapi",
+      "initials": "gxp"
+    },
+    {
+      "surface": "毛虾干",
+      "canonical": "虾皮",
+      "py": "maoxiagan",
+      "initials": "mxg"
+    },
+    {
+      "surface": "海毛虾",
+      "canonical": "虾皮",
+      "py": "haimaoxia",
+      "initials": "hmx"
+    },
+    {
+      "surface": "红虾皮",
+      "canonical": "虾皮",
+      "py": "hongxiapi",
+      "initials": "hxp"
+    },
+    {
+      "surface": "蟹柳",
+      "canonical": "蟹柳",
+      "py": "xieliu",
+      "initials": "xl"
+    },
+    {
+      "surface": "仿蟹柳",
+      "canonical": "蟹柳",
+      "py": "fangxieliu",
+      "initials": "fxl"
+    },
+    {
+      "surface": "蟹味棒",
+      "canonical": "蟹柳",
+      "py": "xieweibang",
+      "initials": "xwb"
+    },
+    {
+      "surface": "蟹肉棒",
+      "canonical": "蟹柳",
+      "py": "xieroubang",
+      "initials": "xrb"
+    },
+    {
+      "surface": "裙带菜",
+      "canonical": "裙带菜",
+      "py": "qundaicai",
+      "initials": "qdc"
+    },
+    {
+      "surface": "海芥菜",
+      "canonical": "裙带菜",
+      "py": "haijiecai",
+      "initials": "hjc"
+    },
+    {
+      "surface": "面包蟹",
+      "canonical": "面包蟹",
+      "py": "mianbaoxie",
+      "initials": "mbx"
+    },
+    {
+      "surface": "馒头蟹",
+      "canonical": "面包蟹",
+      "py": "mantouxie",
+      "initials": "mtx"
+    },
+    {
+      "surface": "龙虾",
+      "canonical": "龙虾",
+      "py": "longxia",
+      "initials": "lx"
+    },
+    {
+      "surface": "大龙虾",
+      "canonical": "龙虾",
+      "py": "dalongxia",
+      "initials": "dlx"
+    },
+    {
+      "surface": "海米",
+      "canonical": "海米",
+      "py": "haimi",
+      "initials": "hm"
+    },
+    {
+      "surface": "虾米",
+      "canonical": "海米",
+      "py": "xiami",
+      "initials": "xm"
+    },
+    {
+      "surface": "干虾仁",
+      "canonical": "海米",
+      "py": "ganxiaren",
+      "initials": "gxr"
+    },
+    {
+      "surface": "金钩",
+      "canonical": "海米",
+      "py": "jingou",
+      "initials": "jg"
+    },
+    {
+      "surface": "河豚",
+      "canonical": "河豚",
+      "py": "hetun",
+      "initials": "ht"
+    },
+    {
+      "surface": "气泡鱼",
+      "canonical": "河豚",
+      "py": "qipaoyu",
+      "initials": "qpy"
+    },
+    {
+      "surface": "河鲀",
+      "canonical": "河豚",
+      "py": "hetun",
+      "initials": "ht"
+    },
+    {
+      "surface": "艇巴",
+      "canonical": "河豚",
+      "py": "tingba",
+      "initials": "tb"
+    },
+    {
+      "surface": "花螺",
+      "canonical": "花螺",
+      "py": "hualuo",
+      "initials": "hl"
+    },
+    {
+      "surface": "东风螺",
+      "canonical": "花螺",
+      "py": "dongfengluo",
+      "initials": "dfl"
+    },
+    {
+      "surface": "海猪螺",
+      "canonical": "花螺",
+      "py": "haizhuluo",
+      "initials": "hzl"
+    },
+    {
+      "surface": "斑节虾",
+      "canonical": "斑节虾",
+      "py": "banjiexia",
+      "initials": "bjx"
+    },
+    {
+      "surface": "九节虾",
+      "canonical": "斑节虾",
+      "py": "jiujiexia",
+      "initials": "jjx"
+    },
+    {
+      "surface": "濑尿虾",
+      "canonical": "濑尿虾",
+      "py": "lainiaoxia",
+      "initials": "lnx"
+    },
+    {
+      "surface": "皮皮虾",
+      "canonical": "濑尿虾",
+      "py": "pipixia",
+      "initials": "ppx"
+    },
+    {
+      "surface": "小青龙",
+      "canonical": "小青龙",
+      "py": "xiaoqinglong",
+      "initials": "xql"
+    },
+    {
+      "surface": "青龙仔",
+      "canonical": "小青龙",
+      "py": "qinglongzai",
+      "initials": "qlz"
+    },
+    {
+      "surface": "海带丝",
+      "canonical": "海带丝",
+      "py": "haidaisi",
+      "initials": "hds"
+    },
+    {
+      "surface": "干海带丝",
+      "canonical": "海带丝",
+      "py": "ganhaidaisi",
+      "initials": "ghds"
+    },
+    {
+      "surface": "太子蟹",
+      "canonical": "太子蟹",
+      "py": "taizixie",
+      "initials": "tzx"
+    },
+    {
+      "surface": "珍宝蟹",
+      "canonical": "太子蟹",
+      "py": "zhenbaoxie",
+      "initials": "zbx"
+    },
+    {
+      "surface": "沙甲",
+      "canonical": "沙甲",
+      "py": "shajia",
+      "initials": "sj"
+    },
+    {
+      "surface": "花甲",
+      "canonical": "沙甲",
+      "py": "huajia",
+      "initials": "hj"
+    },
+    {
+      "surface": "蛤蜊",
+      "canonical": "沙甲",
+      "py": "geli",
+      "initials": "gl"
+    },
+    {
+      "surface": "花蛤",
+      "canonical": "沙甲",
+      "py": "huaha",
+      "initials": "hh"
+    },
+    {
+      "surface": "鱿鱼",
+      "canonical": "鱿鱼",
+      "py": "youyu",
+      "initials": "yy"
+    },
+    {
+      "surface": "干鱿鱼",
+      "canonical": "鱿鱼",
+      "py": "ganyouyu",
+      "initials": "gyy"
+    },
+    {
+      "surface": "柔鱼",
+      "canonical": "鱿鱼",
+      "py": "rouyu",
+      "initials": "ry"
+    },
+    {
+      "surface": "鱿鱼干",
+      "canonical": "鱿鱼",
+      "py": "youyugan",
+      "initials": "yyg"
+    },
+    {
+      "surface": "鱿鱼须",
+      "canonical": "鱿鱼",
+      "py": "youyuxu",
+      "initials": "yyx"
+    },
+    {
+      "surface": "鱿鱼板",
+      "canonical": "鱿鱼",
+      "py": "youyuban",
+      "initials": "yyb"
+    },
+    {
+      "surface": "发鱿鱼",
+      "canonical": "鱿鱼",
+      "py": "fayouyu",
+      "initials": "fyy"
+    },
+    {
+      "surface": "墨鱼干",
+      "canonical": "墨鱼干",
+      "py": "moyugan",
+      "initials": "myg"
+    },
+    {
+      "surface": "乌贼干",
+      "canonical": "墨鱼干",
+      "py": "wuzeigan",
+      "initials": "wzg"
+    },
+    {
+      "surface": "目鱼干",
+      "canonical": "墨鱼干",
+      "py": "muyugan",
+      "initials": "myg"
+    },
+    {
+      "surface": "章鱼须",
+      "canonical": "章鱼须",
+      "py": "zhangyuxu",
+      "initials": "zyx"
+    },
+    {
+      "surface": "章鱼足",
+      "canonical": "章鱼须",
+      "py": "zhangyuzu",
+      "initials": "zyz"
+    },
+    {
+      "surface": "海鸭蛋",
+      "canonical": "海鸭蛋",
+      "py": "haiyadan",
+      "initials": "hyd"
+    },
+    {
+      "surface": "鸭蛋",
+      "canonical": "海鸭蛋",
+      "py": "yadan",
+      "initials": "yd"
+    },
+    {
+      "surface": "生鸭蛋",
+      "canonical": "海鸭蛋",
+      "py": "shengyadan",
+      "initials": "syd"
+    },
+    {
+      "surface": "鹅蛋",
+      "canonical": "鹅蛋",
+      "py": "edan",
+      "initials": "ed"
+    },
+    {
+      "surface": "生鹅蛋",
+      "canonical": "鹅蛋",
+      "py": "shengedan",
+      "initials": "sed"
+    },
+    {
+      "surface": "松花蛋",
+      "canonical": "松花蛋",
+      "py": "songhuadan",
+      "initials": "shd"
+    },
+    {
+      "surface": "松花皮蛋",
+      "canonical": "松花蛋",
+      "py": "songhuapidan",
+      "initials": "shpd"
+    },
+    {
+      "surface": "皮蛋",
+      "canonical": "松花蛋",
+      "py": "pidan",
+      "initials": "pd"
+    },
+    {
+      "surface": "咸蛋",
+      "canonical": "咸蛋",
+      "py": "xiandan",
+      "initials": "xd"
+    },
+    {
+      "surface": "咸蛋黄",
+      "canonical": "咸蛋",
+      "py": "xiandanhuang",
+      "initials": "xdh"
+    },
+    {
+      "surface": "咸鸭蛋",
+      "canonical": "咸蛋",
+      "py": "xianyadan",
+      "initials": "xyd"
+    },
+    {
+      "surface": "生盐蛋",
+      "canonical": "咸蛋",
+      "py": "shengyandan",
+      "initials": "syd"
+    },
+    {
+      "surface": "鸽子蛋",
+      "canonical": "鸽子蛋",
+      "py": "gezidan",
+      "initials": "gzd"
+    },
+    {
+      "surface": "鸽蛋",
+      "canonical": "鸽子蛋",
+      "py": "gedan",
+      "initials": "gd"
+    },
+    {
+      "surface": "仔姜",
+      "canonical": "仔姜",
+      "py": "zaijiang",
+      "initials": "zj"
+    },
+    {
+      "surface": "嫩仔姜",
+      "canonical": "仔姜",
+      "py": "nenzaijiang",
+      "initials": "nzj"
+    },
+    {
+      "surface": "嫩姜",
+      "canonical": "仔姜",
+      "py": "nenjiang",
+      "initials": "nj"
+    },
+    {
+      "surface": "嫩子姜",
+      "canonical": "仔姜",
+      "py": "nenzijiang",
+      "initials": "nzj"
+    },
+    {
+      "surface": "子姜",
+      "canonical": "仔姜",
+      "py": "zijiang",
+      "initials": "zj"
+    },
+    {
+      "surface": "姜",
+      "canonical": "姜",
+      "py": "jiang",
+      "initials": "j"
+    },
+    {
+      "surface": "生姜",
+      "canonical": "姜",
+      "py": "shengjiang",
+      "initials": "sj"
+    },
+    {
+      "surface": "老姜",
+      "canonical": "姜",
+      "py": "laojiang",
+      "initials": "lj"
+    },
+    {
+      "surface": "黄姜",
+      "canonical": "姜",
+      "py": "huangjiang",
+      "initials": "hj"
+    },
+    {
+      "surface": "沙姜",
+      "canonical": "沙姜",
+      "py": "shajiang",
+      "initials": "sj"
+    },
+    {
+      "surface": "山奈",
+      "canonical": "沙姜",
+      "py": "shannai",
+      "initials": "sn"
+    },
+    {
+      "surface": "罗勒",
+      "canonical": "罗勒",
+      "py": "luole",
+      "initials": "ll"
+    },
+    {
+      "surface": "九层塔",
+      "canonical": "罗勒",
+      "py": "jiucengta",
+      "initials": "jct"
+    },
+    {
+      "surface": "金不换",
+      "canonical": "罗勒",
+      "py": "jinbuhuan",
+      "initials": "jbh"
+    },
+    {
+      "surface": "罗勒叶",
+      "canonical": "罗勒",
+      "py": "luoleye",
+      "initials": "lly"
+    },
+    {
+      "surface": "花椒",
+      "canonical": "花椒",
+      "py": "huajiao",
+      "initials": "hj"
+    },
+    {
+      "surface": "青花椒",
+      "canonical": "花椒",
+      "py": "qinghuajiao",
+      "initials": "qhj"
+    },
+    {
+      "surface": "蒜",
+      "canonical": "蒜",
+      "py": "suan",
+      "initials": "s"
+    },
+    {
+      "surface": "大蒜",
+      "canonical": "蒜",
+      "py": "dasuan",
+      "initials": "ds"
+    },
+    {
+      "surface": "大蒜粒",
+      "canonical": "蒜",
+      "py": "dasuanli",
+      "initials": "dsl"
+    },
+    {
+      "surface": "蒜头",
+      "canonical": "蒜",
+      "py": "suantou",
+      "initials": "st"
+    },
+    {
+      "surface": "紫皮蒜",
+      "canonical": "蒜",
+      "py": "zipisuan",
+      "initials": "zps"
+    },
+    {
+      "surface": "葱",
+      "canonical": "葱",
+      "py": "cong",
+      "initials": "c"
+    },
+    {
+      "surface": "葱花",
+      "canonical": "葱",
+      "py": "conghua",
+      "initials": "ch"
+    },
+    {
+      "surface": "小葱",
+      "canonical": "葱",
+      "py": "xiaocong",
+      "initials": "xc"
+    },
+    {
+      "surface": "香葱",
+      "canonical": "葱",
+      "py": "xiangcong",
+      "initials": "xc"
+    },
+    {
+      "surface": "醋",
+      "canonical": "醋",
+      "py": "cu",
+      "initials": "c"
+    },
+    {
+      "surface": "陈醋",
+      "canonical": "醋",
+      "py": "chencu",
+      "initials": "cc"
+    },
+    {
+      "surface": "蒜米",
+      "canonical": "蒜米",
+      "py": "suanmi",
+      "initials": "sm"
+    },
+    {
+      "surface": "蒜末",
+      "canonical": "蒜米",
+      "py": "suanmo",
+      "initials": "sm"
+    },
+    {
+      "surface": "蒜泥",
+      "canonical": "蒜米",
+      "py": "suanni",
+      "initials": "sn"
+    },
+    {
+      "surface": "紫苏",
+      "canonical": "紫苏",
+      "py": "zisu",
+      "initials": "zs"
+    },
+    {
+      "surface": "紫苏叶",
+      "canonical": "紫苏",
+      "py": "zisuye",
+      "initials": "zsy"
+    },
+    {
+      "surface": "独蒜",
+      "canonical": "独蒜",
+      "py": "dusuan",
+      "initials": "ds"
+    },
+    {
+      "surface": "独头蒜",
+      "canonical": "独蒜",
+      "py": "dutousuan",
+      "initials": "dts"
+    },
+    {
+      "surface": "大头蒜",
+      "canonical": "独蒜",
+      "py": "datousuan",
+      "initials": "dts"
+    },
+    {
+      "surface": "剁椒",
+      "canonical": "剁椒",
+      "py": "duojiao",
+      "initials": "dj"
+    },
+    {
+      "surface": "剁椒酱",
+      "canonical": "剁椒",
+      "py": "duojiaojiang",
+      "initials": "djj"
+    },
+    {
+      "surface": "糖蒜",
+      "canonical": "糖蒜",
+      "py": "tangsuan",
+      "initials": "ts"
+    },
+    {
+      "surface": "甜蒜头",
+      "canonical": "糖蒜",
+      "py": "tiansuantou",
+      "initials": "tst"
+    },
+    {
+      "surface": "香茅",
+      "canonical": "香茅",
+      "py": "xiangmao",
+      "initials": "xm"
+    },
+    {
+      "surface": "香茅草",
+      "canonical": "香茅",
+      "py": "xiangmaocao",
+      "initials": "xmc"
+    },
+    {
+      "surface": "柠檬叶",
+      "canonical": "香茅",
+      "py": "ningmengye",
+      "initials": "nmy"
+    },
+    {
+      "surface": "干葱头",
+      "canonical": "干葱头",
+      "py": "gancongtou",
+      "initials": "gct"
+    },
+    {
+      "surface": "干葱仔",
+      "canonical": "干葱头",
+      "py": "gancongzai",
+      "initials": "gcz"
+    },
+    {
+      "surface": "毛葱头",
+      "canonical": "干葱头",
+      "py": "maocongtou",
+      "initials": "mct"
+    },
+    {
+      "surface": "红葱头",
+      "canonical": "干葱头",
+      "py": "hongcongtou",
+      "initials": "hct"
+    }
+  ]
+}
