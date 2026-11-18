@@ -24,6 +24,8 @@
 | 14 | Slice 14 | **方案分享**（推荐卡 / 食材页 / 已选自产 → 只读落地 / 保存到已选；**合规暂关前台**） |
 | 15 | Slice 15 | **做饭能力与菜品难度**（引导 15 选定档 / beginner 硬排 advanced / 「我的」重测） |
 | 16 | Slice 16 | **用户序号与首启仪式**（原子 `userNo` / 首页①→② 连贯蒙层 / 「我的」小字） |
+| 17 | Slice 17 | **手补食材联想与规范名**（确认页拼音/别名联想 / 点选落 canonical / 未命中可加） |
+| 18 | Slice 18 | **会员开通与虚拟支付**（权益页 / 道具直购 / 发货推送 / 查单补发 / 换菜与菜数软挡） |
 | — | 语音 | 前端已下线，暂不点验 |
 
 新用户进首页：若未看过首启且已有 `userNo`，先播 **Slice 16** ①→②（左「先逛逛」/右「完善偏好」）；否则仍可能弹旧「去设置 / 先逛逛」。选「先逛逛」或引导页「暂时跳过」即可继续测 Slice 1～4。完整引导放到 **Slice 6** 再验。跳过/轻量跳过后的**弱提醒与快捷补全**放到 **Slice 10** 再验。
@@ -63,12 +65,18 @@
 | `planShare.js` | `share/planShare.js`；小程序 `miniprogram/utils/planShare.js`（快照构建 / 分享卡 title；小程序侧仅 title） |
 | `cookSkill.js` | `recommend/cookSkill.js`、`profile/cookSkill.js`；小程序 `miniprogram/utils/cookSkill.js`（定档 / 推断难度 / 硬软排；探针菜常量） |
 | `userNo.js` | `auth/userNo.js`、`profile/userNo.js`；小程序 `miniprogram/utils/userNo.js`（校验 / 文案 / 滚动起点）；首页仪式另用 `miniprogram/utils/userNoReveal.js` |
+| `manualSuggest.js` | 小程序 `miniprogram/utils/manualSuggest.js`（手补汉字/拼音联想排序；无拼音运行时依赖） |
+| `membershipCatalog.js` / `membershipLogic.js` / `swapQuota.js` / `dishSoftCap.js` | `membership/` 与 `recommend/` 内各有 vendored 副本（定价 / 到期叠加 / 日换菜额度 / 日常菜数软限） |
 
 部署 `recommend`（含 `listAccepted`）前，请在云开发控制台为集合 `recommendations` 创建复合索引：`uid`、`accepted`、`acceptedAt`（与 `orderBy acceptedAt desc` 分页查询一致）。
 
 Slice 15（做饭能力）部署后，集合 `recipes` 另需普通复合索引：`cities` ASC + `difficulty` ASC（勿勾唯一；新手拉池 `where` 同时带这两字段）。细节见设计 §4.1 与下方「Slice 15 准备」。
 
 Slice 16（用户序号）另需集合 **`counters`**（文档 `userNo`，字段 `value`）；仅云函数可写。细节见下方「Slice 16 准备」。
+
+Slice 17（手补联想）改 `aliases.json` 后须重跑 `scripts/build-manual-suggest-index.py` + `scripts/sync-alias-runtime-data.js`，再部署 `catalog`。细节见下方「Slice 17 准备」。
+
+Slice 18（会员 / 虚拟支付）另需集合 **`memberships`**、**`membership_orders`**；索引以 **`uid+createdAt DESC`** 为主（未支付扫描不强制 ASC/DESC 双索引，见 §B.2）。MP 开通虚拟支付 + 6 个道具；云函数环境变量与发货推送。细节见下方「Slice 18 准备」。
 
 ---
 
@@ -332,6 +340,135 @@ Slice 16（用户序号）另需集合 **`counters`**（文档 `userNo`，字段
 
 ---
 
+## Slice 17 准备（手补食材联想与规范名）
+
+假定 **Slice 1～2 准备已完成**（能进确认页补菜并出推荐）。再补：
+
+1. **构建索引**（仓库已含产物时可跳过；改过 `data/catalog/aliases.json` 则必做）：
+   - `python3 scripts/build-manual-suggest-index.py`（需 `pypinyin`）→ `data/catalog/manual-suggest-index.json`
+   - `node scripts/sync-alias-runtime-data.js` → 拷入 `cloudfunctions/catalog/data/`（同步只拷贝，不重算拼音）
+2. **上传并部署**云函数：`cloudfunctions/catalog`（`getAliases` 回包须含 `suggestIndex` 数组；包内须有 `data/manual-suggest-index.json`）。
+3. **小程序**：确认页补菜输入防抖联想（`pages/confirm`）；`services/catalogCache.js`（`cookthis_manual_suggest_v1`）；`utils/manualSuggest.js`。
+4. 本地：`npm test`（含 `_shared/manualSuggest`、`catalog-cache-suggest`、`catalog-get-aliases-suggest`）。
+
+**部署顺序：** 先发 `catalog`，再编小程序（旧云函数缺 `suggestIndex` 时客户端**不**把空列表写成永久缓存）。做完即可对照下方「Slice 17 验收清单」。
+
+计划：[`docs/superpowers/plans/2026-11-17-手补食材联想与规范名.md`](docs/superpowers/plans/2026-11-17-手补食材联想与规范名.md)。  
+设计：[`docs/superpowers/specs/2026-11-17-手补食材联想与规范名-design.md`](docs/superpowers/specs/2026-11-17-手补食材联想与规范名-design.md)。
+
+---
+
+## Slice 18 准备（会员开通与虚拟支付）
+
+假定 **Slice 2～3 准备已完成**（能出推荐、换菜、「去买菜」）。本切片接入**个人主体**小程序虚拟支付（道具直购 `short_series_goods`），并上线会员页 / 换菜日额度 / 日常菜数软限。
+
+官方指引：[个人主体虚拟支付](https://developers.weixin.qq.com/miniprogram/dev/platform-capabilities/business-capabilities/virtual-payment/person)。云函数细节另见 [`cloudfunctions/membership/README.md`](cloudfunctions/membership/README.md)。
+
+### 会员功能总开关（上线前必读）
+
+前端常量：`miniprogram/services/membership.js` → **`MEMBERSHIP_ENABLED`**。
+
+| 值 | 行为 |
+|----|------|
+| `true`（**当前**） | 首页 VIP、「我的」会员态、推荐页「开通会员」/「会员可展开」、会员页可见，便于联调支付 |
+| `false` | 上述入口与文案**全部隐藏**；直开会员页会 toast「会员暂未开放」并返回。换菜日额度 / 菜数软限服务端逻辑仍可生效，但**不**再导流到会员页 |
+
+- **广告**走 `miniprogram/utils/ads.js` 的 `ADS_ENABLED`，与会员开关**无关**。  
+- 前期不卖会员：发版前把 `MEMBERSHIP_ENABLED` 改成 **`false`** 再编小程序。  
+- 积累用户后开放购买：改回 **`true`**，重新上传小程序即可（云函数 / 道具配置可提前备好）。
+
+### A. 你需要在微信后台准备的（代码外）
+
+1. **开通条件核对**（个人主体）  
+   - 小程序主体为个人 + 中国大陆居民身份证  
+   - 服务类目含「工具」  
+   - 已完成小程序认证、备案  
+   - 知晓：**全终端月支付限额 10 万元**；费率约 **Android 1%**、**iOS 12%**；结算 Android T+3、iOS 约 45–60 天  
+
+2. **开通虚拟支付**（MP → 支付与交易 → 虚拟支付）  
+   - 开通 → 填个人资料 / 提现账户 / 支付管理员 → 审核通过后扫码签约  
+   - 记下三件套：  
+     | 字段 | 用途 | 填到哪里 |
+     |------|------|----------|
+     | AppID | 小程序身份 | `project.config.json`（公共准备已有） |
+     | OfferID | 支付商户号 | 云函数环境变量 `XPAY_OFFER_ID` |
+     | 现网 AppKey | 签名密钥 | 云函数环境变量 `XPAY_APP_KEY` |
+
+3. **道具管理：创建并发布 6 个道具**（首购 / 页价分开，标价与代码一致；`productId` 必须一字不差）  
+
+   | productId | 标价 | 对应 |
+   |-----------|------|------|
+   | `vip_month_first` | ¥0.99 | 月卡首购 |
+   | `vip_month` | ¥6.6 | 月卡页价 |
+   | `vip_quarter_first` | ¥9.9 | 季卡首购 |
+   | `vip_quarter` | ¥16.6 | 季卡页价 |
+   | `vip_year_first` | ¥39.9 | 年卡首购 |
+   | `vip_year` | ¥56.6 | 年卡页价 |
+
+4. **iOS（若要测苹果支付）**  
+   - MP 配置**小程序简称**（Apple display name）  
+   - 虚拟支付 → 基本配置 → 开通苹果 IAP  
+   - 真机微信客户端 **≥ 8.0.68**（低版本会拦截并提示更新）  
+
+5. **发货推送**  
+   - 云开发消息推送：事件 **`xpay_goods_deliver_notify`** → 云函数 **`membership`**  
+   - 推送成功应答须为 `{ ErrCode: 0, ErrMsg: "success" }`（代码已实现）  
+   - 也可用 MP「发货推送配置」指向同一云函数入口（按控制台指引）  
+
+### B. 云开发 / 仓库侧准备
+
+1. **建集合**（权限：仅管理端可写，业务走云函数）  
+   - `memberships`：每 uid 一条当前态（`tier` / `startsAt` / `expiresAt`）  
+   - `membership_orders`：订单（`orderId` / `uid` / `sku` / `amountFen` / `productId` / `status` / `payExpiresAt` / `wxOrderId` 等）  
+
+2. **索引**（云开发 → 数据库 → 对应集合 → 索引管理；控制台按报错补齐亦可。**全部普通索引，不要勾唯一**。）  
+
+   人均会员订单很少（全局同时最多 1 笔未支付 + 少量历史），**不必**为未支付扫描 / `refresh` 各建一条 `createdAt` ASC、DESC。代码已改为：未支付用等值查询 + **内存排序**；展示列表才用库内 `orderBy`。
+
+   集合 **`membership_orders`**（建议只建这 3 条）：
+
+   | 索引（名称可自定） | 字段与正倒序 | 唯一？ | 对应查询 | 要不要建 |
+   |-------------------|--------------|--------|----------|----------|
+   | `uid_createdAt_desc` | `uid` **ASC** + `createdAt` **DESC** | **否** | `getStatus` 近单：`where({ uid }).orderBy('createdAt','desc').limit(30)` | **必建**（唯一带 orderBy 的路径） |
+   | `uid_status` | `uid` **ASC** + `status` **ASC** | **否** | 未支付 / 懒过期 / refresh：`where({ uid, status:'created' }).limit(20)`（**无** orderBy，正倒序内存排） | **建议建**（双等值；缺了控制台可能提示建索引） |
+   | `orderId` | `orderId` **ASC** | **否** | 发货 / 支付 / 取消：`where({ orderId })` 等 | **建议建**（高频按单号点查） |
+   | `wxOrderId` | `wxOrderId` **ASC** | **否** | 幂等：`where({ wxOrderId, status:'paid' })`（status 可内存滤） | **建议建**（推送去重；可等报错再补） |
+
+   > 原则：只有 **`where` + `orderBy`** 才必须把排序字段的 ASC/DESC 建进复合索引；纯等值且结果集很小 → 优先内存排序，少建索引。
+
+3. **上传并部署云函数**（云端安装依赖；**勿**依赖仓库外 `../_shared`，helpers 已 vendored）  
+   - `cloudfunctions/membership`（getStatus / createOrder / payOrder / cancelOrder / refresh / 推送发货 / query_order）  
+   - **重新部署** `cloudfunctions/recommend`（换菜 `SWAP_CAP`、日常菜数软锁；含 vendored membership/swap/dish helpers）  
+   - 云函数需能取 **access_token**（开通云调用 / 开放接口权限），否则 `refresh` 查单补发货会静默失败（推送主路径仍可用）  
+
+4. **云函数 `membership` 环境变量**  
+
+   | 变量 | 值 | 说明 |
+   |------|-----|------|
+   | `XPAY_OFFER_ID` | MP OfferID | 必填，否则下单 `PAY_NOT_CONFIGURED` |
+   | `XPAY_APP_KEY` | 现网 AppKey | 必填；签名用正式钥 |
+   | `XPAY_ENV` | `0` | 现网支付填 `0`；沙箱才用 `1` |
+   | `MEMBERSHIP_ALLOW_DEV_GRANT` | 不设或 `0` | 仅本地/开发机可设 `1` 走 `devGrant` / `devClear` / `devExpireSoon` / `devResetFirstPurchase`；**正式环境禁止**。开发/体验版会员页底「调试」区依赖此开关 |
+
+5. **小程序**  
+   - 编译含 `pages/membership/index`、首页 VIP 入口、`services/membership.js`  
+   - 购买须知含：不自动续费、刷新到账（可联系客服）、首购一次、有效期内再买叠期、退款说明  
+
+6. **本地单测（可选）**  
+
+```bash
+node --test cloudfunctions/membership/*.test.js miniprogram/pages/membership/*.test.js miniprogram/services/membership.test.js
+```
+
+或仓库根目录 `npm test`。
+
+**部署顺序建议：** 建集合 → **按 §B.2 建精简索引（至少 `uid+createdAt DESC`）** → 配环境变量 → 发 `membership` → 绑推送 → 发 `recommend` → 再编小程序。做完对照下方「Slice 18 验收清单」。
+
+计划：[`docs/superpowers/plans/2026-11-17-会员开通与权益.md`](docs/superpowers/plans/2026-11-17-会员开通与权益.md)。  
+设计：[`docs/superpowers/specs/2026-11-17-会员开通与权益-design.md`](docs/superpowers/specs/2026-11-17-会员开通与权益-design.md)。
+
+---
+
 ## 语音（当前已下线）
 
 因微信同声传译插件使用受限、会导致编译失败，**前端语音入口与 `app.json` 插件声明已临时移除**（确认页 / 记一下仅保留手动输入）。  
@@ -558,7 +695,7 @@ Slice 16（用户序号）另需集合 **`counters`**（文档 `userNo`，字段
 4. [x] **换城丢勾选**：勾选若干项 → 「我的」换城再进同一方案清单 → **勾选清空**（展示文案随新城变即可）。
 5. [x] **范围不变**：「看菜谱」弹层 / 方案卡食材 tip **仍为通用名**，不做别名重映射。
 
-**本切片不验：** 确认页搜索别名 UI、看菜谱弹层别名展示、换城保留勾选、广告、语音。
+**本切片不验：** 确认页拼音/别名联想 UI（→ **Slice 17**）、看菜谱弹层别名展示、换城保留勾选、广告、语音。
 
 **部署提醒：** 手测推荐匹配前务必上传云函数 `recommend`（含 `data/aliases.json`、`aliasMatch.js`、vendored plans）。
 
@@ -685,6 +822,68 @@ Slice 16（用户序号）另需集合 **`counters`**（文档 `userNo`，字段
 **本切片不验：** 排行榜、「超越 xx%」、引导步内插播仪式、自定义封面、广告、语音。
 
 **部署提醒：** `auth` + `profile` 同发；先有 `counters` 再测新号；回填前务必 dry-run，且勿对已有合法 `userNo` 重排。
+
+---
+
+## 本切片验收清单（Slice 17）
+
+**状态：待点验**（须先部署 `catalog` 含 `suggestIndex`；再编小程序确认页）
+
+**自动化：**
+
+- [ ] `npm test` PASS（含 `manualSuggest`、`catalog-cache-suggest`、`catalog-get-aliases-suggest`）。
+
+**需人工：** Slice 17 准备后（确认页「补菜」）：
+
+1. [ ] **拼音/汉字命中同一规范名**：输入 `xihongshi` / `xhs` / `西红柿` / `番茄` → 候选指向「番茄」；点选后芯片可显示别名文案，提交 `selected.name` 为规范名「番茄」，能出含该主料的菜。
+2. [ ] **唯一候选确认**：联想只剩 1 条时点「添加」或键盘确认 → 按该规范名入库（勿在改字后 200ms 内误提交旧候选；实现已同步重算）。
+3. [ ] **已在列表**：已勾选「番茄」（或已补过）再补同规范名 → 提示「已在列表中」，不重复 manuals。
+4. [ ] **未命中仍可加**：生词仍可添加，旁注「暂无法匹配菜谱」；不挡出方案（通常无贡献）。
+5. [ ] **本趟有效**：回首页再进确认页 → manuals 空；确认页内换菜场规模 → manuals 仍在（`preserveSelection`）。
+
+**本切片不验：** 把生词/拼音写入别名表、小程序内运行时拼音库、recommend 热路径拼音、多音字完美读音（如「长」默认 zhang）。
+
+**部署提醒：** 先发 `catalog` 再发小程序；改 `aliases.json` 后必须重建 `manual-suggest-index.json` 并 sync + 重发 `catalog`。
+
+---
+
+## 本切片验收清单（Slice 18）
+
+**状态：待点验**（须 MP 开通虚拟支付 + 6 道具发布 + 推送绑 `membership` + 环境变量；建议 **Android 真机**先测付费闭环，iOS 另测简称/IAP/微信版本）
+
+**自动化：**
+
+- [ ] `npm test` PASS（或至少 `node --test cloudfunctions/membership/*.test.js miniprogram/pages/membership/*.test.js`）。
+
+**需人工 · 入口与权益（可不付钱）：**
+
+1. [ ] **首页 VIP**：顶栏字号「大」**左侧**闪光图可点 → `pages/membership/index`（可带 `from=home_vip`）。  
+2. [ ] **「我的」状态**：未开通显示「未开通会员」；开通后显示「会员至 YYYY-MM-DD」；可点进同一会员页。  
+3. [ ] **会员页信息架构**：权益三点（换菜不限 / 日常菜数放宽 / 免激励预告）+ 今日换菜用量 + 月/季/年套餐 + 购买须知；**无**独立权益第二页。会员态默认收起购买，可「续费/再买」。  
+4. [ ] **须知**：打开「购买须知」可见不自动续费、刷新到账（可联系客服）、首购一次、有效期内再买从原到期日叠加、退款说明（共 5 条）；首次支付前需「已知晓」。  
+5. [ ] **换菜软挡（非会员）**：自然日免费换菜满 3 次后再换 → 提示触顶；**主按钮仍可去买菜**；次入口可去开通会员；**不**清空方案。会员换菜不扣日 3。  
+6. [ ] **日常菜数软锁（非会员）**：日常方案总菜数 > 12 时超限菜卡软锁；聚会不锁；清单仍含这些菜；可走开通入口。  
+
+**需人工 · 下单与未支付单（可先用沙箱/`XPAY_ENV` 或小额真单）：**
+
+7. [ ] **首购价展示**：未用过月卡时月卡展示 ¥0.99 并划线页价；支付成功后再买月卡应为 ¥6.6（`vip_month`）。季/年同理。  
+8. [ ] **拉起支付**：确认须知后「立即开通」→ 服务端建单 → `wx.requestVirtualPayment`（`mode=short_series_goods`）；前端 success **不**立刻变会员，需等推送或点「刷新会员状态」。  
+9. [ ] **全局一笔未支付**：已有待支付单时，同档再点购买 → 复用原单并重签（订单列表可见倒计时约 5 分钟）；异档 → 弹确认后关旧单并下新档。  
+10. [ ] **取消 / 过期**：待支付单可取消；过期后再支付/取消 → Toast「订单已取消，请重新下单」并刷新列表。订单列表最多展示近 5 条（有效未支付 + paid）。  
+11. [ ] **缺配置**：未配 `XPAY_*` 时下单友好提示「当前环境暂无法支付」，**不**写脏订单。  
+12. [ ] **iOS 版本**：微信低于 8.0.68 时拦截并提示更新；≥ 8.0.68 且已开通 IAP 时可走支付（未开 IAP 则按微信/MP 实际报错处理）。  
+
+**需人工 · 发货与到账（小额真单必做）：**
+
+13. [ ] **推送发货**：支付成功后云函数收到 `xpay_goods_deliver_notify` → `memberships` 写入/叠加到期日；`membership_orders.status=paid`；写入 `wxOrderId`；页上「刷新会员状态」或重进页显示会员生效。  
+14. [ ] **查单兜底**：人为延迟或模拟推送丢失时，点「刷新会员状态」→ `query_order` 查到已付则补发货（需 access_token 权限正常）。  
+15. [ ] **幂等**：同一笔推送重试 / 同 `MchOrderNo` 不重复叠期。  
+16. [ ] **杀进程重进**：到账后杀进程再开 → 仍为会员；换菜不限次（或至少不扣免费 3 次）。  
+17. [ ] **账单核对**：MP「虚拟支付 → 交易订单」金额与道具标价、后台 `amountFen` 一致。  
+
+**本切片不验：** 代币/币种体系、自动续费、激励视频换菜（阶段 2）、清单去广告（阶段 2）、成长值/饭友等级、退款接口自动化（Android 可后台手退一笔抽查即可）、定时每 5 分钟扫单（现靠进页/`refresh` 触发查单）。
+
+**部署提醒：** 先按 §B.2 建精简索引（**不必**为未支付建 `createdAt` ASC/DESC 双索引）；再配 OfferID/AppKey 与 6 道具、绑推送。正式环境勿开 `MEMBERSHIP_ALLOW_DEV_GRANT`；改定价或 productId 须与 MP 道具同步。个人主体接入检查项也可对照官方文末「部署前检查清单」。**对外灰度前**确认 `MEMBERSHIP_ENABLED`：联调保持 `true`，正式对用户隐藏会员时改为 `false`。开发/体验版且云开了 `MEMBERSHIP_ALLOW_DEV_GRANT=1` 时，会员页底可见调试快捷按钮（开卡叠期 / 清会员 / 临期 / 重置首购）。
 
 ---
 

@@ -1,15 +1,17 @@
 'use strict'
 
 const membership = require('../../services/membership.js')
+const { MEMBERSHIP_ENABLED } = membership
 const { track } = require('../../utils/track.js')
 const { tapFeedback } = require('../../utils/haptic.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 const {
+  BENEFITS,
   NOTICE_ITEMS,
   ORDER_CANCELLED_TOAST,
   PAY_UNAVAILABLE,
   applyStatus,
-  isIosPlatform,
+  canUseVirtualPayOnClient,
   orderErrorToast,
   payFailToast,
   pendingOtherSkuCopy,
@@ -31,12 +33,25 @@ function writeNoticeAcked() {
   } catch (e) {}
 }
 
-function readPlatform() {
+function readClientEnv() {
   try {
     const sys = wx.getSystemInfoSync() || {}
-    return sys.platform || ''
+    return {
+      platform: sys.platform || '',
+      version: sys.version || ''
+    }
   } catch (e) {
-    return ''
+    return { platform: '', version: '' }
+  }
+}
+
+function isNonReleaseEnv() {
+  try {
+    const info = wx.getAccountInfoSync && wx.getAccountInfoSync()
+    const env = info && info.miniProgram && info.miniProgram.envVersion
+    return env === 'develop' || env === 'trial'
+  } catch (e) {
+    return false
   }
 }
 
@@ -49,7 +64,8 @@ Page({
     offers: [],
     orders: [],
     selectedSku: 'month',
-    busy: false,
+    busy: true,
+    pageReady: false,
     showNotice: false,
     noticeAcked: false,
     isMember: false,
@@ -60,29 +76,51 @@ Page({
     buyExpanded: false,
     ctaLabel: '立即开通',
     payUnavailable: false,
-    noticeItems: NOTICE_ITEMS
+    showDevTools: false,
+    noticeItems: NOTICE_ITEMS,
+    benefitRows: BENEFITS
   },
 
   _platform: '',
+  _wechatVersion: '',
   _pollTimer: null,
   _countdownTimer: null,
   _loadGen: 0,
   _ordersAppliedAt: 0,
 
   onLoad(q) {
+    if (!MEMBERSHIP_ENABLED) {
+      wx.showToast({ title: '会员暂未开放', icon: 'none' })
+      setTimeout(() => {
+        wx.navigateBack({ fail: () => wx.reLaunch({ url: '/pages/index/index' }) })
+      }, 400)
+      return
+    }
     const from = (q && q.from) || 'direct'
-    this._platform = readPlatform()
+    const env = readClientEnv()
+    this._platform = env.platform
+    this._wechatVersion = env.version
+    const gate = canUseVirtualPayOnClient({
+      platform: env.platform,
+      version: env.version
+    })
     this.setData({
       from,
       noticeAcked: readNoticeAcked(),
-      payUnavailable: isIosPlatform(this._platform)
+      payUnavailable: !gate.ok,
+      showDevTools: isNonReleaseEnv(),
+      busy: true,
+      pageReady: false
     })
     track('membership_page_show', { from })
+    this._loadStatus({ initial: true })
   },
 
   onShow() {
     this.applyTypeScale()
+    if (!MEMBERSHIP_ENABLED) return
     if (this.data.busy) return
+    if (!this.data.pageReady) return
     this._loadStatus()
   },
 
@@ -149,8 +187,55 @@ Page({
       })
   },
 
+  onDevGrant(e) {
+    if (!this.data.showDevTools || this.data.busy) return
+    const sku = (e && e.currentTarget && e.currentTarget.dataset.sku) || 'month'
+    tapFeedback('light')
+    this._runDev(membership.devGrant(sku))
+  },
+
+  onDevClear() {
+    if (!this.data.showDevTools || this.data.busy) return
+    tapFeedback('light')
+    this._runDev(membership.devClear())
+  },
+
+  onDevExpireSoon() {
+    if (!this.data.showDevTools || this.data.busy) return
+    tapFeedback('light')
+    this._runDev(membership.devExpireSoon())
+  },
+
+  onDevResetFirstPurchase() {
+    if (!this.data.showDevTools || this.data.busy) return
+    tapFeedback('light')
+    this._runDev(membership.devResetFirstPurchase())
+  },
+
+  _runDev(promise) {
+    this.setData({ busy: true })
+    Promise.resolve(promise)
+      .then((res) => {
+        if (!res || res.ok === false) {
+          const err = new Error((res && res.error) || '调试失败')
+          err.error = (res && res.error) || '调试失败'
+          throw err
+        }
+        this._applyStatus(res)
+        this.setData({ busy: false })
+      })
+      .catch((err) => {
+        this.setData({ busy: false })
+        wx.showToast({
+          title: (err && err.error) || '调试失败',
+          icon: 'none'
+        })
+      })
+  },
+
   onPay() {
     if (this.data.busy) return
+    if (!this._assertPayClientReady()) return
     if (!this.data.noticeAcked) {
       this.setData({ showNotice: true })
       return
@@ -167,6 +252,7 @@ Page({
 
   onPayOrder(e) {
     if (this.data.busy) return
+    if (!this._assertPayClientReady()) return
     const orderId = e.currentTarget.dataset.orderId
     if (!orderId) return
     if (!this.data.noticeAcked) {
@@ -206,6 +292,20 @@ Page({
           })
       }
     })
+  },
+
+  _assertPayClientReady() {
+    const gate = canUseVirtualPayOnClient({
+      platform: this._platform,
+      version: this._wechatVersion
+    })
+    if (gate.ok) return true
+    wx.showModal({
+      title: '提示',
+      content: gate.message || PAY_UNAVAILABLE,
+      showCancel: false
+    })
+    return false
   },
 
   _startCreatePay(sku, replacePending) {
@@ -320,17 +420,28 @@ Page({
       })
   },
 
-  _loadStatus() {
+  _loadStatus(opts) {
+    const initial = !!(opts && opts.initial)
     this._loadGen += 1
     const gen = this._loadGen
+    if (initial || !this.data.pageReady) {
+      this.setData({ busy: true })
+    }
     membership
       .getStatus()
       .then((res) => {
         if (gen !== this._loadGen) return
-        this._applyStatus(res)
+        this._applyStatus(res, { clearBusy: true })
       })
       .catch((err) => {
         if (gen !== this._loadGen) return
+        this.setData({
+          busy: false,
+          pageReady: true,
+          statusText: '加载失败',
+          offers: [],
+          orders: []
+        })
         wx.showToast({
           title: (err && err.error) || '加载失败',
           icon: 'none'
@@ -338,7 +449,7 @@ Page({
       })
   },
 
-  _applyStatus(res) {
+  _applyStatus(res, opts) {
     const next = applyStatus(
       res,
       this.data.selectedSku,
@@ -346,7 +457,9 @@ Page({
       Date.now()
     )
     this._ordersAppliedAt = next._ordersAppliedAt || Date.now()
-    this.setData(next)
+    const patch = Object.assign({}, next, { pageReady: true })
+    if (opts && opts.clearBusy) patch.busy = false
+    this.setData(patch)
     this._startCountdown()
   },
 

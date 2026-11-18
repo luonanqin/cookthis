@@ -1,33 +1,28 @@
 <view class="page {{typeScaleClass}}">
   <page-header title="会员" subtitle="买一次算一次，不自动续费" />
-  <view class="page-body membership-body">
+  <view wx:if="{{pageReady}}" class="page-body membership-body">
     <view class="status-card">
       <text class="status-text">{{statusText}}</text>
-      <text wx:if="{{payUnavailable}}" class="pay-banner">当前环境暂无法支付</text>
+      <text wx:if="{{payUnavailable}}" class="pay-banner">请将微信更新至最新版后再支付</text>
     </view>
 
     <view class="surface-card benefits">
       <view class="section-label">会员权益</view>
-      <view class="benefit-row">
-        <view class="benefit-copy">
-          <text class="benefit-title">换菜不限次</text>
-          <text class="benefit-desc">日常与聚会共用一池，会员不再扣每日 3 次</text>
+      <view class="benefit-table">
+        <view class="benefit-table-row head">
+          <text class="benefit-dim"></text>
+          <text class="benefit-col benefit-col--member head-label">会员</text>
+          <text class="benefit-col benefit-col--free head-label">免费</text>
         </view>
-        <text wx:if="{{isMember}}" class="benefit-tag">已享有</text>
-      </view>
-      <view class="benefit-row">
-        <view class="benefit-copy">
-          <text class="benefit-title">日常菜数放宽</text>
-          <text class="benefit-desc">免费用户日常总菜数软限 12；会员不限</text>
+        <view
+          class="benefit-table-row"
+          wx:for="{{benefitRows}}"
+          wx:key="id"
+        >
+          <text class="benefit-dim">{{item.dim}}</text>
+          <text class="benefit-col benefit-col--member">{{item.member}}</text>
+          <text class="benefit-col benefit-col--free">{{item.free}}</text>
         </view>
-        <text wx:if="{{isMember}}" class="benefit-tag">已享有</text>
-      </view>
-      <view class="benefit-row">
-        <view class="benefit-copy">
-          <text class="benefit-title">免换菜激励预告</text>
-          <text class="benefit-desc">激励上线后，会员免看视频再换</text>
-        </view>
-        <text wx:if="{{isMember}}" class="benefit-tag">已享有</text>
       </view>
     </view>
 
@@ -38,24 +33,20 @@
 
     <view wx:if="{{!isMember || buyExpanded}}" class="offers">
       <view class="section-label offers-label">选择套餐</view>
-      <view
-        wx:for="{{offers}}"
-        wx:key="sku"
-        class="offer-card {{selectedSku === item.sku ? 'on' : ''}}"
-        data-sku="{{item.sku}}"
-        hover-class="tap-hover"
-        bindtap="onSelectSku"
-      >
-        <view class="offer-main">
-          <view class="offer-title-row">
-            <text class="offer-title">{{item.title}}</text>
-            <text wx:if="{{item.isFirstPurchase}}" class="offer-badge">首购</text>
-          </view>
-          <text class="offer-hint">{{item.hint}}</text>
-        </view>
-        <view class="offer-price">
+      <view class="offers-row">
+        <view
+          wx:for="{{offers}}"
+          wx:key="sku"
+          class="offer-card {{selectedSku === item.sku ? 'on' : ''}}"
+          data-sku="{{item.sku}}"
+          hover-class="tap-hover"
+          bindtap="onSelectSku"
+        >
+          <text wx:if="{{item.isFirstPurchase}}" class="offer-badge">首购</text>
+          <text class="offer-title">{{item.title}}</text>
           <text class="pay-price">¥{{item.labelYuan}}</text>
           <text wx:if="{{item.showList}}" class="list-price">¥{{item.listYuan}}</text>
+          <text class="offer-hint">{{item.hint}}</text>
         </view>
       </view>
     </view>
@@ -125,9 +116,46 @@
       hover-class="tap-hover"
       bindtap="onOpenNotice"
     >购买须知</view>
+
+    <view wx:if="{{showDevTools}}" class="dev-tools">
+      <view class="dev-tools-title">调试（仅开发/体验版）</view>
+      <view class="dev-tools-row">
+        <view
+          class="dev-btn"
+          data-sku="month"
+          hover-class="tap-hover"
+          bindtap="onDevGrant"
+        >开月卡</view>
+        <view
+          class="dev-btn"
+          data-sku="quarter"
+          hover-class="tap-hover"
+          bindtap="onDevGrant"
+        >开季卡</view>
+        <view
+          class="dev-btn"
+          data-sku="year"
+          hover-class="tap-hover"
+          bindtap="onDevGrant"
+        >开年卡</view>
+      </view>
+      <view class="dev-tools-row">
+        <view class="dev-btn" hover-class="tap-hover" bindtap="onDevClear">清会员</view>
+        <view
+          class="dev-btn"
+          hover-class="tap-hover"
+          bindtap="onDevExpireSoon"
+        >约1天后到期</view>
+        <view
+          class="dev-btn"
+          hover-class="tap-hover"
+          bindtap="onDevResetFirstPurchase"
+        >重置首购</view>
+      </view>
+    </view>
   </view>
 
-  <view wx:if="{{!isMember || buyExpanded}}" class="footer">
+  <view wx:if="{{pageReady && (!isMember || buyExpanded)}}" class="footer">
     <button
       wx:if="{{!isMember}}"
       type="primary"
