@@ -62,7 +62,7 @@ describe('createOrder', () => {
     assert.equal(orders[0].sku, 'month')
     assert.equal(orders[0].amountFen, 99)
     assert.equal(orders[0].isFirstPurchase, true)
-    assert.equal(orders[0].productId, SKUS.month.productId)
+    assert.equal(orders[0].productId, SKUS.month.productIdFirst)
     assert.equal(orders[0].orderId, res.orderId)
 
     const memberships = (await db.collection('memberships').where({ uid: 'user-1' }).get())

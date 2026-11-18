@@ -37,15 +37,26 @@ function resolvePriceFen(sku, firstPurchaseUsedMap) {
   return isFirstPurchaseOpen(sku, firstPurchaseUsedMap) ? item.firstFen : item.listFen
 }
 
+/** 首购走 productIdFirst，复购走 productIdList（各对应米大师固定标价道具） */
+function resolveProductId(sku, firstPurchaseUsedMap) {
+  const item = getSku(sku)
+  if (!item) return null
+  return isFirstPurchaseOpen(sku, firstPurchaseUsedMap)
+    ? item.productIdFirst
+    : item.productIdList
+}
+
 function buildSkuOffer(sku, firstPurchaseUsedMap) {
   const item = getSku(sku)
   if (!item) return null
+  const isFirst = isFirstPurchaseOpen(sku, firstPurchaseUsedMap)
   const payFen = resolvePriceFen(sku, firstPurchaseUsedMap)
   return {
     sku,
     listFen: item.listFen,
     payFen,
-    isFirstPurchase: isFirstPurchaseOpen(sku, firstPurchaseUsedMap),
+    isFirstPurchase: isFirst,
+    productId: resolveProductId(sku, firstPurchaseUsedMap),
     labelYuan: formatYuanFromFen(payFen),
     listYuan: formatYuanFromFen(item.listFen)
   }
@@ -64,6 +75,7 @@ module.exports = {
   isMemberActive,
   computeNewExpiry,
   resolvePriceFen,
+  resolveProductId,
   buildSkuOffer,
   firstPurchaseUsedFromOrders
 }

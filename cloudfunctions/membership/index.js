@@ -6,6 +6,7 @@ const { SKUS, getSku } = require('./membershipCatalog.js')
 const {
   isMemberActive,
   resolvePriceFen,
+  resolveProductId,
   buildSkuOffer,
   firstPurchaseUsedFromOrders
 } = require('./membershipLogic.js')
@@ -151,6 +152,7 @@ function createMembershipApi(deps) {
 
     const firstPurchaseUsed = await loadFirstPurchaseUsed(db, uid)
     const payFen = resolvePriceFen(sku, firstPurchaseUsed)
+    const productId = resolveProductId(sku, firstPurchaseUsed)
     const orderId = makeOrderId(uid, nowMs)
     await db.collection('membership_orders').add({
       data: {
@@ -159,14 +161,14 @@ function createMembershipApi(deps) {
         sku,
         amountFen: payFen,
         isFirstPurchase: !firstPurchaseUsed[sku],
-        productId: item.productId,
+        productId,
         status: 'created',
         createdAt: new Date(nowMs).toISOString()
       }
     })
     const pay = xpay.buildVirtualPayParams({
       orderId,
-      productId: item.productId,
+      productId,
       goodsPrice: payFen,
       openid,
       attach: orderId,
@@ -224,7 +226,7 @@ function createMembershipApi(deps) {
         sku: code,
         amountFen: 0,
         isFirstPurchase: !firstPurchaseUsed[code],
-        productId: item.productId,
+        productId: resolveProductId(code, firstPurchaseUsed),
         status: 'created',
         createdAt: new Date(nowMs).toISOString(),
         dev: true

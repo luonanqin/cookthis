@@ -6,6 +6,7 @@ const {
   isMemberActive,
   computeNewExpiry,
   resolvePriceFen,
+  resolveProductId,
   buildSkuOffer,
   firstPurchaseUsedFromOrders
 } = require('./membershipLogic.js')
@@ -63,12 +64,21 @@ describe('membershipLogic', () => {
     )
   })
 
+  it('resolveProductId picks first vs list prop', () => {
+    assert.equal(resolveProductId('month', {}), 'vip_month_first')
+    assert.equal(resolveProductId('month', { month: true }), 'vip_month')
+    assert.equal(resolveProductId('quarter', {}), 'vip_quarter_first')
+    assert.equal(resolveProductId('year', { year: true }), 'vip_year')
+    assert.equal(resolveProductId('nope', {}), null)
+  })
+
   it('buildSkuOffer exposes pay and list yuan', () => {
     assert.deepEqual(buildSkuOffer('month', {}), {
       sku: 'month',
       listFen: 660,
       payFen: 99,
       isFirstPurchase: true,
+      productId: 'vip_month_first',
       labelYuan: '0.99',
       listYuan: '6.6'
     })
@@ -77,6 +87,7 @@ describe('membershipLogic', () => {
       listFen: 660,
       payFen: 660,
       isFirstPurchase: false,
+      productId: 'vip_month',
       labelYuan: '6.6',
       listYuan: '6.6'
     })
@@ -85,6 +96,7 @@ describe('membershipLogic', () => {
       listFen: 5660,
       payFen: 3990,
       isFirstPurchase: true,
+      productId: 'vip_year_first',
       labelYuan: '39.9',
       listYuan: '56.6'
     })

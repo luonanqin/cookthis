@@ -14,7 +14,11 @@ node --test cloudfunctions/membership/*.test.js
 
 ## 运维（未在本任务上传）
 
-1. 微信公众平台开通虚拟支付；配置月/季/年道具 `productId`（默认 `vip_month` / `vip_quarter` / `vip_year`）与页价（分）。
+1. 微信公众平台开通虚拟支付；配置 **6 个**道具（首购 / 页价分开，各绑固定标价）：
+   - `vip_month_first` ¥0.99、`vip_month` ¥6.6
+   - `vip_quarter_first` ¥9.9、`vip_quarter` ¥16.6
+   - `vip_year_first` ¥39.9、`vip_year` ¥56.6
+   下单按是否首购选对应 `productId`，`goodsPrice` 与道具标价一致。
 2. 云开发控制台创建并上传云函数 `membership`（本目录；勿依赖 `../_shared`，helpers 已 vendored）。
 3. 云函数环境变量：
    - `XPAY_OFFER_ID` — 支付基础配置 offerId

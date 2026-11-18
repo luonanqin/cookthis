@@ -11,21 +11,24 @@ describe('membershipCatalog', () => {
       days: 31,
       listFen: 660,
       firstFen: 99,
-      productId: 'vip_month'
+      productIdFirst: 'vip_month_first',
+      productIdList: 'vip_month'
     })
     assert.deepEqual(SKUS.quarter, {
       tier: 'quarter',
       days: 93,
       listFen: 1660,
       firstFen: 990,
-      productId: 'vip_quarter'
+      productIdFirst: 'vip_quarter_first',
+      productIdList: 'vip_quarter'
     })
     assert.deepEqual(SKUS.year, {
       tier: 'year',
       days: 365,
       listFen: 5660,
       firstFen: 3990,
-      productId: 'vip_year'
+      productIdFirst: 'vip_year_first',
+      productIdList: 'vip_year'
     })
   })
 

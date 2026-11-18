@@ -1,9 +1,34 @@
 'use strict'
 
+/**
+ * 每个档位两个米大师道具：首购价 / 页价各一个 productId，
+ * 避免同一道具固定标价与首购优惠冲突。
+ */
 const SKUS = {
-  month: { tier: 'month', days: 31, listFen: 660, firstFen: 99, productId: 'vip_month' },
-  quarter: { tier: 'quarter', days: 93, listFen: 1660, firstFen: 990, productId: 'vip_quarter' },
-  year: { tier: 'year', days: 365, listFen: 5660, firstFen: 3990, productId: 'vip_year' }
+  month: {
+    tier: 'month',
+    days: 31,
+    listFen: 660,
+    firstFen: 99,
+    productIdFirst: 'vip_month_first',
+    productIdList: 'vip_month'
+  },
+  quarter: {
+    tier: 'quarter',
+    days: 93,
+    listFen: 1660,
+    firstFen: 990,
+    productIdFirst: 'vip_quarter_first',
+    productIdList: 'vip_quarter'
+  },
+  year: {
+    tier: 'year',
+    days: 365,
+    listFen: 5660,
+    firstFen: 3990,
+    productIdFirst: 'vip_year_first',
+    productIdList: 'vip_year'
+  }
 }
 
 function getSku(sku) {
