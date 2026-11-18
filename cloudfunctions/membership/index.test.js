@@ -87,6 +87,67 @@ describe('createOrder', () => {
     assert.deepEqual(res, { ok: false, error: 'BAD_SKU' })
   })
 
+  it('reuses the pending created order for the same uid+sku instead of duplicating', async () => {
+    const db = createMemoryDb()
+    await seedUser(db)
+    const first = await api(db).createOrder('user-1', 'month')
+    const second = await api(db).createOrder('user-1', 'month')
+    assert.equal(first.ok, true)
+    assert.equal(second.ok, true)
+    assert.equal(second.orderId, first.orderId)
+    assert.equal(second.reused, true)
+    assert.equal(second.payFen, 99)
+    assert.equal(second.productId, 'vip_month_first')
+    const orders = (await db.collection('membership_orders').where({ uid: 'user-1' }).get()).data
+    const created = orders.filter((o) => o.status === 'created')
+    assert.equal(created.length, 1)
+    assert.equal(created[0].orderId, first.orderId)
+  })
+
+  it('closes a stale first-purchase pending when the sku must use list price', async () => {
+    const db = createMemoryDb()
+    await seedUser(db)
+    await db.collection('membership_orders').add({
+      data: {
+        orderId: 'm-stale-first',
+        uid: 'user-1',
+        sku: 'month',
+        amountFen: 99,
+        isFirstPurchase: true,
+        productId: 'vip_month_first',
+        status: 'created',
+        createdAt: new Date(NOW - 5000).toISOString()
+      }
+    })
+    await db.collection('membership_orders').add({
+      data: {
+        orderId: 'm-paid-month',
+        uid: 'user-1',
+        sku: 'month',
+        amountFen: 99,
+        isFirstPurchase: true,
+        productId: 'vip_month_first',
+        status: 'paid',
+        createdAt: new Date(NOW - 4000).toISOString(),
+        paidAt: new Date(NOW - 3000).toISOString()
+      }
+    })
+    const res = await api(db).createOrder('user-1', 'month')
+    assert.equal(res.ok, true)
+    assert.equal(res.productId, 'vip_month')
+    assert.equal(res.payFen, 660)
+    const stale = (
+      await db.collection('membership_orders').where({ orderId: 'm-stale-first' }).limit(1).get()
+    ).data[0]
+    assert.equal(stale.status, 'closed')
+    assert.equal(stale.closedReason, 'SUPERSEDED')
+    const created = (await db.collection('membership_orders').where({ uid: 'user-1' }).get()).data.filter(
+      (o) => o.status === 'created'
+    )
+    assert.equal(created.length, 1)
+    assert.equal(created[0].productId, 'vip_month')
+  })
+
   it('after a paid month sku, createOrder uses list productId and list price', async () => {
     const db = createMemoryDb()
     await seedUser(db)

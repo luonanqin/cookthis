@@ -59,6 +59,85 @@ function isWxOrderPaid(wx) {
   return false
 }
 
+function nowIsoMs(nowMs) {
+  return new Date(Number.isFinite(Number(nowMs)) ? Number(nowMs) : Date.now()).toISOString()
+}
+
+/** 同 uid+sku 未支付单：按 createdAt 升序（最早优先复用） */
+async function listCreatedOrdersForSku(db, uid, sku) {
+  const res = await db
+    .collection('membership_orders')
+    .where({ uid, sku, status: 'created' })
+    .orderBy('createdAt', 'asc')
+    .limit(20)
+    .get()
+  return (res.data || []).slice()
+}
+
+async function closeCreatedOrder(db, orderId, reason, nowMs) {
+  if (!orderId) return
+  await db
+    .collection('membership_orders')
+    .where({ orderId, status: 'created' })
+    .update({
+      data: {
+        status: 'closed',
+        closedReason: reason || 'SUPERSEDED',
+        closedAt: nowIsoMs(nowMs)
+      }
+    })
+}
+
+/**
+ * 业界常见：同一 uid+sku 只保留一笔可支付的 created。
+ * - 复用同 productId+金额的最早单（防连点/重试重复下单）
+ * - 关掉其它 created（含价档变化后的旧首购单、并发多插）
+ */
+async function pickOrCreatePendingOrder(db, { uid, sku, payFen, productId, isFirstPurchase, nowMs }) {
+  const pending = await listCreatedOrdersForSku(db, uid, sku)
+  let keep = null
+  for (const row of pending) {
+    if (!row) continue
+    if (row.productId === productId && Number(row.amountFen) === Number(payFen)) {
+      keep = row
+      break
+    }
+  }
+  for (const row of pending) {
+    if (!row || !row.orderId) continue
+    if (keep && row.orderId === keep.orderId) continue
+    await closeCreatedOrder(db, row.orderId, 'SUPERSEDED', nowMs)
+  }
+  if (keep) {
+    return { order: keep, reused: true }
+  }
+  const orderId = makeOrderId(uid, nowMs)
+  const row = {
+    orderId,
+    uid,
+    sku,
+    amountFen: payFen,
+    isFirstPurchase: !!isFirstPurchase,
+    productId,
+    status: 'created',
+    createdAt: nowIsoMs(nowMs)
+  }
+  await db.collection('membership_orders').add({ data: row })
+
+  // 并发双插收敛：再扫一遍，只留最早匹配单
+  const again = await listCreatedOrdersForSku(db, uid, sku)
+  const matches = again.filter(
+    (o) => o && o.productId === productId && Number(o.amountFen) === Number(payFen)
+  )
+  const winner = matches[0] || row
+  for (const o of again) {
+    if (!o || !o.orderId) continue
+    if (o.orderId === winner.orderId) continue
+    await closeCreatedOrder(db, o.orderId, 'SUPERSEDED', nowMs)
+  }
+  return { order: winner, reused: winner.orderId !== orderId }
+}
+
 async function resolveUid(db, openid) {
   const idRes = await db
     .collection('user_identities')
@@ -154,23 +233,20 @@ function createMembershipApi(deps) {
     const firstPurchaseUsed = await loadFirstPurchaseUsed(db, uid)
     const payFen = resolvePriceFen(sku, firstPurchaseUsed)
     const productId = resolveProductId(sku, firstPurchaseUsed)
-    // 硬拦：首购资格已用却仍落到首购道具（防脏数据/竞态）
+    const isFirstPurchase = !firstPurchaseUsed[sku]
+    // 硬拦：首购资格已用却仍落到首购道具（防脏数据）
     if (firstPurchaseUsed[sku] && isFirstPurchaseProduct(sku, productId)) {
       return { ok: false, error: 'FIRST_PURCHASE_USED' }
     }
-    const orderId = makeOrderId(uid, nowMs)
-    await db.collection('membership_orders').add({
-      data: {
-        orderId,
-        uid,
-        sku,
-        amountFen: payFen,
-        isFirstPurchase: !firstPurchaseUsed[sku],
-        productId,
-        status: 'created',
-        createdAt: new Date(nowMs).toISOString()
-      }
+    const picked = await pickOrCreatePendingOrder(db, {
+      uid,
+      sku,
+      payFen,
+      productId,
+      isFirstPurchase,
+      nowMs
     })
+    const orderId = picked.order.orderId
     const pay = xpay.buildVirtualPayParams({
       orderId,
       productId,
@@ -186,6 +262,7 @@ function createMembershipApi(deps) {
       orderId,
       payFen,
       productId,
+      reused: !!picked.reused,
       payment: pay.payment
     }
   }

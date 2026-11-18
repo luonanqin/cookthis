@@ -19,6 +19,7 @@ node --test cloudfunctions/membership/*.test.js
    - `vip_quarter_first` ¥9.9、`vip_quarter` ¥16.6
    - `vip_year_first` ¥39.9、`vip_year` ¥56.6
    下单按是否首购选对应 `productId`，`goodsPrice` 与道具标价一致。
+2. **防重复下单**：同一 `uid+sku` 只保留一笔 `created`；连点/重试复用原单并重签；价档变化或并发多插时关掉多余单（`closedReason: SUPERSEDED`）。云库建议复合索引：`uid` + `sku` + `status` + `createdAt`。
 2. 云开发控制台创建并上传云函数 `membership`（本目录；勿依赖 `../_shared`，helpers 已 vendored）。
 3. 云函数环境变量：
    - `XPAY_OFFER_ID` — 支付基础配置 offerId
