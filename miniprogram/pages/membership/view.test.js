@@ -146,7 +146,11 @@ describe('pay unavailable + poll', () => {
     assert.equal(PAY_UNAVAILABLE, '当前环境暂无法支付')
     assert.equal(orderErrorToast({ error: 'PAY_NOT_CONFIGURED' }, 'android'), PAY_UNAVAILABLE)
     assert.equal(orderErrorToast({ error: 'NO_SESSION_KEY' }, 'devtools'), PAY_UNAVAILABLE)
-    assert.equal(orderErrorToast({ error: 'BAD_SKU' }, 'android'), 'BAD_SKU')
+    assert.equal(orderErrorToast({ error: 'BAD_SKU' }, 'android'), '套餐无效')
+    assert.equal(
+      orderErrorToast({ error: 'FIRST_PURCHASE_USED' }, 'android'),
+      '该档首购已用过，请按页价购买'
+    )
     assert.equal(orderErrorToast({}, 'ios'), PAY_UNAVAILABLE)
     assert.equal(orderErrorToast(null, 'android'), '下单失败')
     assert.equal(payFailToast({ errCode: -2 }, false), '支付未完成')

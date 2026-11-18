@@ -55,6 +55,10 @@ function orderErrorToast(err, platform) {
   ) {
     return PAY_UNAVAILABLE
   }
+  if (code === 'FIRST_PURCHASE_USED') {
+    return '该档首购已用过，请按页价购买'
+  }
+  if (code === 'BAD_SKU') return '套餐无效'
   return (code && String(code)) || '下单失败'
 }
 
