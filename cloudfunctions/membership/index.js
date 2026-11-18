@@ -7,6 +7,7 @@ const {
   isMemberActive,
   resolvePriceFen,
   resolveProductId,
+  isFirstPurchaseProduct,
   buildSkuOffer,
   firstPurchaseUsedFromOrders
 } = require('./membershipLogic.js')
@@ -153,6 +154,10 @@ function createMembershipApi(deps) {
     const firstPurchaseUsed = await loadFirstPurchaseUsed(db, uid)
     const payFen = resolvePriceFen(sku, firstPurchaseUsed)
     const productId = resolveProductId(sku, firstPurchaseUsed)
+    // 硬拦：首购资格已用却仍落到首购道具（防脏数据/竞态）
+    if (firstPurchaseUsed[sku] && isFirstPurchaseProduct(sku, productId)) {
+      return { ok: false, error: 'FIRST_PURCHASE_USED' }
+    }
     const orderId = makeOrderId(uid, nowMs)
     await db.collection('membership_orders').add({
       data: {
@@ -180,6 +185,7 @@ function createMembershipApi(deps) {
       ok: true,
       orderId,
       payFen,
+      productId,
       payment: pay.payment
     }
   }

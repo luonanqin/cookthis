@@ -7,6 +7,7 @@ const {
   computeNewExpiry,
   resolvePriceFen,
   resolveProductId,
+  isFirstPurchaseProduct,
   buildSkuOffer,
   firstPurchaseUsedFromOrders
 } = require('./membershipLogic.js')
@@ -70,6 +71,13 @@ describe('membershipLogic', () => {
     assert.equal(resolveProductId('quarter', {}), 'vip_quarter_first')
     assert.equal(resolveProductId('year', { year: true }), 'vip_year')
     assert.equal(resolveProductId('nope', {}), null)
+  })
+
+  it('isFirstPurchaseProduct detects first-tier props', () => {
+    assert.equal(isFirstPurchaseProduct('month', 'vip_month_first'), true)
+    assert.equal(isFirstPurchaseProduct('month', 'vip_month'), false)
+    assert.equal(isFirstPurchaseProduct('month', ''), false)
+    assert.equal(isFirstPurchaseProduct('nope', 'vip_month_first'), false)
   })
 
   it('buildSkuOffer exposes pay and list yuan', () => {

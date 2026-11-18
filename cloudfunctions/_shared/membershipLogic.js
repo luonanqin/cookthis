@@ -46,6 +46,12 @@ function resolveProductId(sku, firstPurchaseUsedMap) {
     : item.productIdList
 }
 
+function isFirstPurchaseProduct(sku, productId) {
+  const item = getSku(sku)
+  if (!item || productId == null || productId === '') return false
+  return String(productId) === item.productIdFirst
+}
+
 function buildSkuOffer(sku, firstPurchaseUsedMap) {
   const item = getSku(sku)
   if (!item) return null
@@ -76,6 +82,7 @@ module.exports = {
   computeNewExpiry,
   resolvePriceFen,
   resolveProductId,
+  isFirstPurchaseProduct,
   buildSkuOffer,
   firstPurchaseUsedFromOrders
 }

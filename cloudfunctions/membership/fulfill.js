@@ -1,7 +1,7 @@
 'use strict'
 
 const { getSku } = require('./membershipCatalog.js')
-const { computeNewExpiry } = require('./membershipLogic.js')
+const { computeNewExpiry, isFirstPurchaseProduct } = require('./membershipLogic.js')
 
 function nowIso(nowMs) {
   return new Date(Number(nowMs)).toISOString()
@@ -85,6 +85,34 @@ async function markFirstPurchaseUsed(db, uid, sku) {
   })
 }
 
+/** 同档是否已有其它已支付订单（任意价都算用过该档首购资格） */
+async function hasOtherPaidSkuOrder(db, uid, sku, excludeOrderId) {
+  const res = await db
+    .collection('membership_orders')
+    .where({ uid, sku, status: 'paid' })
+    .limit(20)
+    .get()
+  for (const row of res.data || []) {
+    if (!row) continue
+    if (excludeOrderId && row.orderId === excludeOrderId) continue
+    return true
+  }
+  return false
+}
+
+async function closeOrderFirstPurchaseUsed(db, orderId) {
+  await db
+    .collection('membership_orders')
+    .where({ orderId, status: 'created' })
+    .update({
+      data: {
+        status: 'closed',
+        closedReason: 'FIRST_PURCHASE_USED',
+        closedAt: new Date().toISOString()
+      }
+    })
+}
+
 /**
  * Idempotent grant: created → paid + stack membership.
  * Claims the order with a conditional update (orderId + status=='created') and
@@ -102,8 +130,16 @@ async function fulfillPaidOrder({ db, orderId, wxPayment, nowMs }) {
     return { ok: false, error: 'BAD_ORDER_STATUS' }
   }
 
-  const existing = await loadMembership(db, order.uid)
   const item = getSku(order.sku)
+  if (
+    isFirstPurchaseProduct(order.sku, order.productId) &&
+    (await hasOtherPaidSkuOrder(db, order.uid, order.sku, order.orderId))
+  ) {
+    await closeOrderFirstPurchaseUsed(db, order.orderId)
+    return { ok: false, error: 'FIRST_PURCHASE_USED' }
+  }
+
+  const existing = await loadMembership(db, order.uid)
   const days = item ? item.days : 0
   const expectedExpiresAt = computeNewExpiry(existing && existing.expiresAt, days, ts)
   const paidAt = nowIso(ts)

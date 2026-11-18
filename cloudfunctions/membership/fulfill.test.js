@@ -20,7 +20,7 @@ async function seedCreatedOrder(db, extra) {
       sku: 'month',
       amountFen: 99,
       isFirstPurchase: true,
-      productId: 'vip_month',
+      productId: 'vip_month_first',
       status: 'created',
       createdAt: new Date(NOW - 1000).toISOString()
     },
@@ -83,7 +83,7 @@ describe('fulfillPaidOrder', () => {
         sku: 'quarter',
         amountFen: 1660,
         isFirstPurchase: true,
-        productId: 'vip_quarter',
+        productId: 'vip_quarter_first',
         status: 'created',
         createdAt: new Date(NOW + 1000).toISOString()
       }
@@ -169,6 +169,39 @@ describe('fulfillPaidOrder', () => {
     const missing = await fulfillPaidOrder({ db, orderId: 'does-not-exist', nowMs: NOW })
     assert.equal(missing.ok, false)
     assert.equal(missing.error, 'ORDER_NOT_FOUND')
+  })
+
+  it('rejects a second first-purchase prop for the same sku and closes the order', async () => {
+    const db = createMemoryDb()
+    await seedCreatedOrder(db)
+    const first = await fulfillPaidOrder({ db, orderId: 'morder001abc', nowMs: NOW })
+    assert.equal(first.ok, true)
+
+    await db.collection('membership_orders').add({
+      data: {
+        orderId: 'morder-dup-first',
+        uid: 'user-1',
+        sku: 'month',
+        amountFen: 99,
+        isFirstPurchase: true,
+        productId: 'vip_month_first',
+        status: 'created',
+        createdAt: new Date(NOW + 2000).toISOString()
+      }
+    })
+    const dup = await fulfillPaidOrder({
+      db,
+      orderId: 'morder-dup-first',
+      nowMs: NOW + 3000
+    })
+    assert.equal(dup.ok, false)
+    assert.equal(dup.error, 'FIRST_PURCHASE_USED')
+    const closed = (
+      await db.collection('membership_orders').where({ orderId: 'morder-dup-first' }).limit(1).get()
+    ).data[0]
+    assert.equal(closed.status, 'closed')
+    assert.equal(closed.closedReason, 'FIRST_PURCHASE_USED')
+    assert.equal(first.membership.expiresAt, computeNewExpiry(null, 31, NOW))
   })
 
   it('does not stack when a concurrent-style fulfill loses the created→paid claim', async () => {

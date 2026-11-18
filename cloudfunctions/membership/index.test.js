@@ -87,6 +87,33 @@ describe('createOrder', () => {
     assert.deepEqual(res, { ok: false, error: 'BAD_SKU' })
   })
 
+  it('after a paid month sku, createOrder uses list productId and list price', async () => {
+    const db = createMemoryDb()
+    await seedUser(db)
+    await db.collection('membership_orders').add({
+      data: {
+        orderId: 'm-paid-month',
+        uid: 'user-1',
+        sku: 'month',
+        amountFen: 99,
+        isFirstPurchase: true,
+        productId: 'vip_month_first',
+        status: 'paid',
+        createdAt: new Date(NOW - 1000).toISOString(),
+        paidAt: new Date(NOW - 500).toISOString()
+      }
+    })
+    const res = await api(db).createOrder('user-1', 'month')
+    assert.equal(res.ok, true)
+    assert.equal(res.payFen, 660)
+    assert.equal(res.productId, SKUS.month.productIdList)
+    const orders = (await db.collection('membership_orders').where({ uid: 'user-1' }).get()).data
+    const created = orders.filter((o) => o.status === 'created')
+    assert.equal(created.length, 1)
+    assert.equal(created[0].productId, 'vip_month')
+    assert.equal(created[0].isFirstPurchase, false)
+  })
+
   it('returns a clear error when sessionKey is empty and does not write an order', async () => {
     const db = createMemoryDb()
     await seedUser(db)
