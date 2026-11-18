@@ -6,12 +6,15 @@ const { tapFeedback } = require('../../utils/haptic.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 const {
   NOTICE_ITEMS,
+  ORDER_CANCELLED_TOAST,
   PAY_UNAVAILABLE,
   applyStatus,
   isIosPlatform,
   orderErrorToast,
   payFailToast,
-  shouldContinuePoll
+  pendingOtherSkuCopy,
+  shouldContinuePoll,
+  tickOrderRemains
 } = require('./view.js')
 
 function readNoticeAcked() {
@@ -44,6 +47,7 @@ Page({
     from: 'direct',
     status: null,
     offers: [],
+    orders: [],
     selectedSku: 'month',
     busy: false,
     showNotice: false,
@@ -61,7 +65,9 @@ Page({
 
   _platform: '',
   _pollTimer: null,
+  _countdownTimer: null,
   _loadGen: 0,
+  _ordersAppliedAt: 0,
 
   onLoad(q) {
     const from = (q && q.from) || 'direct'
@@ -80,11 +86,16 @@ Page({
     this._loadStatus()
   },
 
+  onHide() {
+    this._stopCountdown()
+  },
+
   onUnload() {
     if (this._pollTimer) {
       clearTimeout(this._pollTimer)
       this._pollTimer = null
     }
+    this._stopCountdown()
   },
 
   noop() {},
@@ -151,43 +162,161 @@ Page({
     }
     tapFeedback('medium')
     track('membership_pay_click', { sku, from: this.data.from })
+    this._startCreatePay(sku, false)
+  },
+
+  onPayOrder(e) {
+    if (this.data.busy) return
+    const orderId = e.currentTarget.dataset.orderId
+    if (!orderId) return
+    if (!this.data.noticeAcked) {
+      this.setData({ showNotice: true })
+      return
+    }
+    tapFeedback('medium')
     this.setData({ busy: true })
     membership
-      .createOrder(sku)
+      .payOrder(orderId)
       .then((res) => {
-        const p = res && res.payment
-        if (!p || typeof wx.requestVirtualPayment !== 'function') {
-          this.setData({ busy: false })
-          wx.showToast({ title: PAY_UNAVAILABLE, icon: 'none' })
-          return
-        }
-        wx.requestVirtualPayment({
-          signData:
-            typeof p.signData === 'string' ? p.signData : JSON.stringify(p.signData),
-          paySig: p.paySig,
-          signature: p.signature,
-          mode: 'short_series_goods',
-          success: () => {
-            track('membership_pay_success', { sku })
-            // 不授会员；轮询 refresh 1～3 次
-            this._pollRefresh()
-          },
-          fail: (e) => {
-            this.setData({ busy: false })
-            if (e && e.errCode === -2) track('membership_pay_cancel', { sku })
-            wx.showToast({
-              title: payFailToast(e, this.data.payUnavailable),
-              icon: 'none'
-            })
-          }
-        })
+        this._launchPayment(res, (res && res.sku) || '')
       })
       .catch((err) => {
+        this._handleOrderActionError(err)
+      })
+  },
+
+  onCancelOrder(e) {
+    if (this.data.busy) return
+    const orderId = e.currentTarget.dataset.orderId
+    if (!orderId) return
+    tapFeedback('light')
+    wx.showModal({
+      title: '取消订单',
+      content: '确定取消这笔待支付订单？',
+      confirmText: '取消订单',
+      cancelText: '再想想',
+      success: (r) => {
+        if (!r.confirm) return
+        this.setData({ busy: true })
+        membership
+          .cancelOrder(orderId)
+          .then(() => this._reloadAfterOrderChange())
+          .catch((err) => {
+            this._handleOrderActionError(err)
+          })
+      }
+    })
+  },
+
+  _startCreatePay(sku, replacePending) {
+    this.setData({ busy: true })
+    membership
+      .createOrder(sku, replacePending ? { replacePending: true } : undefined)
+      .then((res) => {
+        this._launchPayment(res, sku)
+      })
+      .catch((err) => {
+        if (err && err.error === 'PENDING_OTHER_SKU' && !replacePending) {
+          this.setData({ busy: false })
+          this._confirmReplacePending(sku, err.pending)
+          return
+        }
         this.setData({ busy: false })
+        if (err && err.error === 'ORDER_EXPIRED') {
+          this._toastExpiredAndReload()
+          return
+        }
         wx.showToast({
           title: orderErrorToast(err, this._platform),
           icon: 'none'
         })
+      })
+  },
+
+  _confirmReplacePending(sku, pending) {
+    wx.showModal({
+      title: '已有待支付订单',
+      content: pendingOtherSkuCopy(pending, sku),
+      confirmText: '换档下单',
+      cancelText: '去支付原单',
+      success: (r) => {
+        if (r.confirm) {
+          this._startCreatePay(sku, true)
+          return
+        }
+        if (pending && pending.orderId) {
+          this.setData({ busy: true })
+          membership
+            .payOrder(pending.orderId)
+            .then((res) => {
+              this._launchPayment(res, pending.sku || '')
+            })
+            .catch((err) => {
+              this._handleOrderActionError(err)
+            })
+        }
+      }
+    })
+  },
+
+  _launchPayment(res, sku) {
+    const p = res && res.payment
+    if (!p || typeof wx.requestVirtualPayment !== 'function') {
+      this.setData({ busy: false })
+      wx.showToast({ title: PAY_UNAVAILABLE, icon: 'none' })
+      this._loadStatus()
+      return
+    }
+    wx.requestVirtualPayment({
+      signData:
+        typeof p.signData === 'string' ? p.signData : JSON.stringify(p.signData),
+      paySig: p.paySig,
+      signature: p.signature,
+      mode: 'short_series_goods',
+      success: () => {
+        track('membership_pay_success', { sku: sku || '' })
+        this._pollRefresh()
+      },
+      fail: (e) => {
+        this.setData({ busy: false })
+        if (e && e.errCode === -2) track('membership_pay_cancel', { sku: sku || '' })
+        wx.showToast({
+          title: payFailToast(e, this.data.payUnavailable),
+          icon: 'none'
+        })
+        this._loadStatus()
+      }
+    })
+  },
+
+  _handleOrderActionError(err) {
+    this.setData({ busy: false })
+    if (err && err.error === 'ORDER_EXPIRED') {
+      this._toastExpiredAndReload()
+      return
+    }
+    wx.showToast({
+      title: orderErrorToast(err, this._platform),
+      icon: 'none'
+    })
+    this._loadStatus()
+  },
+
+  _toastExpiredAndReload() {
+    wx.showToast({ title: ORDER_CANCELLED_TOAST, icon: 'none' })
+    this._loadStatus()
+  },
+
+  _reloadAfterOrderChange() {
+    membership
+      .getStatus()
+      .then((res) => {
+        this._applyStatus(res)
+        this.setData({ busy: false })
+      })
+      .catch(() => {
+        this.setData({ busy: false })
+        this._loadStatus()
       })
   },
 
@@ -210,7 +339,38 @@ Page({
   },
 
   _applyStatus(res) {
-    this.setData(applyStatus(res, this.data.selectedSku, this.data.buyExpanded))
+    const next = applyStatus(
+      res,
+      this.data.selectedSku,
+      this.data.buyExpanded,
+      Date.now()
+    )
+    this._ordersAppliedAt = next._ordersAppliedAt || Date.now()
+    this.setData(next)
+    this._startCountdown()
+  },
+
+  _startCountdown() {
+    this._stopCountdown()
+    const hasActive = (this.data.orders || []).some((o) => o && o.canPay)
+    if (!hasActive) return
+    this._countdownTimer = setInterval(() => {
+      const appliedAt = this._ordersAppliedAt || Date.now()
+      const next = tickOrderRemains(this.data.orders, appliedAt, Date.now())
+      const still = next.some((o) => o && o.canPay && o.remainMsLocal > 0)
+      this.setData({ orders: next })
+      if (!still) {
+        this._stopCountdown()
+        this._loadStatus()
+      }
+    }, 1000)
+  },
+
+  _stopCountdown() {
+    if (this._countdownTimer) {
+      clearInterval(this._countdownTimer)
+      this._countdownTimer = null
+    }
   },
 
   _pollRefresh() {

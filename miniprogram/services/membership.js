@@ -8,8 +8,18 @@ function getStatus() {
   return callCloud('membership', { action: 'getStatus' })
 }
 
-function createOrder(sku) {
-  return callCloud('membership', { action: 'createOrder', sku })
+function createOrder(sku, opts) {
+  const data = { action: 'createOrder', sku }
+  if (opts && opts.replacePending) data.replacePending = true
+  return callCloud('membership', data)
+}
+
+function payOrder(orderId) {
+  return callCloud('membership', { action: 'payOrder', orderId })
+}
+
+function cancelOrder(orderId) {
+  return callCloud('membership', { action: 'cancelOrder', orderId })
 }
 
 function refresh() {
@@ -43,6 +53,8 @@ function setMembershipLite(status) {
 module.exports = {
   getStatus,
   createOrder,
+  payOrder,
+  cancelOrder,
   refresh,
   memberStatusLabel,
   getMembershipLite,

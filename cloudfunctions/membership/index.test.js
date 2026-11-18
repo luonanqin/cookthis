@@ -104,6 +104,50 @@ describe('createOrder', () => {
     assert.equal(created[0].orderId, first.orderId)
   })
 
+  it('returns PENDING_OTHER_SKU when another tier is unpaid; replacePending closes and creates', async () => {
+    const db = createMemoryDb()
+    await seedUser(db)
+    const month = await api(db).createOrder('user-1', 'month')
+    assert.equal(month.ok, true)
+    const blocked = await api(db).createOrder('user-1', 'quarter')
+    assert.equal(blocked.ok, false)
+    assert.equal(blocked.error, 'PENDING_OTHER_SKU')
+    assert.equal(blocked.pending.sku, 'month')
+    const replaced = await api(db).createOrder('user-1', 'quarter', { replacePending: true })
+    assert.equal(replaced.ok, true)
+    assert.equal(replaced.productId, 'vip_quarter_first')
+    const monthRow = (
+      await db.collection('membership_orders').where({ orderId: month.orderId }).limit(1).get()
+    ).data[0]
+    assert.equal(monthRow.status, 'closed')
+    assert.equal(monthRow.closedReason, 'SUPERSEDED')
+  })
+
+  it('cancelOrder and payOrder reject expired orders with ORDER_EXPIRED', async () => {
+    const db = createMemoryDb()
+    await seedUser(db)
+    const created = await api(db).createOrder('user-1', 'month')
+    const late = createMembershipApi({
+      db,
+      xpay,
+      env: PAY_ENV,
+      nowMs: NOW + 6 * 60 * 1000,
+      openid: 'oTEST',
+      sessionKey: SESSION_KEY
+    })
+    const cancelled = await late.cancelOrder('user-1', created.orderId)
+    assert.equal(cancelled.ok, false)
+    assert.equal(cancelled.error, 'ORDER_EXPIRED')
+    const pay = await late.payOrder('user-1', created.orderId)
+    assert.equal(pay.ok, false)
+    assert.equal(pay.error, 'ORDER_EXPIRED')
+    const row = (
+      await db.collection('membership_orders').where({ orderId: created.orderId }).limit(1).get()
+    ).data[0]
+    assert.equal(row.status, 'closed')
+    assert.equal(row.closedReason, 'EXPIRED')
+  })
+
   it('closes a stale first-purchase pending when the sku must use list price', async () => {
     const db = createMemoryDb()
     await seedUser(db)

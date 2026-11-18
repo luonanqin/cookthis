@@ -1,7 +1,7 @@
 'use strict'
 
 // Vendored: keep in sync with cloudfunctions/_shared/membershipCatalog.js
-const { SKUS, getSku } = require('./membershipCatalog.js')
+const { SKUS, getSku, formatYuanFromFen } = require('./membershipCatalog.js')
 // Vendored: keep in sync with cloudfunctions/_shared/membershipLogic.js
 const {
   isMemberActive,
@@ -19,8 +19,19 @@ const {
 } = require('./swapQuota.js')
 const defaultXpay = require('./xpay.js')
 const { fulfillPaidOrder, loadMembership } = require('./fulfill.js')
-
+const {
+  PAY_TTL_MS,
+  ORDER_LOCK_MS,
+  ORDERS_LIST_LIMIT,
+  payExpiresAtIso,
+  isCreatedPayExpired,
+  isActiveCreated,
+  selectOrdersForDisplay,
+  remainMs,
+  toMs: orderToMs
+} = require('./orderLifecycle.js')
 const SKU_ORDER = Object.keys(SKUS)
+const TIER_LABEL = { month: '月卡', quarter: '季卡', year: '年卡' }
 
 function toIso(value) {
   if (value == null || value === '') return null
@@ -63,13 +74,22 @@ function nowIsoMs(nowMs) {
   return new Date(Number.isFinite(Number(nowMs)) ? Number(nowMs) : Date.now()).toISOString()
 }
 
-/** 同 uid+sku 未支付单：按 createdAt 升序（最早优先复用） */
-async function listCreatedOrdersForSku(db, uid, sku) {
+async function listCreatedOrders(db, uid) {
   const res = await db
     .collection('membership_orders')
-    .where({ uid, sku, status: 'created' })
+    .where({ uid, status: 'created' })
     .orderBy('createdAt', 'asc')
     .limit(20)
+    .get()
+  return (res.data || []).slice()
+}
+
+async function listRecentOrders(db, uid) {
+  const res = await db
+    .collection('membership_orders')
+    .where({ uid })
+    .orderBy('createdAt', 'desc')
+    .limit(30)
     .get()
   return (res.data || []).slice()
 }
@@ -88,54 +108,99 @@ async function closeCreatedOrder(db, orderId, reason, nowMs) {
     })
 }
 
-/**
- * 业界常见：同一 uid+sku 只保留一笔可支付的 created。
- * - 复用同 productId+金额的最早单（防连点/重试重复下单）
- * - 关掉其它 created（含价档变化后的旧首购单、并发多插）
- */
-async function pickOrCreatePendingOrder(db, { uid, sku, payFen, productId, isFirstPurchase, nowMs }) {
-  const pending = await listCreatedOrdersForSku(db, uid, sku)
-  let keep = null
+/** 懒关闭：过期 created → EXPIRED */
+async function lazyExpireCreatedOrders(db, uid, nowMs) {
+  const pending = await listCreatedOrders(db, uid)
+  let closed = 0
   for (const row of pending) {
-    if (!row) continue
-    if (row.productId === productId && Number(row.amountFen) === Number(payFen)) {
-      keep = row
-      break
-    }
+    if (!isCreatedPayExpired(row, nowMs)) continue
+    await closeCreatedOrder(db, row.orderId, 'EXPIRED', nowMs)
+    closed += 1
   }
-  for (const row of pending) {
-    if (!row || !row.orderId) continue
-    if (keep && row.orderId === keep.orderId) continue
-    await closeCreatedOrder(db, row.orderId, 'SUPERSEDED', nowMs)
-  }
-  if (keep) {
-    return { order: keep, reused: true }
-  }
-  const orderId = makeOrderId(uid, nowMs)
-  const row = {
-    orderId,
-    uid,
-    sku,
-    amountFen: payFen,
-    isFirstPurchase: !!isFirstPurchase,
-    productId,
-    status: 'created',
-    createdAt: nowIsoMs(nowMs)
-  }
-  await db.collection('membership_orders').add({ data: row })
+  return closed
+}
 
-  // 并发双插收敛：再扫一遍，只留最早匹配单
-  const again = await listCreatedOrdersForSku(db, uid, sku)
-  const matches = again.filter(
-    (o) => o && o.productId === productId && Number(o.amountFen) === Number(payFen)
-  )
-  const winner = matches[0] || row
-  for (const o of again) {
-    if (!o || !o.orderId) continue
-    if (o.orderId === winner.orderId) continue
-    await closeCreatedOrder(db, o.orderId, 'SUPERSEDED', nowMs)
+function summarizePending(order, nowMs) {
+  if (!order) return null
+  return {
+    orderId: order.orderId,
+    sku: order.sku,
+    amountFen: order.amountFen,
+    productId: order.productId,
+    payExpiresAt: order.payExpiresAt || null,
+    remainMs: remainMs(order, nowMs),
+    title: TIER_LABEL[order.sku] || order.sku,
+    labelYuan: formatYuanFromFen(order.amountFen)
   }
-  return { order: winner, reused: winner.orderId !== orderId }
+}
+
+function decorateOrderRow(order, nowMs) {
+  const active = isActiveCreated(order, nowMs)
+  return {
+    orderId: order.orderId,
+    sku: order.sku,
+    amountFen: order.amountFen,
+    status: order.status,
+    isFirstPurchase: !!order.isFirstPurchase,
+    productId: order.productId,
+    createdAt: order.createdAt || null,
+    paidAt: order.paidAt || null,
+    payExpiresAt: order.payExpiresAt || null,
+    title: TIER_LABEL[order.sku] || order.sku,
+    labelYuan: formatYuanFromFen(order.amountFen),
+    canPay: active,
+    canCancel: active,
+    remainMs: active ? remainMs(order, nowMs) : 0
+  }
+}
+
+async function findActivePending(db, uid, nowMs) {
+  const pending = await listCreatedOrders(db, uid)
+  for (const row of pending) {
+    if (isActiveCreated(row, nowMs)) return row
+  }
+  return null
+}
+
+async function acquireOrderLock(db, uid, nowMs) {
+  const user = await loadUser(db, uid)
+  if (!user || !user._id) return { ok: false, error: 'NO_USER' }
+  const until = orderToMs(user.orderLockUntil)
+  if (Number.isFinite(until) && until > nowMs) {
+    return { ok: false, error: 'ORDER_BUSY' }
+  }
+  await db.collection('users').doc(user._id).update({
+    data: { orderLockUntil: new Date(nowMs + ORDER_LOCK_MS).toISOString() }
+  })
+  return { ok: true, userId: user._id }
+}
+
+async function releaseOrderLock(db, userId) {
+  if (!userId) return
+  try {
+    await db.collection('users').doc(userId).update({
+      data: { orderLockUntil: null }
+    })
+  } catch (err) {
+    console.error('membership releaseOrderLock failed', err)
+  }
+}
+
+async function buildPaymentForOrder(xpay, { order, openid, sessionKey, env }) {
+  return xpay.buildVirtualPayParams({
+    orderId: order.orderId,
+    productId: order.productId,
+    goodsPrice: order.amountFen,
+    openid,
+    attach: order.orderId,
+    sessionKey,
+    env
+  })
+}
+
+async function insertCreatedOrder(db, row) {
+  await db.collection('membership_orders').add({ data: row })
+  return row
 }
 
 async function resolveUid(db, openid) {
@@ -199,6 +264,7 @@ function createMembershipApi(deps) {
   const sessionKey = deps.sessionKey
 
   async function getStatus(uid) {
+    await lazyExpireCreatedOrders(db, uid, nowMs)
     const membership = await loadMembership(db, uid)
     const user = await loadUser(db, uid)
     const firstPurchaseUsed = await loadFirstPurchaseUsed(db, uid)
@@ -208,6 +274,11 @@ function createMembershipApi(deps) {
     const swapDaily = normalizeSwapDaily(user && user.swapDaily, nowMs)
     const expiresAt = membership ? toIso(membership.expiresAt) : null
     const offers = SKU_ORDER.map((sku) => buildSkuOffer(sku, firstPurchaseUsed))
+    const recent = await listRecentOrders(db, uid)
+    const orders = selectOrdersForDisplay(recent, nowMs, ORDERS_LIST_LIMIT).map((row) =>
+      decorateOrderRow(row, nowMs)
+    )
+    const pending = await findActivePending(db, uid, nowMs)
     return {
       ok: true,
       isMember,
@@ -220,54 +291,171 @@ function createMembershipApi(deps) {
         rewardExtra: swapDaily.rewardExtra
       },
       offers,
+      orders,
+      pendingOrder: summarizePending(pending, nowMs),
+      serverNow: nowMs,
+      payTtlMs: PAY_TTL_MS,
       noticeAckRequired: true
     }
   }
 
-  async function createOrder(uid, sku) {
+  async function createOrder(uid, sku, opts) {
     const item = getSku(sku)
     if (!item) return { ok: false, error: 'BAD_SKU' }
     if (!xpay.isPayConfigured(env)) return { ok: false, error: 'PAY_NOT_CONFIGURED' }
     if (!String(sessionKey || '').trim()) return { ok: false, error: 'NO_SESSION_KEY' }
 
-    const firstPurchaseUsed = await loadFirstPurchaseUsed(db, uid)
-    const payFen = resolvePriceFen(sku, firstPurchaseUsed)
-    const productId = resolveProductId(sku, firstPurchaseUsed)
-    const isFirstPurchase = !firstPurchaseUsed[sku]
-    // 硬拦：首购资格已用却仍落到首购道具（防脏数据）
-    if (firstPurchaseUsed[sku] && isFirstPurchaseProduct(sku, productId)) {
-      return { ok: false, error: 'FIRST_PURCHASE_USED' }
+    const replacePending = !!(opts && opts.replacePending)
+    const lock = await acquireOrderLock(db, uid, nowMs)
+    if (!lock.ok) return lock
+    try {
+      await lazyExpireCreatedOrders(db, uid, nowMs)
+      const firstPurchaseUsed = await loadFirstPurchaseUsed(db, uid)
+      const payFen = resolvePriceFen(sku, firstPurchaseUsed)
+      const productId = resolveProductId(sku, firstPurchaseUsed)
+      const isFirstPurchase = !firstPurchaseUsed[sku]
+      if (firstPurchaseUsed[sku] && isFirstPurchaseProduct(sku, productId)) {
+        return { ok: false, error: 'FIRST_PURCHASE_USED' }
+      }
+
+      const pending = await findActivePending(db, uid, nowMs)
+      if (pending) {
+        if (pending.sku === sku) {
+          // 同档：复用并重签
+          if (
+            pending.productId !== productId ||
+            Number(pending.amountFen) !== Number(payFen)
+          ) {
+            await closeCreatedOrder(db, pending.orderId, 'SUPERSEDED', nowMs)
+          } else {
+            const pay = await buildPaymentForOrder(xpay, {
+              order: pending,
+              openid,
+              sessionKey,
+              env
+            })
+            if (!pay.ok) return pay
+            return {
+              ok: true,
+              orderId: pending.orderId,
+              payFen: pending.amountFen,
+              productId: pending.productId,
+              reused: true,
+              payExpiresAt: pending.payExpiresAt,
+              payment: pay.payment
+            }
+          }
+        } else if (!replacePending) {
+          return {
+            ok: false,
+            error: 'PENDING_OTHER_SKU',
+            pending: summarizePending(pending, nowMs)
+          }
+        } else {
+          await closeCreatedOrder(db, pending.orderId, 'SUPERSEDED', nowMs)
+        }
+      }
+
+      // 关掉本档残留 created（价档变化等）
+      const leftover = await listCreatedOrders(db, uid)
+      for (const row of leftover) {
+        if (row && row.sku === sku) {
+          await closeCreatedOrder(db, row.orderId, 'SUPERSEDED', nowMs)
+        }
+      }
+
+      const createdAt = nowIsoMs(nowMs)
+      const row = {
+        orderId: makeOrderId(uid, nowMs),
+        uid,
+        sku,
+        amountFen: payFen,
+        isFirstPurchase,
+        productId,
+        status: 'created',
+        createdAt,
+        payExpiresAt: payExpiresAtIso(nowMs, nowMs)
+      }
+      await insertCreatedOrder(db, row)
+
+      // 并发收敛：全局只留一笔 active created（最早）
+      const allCreated = await listCreatedOrders(db, uid)
+      const actives = allCreated.filter((o) => isActiveCreated(o, nowMs))
+      const winner =
+        actives.find((o) => o.orderId === row.orderId) || actives[0] || row
+      for (const o of actives) {
+        if (o.orderId === winner.orderId) continue
+        await closeCreatedOrder(db, o.orderId, 'SUPERSEDED', nowMs)
+      }
+
+      const pay = await buildPaymentForOrder(xpay, {
+        order: winner,
+        openid,
+        sessionKey,
+        env
+      })
+      if (!pay.ok) return pay
+      return {
+        ok: true,
+        orderId: winner.orderId,
+        payFen: winner.amountFen,
+        productId: winner.productId,
+        reused: winner.orderId !== row.orderId,
+        payExpiresAt: winner.payExpiresAt,
+        payment: pay.payment
+      }
+    } finally {
+      await releaseOrderLock(db, lock.userId)
     }
-    const picked = await pickOrCreatePendingOrder(db, {
-      uid,
-      sku,
-      payFen,
-      productId,
-      isFirstPurchase,
-      nowMs
-    })
-    const orderId = picked.order.orderId
-    const pay = xpay.buildVirtualPayParams({
-      orderId,
-      productId,
-      goodsPrice: payFen,
+  }
+
+  async function payOrder(uid, orderId) {
+    if (!String(sessionKey || '').trim()) return { ok: false, error: 'NO_SESSION_KEY' }
+    if (!xpay.isPayConfigured(env)) return { ok: false, error: 'PAY_NOT_CONFIGURED' }
+    await lazyExpireCreatedOrders(db, uid, nowMs)
+    const res = await db
+      .collection('membership_orders')
+      .where({ orderId, uid })
+      .limit(1)
+      .get()
+    const order = (res.data && res.data[0]) || null
+    if (!order || order.status !== 'created' || isCreatedPayExpired(order, nowMs)) {
+      return { ok: false, error: 'ORDER_EXPIRED' }
+    }
+    const pay = await buildPaymentForOrder(xpay, {
+      order,
       openid,
-      attach: orderId,
       sessionKey,
       env
     })
     if (!pay.ok) return pay
     return {
       ok: true,
-      orderId,
-      payFen,
-      productId,
-      reused: !!picked.reused,
+      orderId: order.orderId,
+      payFen: order.amountFen,
+      productId: order.productId,
+      payExpiresAt: order.payExpiresAt,
       payment: pay.payment
     }
   }
 
+  async function cancelOrder(uid, orderId) {
+    await lazyExpireCreatedOrders(db, uid, nowMs)
+    const res = await db
+      .collection('membership_orders')
+      .where({ orderId, uid })
+      .limit(1)
+      .get()
+    const order = (res.data && res.data[0]) || null
+    if (!order || order.status !== 'created' || isCreatedPayExpired(order, nowMs)) {
+      return { ok: false, error: 'ORDER_EXPIRED' }
+    }
+    await closeCreatedOrder(db, orderId, 'USER_CANCEL', nowMs)
+    return { ok: true }
+  }
+
   async function refresh(uid) {
+    await lazyExpireCreatedOrders(db, uid, nowMs)
     const res = await db
       .collection('membership_orders')
       .where({ uid, status: 'created' })
@@ -302,6 +490,7 @@ function createMembershipApi(deps) {
     if (!item) return { ok: false, error: 'BAD_SKU' }
     const firstPurchaseUsed = await loadFirstPurchaseUsed(db, uid)
     const orderId = makeOrderId(uid, nowMs)
+    const createdAt = nowIsoMs(nowMs)
     await db.collection('membership_orders').add({
       data: {
         orderId,
@@ -311,7 +500,8 @@ function createMembershipApi(deps) {
         isFirstPurchase: !firstPurchaseUsed[code],
         productId: resolveProductId(code, firstPurchaseUsed),
         status: 'created',
-        createdAt: new Date(nowMs).toISOString(),
+        createdAt,
+        payExpiresAt: payExpiresAtIso(nowMs, nowMs),
         dev: true
       }
     })
@@ -323,7 +513,7 @@ function createMembershipApi(deps) {
     })
   }
 
-  return { getStatus, createOrder, refresh, devGrant }
+  return { getStatus, createOrder, payOrder, cancelOrder, refresh, devGrant }
 }
 
 function isClientSpoofedXpayNotify(wxContext) {
@@ -372,7 +562,13 @@ async function handleMain(event, ctx) {
   })
   const action = eventObj.action || ''
   if (action === 'getStatus') return api.getStatus(uid)
-  if (action === 'createOrder') return api.createOrder(uid, eventObj.sku)
+  if (action === 'createOrder') {
+    return api.createOrder(uid, eventObj.sku, {
+      replacePending: !!eventObj.replacePending
+    })
+  }
+  if (action === 'payOrder') return api.payOrder(uid, eventObj.orderId)
+  if (action === 'cancelOrder') return api.cancelOrder(uid, eventObj.orderId)
   if (action === 'refresh') return api.refresh(uid)
   if (action === 'devGrant') return api.devGrant(uid, eventObj.sku)
   return { ok: false, error: 'UNKNOWN_ACTION' }

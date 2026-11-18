@@ -60,6 +60,37 @@
       </view>
     </view>
 
+    <view wx:if="{{orders.length}}" class="surface-card orders">
+      <view class="section-label">订单</view>
+      <view
+        wx:for="{{orders}}"
+        wx:key="orderId"
+        class="order-row"
+      >
+        <view class="order-main">
+          <view class="order-title-row">
+            <text class="order-title">{{item.title}}</text>
+            <text class="order-status">{{item.statusLabel}}</text>
+          </view>
+          <text class="order-meta">¥{{item.labelYuan}}{{item.canPay && item.remainLabel ? ' · 剩余 ' + item.remainLabel : ''}}</text>
+        </view>
+        <view wx:if="{{item.canPay}}" class="order-actions">
+          <view
+            class="order-action ghost"
+            data-order-id="{{item.orderId}}"
+            hover-class="tap-hover"
+            bindtap="onCancelOrder"
+          >取消</view>
+          <view
+            class="order-action primary"
+            data-order-id="{{item.orderId}}"
+            hover-class="tap-hover"
+            bindtap="onPayOrder"
+          >去支付</view>
+        </view>
+      </view>
+    </view>
+
     <view wx:if="{{isMember}}" class="surface-card member-info">
       <view class="section-label">会员信息</view>
       <view class="info-row">

@@ -5,15 +5,20 @@ const assert = require('node:assert/strict')
 const {
   BENEFITS,
   NOTICE_ITEMS,
+  ORDER_CANCELLED_TOAST,
   PAY_UNAVAILABLE,
   POLL_MAX,
   applyStatus,
   decorateOffers,
+  decorateOrders,
+  formatRemain,
   isIosPlatform,
   orderErrorToast,
   payFailToast,
+  pendingOtherSkuCopy,
   shouldContinuePoll,
   statusHeadline,
+  tickOrderRemains,
   usageText
 } = require('./view.js')
 
@@ -137,6 +142,68 @@ describe('decorateOffers / applyStatus', () => {
     )
     assert.equal(next.buyExpanded, true)
   })
+
+  it('decorates payable orders with countdown labels', () => {
+    const next = applyStatus(
+      {
+        isMember: false,
+        offers,
+        orders: [
+          {
+            orderId: 'o1',
+            sku: 'month',
+            title: '月卡',
+            labelYuan: '0.99',
+            status: 'created',
+            canPay: true,
+            canCancel: true,
+            remainMs: 125000
+          },
+          {
+            orderId: 'o2',
+            sku: 'quarter',
+            title: '季卡',
+            labelYuan: '16.6',
+            status: 'paid',
+            canPay: false,
+            canCancel: false,
+            remainMs: 0
+          }
+        ],
+        serverNow: 1_000_000
+      },
+      'month',
+      false,
+      1_000_000
+    )
+    assert.equal(next.orders.length, 2)
+    assert.equal(next.orders[0].remainLabel, '2:05')
+    assert.equal(next.orders[0].statusLabel, '待支付')
+    assert.equal(next.orders[1].statusLabel, '已支付')
+    assert.equal(next.orders[1].remainLabel, '')
+  })
+})
+
+describe('order countdown + pending copy', () => {
+  it('formats remain and ticks down locally', () => {
+    assert.equal(formatRemain(125000), '2:05')
+    assert.equal(formatRemain(0), '0:00')
+    const rows = decorateOrders([
+      { orderId: 'a', status: 'created', canPay: true, remainMs: 61000 }
+    ])
+    assert.equal(rows[0].remainLabel, '1:01')
+    const ticked = tickOrderRemains(rows, 1000, 1000 + 2000)
+    assert.equal(ticked[0].remainMsLocal, 59000)
+    assert.equal(ticked[0].remainLabel, '0:59')
+    assert.equal(ticked[0].canPay, true)
+  })
+
+  it('explains replacing a pending other-sku order', () => {
+    assert.match(
+      pendingOtherSkuCopy({ title: '月卡', labelYuan: '0.99', sku: 'month' }, 'quarter'),
+      /待支付的月卡（¥0\.99）.+下单季卡/
+    )
+  })
 })
 
 describe('pay unavailable + poll', () => {
@@ -144,9 +211,12 @@ describe('pay unavailable + poll', () => {
     assert.equal(isIosPlatform('ios'), true)
     assert.equal(isIosPlatform('android'), false)
     assert.equal(PAY_UNAVAILABLE, '当前环境暂无法支付')
+    assert.equal(ORDER_CANCELLED_TOAST, '订单已取消，请重新下单')
     assert.equal(orderErrorToast({ error: 'PAY_NOT_CONFIGURED' }, 'android'), PAY_UNAVAILABLE)
     assert.equal(orderErrorToast({ error: 'NO_SESSION_KEY' }, 'devtools'), PAY_UNAVAILABLE)
     assert.equal(orderErrorToast({ error: 'BAD_SKU' }, 'android'), '套餐无效')
+    assert.equal(orderErrorToast({ error: 'ORDER_EXPIRED' }, 'android'), ORDER_CANCELLED_TOAST)
+    assert.equal(orderErrorToast({ error: 'ORDER_BUSY' }, 'android'), '请稍后再试')
     assert.equal(
       orderErrorToast({ error: 'FIRST_PURCHASE_USED' }, 'android'),
       '该档首购已用过，请按页价购买'
