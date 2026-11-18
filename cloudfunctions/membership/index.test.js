@@ -6,14 +6,17 @@ const { createMemoryDb } = require('./fakeDb.js')
 const { createMembershipApi, handleMain } = require('./index.js')
 const xpay = require('./xpay.js')
 const { SKUS } = require('./membershipCatalog.js')
+const { computeNewExpiry } = require('./membershipLogic.js')
 
 const NOW = Date.parse('2026-11-18T04:00:00.000Z')
+const DAY_MS = 86400000
 const SESSION_KEY = '9hAb/NEYUlkaMBEsmFgzig=='
 const PAY_ENV = {
   XPAY_OFFER_ID: '123',
   XPAY_APP_KEY: '12345',
   XPAY_ENV: '0'
 }
+const DEV_ENV = Object.assign({ MEMBERSHIP_ALLOW_DEV_GRANT: '1' }, PAY_ENV)
 
 async function seedUser(db) {
   await db.collection('user_identities').add({
@@ -340,23 +343,77 @@ describe('push deliver notify', () => {
   })
 })
 
-describe('devGrant', () => {
-  it('is forbidden unless MEMBERSHIP_ALLOW_DEV_GRANT=1', async () => {
+describe('dev tools', () => {
+  it('devGrant is forbidden unless MEMBERSHIP_ALLOW_DEV_GRANT=1', async () => {
     const db = createMemoryDb()
     await seedUser(db)
     const denied = await api(db, PAY_ENV).devGrant('user-1', 'month')
     assert.deepEqual(denied, { ok: false, error: 'FORBIDDEN' })
-    const allowed = await api(
-      db,
-      Object.assign({ MEMBERSHIP_ALLOW_DEV_GRANT: '1' }, PAY_ENV)
-    ).devGrant('user-1', 'month')
+    const allowed = await api(db, DEV_ENV).devGrant('user-1', 'month')
     assert.equal(allowed.ok, true)
-    assert.equal(allowed.membership.tier, 'month')
+    assert.equal(allowed.isMember, true)
+    assert.equal(allowed.tier, 'month')
     const orders = (await db.collection('membership_orders').where({ uid: 'user-1' }).get())
       .data
     assert.equal(orders.length, 1)
     assert.equal(orders[0].amountFen, 0)
     assert.equal(orders[0].dev, true)
     assert.equal(orders[0].status, 'paid')
+  })
+
+  it('devGrant stacks month on month from previous expiry', async () => {
+    const db = createMemoryDb()
+    await seedUser(db)
+    const first = await api(db, DEV_ENV).devGrant('user-1', 'month')
+    assert.equal(first.ok, true)
+    const second = await api(db, DEV_ENV).devGrant('user-1', 'month')
+    assert.equal(second.ok, true)
+    assert.equal(second.expiresAt, computeNewExpiry(first.expiresAt, 31, NOW))
+  })
+
+  it('devClear expires membership and forbids without flag', async () => {
+    const db = createMemoryDb()
+    await seedUser(db)
+    await api(db, DEV_ENV).devGrant('user-1', 'month')
+    assert.deepEqual(await api(db, PAY_ENV).devClear('user-1'), {
+      ok: false,
+      error: 'FORBIDDEN'
+    })
+    const cleared = await api(db, DEV_ENV).devClear('user-1')
+    assert.equal(cleared.ok, true)
+    assert.equal(cleared.isMember, false)
+  })
+
+  it('devExpireSoon sets ~1 day and grants month first if needed', async () => {
+    const db = createMemoryDb()
+    await seedUser(db)
+    assert.deepEqual(await api(db, PAY_ENV).devExpireSoon('user-1'), {
+      ok: false,
+      error: 'FORBIDDEN'
+    })
+    const res = await api(db, DEV_ENV).devExpireSoon('user-1')
+    assert.equal(res.ok, true)
+    assert.equal(res.isMember, true)
+    assert.equal(Date.parse(res.expiresAt), NOW + DAY_MS)
+  })
+
+  it('devResetFirstPurchase restores first-buy offers', async () => {
+    const db = createMemoryDb()
+    await seedUser(db)
+    await api(db, DEV_ENV).devGrant('user-1', 'month')
+    const before = await api(db, DEV_ENV).getStatus('user-1')
+    assert.equal(before.offers.find((o) => o.sku === 'month').isFirstPurchase, false)
+    assert.deepEqual(await api(db, PAY_ENV).devResetFirstPurchase('user-1'), {
+      ok: false,
+      error: 'FORBIDDEN'
+    })
+    const after = await api(db, DEV_ENV).devResetFirstPurchase('user-1')
+    assert.equal(after.ok, true)
+    assert.equal(after.offers.find((o) => o.sku === 'month').isFirstPurchase, true)
+    const paid = (
+      await db.collection('membership_orders').where({ uid: 'user-1', status: 'paid' }).get()
+    ).data
+    assert.ok(paid.length >= 1)
+    assert.ok(paid.every((o) => o.ignoreForFirstPurchase === true))
   })
 })

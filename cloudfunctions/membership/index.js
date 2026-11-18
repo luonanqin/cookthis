@@ -11,6 +11,12 @@ const {
   buildSkuOffer,
   firstPurchaseUsedFromOrders
 } = require('./membershipLogic.js')
+
+const DAY_MS = 86400000
+
+function isDevGrantAllowed(env) {
+  return String((env && env.MEMBERSHIP_ALLOW_DEV_GRANT) || '') === '1'
+}
 // Vendored: keep in sync with cloudfunctions/_shared/swapQuota.js
 const {
   FREE_SWAP_LIMIT,
@@ -67,6 +73,10 @@ function isWxOrderPaid(wx) {
   if (!wx || typeof wx !== 'object') return false
   if (wx.status === 'paid' || wx.Status === 'paid') return true
   if (wx.order_state === 2 || wx.OrderState === 2) return true
+  // query_order 常见：LeftAmount / paid 标记
+  if (wx.paid === true || wx.Paid === true) return true
+  const state = Number(wx.status != null ? wx.status : wx.Status)
+  if (state === 2) return true
   return false
 }
 
@@ -74,14 +84,16 @@ function nowIsoMs(nowMs) {
   return new Date(Number.isFinite(Number(nowMs)) ? Number(nowMs) : Date.now()).toISOString()
 }
 
+/** 未支付单：等值查询即可（人均极少），正倒序在内存排，避免建 ASC/DESC 双索引 */
 async function listCreatedOrders(db, uid) {
   const res = await db
     .collection('membership_orders')
     .where({ uid, status: 'created' })
-    .orderBy('createdAt', 'asc')
     .limit(20)
     .get()
-  return (res.data || []).slice()
+  const rows = (res.data || []).slice()
+  rows.sort((a, b) => (orderToMs(a && a.createdAt) || 0) - (orderToMs(b && b.createdAt) || 0))
+  return rows
 }
 
 async function listRecentOrders(db, uid) {
@@ -225,7 +237,9 @@ async function loadFirstPurchaseUsed(db, uid) {
     .get()
   const skus = new Set()
   for (const row of res.data || []) {
-    if (row && row.sku) skus.add(row.sku)
+    if (!row || !row.sku) continue
+    if (row.ignoreForFirstPurchase === true) continue
+    skus.add(row.sku)
   }
   return firstPurchaseUsedFromOrders(skus)
 }
@@ -456,16 +470,16 @@ function createMembershipApi(deps) {
 
   async function refresh(uid) {
     await lazyExpireCreatedOrders(db, uid, nowMs)
-    const res = await db
-      .collection('membership_orders')
-      .where({ uid, status: 'created' })
-      .orderBy('createdAt', 'desc')
-      .limit(5)
-      .get()
-    for (const order of res.data || []) {
+    // 复用 listCreatedOrders（无 orderBy）；查单优先较新的单
+    const created = (await listCreatedOrders(db, uid)).slice().reverse().slice(0, 5)
+    for (const order of created) {
       let wx = null
       try {
-        wx = await xpay.queryOrder(order.orderId)
+        wx = await xpay.queryOrder({
+          orderId: order.orderId,
+          openid,
+          env
+        })
       } catch (err) {
         console.error('membership queryOrder failed', err)
       }
@@ -482,7 +496,7 @@ function createMembershipApi(deps) {
   }
 
   async function devGrant(uid, sku) {
-    if (String(env.MEMBERSHIP_ALLOW_DEV_GRANT) !== '1') {
+    if (!isDevGrantAllowed(env)) {
       return { ok: false, error: 'FORBIDDEN' }
     }
     const code = sku || 'month'
@@ -505,15 +519,78 @@ function createMembershipApi(deps) {
         dev: true
       }
     })
-    return fulfillPaidOrder({
+    const fulfilled = await fulfillPaidOrder({
       db,
       orderId,
       wxPayment: { dev: true },
       nowMs
     })
+    if (!fulfilled || fulfilled.ok === false) {
+      return fulfilled && fulfilled.error
+        ? { ok: false, error: fulfilled.error }
+        : { ok: false, error: 'GRANT_FAILED' }
+    }
+    return getStatus(uid)
   }
 
-  return { getStatus, createOrder, payOrder, cancelOrder, refresh, devGrant }
+  async function setMembershipExpiresAt(uid, expiresAtIso) {
+    const membership = await loadMembership(db, uid)
+    if (!membership || !membership._id) return null
+    const updatedAt = nowIsoMs(nowMs)
+    await db.collection('memberships').doc(membership._id).update({
+      data: { expiresAt: expiresAtIso, updatedAt }
+    })
+    return Object.assign({}, membership, { expiresAt: expiresAtIso, updatedAt })
+  }
+
+  async function devClear(uid) {
+    if (!isDevGrantAllowed(env)) {
+      return { ok: false, error: 'FORBIDDEN' }
+    }
+    await setMembershipExpiresAt(uid, nowIsoMs(nowMs - 1000))
+    return getStatus(uid)
+  }
+
+  async function devExpireSoon(uid) {
+    if (!isDevGrantAllowed(env)) {
+      return { ok: false, error: 'FORBIDDEN' }
+    }
+    const membership = await loadMembership(db, uid)
+    if (!isMemberActive(membership, nowMs)) {
+      const granted = await devGrant(uid, 'month')
+      if (!granted || granted.ok === false) return granted
+    }
+    await setMembershipExpiresAt(uid, nowIsoMs(nowMs + DAY_MS))
+    return getStatus(uid)
+  }
+
+  async function devResetFirstPurchase(uid) {
+    if (!isDevGrantAllowed(env)) {
+      return { ok: false, error: 'FORBIDDEN' }
+    }
+    const user = await loadUser(db, uid)
+    if (user && user._id) {
+      await db.collection('users').doc(user._id).update({
+        data: { firstPurchaseUsed: {} }
+      })
+    }
+    await db.collection('membership_orders').where({ uid, status: 'paid' }).update({
+      data: { ignoreForFirstPurchase: true }
+    })
+    return getStatus(uid)
+  }
+
+  return {
+    getStatus,
+    createOrder,
+    payOrder,
+    cancelOrder,
+    refresh,
+    devGrant,
+    devClear,
+    devExpireSoon,
+    devResetFirstPurchase
+  }
 }
 
 function isClientSpoofedXpayNotify(wxContext) {
@@ -571,6 +648,9 @@ async function handleMain(event, ctx) {
   if (action === 'cancelOrder') return api.cancelOrder(uid, eventObj.orderId)
   if (action === 'refresh') return api.refresh(uid)
   if (action === 'devGrant') return api.devGrant(uid, eventObj.sku)
+  if (action === 'devClear') return api.devClear(uid)
+  if (action === 'devExpireSoon') return api.devExpireSoon(uid)
+  if (action === 'devResetFirstPurchase') return api.devResetFirstPurchase(uid)
   return { ok: false, error: 'UNKNOWN_ACTION' }
 }
 
