@@ -42,10 +42,17 @@ const { recipeDifficultyInFilter } = require('./cookSkill.js')
 // Vendored: keep in sync with cloudfunctions/_shared/membershipLogic.js
 const { isMemberActive } = require('./membershipLogic.js')
 // Vendored: keep in sync with cloudfunctions/_shared/swapQuota.js
-require('./swapQuota.js')
+const { dayKeyChina } = require('./swapQuota.js')
 const { evaluateSwapAccess, buildSwapQuotaUserPatch } = require('./swapGate.js')
 // Vendored: keep in sync with cloudfunctions/_shared/dishSoftCap.js
 const { applyDailyDishSoftLock } = require('./dishSoftCap.js')
+// Vendored: keep in sync with cloudfunctions/_shared/dailyMealSlots.js
+const {
+  canUseDailyMealCount,
+  normalizeMealSlotLabel,
+  FREE_DAILY_MEAL_MAX,
+  MEMBER_DAILY_MEAL_MAX
+} = require('./dailyMealSlots.js')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
@@ -514,9 +521,25 @@ async function handleCreate(event, uid, user) {
     return { ok: false, error: 'MEAL_SLOTS_REQUIRED' }
   }
   const slotLen = scene.mealSlots.length
-  const maxSlots = scene.mealType === 'daily' ? 14 : 7
+  const maxSlots = scene.mealType === 'daily' ? MEMBER_DAILY_MEAL_MAX : 7
   if (slotLen > maxSlots) {
     return { ok: false, error: '顿数过多', code: 'MEAL_SLOTS_TOO_MANY' }
+  }
+  if (scene.mealType === 'daily') {
+    const n = (scene.mealSlots || []).length
+    const membership = await loadMembership(uid)
+    const unlockedToday = user.dailyMealCustomUnlockDay === dayKeyChina(Date.now())
+    const gate = canUseDailyMealCount(n, {
+      isMember: isMemberActive(membership, Date.now()),
+      unlockedToday
+    })
+    if (!gate.ok) {
+      return { ok: false, error: 'MEAL_COUNT_GATE', limit: FREE_DAILY_MEAL_MAX, max: MEMBER_DAILY_MEAL_MAX }
+    }
+    scene.mealSlots = (scene.mealSlots || []).map((s, i) => ({
+      meal: 'other',
+      label: normalizeMealSlotLabel(s, i)
+    }))
   }
   if (scene.mealType !== 'daily' && !(typeof scene.peopleCount === 'number' && scene.peopleCount >= 1)) {
     return { ok: false, error: 'PEOPLE_COUNT_REQUIRED' }

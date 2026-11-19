@@ -1614,6 +1614,18 @@ Page({
       .catch((err) => {
         console.error(err)
         this.setData({ submitting: false })
+        if (err && err.error === 'MEAL_COUNT_GATE') {
+          const mealSlots = buildDailySlotsByCount(FREE_DAILY_MEAL_MAX)
+          this.setData({
+            mealSlots,
+            dailySlotMode: 'preset',
+            dailySlotPresetId: 'count_' + FREE_DAILY_MEAL_MAX,
+            customChipLabel: '自定义',
+            customMealCount: FREE_DAILY_MEAL_MAX
+          })
+          wx.showToast({ title: '多顿需会员或看广告解锁', icon: 'none' })
+          return
+        }
         const title = (err && (err.error || err.message)) || '推荐失败'
         wx.showToast({ title: String(title), icon: 'none' })
       })

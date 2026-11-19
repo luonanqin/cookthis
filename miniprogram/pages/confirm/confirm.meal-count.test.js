@@ -94,4 +94,12 @@ describe('confirm custom meal gate and single-axis stepper', () => {
     assert.doesNotMatch(confirm, /lunchCount/)
     assert.doesNotMatch(confirm, /dinnerCount/)
   })
+
+  it('toasts MEAL_COUNT_GATE on create and rolls back to ≤6', () => {
+    const submit = js.slice(js.indexOf('_submitRecommend('), js.indexOf('onEmptyDialogOk'))
+    assert.match(submit, /err\.error === 'MEAL_COUNT_GATE'/)
+    assert.match(submit, /多顿需会员或看广告解锁/)
+    assert.match(submit, /buildDailySlotsByCount\(FREE_DAILY_MEAL_MAX\)/)
+    assert.match(submit, /dailySlotMode:\s*'preset'/)
+  })
 })
