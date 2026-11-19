@@ -89,13 +89,19 @@ function formatSceneSummaryLines(scene, opts) {
       typeof scene.mealSlotsSummary === 'string'
         ? scene.mealSlotsSummary.trim()
         : ''
-    // 有 mealSlotsSummary 且含「午/晚」→ 忽略，改用 slots.length
-    if (summary && /午|晚/.test(summary)) summary = ''
+    // 日常：有 mealSlotsSummary 且含「午/晚」→ 忽略，改用 slots.length
+    // 聚会：沿用 summary 或 slot.label join（本场 / 第N顿）
+    if (isDaily && summary && /午|晚/.test(summary)) summary = ''
     if (summary) {
       line2.push(summary)
-    } else {
+    } else if (isDaily) {
       const n = (scene.mealSlots || []).length
       if (n > 0) line2.push(formatMealSlotsSummary(n))
+    } else {
+      const slots = (scene.mealSlots || [])
+        .map((s) => (s && (s.label || s.meal)) || '')
+        .filter(Boolean)
+      if (slots.length) line2.push(slots.join('、'))
     }
   }
   return {

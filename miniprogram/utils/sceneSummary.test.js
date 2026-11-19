@@ -83,6 +83,16 @@ describe('formatSceneSummaryLines meal slots', () => {
     assert.ok(text.includes('5荤4素2汤 · 3顿'))
     assert.equal(text.includes('晚饭'), false)
   })
+
+  it('keeps one-slot party line2 as 本场', () => {
+    const { line2 } = formatSceneSummaryLines({
+      mealType: 'friends_party',
+      peopleCount: 8,
+      partyCounts: { adult: 6, child: 2, elder: 0 },
+      mealSlots: [{ meal: 'other', label: '本场' }]
+    })
+    assert.equal(line2, '本场')
+  })
 })
 
 describe('sceneSummary source comments', () => {
