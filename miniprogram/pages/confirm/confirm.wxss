@@ -13,11 +13,50 @@
   margin-bottom: 24rpx;
 }
 
-.season-card .groups {
-  margin-bottom: 0;
+.season-preview {
+  position: relative;
+  margin-top: 8rpx;
 }
 
-.season-card .group:last-child {
+.season-preview-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 8rpx 20rpx;
+  max-height: 72rpx;
+  overflow: hidden;
+}
+
+.season-preview-name {
+  font-size: var(--fs-body);
+  line-height: 1.45;
+  color: var(--color-text);
+}
+
+.season-preview-fade {
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 40rpx;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0),
+    var(--color-surface) 70%
+  );
+  backdrop-filter: blur(2px);
+}
+
+.season-sheet {
+  max-height: 75vh;
+}
+
+.season-sheet-groups {
+  margin-top: 20rpx;
+}
+
+.season-sheet .group:last-child {
   margin-bottom: 0;
 }
 

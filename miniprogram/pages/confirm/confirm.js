@@ -148,6 +148,15 @@ function groupByCategory(items) {
     }))
 }
 
+/** 按类别顺序展平，供时令收起预览（无分组标题） */
+function flattenSeasonalGroups(groups) {
+  const out = []
+  ;(groups || []).forEach((g) => {
+    ;(g.list || []).forEach((it) => out.push(it))
+  })
+  return out
+}
+
 function countTrue(map) {
   return Object.keys(map || {}).filter(k => map[k]).length
 }
@@ -201,11 +210,13 @@ Page({
     seasonal: [],
     yearRound: [],
     seasonalGroups: [],
+    seasonalFlat: [],
     yearRoundGroups: [],
     seasonalChecked: {},
     seasonalSelectAllLabel: '全选',
     yearRoundChecked: {},
     yearRoundExpanded: false,
+    seasonalDrawerOpen: false,
     manuals: [],
     manualInput: '',
     manualSuggestions: [],
@@ -214,6 +225,8 @@ Page({
     count: 0,
     seasonalCount: 0,
     yearRoundCount: 0,
+    seasonalTotal: 0,
+    yearRoundTotal: 0,
 
     mealTypeOptions: MEAL_TYPE_OPTIONS,
     mealType: 'daily',
@@ -643,13 +656,15 @@ Page({
       })
       yearRoundChecked = defaultYearRoundChecked(yearRound, familyAvoids)
     }
+    const seasonalGroups = groupByCategory(seasonal)
     this.setData({
       loading: false,
       error: '',
       holdBlank: false,
       seasonal,
       yearRound,
-      seasonalGroups: groupByCategory(seasonal),
+      seasonalGroups,
+      seasonalFlat: flattenSeasonalGroups(seasonalGroups),
       yearRoundGroups: groupByCategory(yearRound),
       seasonalChecked,
       seasonalSelectAllLabel: this._seasonalSelectAllLabel(seasonal, seasonalChecked),
@@ -657,7 +672,10 @@ Page({
       yearRoundExpanded: preserveSelection ? this.data.yearRoundExpanded : false,
       manuals,
       listEmpty: seasonal.length === 0 && yearRound.length === 0,
-      ...this._counts(seasonalChecked, yearRoundChecked, manuals)
+      ...this._counts(seasonalChecked, yearRoundChecked, manuals, {
+        seasonal,
+        yearRound
+      })
     })
   },
 
@@ -740,9 +758,12 @@ Page({
     })
   },
 
-  onMarketScaleSkip() {
-    track('market_scale_sheet_skip', { source: 'page_switch' })
-    this._commitMarketScale('default_medium')
+  /** 页内切换：取消只关层，不改档、不写库 */
+  onMarketScaleCancel() {
+    if (this.data.marketScaleBusy) return
+    tapFeedback()
+    track('market_scale_sheet_cancel', { source: 'page_switch' })
+    this.setData({ showMarketScale: false })
   },
 
   onMarketScaleConfirm() {
@@ -792,15 +813,28 @@ Page({
       })
   },
 
-  _counts(seasonalChecked, yearRoundChecked, manuals) {
+  _counts(seasonalChecked, yearRoundChecked, manuals, lists) {
+    const seasonal = (lists && lists.seasonal) || this.data.seasonal || []
+    const yearRound = (lists && lists.yearRound) || this.data.yearRound || []
     const sc = countTrue(seasonalChecked)
     const yc = countTrue(yearRoundChecked)
     const mc = (manuals || []).length
     return {
       count: sc + yc + mc,
       seasonalCount: sc,
-      yearRoundCount: yc
+      yearRoundCount: yc,
+      seasonalTotal: seasonal.length,
+      yearRoundTotal: yearRound.length
     }
+  },
+
+  onOpenSeasonalDrawer() {
+    if (this.data.listEmpty) return
+    this.setData({ seasonalDrawerOpen: true })
+  },
+
+  onCloseSeasonalDrawer() {
+    this.setData({ seasonalDrawerOpen: false })
   },
 
   _seasonalSelectAllLabel(seasonal, seasonalChecked) {

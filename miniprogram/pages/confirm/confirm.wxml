@@ -1,4 +1,4 @@
-<page-meta page-style="{{showCustomSlots || showProfileLite || showMarketScale ? 'overflow: hidden;' : ''}}" />
+<page-meta page-style="{{showCustomSlots || showProfileLite || showMarketScale || seasonalDrawerOpen ? 'overflow: hidden;' : ''}}" />
 <view class="page {{typeScaleClass}}">
   <page-header
     title="确认食材"
@@ -14,7 +14,7 @@
       <view class="toolbar">
         <view class="toolbar-left">
           <image class="ui-icon ui-icon--sm" src="/assets/images/icons/leafy-vegetables.png" mode="aspectFit" aria-hidden="true"/><text class="section-title {{warnSeason ? 'title-warn' : ''}} {{warnSeason && warnPulse ? 'title-pulse' : ''}}">时令</text>
-          <text class="season-count">已选 {{seasonalCount}} 样</text>
+          <text class="season-count">已选 {{seasonalCount}} / 共 {{seasonalTotal}}</text>
         </view>
         <view
           class="market-scale-entry"
@@ -27,31 +27,27 @@
       </view>
       <view wx:if="{{listEmpty}}" class="empty-tip">暂无食材。请在云开发控制台确认已导入 ingredients，并部署云函数 ingredients。</view>
 
-      <view class="groups">
-        <view wx:for="{{seasonalGroups}}" wx:key="category" class="group">
-          <view class="group-label">{{item.label}}</view>
-          <view class="chip-row">
-            <view
-              wx:for="{{item.list}}"
-              wx:for-item="ing"
-              wx:key="id"
-              class="chip {{seasonalChecked[ing.id] ? 'chip-on' : ''}}"
-              data-id="{{ing.id}}"
-              catchtap="toggleSeasonal"
-            >{{ing.displayName || ing.name}}</view>
-          </view>
+      <view
+        wx:if="{{!listEmpty}}"
+        class="season-preview"
+        hover-class="tap-hover"
+        hover-stay-time="80"
+        bindtap="onOpenSeasonalDrawer"
+      >
+        <view class="season-preview-row">
+          <text
+            wx:for="{{seasonalFlat}}"
+            wx:key="id"
+            class="season-preview-name"
+          >{{item.displayName || item.name}}</text>
         </view>
-      </view>
-
-      <view class="toolbar-actions season-actions">
-        <text class="link" bindtap="selectAllSeasonal">{{seasonalSelectAllLabel}}</text>
-        <text class="link" bindtap="clearSeasonal">清空</text>
+        <view class="season-preview-fade" aria-hidden="true"></view>
       </view>
     </view>
 
     <view class="year-round">
       <view class="fold-bar" bindtap="toggleYearRoundSection">
-        <view class="fold-title-left"><image class="ui-icon ui-icon--sm" src="/assets/images/icons/leafy-vegetables.png" mode="aspectFit" aria-hidden="true"/><text>四季常见 · 已计入 {{yearRoundCount}} 样</text></view>
+        <view class="fold-title-left"><image class="ui-icon ui-icon--sm" src="/assets/images/icons/leafy-vegetables.png" mode="aspectFit" aria-hidden="true"/><text>四季常见 · 已选 {{yearRoundCount}} / 共 {{yearRoundTotal}}</text></view>
         <text class="fold-icon">{{yearRoundExpanded ? '收起' : '展开'}}</text>
       </view>
       <view wx:if="{{yearRoundExpanded}}" class="fold-body">
@@ -219,6 +215,39 @@
     </button>
   </view>
 
+  <view
+    class="mask"
+    wx:if="{{seasonalDrawerOpen}}"
+    catchtouchmove="noop"
+    bindtap="onCloseSeasonalDrawer"
+  >
+    <view class="sheet season-sheet" catchtap="noop">
+      <view class="sheet-title">时令食材</view>
+      <view class="groups season-sheet-groups">
+        <view wx:for="{{seasonalGroups}}" wx:key="category" class="group">
+          <view class="group-label">{{item.label}}</view>
+          <view class="chip-row">
+            <view
+              wx:for="{{item.list}}"
+              wx:for-item="ing"
+              wx:key="id"
+              class="chip {{seasonalChecked[ing.id] ? 'chip-on' : ''}}"
+              data-id="{{ing.id}}"
+              catchtap="toggleSeasonal"
+            >{{ing.displayName || ing.name}}</view>
+          </view>
+        </view>
+      </view>
+      <view class="toolbar-actions season-actions">
+        <text class="link" bindtap="selectAllSeasonal">{{seasonalSelectAllLabel}}</text>
+        <text class="link" bindtap="clearSeasonal">清空</text>
+      </view>
+      <view class="sheet-actions">
+        <button type="primary" size="mini" bindtap="onCloseSeasonalDrawer">完成</button>
+      </view>
+    </view>
+  </view>
+
   <view class="mask mask-center mask-lite" wx:if="{{showProfileLite}}" catchtouchmove="true">
     <view class="lite-dialog" catchtap="noop" catchtouchmove="true">
       <profile-lite-form
@@ -278,7 +307,7 @@
     </view>
   </view>
 
-  <!-- 菜场规模半屏（页内切换）：遮罩不关；三卡点选 + 跳过/确认 -->
+  <!-- 菜场规模半屏（页内切换）：遮罩不关；三卡点选 + 取消/确认 -->
   <view
     class="mask"
     wx:if="{{showMarketScale}}"
@@ -304,7 +333,7 @@
           </view>
           <image
             class="scale-card-icon scale-card-icon--small"
-            src="/assets/images/icons/market-scale-small.webp"
+            src="/assets/images/icons/market-scale-small.png"
             mode="heightFix"
             aria-hidden="true"
           />
@@ -322,7 +351,7 @@
           </view>
           <image
             class="scale-card-icon scale-card-icon--medium"
-            src="/assets/images/icons/market-scale-medium.webp"
+            src="/assets/images/icons/market-scale-medium.png"
             mode="heightFix"
             aria-hidden="true"
           />
@@ -340,7 +369,7 @@
           </view>
           <image
             class="scale-card-icon scale-card-icon--large"
-            src="/assets/images/icons/market-scale-large.webp"
+            src="/assets/images/icons/market-scale-large.png"
             mode="heightFix"
             aria-hidden="true"
           />
@@ -351,8 +380,8 @@
           size="mini"
           class="btn-outline"
           disabled="{{marketScaleBusy}}"
-          bindtap="onMarketScaleSkip"
-        >跳 过</button>
+          bindtap="onMarketScaleCancel"
+        >取 消</button>
         <button
           size="mini"
           type="{{marketScaleHighlight ? 'primary' : 'default'}}"
