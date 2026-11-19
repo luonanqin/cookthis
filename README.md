@@ -380,23 +380,14 @@ Slice 18（会员 / 虚拟支付）另需集合 **`memberships`**、**`membershi
 - **正式卖会员**：虚拟支付就绪后改为 `true` 再上传小程序（云函数 / 道具可提前备好）。  
 - 分支策略见 [`doc/分支与发布约定.md`](doc/分支与发布约定.md)。
 
-### 调试开关 `MEMBERSHIP_ALLOW_DEV_GRANT`（联调开 / 上线前关）
+### 会员调试（仅 `develop`）
 
-云函数 `membership` 环境变量。设为 `1` 时允许 `devGrant` / `devClear` / `devExpireSoon` / `devResetFirstPurchase` / `devClearOrders` / `devCreatePending`，开发/体验版会员页底才会真正点通调试按钮；**正式对用户发版前必须关掉**。正式版靠 `envVersion=release` 本来就不渲染调试区，**不必**为去调试单独开分支。
-
-**联调时怎么开：**
-
-1. 微信开发者工具 → **云开发** → **云函数** → 打开 **`membership`**
-2. **配置 / 函数配置 → 环境变量** → 新增：
-   - 名称：`MEMBERSHIP_ALLOW_DEV_GRANT`
-   - 值：`1`
-3. 保存；若不生效再 **上传并部署** 一次 `membership`（代码也须含最新调试 action）
-4. 用**开发版或体验版**打开会员页，页底应出现「调试（仅开发/体验版）」
+**`main` 不含**会员页调试区与云函数 `dev*` action。联调请检出 **`develop`**，按该分支 README「调试开关 `MEMBERSHIP_ALLOW_DEV_GRANT`」操作。正式云环境不要保留 `MEMBERSHIP_ALLOW_DEV_GRANT=1`。分支约定见 [`doc/分支与发布约定.md`](doc/分支与发布约定.md)。
 
 **上线前准备（必做）：**
 
-- [ ] 云开发控制台将 `MEMBERSHIP_ALLOW_DEV_GRANT` **删除**或改为 **`0`**（正式环境禁止留 `1`）
-- [ ] 确认正式版小程序（`envVersion=release`）页底**无**调试区（前端已按环境隐藏；关云开关是双保险）
+- [ ] 发布检出 **`main`**，确认无调试 UI / `dev*`  
+- [ ] 云开发正式环境无 `MEMBERSHIP_ALLOW_DEV_GRANT=1`  
 - [ ] 与总开关一并核对：是否对用户开放购买 → 见上方 **`MEMBERSHIP_ENABLED`**
 
 ### A. 你需要在微信后台准备的（代码外）
@@ -470,7 +461,6 @@ Slice 18（会员 / 虚拟支付）另需集合 **`memberships`**、**`membershi
    | `XPAY_OFFER_ID` | MP OfferID | 必填，否则下单 `PAY_NOT_CONFIGURED` |
    | `XPAY_APP_KEY` | 现网 AppKey | 必填；签名用正式钥 |
    | `XPAY_ENV` | `0` | 现网支付填 `0`；沙箱才用 `1` |
-   | `MEMBERSHIP_ALLOW_DEV_GRANT` | 联调 `1`；上线前删或 `0` | 操作步骤见上方「调试开关」；正式环境禁止留 `1` |
 
 5. **小程序**  
    - 编译含 `pages/membership/index`、首页 VIP 入口、`services/membership.js`  
@@ -905,7 +895,7 @@ node --test cloudfunctions/membership/*.test.js miniprogram/pages/membership/*.t
 
 **本切片不验：** 代币/币种体系、自动续费、激励视频换菜（阶段 2）、清单去广告（阶段 2）、成长值/饭友等级、退款接口自动化（Android 可后台手退一笔抽查即可）、定时每 5 分钟扫单（现靠进页/`refresh` 触发查单）。
 
-**部署提醒：** 先按 §B.2 建精简索引（**不必**为未支付建 `createdAt` ASC/DESC 双索引）；再配 OfferID/AppKey 与 6 道具、绑推送。改定价或 productId 须与 MP 道具同步。个人主体接入检查项也可对照官方文末「部署前检查清单」。**上线前准备**：① 关 `MEMBERSHIP_ALLOW_DEV_GRANT`（删或 `0`）；② 核对 `MEMBERSHIP_ENABLED`（默认 `false` 无会员先上；卖会员则 `true`）；③ `ADS_ENABLED` 仍按流量主进度。分支与开关总述见 [`doc/分支与发布约定.md`](doc/分支与发布约定.md)。联调期开发/体验版 + 云开 `1` 时会员页底有调试快捷按钮。
+**部署提醒：** 先按 §B.2 建精简索引（**不必**为未支付建 `createdAt` ASC/DESC 双索引）；再配 OfferID/AppKey 与 6 道具、绑推送。改定价或 productId 须与 MP 道具同步。个人主体接入检查项也可对照官方文末「部署前检查清单」。**上线前准备**：① 检出 **`main`**（无调试代码）；② 正式云无 `MEMBERSHIP_ALLOW_DEV_GRANT=1`；③ 核对 `MEMBERSHIP_ENABLED`（默认 `false` 无会员先上；卖会员则 `true`）；④ `ADS_ENABLED` 仍按流量主进度。联调调试按钮仅在 **`develop`**。总述见 [`doc/分支与发布约定.md`](doc/分支与发布约定.md)。
 
 ---
 

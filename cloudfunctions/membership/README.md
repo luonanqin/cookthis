@@ -25,7 +25,7 @@ node --test cloudfunctions/membership/*.test.js
    - `XPAY_OFFER_ID` — 支付基础配置 offerId
    - `XPAY_APP_KEY` — 对应环境 AppKey（签名）
    - `XPAY_ENV` — `0` 正式 / `1` 沙箱（现网支付 `signData.env` 用正式填 `0`）
-   - `MEMBERSHIP_ALLOW_DEV_GRANT` — 联调设 `1`，否则 `devGrant` / `devClear` / `devExpireSoon` / `devResetFirstPurchase` / `devClearOrders` / `devCreatePending` 返回 `FORBIDDEN`；开发/体验版会员页底调试区依赖此开关 + 小程序 envVersion。**配置路径：** 开发者工具 → 云开发 → 云函数 `membership` → 配置/环境变量。**上线前必删或改为 `0`**（步骤与检查项见根目录 README **Slice 18 · 调试开关**）
+   - （`main` 无调试 action。）联调 `dev*` / `MEMBERSHIP_ALLOW_DEV_GRANT` 仅在 **`develop`** 分支；正式云不要设该变量为 `1`。见 [`doc/分支与发布约定.md`](../../doc/分支与发布约定.md)。
 5. 云开发「消息推送」：事件 `xpay_goods_deliver_notify` → 云函数 `membership`。推送入口必须回 `{ ErrCode: 0, ErrMsg: "success" }`。发货幂等键：`OutTradeNo` CAS + `wxOrderId`（`WeChatPayInfo.MchOrderNo`）。
 6. 数据库集合：`memberships`（每 uid 一条当前态）、`membership_orders`。
 7. 缺密钥时 `createOrder` 返回 `{ ok: false, error: "PAY_NOT_CONFIGURED" }`，不写订单。

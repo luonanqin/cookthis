@@ -35,30 +35,6 @@ function refresh() {
   return callCloud('membership', { action: 'refresh' })
 }
 
-function devGrant(sku) {
-  return callCloud('membership', { action: 'devGrant', sku })
-}
-
-function devClear() {
-  return callCloud('membership', { action: 'devClear' })
-}
-
-function devExpireSoon() {
-  return callCloud('membership', { action: 'devExpireSoon' })
-}
-
-function devResetFirstPurchase() {
-  return callCloud('membership', { action: 'devResetFirstPurchase' })
-}
-
-function devClearOrders() {
-  return callCloud('membership', { action: 'devClearOrders' })
-}
-
-function devCreatePending(sku) {
-  return callCloud('membership', { action: 'devCreatePending', sku })
-}
-
 function memberStatusLabel(status) {
   if (status && status.isMember) {
     const exp = status.expiresLabel ? String(status.expiresLabel) : ''
@@ -90,12 +66,6 @@ module.exports = {
   payOrder,
   cancelOrder,
   refresh,
-  devGrant,
-  devClear,
-  devExpireSoon,
-  devResetFirstPurchase,
-  devClearOrders,
-  devCreatePending,
   memberStatusLabel,
   getMembershipLite,
   setMembershipLite
