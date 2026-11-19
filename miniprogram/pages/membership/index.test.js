@@ -56,6 +56,10 @@ describe('membership page wiring', () => {
     assert.match(wxss, /offers-row/)
     assert.equal(wxml.includes('已免广告'), false)
     assert.equal(js.includes('已免广告'), false)
+    assert.match(js, /highlightBenefitId/)
+    assert.match(wxml, /highlightBenefit === item\.id/)
+    assert.match(wxml, /is-highlight/)
+    assert.match(wxss, /\.benefit-table-row\.is-highlight/)
   })
 
   it('gates first paint behind busy overlay until status ready', () => {

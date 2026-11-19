@@ -5,6 +5,7 @@ const assert = require('node:assert/strict')
 const {
   BENEFITS,
   NOTICE_ITEMS,
+  highlightBenefitId,
   ORDER_CANCELLED_TOAST,
   PAY_UNAVAILABLE,
   POLL_MAX,
@@ -26,7 +27,11 @@ describe('membership view copy', () => {
   it('lists stage-1 benefit comparison rows without ad-free claims', () => {
     assert.deepEqual(
       BENEFITS.map((b) => b.dim),
-      ['换菜次数', '推荐菜数量', '视频广告']
+      ['换菜次数', '推荐菜数量', '视频广告', '日常多顿']
+    )
+    assert.deepEqual(
+      BENEFITS.map((b) => b.id),
+      ['swap', 'dishes', 'reward', 'meals']
     )
     assert.ok(BENEFITS.every((b) => b.member && b.free))
     assert.equal(BENEFITS[0].member, '不限')
@@ -34,9 +39,17 @@ describe('membership view copy', () => {
     assert.equal(BENEFITS[1].free, '每次 12 道')
     assert.equal(BENEFITS[2].member, '免看')
     assert.equal(BENEFITS[2].free, '解锁限制')
+    assert.equal(BENEFITS[3].member, '日常最多 10 顿')
+    assert.equal(BENEFITS[3].free, '快捷 ≤6')
+    const mealsAt = BENEFITS.findIndex((b) => b.id === 'meals')
+    const rewardAt = BENEFITS.findIndex((b) => b.id === 'reward')
+    assert.ok(mealsAt > rewardAt)
     const blob = JSON.stringify(BENEFITS)
     assert.equal(blob.includes('已免广告'), false)
     assert.equal(blob.includes('清单广告'), false)
+    assert.equal(highlightBenefitId('daily_meal_custom'), 'meals')
+    assert.equal(highlightBenefitId('swap_cap'), '')
+    assert.equal(highlightBenefitId(''), '')
   })
 
   it('has purchase-notice items for renew / grant / first-buy / stack / refund', () => {

@@ -8,6 +8,7 @@ const typeScaleBehavior = require('../../behaviors/typeScale.js')
 const {
   BENEFITS,
   NOTICE_ITEMS,
+  highlightBenefitId,
   ORDER_CANCELLED_TOAST,
   PAY_UNAVAILABLE,
   TIER_LABEL,
@@ -69,7 +70,8 @@ Page({
     ctaLabel: '立即开通',
     payUnavailable: false,
     noticeItems: NOTICE_ITEMS,
-    benefitRows: BENEFITS
+    benefitRows: BENEFITS,
+    highlightBenefit: ''
   },
 
   _platform: '',
@@ -97,6 +99,7 @@ Page({
     })
     this.setData({
       from,
+      highlightBenefit: highlightBenefitId(from),
       noticeAcked: readNoticeAcked(),
       payUnavailable: !gate.ok,
       busy: true,
