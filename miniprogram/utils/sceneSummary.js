@@ -1,5 +1,7 @@
 'use strict'
 
+const { formatMealSlotsSummary } = require('./dailyMealSlots.js')
+
 const MEAL_TYPE_LABELS = {
   daily: '日常',
   // 与确认页入口一致：非 daily 一律展示「聚会」
@@ -45,9 +47,9 @@ function tierCountsFromScene(scene) {
 /**
  * 场景摘要两行。
  * 行1：类型 · 人数 · 大/小/老（及聚会顿次若有）
- * 行2：日常荤素汤 · 顿次（一顿晚饭…）；已选方案 omitSlots 时行2可无荤素汤外的顿次
+ * 行2：日常荤素汤 · 顿次（N顿）；已选方案 omitSlots 时行2可无荤素汤外的顿次
  * 例行1：日常 · 2人 · 1大 0小 1老
- * 例行2：5荤4素2汤 · 一顿晚饭
+ * 例行2：5荤4素2汤 · 3顿
  */
 function formatSceneSummaryLines(scene, opts) {
   if (!scene || typeof scene !== 'object') {
@@ -83,17 +85,17 @@ function formatSceneSummaryLines(scene, opts) {
     if (comboBits.length) line2.push(comboBits.join(''))
   }
   if (!(opts && opts.omitSlots)) {
-    const summary =
+    let summary =
       typeof scene.mealSlotsSummary === 'string'
         ? scene.mealSlotsSummary.trim()
         : ''
+    // 有 mealSlotsSummary 且含「午/晚」→ 忽略，改用 slots.length
+    if (summary && /午|晚/.test(summary)) summary = ''
     if (summary) {
       line2.push(summary)
     } else {
-      const slots = (scene.mealSlots || [])
-        .map((s) => (s && (s.label || s.meal)) || '')
-        .filter(Boolean)
-      if (slots.length) line2.push(slots.join('、'))
+      const n = (scene.mealSlots || []).length
+      if (n > 0) line2.push(formatMealSlotsSummary(n))
     }
   }
   return {

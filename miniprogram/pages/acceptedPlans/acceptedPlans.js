@@ -4,6 +4,7 @@ const { tapFeedback } = require('../../utils/haptic.js')
 const { PLAN_SHARE_ENABLED, shareCardTitle } = require('../../utils/planShare.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 const { formatSceneSummary } = require('../../utils/sceneSummary.js')
+const { normalizeMealSlotLabel } = require('../../utils/dailyMealSlots.js')
 
 const TIP_SEEN_KEY = 'cookthis_plan_ate_tip_seen'
 const HINT = '点选标记已吃，再点取消'
@@ -67,7 +68,9 @@ function groupDishesByMeal(dishes) {
       indexByLabel[mealLabel] = groups.length
       groups.push({
         mealLabel,
-        displayLabel: mealLabel || '本顿',
+        displayLabel: mealLabel
+          ? normalizeMealSlotLabel({ label: mealLabel }, groups.length)
+          : '本顿',
         dishes: []
       })
     }
