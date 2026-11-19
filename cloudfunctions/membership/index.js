@@ -15,6 +15,9 @@ const {
 
 const DAY_MS = 86400000
 
+function isDevGrantAllowed(env) {
+  return String((env && env.MEMBERSHIP_ALLOW_DEV_GRANT) || '') === '1'
+}
 // Vendored: keep in sync with cloudfunctions/_shared/swapQuota.js
 const {
   FREE_SWAP_LIMIT,
@@ -497,12 +500,201 @@ function createMembershipApi(deps) {
     return getStatus(uid)
   }
 
+  async function devGrant(uid, sku) {
+    if (!isDevGrantAllowed(env)) {
+      return { ok: false, error: 'FORBIDDEN' }
+    }
+    const code = sku || 'month'
+    const item = getSku(code)
+    if (!item) return { ok: false, error: 'BAD_SKU' }
+    const pending = await findActivePending(db, uid, nowMs)
+    if (pending) return { ok: false, error: 'PENDING_ORDER_EXISTS' }
+    const firstPurchaseUsed = await loadFirstPurchaseUsed(db, uid)
+    const orderId = makeOrderId(uid, nowMs)
+    const createdAt = nowIsoMs(nowMs)
+    await db.collection('membership_orders').add({
+      data: {
+        orderId,
+        uid,
+        sku: code,
+        amountFen: resolvePriceFen(code, firstPurchaseUsed),
+        isFirstPurchase: !hasUsedFirstPurchase(firstPurchaseUsed),
+        productId: resolveProductId(code, firstPurchaseUsed),
+        status: 'created',
+        createdAt,
+        payExpiresAt: payExpiresAtIso(nowMs, nowMs),
+        dev: true
+      }
+    })
+    const fulfilled = await fulfillPaidOrder({
+      db,
+      orderId,
+      wxPayment: { dev: true },
+      nowMs
+    })
+    if (!fulfilled || fulfilled.ok === false) {
+      return fulfilled && fulfilled.error
+        ? { ok: false, error: fulfilled.error }
+        : { ok: false, error: 'GRANT_FAILED' }
+    }
+    return getStatus(uid)
+  }
+
+  async function setMembershipExpiresAt(uid, expiresAtIso) {
+    const membership = await loadMembership(db, uid)
+    if (!membership || !membership._id) return null
+    const updatedAt = nowIsoMs(nowMs)
+    await db.collection('memberships').doc(membership._id).update({
+      data: { expiresAt: expiresAtIso, updatedAt }
+    })
+    return Object.assign({}, membership, { expiresAt: expiresAtIso, updatedAt })
+  }
+
+  async function devClear(uid) {
+    if (!isDevGrantAllowed(env)) {
+      return { ok: false, error: 'FORBIDDEN' }
+    }
+    await setMembershipExpiresAt(uid, nowIsoMs(nowMs - 1000))
+    return getStatus(uid)
+  }
+
+  async function devExpireSoon(uid) {
+    if (!isDevGrantAllowed(env)) {
+      return { ok: false, error: 'FORBIDDEN' }
+    }
+    const membership = await loadMembership(db, uid)
+    if (!isMemberActive(membership, nowMs)) {
+      const granted = await devGrant(uid, 'month')
+      if (!granted || granted.ok === false) return granted
+    }
+    await setMembershipExpiresAt(uid, nowIsoMs(nowMs + DAY_MS))
+    return getStatus(uid)
+  }
+
+  async function clearUserFirstPurchaseUsed(uid) {
+    const user = await loadUser(db, uid)
+    if (!user || !user._id) return
+    // 云库对象字段须 _.set，否则 merge 清不掉旧 key
+    const empty =
+      db.command && typeof db.command.set === 'function'
+        ? db.command.set({})
+        : {}
+    await db.collection('users').doc(user._id).update({
+      data: { firstPurchaseUsed: empty }
+    })
+  }
+
+  /** 避免 where().update 在真机云库抛错；逐条打标更稳 */
+  async function markPaidOrdersIgnoreFirstPurchase(uid) {
+    const res = await db
+      .collection('membership_orders')
+      .where({ uid, status: 'paid' })
+      .limit(100)
+      .get()
+    for (const row of res.data || []) {
+      if (!row || !row._id || row.ignoreForFirstPurchase === true) continue
+      await db.collection('membership_orders').doc(row._id).update({
+        data: { ignoreForFirstPurchase: true }
+      })
+    }
+  }
+
+  async function devResetFirstPurchase(uid) {
+    if (!isDevGrantAllowed(env)) {
+      return { ok: false, error: 'FORBIDDEN' }
+    }
+    try {
+      await clearUserFirstPurchaseUsed(uid)
+      await markPaidOrdersIgnoreFirstPurchase(uid)
+      return getStatus(uid)
+    } catch (err) {
+      console.error('devResetFirstPurchase failed', err)
+      return {
+        ok: false,
+        error:
+          (err && (err.errMsg || err.message || err.error)) ||
+          'RESET_FIRST_PURCHASE_FAILED'
+      }
+    }
+  }
+
+  /** 删除该用户全部 membership_orders；不改会员有效期。无 paid 单后首购价会恢复。 */
+  async function deleteAllOrdersForUid(uid) {
+    for (;;) {
+      const res = await db
+        .collection('membership_orders')
+        .where({ uid })
+        .limit(100)
+        .get()
+      const rows = res.data || []
+      if (!rows.length) return
+      for (const row of rows) {
+        if (!row || !row._id) continue
+        await db.collection('membership_orders').doc(row._id).remove()
+      }
+      if (rows.length < 100) return
+    }
+  }
+
+  async function devClearOrders(uid) {
+    if (!isDevGrantAllowed(env)) {
+      return { ok: false, error: 'FORBIDDEN' }
+    }
+    try {
+      await deleteAllOrdersForUid(uid)
+      await clearUserFirstPurchaseUsed(uid)
+      return getStatus(uid)
+    } catch (err) {
+      console.error('devClearOrders failed', err)
+      return {
+        ok: false,
+        error:
+          (err && (err.errMsg || err.message || err.error)) ||
+          'CLEAR_ORDERS_FAILED'
+      }
+    }
+  }
+
+  /** 造一笔待支付单（默认 20s 过期），不拉起支付；用于测倒计时/重复下单 */
+  async function devCreatePending(uid, sku) {
+    if (!isDevGrantAllowed(env)) {
+      return { ok: false, error: 'FORBIDDEN' }
+    }
+    const code = sku || 'month'
+    const item = getSku(code)
+    if (!item) return { ok: false, error: 'BAD_SKU' }
+    const ttlMs = 20 * 1000
+    const firstPurchaseUsed = await loadFirstPurchaseUsed(db, uid)
+    const createdAt = nowIsoMs(nowMs)
+    await db.collection('membership_orders').add({
+      data: {
+        orderId: makeOrderId(uid, nowMs),
+        uid,
+        sku: code,
+        amountFen: resolvePriceFen(code, firstPurchaseUsed),
+        isFirstPurchase: !hasUsedFirstPurchase(firstPurchaseUsed),
+        productId: resolveProductId(code, firstPurchaseUsed),
+        status: 'created',
+        createdAt,
+        payExpiresAt: new Date(nowMs + ttlMs).toISOString(),
+        dev: true
+      }
+    })
+    return getStatus(uid)
+  }
+
   return {
     getStatus,
     createOrder,
     payOrder,
     cancelOrder,
-    refresh
+    refresh,
+    devGrant,
+    devClear,
+    devExpireSoon,
+    devResetFirstPurchase,
+    devClearOrders,
+    devCreatePending
   }
 }
 
@@ -560,6 +752,12 @@ async function handleMain(event, ctx) {
   if (action === 'payOrder') return api.payOrder(uid, eventObj.orderId)
   if (action === 'cancelOrder') return api.cancelOrder(uid, eventObj.orderId)
   if (action === 'refresh') return api.refresh(uid)
+  if (action === 'devGrant') return api.devGrant(uid, eventObj.sku)
+  if (action === 'devClear') return api.devClear(uid)
+  if (action === 'devExpireSoon') return api.devExpireSoon(uid)
+  if (action === 'devResetFirstPurchase') return api.devResetFirstPurchase(uid)
+  if (action === 'devClearOrders') return api.devClearOrders(uid)
+  if (action === 'devCreatePending') return api.devCreatePending(uid, eventObj.sku)
   return { ok: false, error: 'UNKNOWN_ACTION' }
 }
 

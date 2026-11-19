@@ -114,6 +114,54 @@
       </view>
     </view>
 
+    <view wx:if="{{showDevTools}}" class="dev-tools">
+      <view class="dev-tools-title">调试（仅开发/体验版）</view>
+      <view class="dev-tools-row">
+        <view
+          class="dev-btn"
+          data-sku="month"
+          hover-class="tap-hover"
+          bindtap="onDevGrant"
+        >开月卡</view>
+        <view
+          class="dev-btn"
+          data-sku="quarter"
+          hover-class="tap-hover"
+          bindtap="onDevGrant"
+        >开季卡</view>
+        <view
+          class="dev-btn"
+          data-sku="year"
+          hover-class="tap-hover"
+          bindtap="onDevGrant"
+        >开年卡</view>
+      </view>
+      <view class="dev-tools-row">
+        <view class="dev-btn" hover-class="tap-hover" bindtap="onDevClear">清会员</view>
+        <view
+          class="dev-btn"
+          hover-class="tap-hover"
+          bindtap="onDevExpireSoon"
+        >约1天后到期</view>
+        <view
+          class="dev-btn"
+          hover-class="tap-hover"
+          bindtap="onDevResetFirstPurchase"
+        >重置首购</view>
+      </view>
+      <view class="dev-tools-row">
+        <view
+          class="dev-btn"
+          hover-class="tap-hover"
+          bindtap="onDevCreatePending"
+        >待支付20s</view>
+        <view
+          class="dev-btn"
+          hover-class="tap-hover"
+          bindtap="onDevClearOrders"
+        >清历史订单</view>
+      </view>
+    </view>
   </view>
 
   <view wx:if="{{pageReady}}" class="footer">

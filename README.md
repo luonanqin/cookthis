@@ -380,14 +380,23 @@ Slice 18（会员 / 虚拟支付）另需集合 **`memberships`**、**`membershi
 - **正式卖会员**：虚拟支付就绪后改为 `true` 再上传小程序（云函数 / 道具可提前备好）。  
 - 分支策略见 [`doc/分支与发布约定.md`](doc/分支与发布约定.md)。
 
-### 会员调试（仅 `develop`）
+### 调试开关 `MEMBERSHIP_ALLOW_DEV_GRANT`（本分支联调用）
 
-**`main` 不含**会员页调试区与云函数 `dev*` action。联调请检出 **`develop`**，按该分支 README「调试开关 `MEMBERSHIP_ALLOW_DEV_GRANT`」操作。正式云环境不要保留 `MEMBERSHIP_ALLOW_DEV_GRANT=1`。分支约定见 [`doc/分支与发布约定.md`](doc/分支与发布约定.md)。
+**本段仅 `develop` 需要。** `main` 无调试代码；正式发版用 `main`。云函数环境变量设为 `1` 时允许 `devGrant` / `devClear` / `devExpireSoon` / `devResetFirstPurchase` / `devClearOrders` / `devCreatePending`，开发/体验版会员页底才会点通调试按钮。
+
+**联调时怎么开：**
+
+1. 微信开发者工具 → **云开发** → **云函数** → 打开 **`membership`**
+2. **配置 / 函数配置 → 环境变量** → 新增：
+   - 名称：`MEMBERSHIP_ALLOW_DEV_GRANT`
+   - 值：`1`
+3. 保存；若不生效再 **上传并部署** 一次 `membership`（须为含 `dev*` 的 **develop** 代码）
+4. 用**开发版或体验版**打开会员页，页底应出现「调试（仅开发/体验版）」
 
 **上线前准备（必做）：**
 
-- [ ] 发布检出 **`main`**，确认无调试 UI / `dev*`  
-- [ ] 云开发正式环境无 `MEMBERSHIP_ALLOW_DEV_GRANT=1`  
+- [ ] 发布检出 **`main`**（无调试 UI / `dev*`）  
+- [ ] 正式云无 `MEMBERSHIP_ALLOW_DEV_GRANT=1`  
 - [ ] 与总开关一并核对：是否对用户开放购买 → 见上方 **`MEMBERSHIP_ENABLED`**
 
 ### A. 你需要在微信后台准备的（代码外）

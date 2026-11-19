@@ -46,6 +46,16 @@ function readClientEnv() {
   }
 }
 
+function isNonReleaseEnv() {
+  try {
+    const info = wx.getAccountInfoSync && wx.getAccountInfoSync()
+    const env = info && info.miniProgram && info.miniProgram.envVersion
+    return env === 'develop' || env === 'trial'
+  } catch (e) {
+    return false
+  }
+}
+
 Page({
   behaviors: [typeScaleBehavior],
 
@@ -68,6 +78,7 @@ Page({
     buyExpanded: false,
     ctaLabel: '立即开通',
     payUnavailable: false,
+    showDevTools: false,
     noticeItems: NOTICE_ITEMS,
     benefitRows: BENEFITS
   },
@@ -99,6 +110,7 @@ Page({
       from,
       noticeAcked: readNoticeAcked(),
       payUnavailable: !gate.ok,
+      showDevTools: isNonReleaseEnv(),
       busy: true,
       pageReady: false
     })
@@ -175,6 +187,69 @@ Page({
         this.setData({ busy: false })
         wx.showToast({
           title: (err && err.error) || '刷新失败',
+          icon: 'none'
+        })
+      })
+  },
+
+  onDevGrant(e) {
+    if (!this.data.showDevTools || this.data.busy) return
+    if ((this.data.orders || []).some((o) => o && o.canPay)) {
+      wx.showToast({ title: '请先处理待支付订单', icon: 'none' })
+      return
+    }
+    const sku = (e && e.currentTarget && e.currentTarget.dataset.sku) || 'month'
+    tapFeedback('light')
+    this._runDev(membership.devGrant(sku))
+  },
+
+  onDevClear() {
+    if (!this.data.showDevTools || this.data.busy) return
+    tapFeedback('light')
+    this._runDev(membership.devClear())
+  },
+
+  onDevExpireSoon() {
+    if (!this.data.showDevTools || this.data.busy) return
+    tapFeedback('light')
+    this._runDev(membership.devExpireSoon())
+  },
+
+  onDevResetFirstPurchase() {
+    if (!this.data.showDevTools || this.data.busy) return
+    tapFeedback('light')
+    this._runDev(membership.devResetFirstPurchase())
+  },
+
+  onDevClearOrders() {
+    if (!this.data.showDevTools || this.data.busy) return
+    tapFeedback('light')
+    this._runDev(membership.devClearOrders())
+  },
+
+  onDevCreatePending() {
+    if (!this.data.showDevTools || this.data.busy) return
+    const sku = this.data.selectedSku || 'month'
+    tapFeedback('light')
+    this._runDev(membership.devCreatePending(sku))
+  },
+
+  _runDev(promise) {
+    this.setData({ busy: true })
+    Promise.resolve(promise)
+      .then((res) => {
+        if (!res || res.ok === false) {
+          const err = new Error((res && res.error) || '调试失败')
+          err.error = (res && res.error) || '调试失败'
+          throw err
+        }
+        this._applyStatus(res)
+        this.setData({ busy: false })
+      })
+      .catch((err) => {
+        this.setData({ busy: false })
+        wx.showToast({
+          title: orderErrorToast(err, this._platform) || '调试失败',
           icon: 'none'
         })
       })
