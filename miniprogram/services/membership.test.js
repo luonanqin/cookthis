@@ -3,10 +3,17 @@
 const { describe, it, beforeEach } = require('node:test')
 const assert = require('node:assert/strict')
 const {
+  MEMBERSHIP_ENABLED,
   memberStatusLabel,
   getMembershipLite,
   setMembershipLite
 } = require('./membership.js')
+
+describe('MEMBERSHIP_ENABLED', () => {
+  it('defaults to false for no-membership ship (set true when selling membership)', () => {
+    assert.equal(MEMBERSHIP_ENABLED, false)
+  })
+})
 
 describe('memberStatusLabel', () => {
   it('shows 未开通会员 when missing or inactive', () => {
@@ -15,11 +22,12 @@ describe('memberStatusLabel', () => {
     assert.equal(memberStatusLabel({ isMember: false, expiresLabel: '2027-01-18' }), '未开通会员')
   })
 
-  it('shows 会员至 expiresLabel when active', () => {
+  it('shows 会员于 expiresLabel 到期 when active', () => {
     assert.equal(
       memberStatusLabel({ isMember: true, expiresLabel: '2027-01-18' }),
-      '会员至 2027-01-18'
+      '会员于2027-01-18到期'
     )
+    assert.equal(memberStatusLabel({ isMember: true }), '会员已开通')
   })
 })
 

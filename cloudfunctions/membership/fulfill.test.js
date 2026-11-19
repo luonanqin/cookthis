@@ -159,6 +159,52 @@ describe('fulfillPaidOrder', () => {
     assert.equal(memberships.data[0].expiresAt, expectedExpiry)
   })
 
+  it('dedupes by wx_order_id (MchOrderNo) across different outTradeNo', async () => {
+    const db = createMemoryDb()
+    await seedCreatedOrder(db)
+    const first = await fulfillPaidOrder({
+      db,
+      orderId: 'morder001abc',
+      wxPayment: { MchOrderNo: 'wx_platform_1' },
+      nowMs: NOW
+    })
+    assert.equal(first.ok, true)
+    const paid = (
+      await db.collection('membership_orders').where({ orderId: 'morder001abc' }).limit(1).get()
+    ).data[0]
+    assert.equal(paid.wxOrderId, 'wx_platform_1')
+    const expectedExpiry = first.membership.expiresAt
+
+    await db.collection('membership_orders').add({
+      data: {
+        orderId: 'morder-retry-dup',
+        uid: 'user-1',
+        sku: 'month',
+        amountFen: 99,
+        isFirstPurchase: true,
+        productId: 'vip_month_first',
+        status: 'created',
+        createdAt: new Date(NOW + 2000).toISOString()
+      }
+    })
+    const dup = await fulfillPaidOrder({
+      db,
+      orderId: 'morder-retry-dup',
+      wxPayment: { MchOrderNo: 'wx_platform_1' },
+      nowMs: NOW + 3000
+    })
+    assert.equal(dup.ok, true)
+    assert.equal(dup.membership.expiresAt, expectedExpiry)
+    assert.equal(dup.dedupedByWxOrderId, true)
+
+    const memberships = await db.collection('memberships').where({ uid: 'user-1' }).get()
+    assert.equal(memberships.data.length, 1)
+    const retry = (
+      await db.collection('membership_orders').where({ orderId: 'morder-retry-dup' }).limit(1).get()
+    ).data[0]
+    assert.equal(retry.status, 'created')
+  })
+
   it('rejects non-created unpaid orders and missing orders', async () => {
     const db = createMemoryDb()
     await seedCreatedOrder(db, { status: 'closed' })
@@ -202,6 +248,38 @@ describe('fulfillPaidOrder', () => {
     assert.equal(closed.status, 'closed')
     assert.equal(closed.closedReason, 'FIRST_PURCHASE_USED')
     assert.equal(first.membership.expiresAt, computeNewExpiry(null, 31, NOW))
+  })
+
+  it('allows first-purchase again when prior paid order is ignoreForFirstPurchase', async () => {
+    const db = createMemoryDb()
+    await seedCreatedOrder(db)
+    const first = await fulfillPaidOrder({ db, orderId: 'morder001abc', nowMs: NOW })
+    assert.equal(first.ok, true)
+    const paid = (
+      await db.collection('membership_orders').where({ orderId: 'morder001abc' }).limit(1).get()
+    ).data[0]
+    await db.collection('membership_orders').doc(paid._id).update({
+      data: { ignoreForFirstPurchase: true }
+    })
+
+    await db.collection('membership_orders').add({
+      data: {
+        orderId: 'morder-after-reset',
+        uid: 'user-1',
+        sku: 'month',
+        amountFen: 99,
+        isFirstPurchase: true,
+        productId: 'vip_month_first',
+        status: 'created',
+        createdAt: new Date(NOW + 2000).toISOString()
+      }
+    })
+    const again = await fulfillPaidOrder({
+      db,
+      orderId: 'morder-after-reset',
+      nowMs: NOW + 3000
+    })
+    assert.equal(again.ok, true)
   })
 
   it('does not stack when a concurrent-style fulfill loses the created→paid claim', async () => {

@@ -6,11 +6,17 @@
   <view class="wrap">
   <view class="profile-row">
     <image class="avatar" src="{{avatarSrc}}" mode="aspectFill" />
-    <view class="profile-text" hover-class="tap-hover" hover-stay-time="80" bindtap="goMembership">
+    <view class="profile-text">
       <text class="nickname">{{nickname}}</text>
       <text wx:if="{{userNoLabel}}" class="user-no">{{userNoLabel}}</text>
-      <text class="member-status">{{memberStatusLabel}}</text>
     </view>
+    <view
+      wx:if="{{membershipEnabled}}"
+      class="member-status"
+      hover-class="tap-hover"
+      hover-stay-time="80"
+      bindtap="goMembership"
+    >{{memberStatusLabel}}</view>
   </view>
 
   <view class="section" id="secMembers">

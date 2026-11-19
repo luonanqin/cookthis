@@ -2,6 +2,8 @@
 
 微信小程序 + 云开发。
 
+**分支与发版：** **`develop`**（完整，可含调试）+ **`main`**（可上线，**不含调试代码**）+ 短生命周期 `feature/*`；用 `MEMBERSHIP_ENABLED` / `ADS_ENABLED` 裁剪无会员/广告。详见 [`doc/分支与发布约定.md`](doc/分支与发布约定.md)。
+
 按切片验收时：**只做该切片列出的准备**；后面切片是在前面基础上**增量**补东西。
 
 ### 建议点验顺序（勿被引导挡住）
@@ -370,12 +372,32 @@ Slice 18（会员 / 虚拟支付）另需集合 **`memberships`**、**`membershi
 
 | 值 | 行为 |
 |----|------|
-| `true`（**当前**） | 首页 VIP、「我的」会员态、推荐页「开通会员」/「会员可展开」、会员页可见，便于联调支付 |
-| `false` | 上述入口与文案**全部隐藏**；直开会员页会 toast「会员暂未开放」并返回。换菜日额度 / 菜数软限服务端逻辑仍可生效，但**不**再导流到会员页 |
+| `false`（**仓库默认 · 无会员先上**） | 上述入口与文案**全部隐藏**；直开会员页会 toast「会员暂未开放」并返回。换菜日额度 / 菜数软限仍可生效，但**不**再导流到会员页 |
+| `true` | 首页 VIP、「我的」会员态、推荐页「开通会员」/「会员可展开」、会员页可见 |
 
-- **广告**走 `miniprogram/utils/ads.js` 的 `ADS_ENABLED`，与会员开关**无关**。  
-- 前期不卖会员：发版前把 `MEMBERSHIP_ENABLED` 改成 **`false`** 再编小程序。  
-- 积累用户后开放购买：改回 **`true`**，重新上传小程序即可（云函数 / 道具配置可提前备好）。
+- **广告**走 `miniprogram/utils/ads.js` 的 `ADS_ENABLED`（默认 `false`），与会员开关**无关**。  
+- **联调会员**：本地临时改为 `true`；发无会员包前改回 `false`。  
+- **正式卖会员**：虚拟支付就绪后改为 `true` 再上传小程序（云函数 / 道具可提前备好）。  
+- 分支策略见 [`doc/分支与发布约定.md`](doc/分支与发布约定.md)。
+
+### 调试开关 `MEMBERSHIP_ALLOW_DEV_GRANT`（联调开 / 上线前关）
+
+云函数 `membership` 环境变量。设为 `1` 时允许 `devGrant` / `devClear` / `devExpireSoon` / `devResetFirstPurchase` / `devClearOrders` / `devCreatePending`，开发/体验版会员页底才会真正点通调试按钮；**正式对用户发版前必须关掉**。正式版靠 `envVersion=release` 本来就不渲染调试区，**不必**为去调试单独开分支。
+
+**联调时怎么开：**
+
+1. 微信开发者工具 → **云开发** → **云函数** → 打开 **`membership`**
+2. **配置 / 函数配置 → 环境变量** → 新增：
+   - 名称：`MEMBERSHIP_ALLOW_DEV_GRANT`
+   - 值：`1`
+3. 保存；若不生效再 **上传并部署** 一次 `membership`（代码也须含最新调试 action）
+4. 用**开发版或体验版**打开会员页，页底应出现「调试（仅开发/体验版）」
+
+**上线前准备（必做）：**
+
+- [ ] 云开发控制台将 `MEMBERSHIP_ALLOW_DEV_GRANT` **删除**或改为 **`0`**（正式环境禁止留 `1`）
+- [ ] 确认正式版小程序（`envVersion=release`）页底**无**调试区（前端已按环境隐藏；关云开关是双保险）
+- [ ] 与总开关一并核对：是否对用户开放购买 → 见上方 **`MEMBERSHIP_ENABLED`**
 
 ### A. 你需要在微信后台准备的（代码外）
 
@@ -448,7 +470,7 @@ Slice 18（会员 / 虚拟支付）另需集合 **`memberships`**、**`membershi
    | `XPAY_OFFER_ID` | MP OfferID | 必填，否则下单 `PAY_NOT_CONFIGURED` |
    | `XPAY_APP_KEY` | 现网 AppKey | 必填；签名用正式钥 |
    | `XPAY_ENV` | `0` | 现网支付填 `0`；沙箱才用 `1` |
-   | `MEMBERSHIP_ALLOW_DEV_GRANT` | 不设或 `0` | 仅本地/开发机可设 `1` 走 `devGrant` / `devClear` / `devExpireSoon` / `devResetFirstPurchase`；**正式环境禁止**。开发/体验版会员页底「调试」区依赖此开关 |
+   | `MEMBERSHIP_ALLOW_DEV_GRANT` | 联调 `1`；上线前删或 `0` | 操作步骤见上方「调试开关」；正式环境禁止留 `1` |
 
 5. **小程序**  
    - 编译含 `pages/membership/index`、首页 VIP 入口、`services/membership.js`  
@@ -866,7 +888,7 @@ node --test cloudfunctions/membership/*.test.js miniprogram/pages/membership/*.t
 
 **需人工 · 下单与未支付单（可先用沙箱/`XPAY_ENV` 或小额真单）：**
 
-7. [ ] **首购价展示**：未用过月卡时月卡展示 ¥0.99 并划线页价；支付成功后再买月卡应为 ¥6.6（`vip_month`）。季/年同理。  
+7. [ ] **首购价展示**：未用过首购时月卡可 ¥0.99（划线页价）；**任买一档**首购成功后，月/季/年全部为页价（账号级仅一次，非分档各一次）。  
 8. [ ] **拉起支付**：确认须知后「立即开通」→ 服务端建单 → `wx.requestVirtualPayment`（`mode=short_series_goods`）；前端 success **不**立刻变会员，需等推送或点「刷新会员状态」。  
 9. [ ] **全局一笔未支付**：已有待支付单时，同档再点购买 → 复用原单并重签（订单列表可见倒计时约 5 分钟）；异档 → 弹确认后关旧单并下新档。  
 10. [ ] **取消 / 过期**：待支付单可取消；过期后再支付/取消 → Toast「订单已取消，请重新下单」并刷新列表。订单列表最多展示近 5 条（有效未支付 + paid）。  
@@ -883,7 +905,7 @@ node --test cloudfunctions/membership/*.test.js miniprogram/pages/membership/*.t
 
 **本切片不验：** 代币/币种体系、自动续费、激励视频换菜（阶段 2）、清单去广告（阶段 2）、成长值/饭友等级、退款接口自动化（Android 可后台手退一笔抽查即可）、定时每 5 分钟扫单（现靠进页/`refresh` 触发查单）。
 
-**部署提醒：** 先按 §B.2 建精简索引（**不必**为未支付建 `createdAt` ASC/DESC 双索引）；再配 OfferID/AppKey 与 6 道具、绑推送。正式环境勿开 `MEMBERSHIP_ALLOW_DEV_GRANT`；改定价或 productId 须与 MP 道具同步。个人主体接入检查项也可对照官方文末「部署前检查清单」。**对外灰度前**确认 `MEMBERSHIP_ENABLED`：联调保持 `true`，正式对用户隐藏会员时改为 `false`。开发/体验版且云开了 `MEMBERSHIP_ALLOW_DEV_GRANT=1` 时，会员页底可见调试快捷按钮（开卡叠期 / 清会员 / 临期 / 重置首购）。
+**部署提醒：** 先按 §B.2 建精简索引（**不必**为未支付建 `createdAt` ASC/DESC 双索引）；再配 OfferID/AppKey 与 6 道具、绑推送。改定价或 productId 须与 MP 道具同步。个人主体接入检查项也可对照官方文末「部署前检查清单」。**上线前准备**：① 关 `MEMBERSHIP_ALLOW_DEV_GRANT`（删或 `0`）；② 核对 `MEMBERSHIP_ENABLED`（默认 `false` 无会员先上；卖会员则 `true`）；③ `ADS_ENABLED` 仍按流量主进度。分支与开关总述见 [`doc/分支与发布约定.md`](doc/分支与发布约定.md)。联调期开发/体验版 + 云开 `1` 时会员页底有调试快捷按钮。
 
 ---
 

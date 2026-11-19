@@ -21,6 +21,8 @@ const assetsDir = path.join(dir, '../../assets/images')
 
 describe('home VIP entry', () => {
   it('places VIP to the left of type-scale in home-top-tools', () => {
+    assert.match(js, /MEMBERSHIP_ENABLED/)
+    assert.match(wxml, /wx:if="\{\{membershipEnabled\}\}"/)
     const toolsAt = wxml.indexOf('home-top-tools')
     const vipAt = wxml.indexOf('home-vip-entry')
     const scaleAt = wxml.indexOf('class="home-type-scale"')

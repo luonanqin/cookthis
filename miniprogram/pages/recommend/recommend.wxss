@@ -426,38 +426,26 @@
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  gap: 12rpx 20rpx;
+  gap: 12rpx;
 }
 
 .reject-dish-item {
-  position: relative;
-  display: inline-block;
   max-width: 100%;
-  padding: 4rpx 0;
+  padding: 10rpx 16rpx;
+  border-radius: var(--radius-chip);
+  border: 1rpx solid var(--color-border);
+  background: var(--color-bg);
+  font-size: var(--fs-sm);
+  color: var(--color-text);
+  line-height: 1.35;
   box-sizing: border-box;
 }
 
-.reject-dish-item.on .reject-dish-name {
+.reject-dish-item.on {
+  border-color: #d4835a;
   color: #b35c2e;
-}
-
-.reject-dish-name {
-  font-size: var(--fs-body);
-  color: var(--color-text);
-  line-height: 1.4;
-}
-
-/* 叠在菜名正中，absolute 不占宽 */
-.reject-dish-x {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -52%);
-  font-size: 40rpx;
+  background: #fff7f0;
   font-weight: var(--fw-semibold);
-  color: #c44a2f;
-  line-height: 1;
-  pointer-events: none;
 }
 
 .swap-cap-mask {

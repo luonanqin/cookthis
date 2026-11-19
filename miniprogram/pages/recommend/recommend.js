@@ -5,6 +5,7 @@ const { buildPlanIngredientSummary } = require('../../utils/planIngredientSummar
 const { clearChecksForRequest } = require('../../utils/shoppingChecks.js')
 const { tapFeedback } = require('../../utils/haptic.js')
 const { PLAN_SHARE_ENABLED, shareCardTitle } = require('../../utils/planShare.js')
+const { MEMBERSHIP_ENABLED } = require('../../services/membership.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 const { formatSceneSummaryLines } = require('../../utils/sceneSummary.js')
 const { computeProfileGaps } = require('../../utils/profileGaps.js')
@@ -204,12 +205,13 @@ Page({
     showQuickLite: false,
     quickLiteNeedCity: false,
     rejectReasons: REJECT_REASONS,
-    rejectActiveReason: 'dont_want',
+    rejectActiveReason: '',
     rejectDishPool: [],
     rejectDishGroups: [],
     rejectSelections: {},
     fabDimmed: false,
     planShareEnabled: PLAN_SHARE_ENABLED,
+    membershipEnabled: MEMBERSHIP_ENABLED,
     showSwapCap: false,
     swapCapUsed: 0,
     swapCapLimit: 3,
@@ -539,7 +541,7 @@ Page({
     if (Date.now() < (this._swapCooldownUntil || 0)) return
     tapFeedback()
     const pool = buildRejectDishPool(this.data.plans || [], { limit: 10 })
-    const rejectActiveReason = 'dont_want'
+    const rejectActiveReason = ''
     const rejectSelections = {}
     this.setData({
       showReject: true,
@@ -574,6 +576,10 @@ Page({
     const key = e.currentTarget.dataset.key
     if (!key) return
     const reason = this.data.rejectActiveReason
+    if (!reason) {
+      wx.showToast({ title: '请先选择原因', icon: 'none' })
+      return
+    }
     const rejectSelections = Object.assign({}, this.data.rejectSelections)
     const prev = Object.assign({}, rejectSelections[key] || {})
     prev[reason] = !prev[reason]
@@ -747,6 +753,7 @@ Page({
   },
 
   onSwapCapGoMember() {
+    if (!MEMBERSHIP_ENABLED) return
     tapFeedback()
     track('swap_cap_go_member')
     this.setData({ showSwapCap: false })
@@ -761,6 +768,7 @@ Page({
   },
 
   onDishCapGoMember() {
+    if (!MEMBERSHIP_ENABLED) return
     tapFeedback()
     track('dish_cap_go_member')
     wx.navigateTo({

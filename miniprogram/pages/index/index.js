@@ -21,6 +21,7 @@ const {
 const confirmIngredientsCache = require('../../services/confirmIngredientsCache.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 const { getNavMetrics } = require('../../utils/navBar.js')
+const { MEMBERSHIP_ENABLED } = require('../../services/membership.js')
 
   /** 数字滚定后稍顿，再放礼花 */
 const CEREMONY_LABEL_HOLD_MS = 520
@@ -166,7 +167,8 @@ Page({
     revealDisplay: 0,
     revealDone: false,
     showCeremonyConfetti: false,
-    ceremonyConfetti: []
+    ceremonyConfetti: [],
+    membershipEnabled: MEMBERSHIP_ENABLED
   },
 
   onLoad(query) {
@@ -176,6 +178,7 @@ Page({
     this.setData({
       statusBarHeight: nav.statusBarHeight,
       navBarHeight: nav.navBarHeight,
+      membershipEnabled: MEMBERSHIP_ENABLED,
       // 开发/体验可见测试入口（含重播首启）
       showHomeDevTools: dev,
       showMarketScaleDebug: dev
@@ -903,6 +906,7 @@ Page({
   },
 
   goMembership() {
+    if (!MEMBERSHIP_ENABLED) return
     tapFeedback()
     wx.navigateTo({ url: '/pages/membership/index?from=home_vip' })
   },

@@ -1,6 +1,7 @@
 const { ensureLogin, getUser, patchUser } = require('../../services/session.js')
 const { callCloud } = require('../../services/cloud.js')
 const {
+  MEMBERSHIP_ENABLED,
   getStatus,
   memberStatusLabel,
   getMembershipLite,
@@ -218,6 +219,7 @@ Page({
     nickname: '',
     avatarSrc: '/assets/avatar-default.png',
     userNoLabel: '',
+    membershipEnabled: MEMBERSHIP_ENABLED,
     memberStatusLabel: '未开通会员',
     avoidOptions: AVOID_OPTIONS,
     formOptions: FORM_OPTIONS,
@@ -404,6 +406,7 @@ Page({
   },
 
   _loadMembershipStatus() {
+    if (!MEMBERSHIP_ENABLED) return
     const lite = getMembershipLite()
     if (lite) {
       this.setData({ memberStatusLabel: memberStatusLabel(lite) })
@@ -417,6 +420,7 @@ Page({
   },
 
   goMembership() {
+    if (!MEMBERSHIP_ENABLED) return
     tapFeedback()
     wx.navigateTo({ url: '/pages/membership/index?from=mine' })
   },

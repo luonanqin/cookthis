@@ -23,8 +23,13 @@
   flex-wrap: wrap;
   align-content: flex-start;
   gap: 8rpx 20rpx;
-  max-height: 72rpx;
+  /* 约一行半：完整一行 + 半行由底部渐隐盖住（对齐建议反馈 .clip / .fade-user） */
+  max-height: 66rpx;
   overflow: hidden;
+}
+
+.large-text .season-preview-row {
+  max-height: 84rpx;
 }
 
 .season-preview-name {
@@ -34,30 +39,64 @@
 }
 
 .season-preview-fade {
-  pointer-events: none;
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  height: 40rpx;
+  height: 48rpx;
+  pointer-events: none;
   background: linear-gradient(
     to bottom,
-    rgba(255, 255, 255, 0),
-    var(--color-surface) 70%
+    rgba(255, 254, 250, 0),
+    var(--color-surface)
   );
-  backdrop-filter: blur(2px);
 }
 
-.season-sheet {
-  max-height: 75vh;
+.season-expand-link {
+  flex-shrink: 0;
+  font-size: var(--fs-sm);
+}
+
+/* 高于 page-header，面板用 margin-top 落在页头下方，避开状态栏/胶囊 */
+.mask.mask-season-top {
+  align-items: flex-start;
+  z-index: 120;
+}
+
+.season-sheet-top {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--color-surface);
+  border-radius: 0 0 var(--radius-sheet) var(--radius-sheet);
+  padding: 24rpx 28rpx 28rpx;
+  box-sizing: border-box;
+}
+
+.season-sheet-toolbar {
+  flex-shrink: 0;
+  margin-bottom: 16rpx;
+}
+
+.season-sheet-scroll {
+  flex: 1;
+  height: 0;
+  min-height: 240rpx;
+  max-height: 58vh;
 }
 
 .season-sheet-groups {
-  margin-top: 20rpx;
+  margin-bottom: 0;
+  padding-bottom: 8rpx;
 }
 
-.season-sheet .group:last-child {
+.season-sheet-groups .group:last-child {
   margin-bottom: 0;
+}
+
+.season-sheet-top .season-actions {
+  flex-shrink: 0;
 }
 
 .toolbar-left {
@@ -101,8 +140,9 @@
 }
 
 .market-scale-entry {
-  margin-bottom: 0;
-  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 4rpx 12rpx;
 }
 
 .market-scale-entry-link {
@@ -199,15 +239,18 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20rpx 24rpx;
+  gap: 16rpx;
+  padding: 24rpx 24rpx 20rpx;
   font-size: var(--fs-body);
   color: var(--color-text);
   background: var(--color-surface);
 }
 
 .fold-icon {
+  flex-shrink: 0;
   color: var(--color-primary);
-  font-size: var(--fs-md);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
 }
 
 .fold-body {
@@ -757,9 +800,10 @@
   gap: 12rpx;
 }
 
+/* 与常见菜 ui-icon--sm(40rpx) 对齐；+ 单独光学居中 */
 .plus-mark {
-  width: 36rpx;
-  height: 36rpx;
+  width: 40rpx;
+  height: 40rpx;
   flex-shrink: 0;
   border-radius: 50%;
   background: var(--color-primary);
@@ -767,8 +811,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--fs-body);
+  box-sizing: border-box;
+}
+
+.plus-mark-glyph {
+  font-size: 28rpx;
+  font-weight: var(--fw-semibold);
   line-height: 1;
+  transform: translateY(-2rpx);
 }
 
 .field-label-with-icon {

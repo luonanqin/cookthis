@@ -11,15 +11,16 @@ const wxml = fs.readFileSync(path.join(dir, 'recommend.wxml'), 'utf8')
 const wxss = fs.readFileSync(path.join(dir, 'recommend.wxss'), 'utf8')
 
 describe('recommend daily dish soft cap UI', () => {
-  it('greys out softLocked dishes and labels them 会员可展开', () => {
+  it('greys out softLocked dishes and labels them 会员可展开 when enabled', () => {
     assert.match(wxml, /dish\.softLocked/)
+    assert.match(wxml, /membershipEnabled && dish\.softLocked/)
     assert.match(wxml, /会员可展开/)
     assert.match(wxss, /\.dish-name--locked/)
     assert.match(wxss, /\.dish-locked-hint/)
   })
 
   it('shows a membership tip from=dish_cap and does not block 去买菜', () => {
-    assert.match(wxml, /showDishCapTip/)
+    assert.match(wxml, /membershipEnabled && showDishCapTip/)
     assert.match(wxml, /今日菜数较多，开通会员可一次看全/)
     assert.match(wxml, /bindtap="onDishCapGoMember"/)
     assert.match(

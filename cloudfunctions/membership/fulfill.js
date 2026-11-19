@@ -22,10 +22,33 @@ function membershipCoversExpected(membership, expectedExpiresAt) {
   return Number.isFinite(actual) && actual >= expected
 }
 
+function extractWxOrderId(wxPayment) {
+  if (!wxPayment || typeof wxPayment !== 'object') return ''
+  return String(
+    wxPayment.MchOrderNo ||
+      wxPayment.mch_order_no ||
+      wxPayment.wx_order_id ||
+      wxPayment.wxOrderId ||
+      wxPayment.TransactionId ||
+      wxPayment.transaction_id ||
+      ''
+  ).trim()
+}
+
 async function loadOrder(db, orderId) {
   const res = await db
     .collection('membership_orders')
     .where({ orderId })
+    .limit(1)
+    .get()
+  return (res.data && res.data[0]) || null
+}
+
+async function loadPaidByWxOrderId(db, wxOrderId) {
+  if (!wxOrderId) return null
+  const res = await db
+    .collection('membership_orders')
+    .where({ wxOrderId, status: 'paid' })
     .limit(1)
     .get()
   return (res.data && res.data[0]) || null
@@ -85,7 +108,10 @@ async function markFirstPurchaseUsed(db, uid, sku) {
   })
 }
 
-/** 同档是否已有其它已支付订单（任意价都算用过该档首购资格） */
+/**
+ * 同档是否已有其它已支付订单（任意价都算用过该档首购资格）。
+ * 跳过 ignoreForFirstPurchase（调试「重置首购」打标），与 loadFirstPurchaseUsed 一致。
+ */
 async function hasOtherPaidSkuOrder(db, uid, sku, excludeOrderId) {
   const res = await db
     .collection('membership_orders')
@@ -95,6 +121,7 @@ async function hasOtherPaidSkuOrder(db, uid, sku, excludeOrderId) {
   for (const row of res.data || []) {
     if (!row) continue
     if (excludeOrderId && row.orderId === excludeOrderId) continue
+    if (row.ignoreForFirstPurchase === true) continue
     return true
   }
   return false
@@ -130,6 +157,15 @@ async function fulfillPaidOrder({ db, orderId, wxPayment, nowMs }) {
     return { ok: false, error: 'BAD_ORDER_STATUS' }
   }
 
+  const wxOrderId = extractWxOrderId(wxPayment) || String(order.wxOrderId || '').trim()
+  if (wxOrderId) {
+    const prior = await loadPaidByWxOrderId(db, wxOrderId)
+    if (prior && prior.orderId !== order.orderId) {
+      const ensured = await ensureMembershipGranted(db, prior, ts)
+      return Object.assign({}, ensured, { dedupedByWxOrderId: true })
+    }
+  }
+
   const item = getSku(order.sku)
   if (
     isFirstPurchaseProduct(order.sku, order.productId) &&
@@ -145,6 +181,7 @@ async function fulfillPaidOrder({ db, orderId, wxPayment, nowMs }) {
   const paidAt = nowIso(ts)
   const patch = { status: 'paid', paidAt, expectedExpiresAt }
   if (wxPayment != null) patch.wxPayment = wxPayment
+  if (wxOrderId) patch.wxOrderId = wxOrderId
   const claimed = await db
     .collection('membership_orders')
     .where({ orderId, status: 'created' })
@@ -161,13 +198,19 @@ async function fulfillPaidOrder({ db, orderId, wxPayment, nowMs }) {
 
   return ensureMembershipGranted(
     db,
-    Object.assign({}, order, { status: 'paid', paidAt, expectedExpiresAt }),
+    Object.assign({}, order, {
+      status: 'paid',
+      paidAt,
+      expectedExpiresAt,
+      wxOrderId: wxOrderId || order.wxOrderId
+    }),
     ts
   )
 }
 
 module.exports = {
   fulfillPaidOrder,
+  extractWxOrderId,
   loadMembership,
   loadOrder
 }

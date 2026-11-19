@@ -96,6 +96,15 @@ function createMemoryDb() {
               }
               Object.assign(col[id], clone(data))
               return { stats: { updated: 1 } }
+            },
+            async remove() {
+              if (!col[id]) {
+                const err = new Error('not found')
+                err.errCode = -1
+                throw err
+              }
+              delete col[id]
+              return { stats: { removed: 1 } }
             }
           }
         }

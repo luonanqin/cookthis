@@ -86,8 +86,8 @@
             wx:for-index="dishIdx"
             wx:key="dishIdx"
           >
-            <view class="dish-name">{{dish.name}}</view>
-            <view class="dish-ings">{{dish.ingredientText}}</view>
+            <text class="dish-name">{{dish.name}}</text>
+            <text class="dish-ings">{{dish.ingredientText}}</text>
           </view>
         </view>
       </view>

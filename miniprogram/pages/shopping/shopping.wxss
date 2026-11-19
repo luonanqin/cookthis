@@ -324,7 +324,7 @@
 
 .dish-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 16rpx;
   padding: 14rpx 0;
   border-bottom: 1rpx solid var(--color-border);
@@ -335,19 +335,28 @@
 }
 
 .dish-name {
-  flex: 0 0 168rpx;
+  display: block;
+  flex: 0 1 auto;
+  max-width: 46%;
   font-size: var(--fs-body);
   font-weight: var(--fw-semibold);
   color: var(--color-text);
-  line-height: 1.45;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .dish-ings {
+  display: block;
   flex: 1;
   min-width: 0;
   font-size: var(--fs-md);
   color: var(--color-text-secondary);
-  line-height: 1.45;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Icon assets */

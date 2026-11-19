@@ -29,13 +29,14 @@ describe('recommend SWAP_CAP soft gate', () => {
     assert.doesNotMatch(capBranch, /applySnap/)
   })
 
-  it('renders a soft sheet with shopping CTA and membership, no reward video', () => {
+  it('renders a soft sheet with shopping CTA and gated membership, no reward video', () => {
+    assert.match(js, /MEMBERSHIP_ENABLED/)
     assert.match(wxml, /wx:if="\{\{showSwapCap\}\}"/)
     assert.match(wxml, /class="swap-cap-mask"/)
     assert.match(wxml, /今日免费换菜已用完/)
     assert.match(wxml, /当前方案仍可去买菜/)
     assert.match(wxml, /bindtap="onSwapCapGoShopping"/)
-    assert.match(wxml, /bindtap="onSwapCapGoMember"/)
+    assert.match(wxml, /wx:if="\{\{membershipEnabled\}\}"[\s\S]*?onSwapCapGoMember/)
     assert.match(wxml, /开通会员，换菜不限次/)
     assert.match(wxml, /bindtap="onSwapCapClose"/)
     assert.doesNotMatch(wxml, /swap_cap_reward|看视频|激励视频/)

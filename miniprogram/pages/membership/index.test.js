@@ -17,10 +17,10 @@ const service = fs.readFileSync(
 )
 
 describe('membership page wiring', () => {
-  it('registers the page and uses page-header 会员', () => {
+  it('registers the page and uses page-header 会员中心', () => {
     assert.match(appJson, /pages\/membership\/index/)
     assert.match(wxml, /page-header/)
-    assert.match(wxml, /title="会员"/)
+    assert.match(wxml, /title="会员中心"/)
     assert.match(json, /page-header/)
     assert.match(json, /busy-overlay/)
   })
@@ -33,19 +33,25 @@ describe('membership page wiring', () => {
 
   it('renders blocks in the brief order', () => {
     const statusAt = wxml.indexOf('status-text')
-    const benefitsAt = wxml.indexOf('benefits')
-    const usageAt = wxml.indexOf('usage')
+    const benefitsAt = wxml.indexOf('benefit-card')
     const offersAt = wxml.indexOf('offer-card')
     const ctaAt = wxml.indexOf('立即开通')
-    const memberAt = wxml.indexOf('刷新会员状态')
+    const refreshAt = wxml.indexOf('刷新会员状态')
     const noticeAt = wxml.indexOf('购买须知')
     assert.ok(statusAt >= 0 && benefitsAt > statusAt)
-    assert.ok(usageAt > benefitsAt && offersAt > usageAt)
-    assert.ok(ctaAt > offersAt && memberAt > offersAt)
-    assert.ok(noticeAt > memberAt)
+    assert.ok(refreshAt > statusAt && refreshAt < benefitsAt)
+    assert.ok(offersAt > benefitsAt)
+    assert.ok(noticeAt > benefitsAt && noticeAt < offersAt)
+    assert.ok(ctaAt > offersAt)
+    assert.match(wxml, /status-refresh/)
+    assert.match(wxml, /section-note-link/)
+    assert.match(wxml, /order-pending/)
+    assert.match(wxml, /benefit-card/)
     assert.match(wxml, /benefit-table/)
     assert.match(wxml, /benefit-col--member/)
     assert.match(wxml, /benefitRows/)
+    assert.doesNotMatch(wxml, /VIP 专享/)
+    assert.match(wxss, /\.benefit-card\s*\{/)
     assert.match(wxml, /offers-row/)
     assert.match(wxss, /offers-row/)
     assert.equal(wxml.includes('已免广告'), false)
@@ -83,6 +89,11 @@ describe('membership page wiring', () => {
     assert.match(js, /onDevClear/)
     assert.match(js, /onDevExpireSoon/)
     assert.match(js, /onDevResetFirstPurchase/)
+    assert.match(js, /onDevClearOrders/)
+    assert.match(js, /onDevCreatePending/)
+    assert.match(wxml, /待支付20s/)
+    assert.match(wxml, /清历史订单/)
+    assert.match(wxml, /onDevClearOrders/)
     assert.match(wxml, /调试（仅开发\/体验版）/)
     assert.match(wxml, /开月卡/)
     assert.match(wxml, /清会员/)
@@ -91,11 +102,17 @@ describe('membership page wiring', () => {
     assert.equal(wxss.includes('linear-gradient') && wxss.includes('purple'), false)
   })
 
-  it('folds member buy by default and passes buyExpanded like the page', () => {
-    assert.match(js, /buyExpanded:\s*false/)
+  it('always shows package offers and pay footer when ready', () => {
+    assert.match(wxml, /class="offers"/)
+    assert.match(wxml, /section-title/)
+    assert.match(wxml, /最近订单/)
+    assert.match(wxml, /order-card/)
+    assert.doesNotMatch(wxml, /今日换菜/)
+    assert.doesNotMatch(wxml, /当前选中/)
+    assert.doesNotMatch(wxml, /buyExpanded/)
+    assert.match(wxml, /wx:if="\{\{pageReady\}\}"[\s\S]*?class="footer"/)
     assert.match(js, /applyStatus\(/)
     assert.match(js, /this\.data\.selectedSku/)
-    assert.match(js, /this\.data\.buyExpanded/)
   })
 
   it('wires order list, replacePending, and expired toast', () => {
@@ -129,9 +146,13 @@ describe('membership page wiring', () => {
     assert.match(poll, /this\._loadGen \+= 1/)
   })
 
-  it('shows 刷新会员状态 for non-members and uses a noop catchtouchmove', () => {
-    assert.ok((wxml.match(/刷新会员状态/g) || []).length >= 2)
-    assert.match(wxml, /wx:else[\s\S]{0,220}刷新会员状态/)
+  it('shows 刷新会员状态 in status card and uses a noop catchtouchmove', () => {
+    assert.ok((wxml.match(/刷新会员状态/g) || []).length >= 1)
+    assert.match(wxml, /status-refresh/)
+    assert.doesNotMatch(wxml, /会员信息/)
+    assert.doesNotMatch(wxml, /member-info/)
+    assert.doesNotMatch(wxml, /member-actions/)
+    assert.match(wxml, /timeLabel/)
     assert.match(wxml, /catchtouchmove="noop"/)
     assert.doesNotMatch(wxml, /catchtouchmove="true"/)
   })
@@ -147,6 +168,8 @@ describe('membership page wiring', () => {
     assert.match(service, /action: 'devClear'/)
     assert.match(service, /action: 'devExpireSoon'/)
     assert.match(service, /action: 'devResetFirstPurchase'/)
+    assert.match(service, /action: 'devClearOrders'/)
+    assert.match(service, /action: 'devCreatePending'/)
     assert.doesNotMatch(service, /isMember:\s*true/)
   })
 })

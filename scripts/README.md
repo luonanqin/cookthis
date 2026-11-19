@@ -295,7 +295,7 @@ FEEDBACK_ADMIN_KEY=xxx node scripts/reply-feedback.js <feedbackId> <回复正文
 - 米大师道具：**6 个**（首购/页价分开）`vip_month_first`/`vip_month`、`vip_quarter_first`/`vip_quarter`、`vip_year_first`/`vip_year`，标价分别对应 0.99/6.6、9.9/16.6、39.9/56.6 元。
 - 环境变量：`XPAY_OFFER_ID`、`XPAY_APP_KEY`、`XPAY_ENV`（`0` 正式 / `1` 沙箱）。缺密钥时 `createOrder` 返回 `PAY_NOT_CONFIGURED`。
 - `MEMBERSHIP_ALLOW_DEV_GRANT=1` 时才允许 `action: devGrant`（模拟已支付订单并 `fulfillPaidOrder`）；其它环境返回 `FORBIDDEN`。
-- `queryOrder` 目前恒返回 `null`，刷新不能凭查单补发货。
+- `queryOrder` 调用 `POST /xpay/query_order`；`refresh` 可凭查单补发货（仍以发货推送为主）。
 - 手测清单在会员 design §12，**未**在微信开发者工具勾选完成。
 
 ---

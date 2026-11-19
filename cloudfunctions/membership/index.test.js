@@ -195,6 +195,32 @@ describe('createOrder', () => {
     assert.equal(created[0].productId, 'vip_month')
   })
 
+  it('after a paid month sku, quarter also uses list price (account-wide first purchase)', async () => {
+    const db = createMemoryDb()
+    await seedUser(db)
+    await db.collection('membership_orders').add({
+      data: {
+        orderId: 'm-paid-month',
+        uid: 'user-1',
+        sku: 'month',
+        amountFen: 99,
+        isFirstPurchase: true,
+        productId: 'vip_month_first',
+        status: 'paid',
+        createdAt: new Date(NOW - 1000).toISOString(),
+        paidAt: new Date(NOW - 500).toISOString()
+      }
+    })
+    const status = await api(db).getStatus('user-1')
+    const quarter = status.offers.find((o) => o.sku === 'quarter')
+    assert.equal(quarter.isFirstPurchase, false)
+    assert.equal(quarter.payFen, 1660)
+    const res = await api(db).createOrder('user-1', 'quarter')
+    assert.equal(res.ok, true)
+    assert.equal(res.payFen, 1660)
+    assert.equal(res.productId, SKUS.quarter.productIdList)
+  })
+
   it('after a paid month sku, createOrder uses list productId and list price', async () => {
     const db = createMemoryDb()
     await seedUser(db)
@@ -356,7 +382,7 @@ describe('dev tools', () => {
     const orders = (await db.collection('membership_orders').where({ uid: 'user-1' }).get())
       .data
     assert.equal(orders.length, 1)
-    assert.equal(orders[0].amountFen, 0)
+    assert.equal(orders[0].amountFen, SKUS.month.firstFen)
     assert.equal(orders[0].dev, true)
     assert.equal(orders[0].status, 'paid')
   })
@@ -415,5 +441,57 @@ describe('dev tools', () => {
     ).data
     assert.ok(paid.length >= 1)
     assert.ok(paid.every((o) => o.ignoreForFirstPurchase === true))
+  })
+
+  it('devResetFirstPurchase succeeds with no paid orders', async () => {
+    const db = createMemoryDb()
+    await seedUser(db)
+    const res = await api(db, DEV_ENV).devResetFirstPurchase('user-1')
+    assert.equal(res.ok, true)
+    assert.equal(res.offers.find((o) => o.sku === 'month').isFirstPurchase, true)
+  })
+
+  it('devClearOrders removes history and restores first-purchase; keeps membership', async () => {
+    const db = createMemoryDb()
+    await seedUser(db)
+    await api(db, DEV_ENV).devGrant('user-1', 'month')
+    const before = await api(db, DEV_ENV).getStatus('user-1')
+    assert.equal(before.isMember, true)
+    assert.ok((before.orders || []).length >= 1)
+    assert.equal(before.offers.find((o) => o.sku === 'month').isFirstPurchase, false)
+    assert.deepEqual(await api(db, PAY_ENV).devClearOrders('user-1'), {
+      ok: false,
+      error: 'FORBIDDEN'
+    })
+    const after = await api(db, DEV_ENV).devClearOrders('user-1')
+    assert.equal(after.ok, true)
+    assert.equal(after.isMember, true)
+    assert.equal((after.orders || []).length, 0)
+    assert.equal(after.offers.find((o) => o.sku === 'month').isFirstPurchase, true)
+    const left = (await db.collection('membership_orders').where({ uid: 'user-1' }).get()).data
+    assert.equal(left.length, 0)
+  })
+
+  it('devCreatePending inserts a short-lived unpaid order', async () => {
+    const db = createMemoryDb()
+    await seedUser(db)
+    assert.deepEqual(await api(db, PAY_ENV).devCreatePending('user-1', 'month'), {
+      ok: false,
+      error: 'FORBIDDEN'
+    })
+    const res = await api(db, DEV_ENV).devCreatePending('user-1', 'quarter')
+    assert.equal(res.ok, true)
+    const pending = (res.orders || []).find((o) => o.status === 'created' && o.canPay)
+    assert.ok(pending)
+    assert.equal(pending.sku, 'quarter')
+    assert.ok(pending.remainMs > 0 && pending.remainMs <= 20 * 1000)
+  })
+
+  it('devGrant refuses while an unpaid order is active', async () => {
+    const db = createMemoryDb()
+    await seedUser(db)
+    await api(db, DEV_ENV).devCreatePending('user-1', 'month')
+    const denied = await api(db, DEV_ENV).devGrant('user-1', 'month')
+    assert.deepEqual(denied, { ok: false, error: 'PENDING_ORDER_EXISTS' })
   })
 })

@@ -3,13 +3,13 @@
 const { callCloud } = require('./cloud.js')
 
 /**
- * 会员购买 / 入口总开关。
- * - true：首页 VIP、「我的」会员态、推荐页开通入口、会员页可见（当前便于联调）
- * - false：上述 UI 全部隐藏；软限仍可生效但不展示「开通会员」导流
- * 广告位走 utils/ads.js，与本开关无关。
- * 积累用户后正式开放时改为 true 即可（见 README Slice 18）。
+ * 会员购买 / 入口总开关（发版形态见 doc/分支与发布约定.md）。
+ * - false（默认）：无会员先上——隐藏 VIP / 「我的」会员态 / 会员页 / 「开通会员」导流；
+ *   换菜日限、菜数软限仍可生效。
+ * - true：开放购买与会员 UI（联调或正式卖会员时打开）。
+ * 广告位走 utils/ads.js（ADS_ENABLED），与本开关无关。
  */
-const MEMBERSHIP_ENABLED = true
+const MEMBERSHIP_ENABLED = false
 
 let membershipLite = null
 
@@ -51,10 +51,18 @@ function devResetFirstPurchase() {
   return callCloud('membership', { action: 'devResetFirstPurchase' })
 }
 
+function devClearOrders() {
+  return callCloud('membership', { action: 'devClearOrders' })
+}
+
+function devCreatePending(sku) {
+  return callCloud('membership', { action: 'devCreatePending', sku })
+}
+
 function memberStatusLabel(status) {
   if (status && status.isMember) {
     const exp = status.expiresLabel ? String(status.expiresLabel) : ''
-    return exp ? '会员至 ' + exp : '会员至'
+    return exp ? '会员于' + exp + '到期' : '会员已开通'
   }
   return '未开通会员'
 }
@@ -86,6 +94,8 @@ module.exports = {
   devClear,
   devExpireSoon,
   devResetFirstPurchase,
+  devClearOrders,
+  devCreatePending,
   memberStatusLabel,
   getMembershipLite,
   setMembershipLite

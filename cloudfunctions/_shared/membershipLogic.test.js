@@ -15,14 +15,15 @@ const {
 const DAY_MS = 86400000
 
 describe('membershipLogic', () => {
-  it('resolvePriceFen uses firstFen until that sku is used', () => {
+  it('resolvePriceFen uses firstFen until account first-purchase is used', () => {
     assert.equal(resolvePriceFen('month', {}), 99)
     assert.equal(resolvePriceFen('month', { month: true }), 660)
     assert.equal(resolvePriceFen('quarter', {}), 990)
     assert.equal(resolvePriceFen('quarter', { quarter: true }), 1660)
     assert.equal(resolvePriceFen('year', {}), 3990)
     assert.equal(resolvePriceFen('year', { year: true }), 5660)
-    assert.equal(resolvePriceFen('quarter', { month: true }), 990)
+    assert.equal(resolvePriceFen('quarter', { month: true }), 1660)
+    assert.equal(resolvePriceFen('year', { any: true }), 5660)
     assert.equal(resolvePriceFen('month', null), 99)
     assert.equal(resolvePriceFen('week', {}), null)
   })
@@ -102,24 +103,33 @@ describe('membershipLogic', () => {
     assert.deepEqual(buildSkuOffer('year', { month: true }), {
       sku: 'year',
       listFen: 5660,
-      payFen: 3990,
-      isFirstPurchase: true,
-      productId: 'vip_year_first',
-      labelYuan: '39.9',
+      payFen: 5660,
+      isFirstPurchase: false,
+      productId: 'vip_year',
+      labelYuan: '56.6',
       listYuan: '56.6'
+    })
+    assert.deepEqual(buildSkuOffer('quarter', { any: true }), {
+      sku: 'quarter',
+      listFen: 1660,
+      payFen: 1660,
+      isFirstPurchase: false,
+      productId: 'vip_quarter',
+      labelYuan: '16.6',
+      listYuan: '16.6'
     })
     assert.equal(buildSkuOffer('nope', {}), null)
   })
 
-  it('firstPurchaseUsedFromOrders maps paid skus to true', () => {
+  it('firstPurchaseUsedFromOrders is account-wide after any paid sku', () => {
     assert.deepEqual(firstPurchaseUsedFromOrders(new Set(['month', 'year'])), {
-      month: true,
-      year: true
+      any: true
     })
     assert.deepEqual(firstPurchaseUsedFromOrders(new Set()), {})
     assert.deepEqual(firstPurchaseUsedFromOrders(new Set(['month', 'week'])), {
-      month: true
+      any: true
     })
+    assert.deepEqual(firstPurchaseUsedFromOrders(new Set(['week'])), {})
     assert.deepEqual(firstPurchaseUsedFromOrders(null), {})
   })
 })

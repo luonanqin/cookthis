@@ -4,15 +4,15 @@
     <view class="home-hero">
       <image
         class="home-hero__img"
-        src="/assets/images/home-market-hero.webp"
+        src="/assets/images/home-market-hero.jpg"
         mode="widthFix"
-        aria-label="买菜没烦恼，从菜场到餐桌让每天吃饭更简单"
+        aria-label="买菜没烦恼"
       />
       <view class="home-hero__wave" aria-hidden="true"></view>
     </view>
 
     <view class="home-body">
-      <image class="home-question-image" src="/assets/images/home-question-title.webp" mode="aspectFit" aria-label="不知道今天买什么菜？" />
+      <image class="home-question-image" src="/assets/images/home-question-title.jpg" mode="aspectFit" aria-label="让买菜变成一件容易的事。" />
       <view class="home-sub">选好食材，回家做饭</view>
 
       <view class="home-cta-row">
@@ -41,6 +41,7 @@
 
       <view class="home-top-tools">
         <view
+          wx:if="{{membershipEnabled}}"
           class="home-vip-entry"
           hover-class="tap-hover"
           hover-stay-time="80"
@@ -50,7 +51,7 @@
         >
           <image
             class="home-vip-entry__img"
-            src="/assets/images/membership-vip-spark.webp"
+            src="/assets/images/membership-vip-spark.png"
             mode="aspectFit"
           />
         </view>
@@ -188,7 +189,7 @@
           </view>
           <image
             class="scale-card-icon scale-card-icon--small"
-            src="/assets/images/icons/market-scale-small.webp"
+            src="/assets/images/icons/market-scale-small.png"
             mode="heightFix"
             aria-hidden="true"
           />
@@ -206,7 +207,7 @@
           </view>
           <image
             class="scale-card-icon scale-card-icon--medium"
-            src="/assets/images/icons/market-scale-medium.webp"
+            src="/assets/images/icons/market-scale-medium.png"
             mode="heightFix"
             aria-hidden="true"
           />
@@ -224,7 +225,7 @@
           </view>
           <image
             class="scale-card-icon scale-card-icon--large"
-            src="/assets/images/icons/market-scale-large.webp"
+            src="/assets/images/icons/market-scale-large.png"
             mode="heightFix"
             aria-hidden="true"
           />

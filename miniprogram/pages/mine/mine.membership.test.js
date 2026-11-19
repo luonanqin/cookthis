@@ -11,13 +11,15 @@ const wxml = fs.readFileSync(path.join(dir, 'mine.wxml'), 'utf8')
 const wxss = fs.readFileSync(path.join(dir, 'mine.wxss'), 'utf8')
 
 describe('mine membership status', () => {
-  it('renders member-status near the profile userNo', () => {
-    const profileAt = wxml.indexOf('class="profile-text"')
+  it('renders member-status on the right of the profile row when membership enabled', () => {
+    assert.match(js, /MEMBERSHIP_ENABLED/)
+    const profileAt = wxml.indexOf('profile-text')
     const userNoAt = wxml.indexOf('class="user-no"')
     const statusAt = wxml.indexOf('class="member-status"')
     assert.ok(profileAt >= 0 && userNoAt > profileAt && statusAt > userNoAt)
+    assert.match(wxml, /class="member-status"[\s\S]*?bindtap="goMembership"/)
     assert.match(wxml, /\{\{memberStatusLabel\}\}/)
-    assert.match(wxss, /\.member-status\s*\{/)
+    assert.match(wxss, /\.member-status\s*\{[^}]*margin-left:\s*auto/)
   })
 
   it('loads getStatus onShow and labels from membership helpers', () => {
@@ -34,6 +36,7 @@ describe('mine membership status', () => {
       /goMembership\(\)\s*\{[\s\S]*?pages\/membership\/index\?from=mine/
     )
     assert.match(wxml, /bindtap="goMembership"/)
+    assert.match(js, /_loadMembershipStatus\(\)\s*\{[\s\S]*?if \(!MEMBERSHIP_ENABLED\) return/)
     const load = js.includes('_loadMembershipStatus')
       ? js.slice(js.indexOf('_loadMembershipStatus'))
       : js.slice(js.indexOf('getStatus'))

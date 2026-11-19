@@ -17,48 +17,64 @@ const SKU_HINT = {
   year: '365 天 · 约 ¥4.7/月'
 }
 
+/** 权益对照表：左会员右免费 */
 const BENEFITS = [
-  {
-    id: 'swap',
-    title: '换菜不限次',
-    desc: '日常与聚会共用一池，会员不再扣每日 3 次'
-  },
-  {
-    id: 'dishes',
-    title: '日常菜数放宽',
-    desc: '免费用户日常总菜数软限 12；会员不限'
-  },
-  {
-    id: 'reward',
-    title: '免换菜激励预告',
-    desc: '激励上线后，会员免看视频再换'
-  }
+  { id: 'swap', dim: '换菜次数', member: '不限', free: '每日 3 次' },
+  { id: 'dishes', dim: '推荐菜数量', member: '不限', free: '每次 12 道' },
+  { id: 'reward', dim: '视频广告', member: '免看', free: '解锁限制' }
 ]
 
 const NOTICE_ITEMS = [
-  '不自动续费，买一次算一次。',
-  '支付成功后权益自动到账；若未到账可点「刷新会员状态」。',
-  '各档首购优惠仅一次，月 / 季 / 年互不影响。',
-  '会员免的是换菜功能激励；展示类广告策略以届时说明为准。',
-  '虚拟商品，原则上不退。'
+  '不自动续费，如有需要可自行复购。',
+  '有效期内再买任意档，剩余天数保留，新套餐时长从原到期日叠加。',
+  '首购优惠每个账号仅一次：任选月/季/年首次购买后，再次购买均恢复原价。',
+  '支付成功后权益自动到账；若未到账可点「刷新会员状态」，或联系客服。',
+  '虚拟商品原则上不退；Android 可走商户退款，iOS 需向 App Store 申请。'
 ]
+
+const IOS_MIN_WECHAT = [8, 0, 68]
+const IOS_UPDATE_WECHAT = '请将微信更新至最新版后再进行支付'
 
 function isIosPlatform(platform) {
   return String(platform || '').toLowerCase() === 'ios'
 }
 
+function parseVersionParts(version) {
+  return String(version || '')
+    .split('.')
+    .map((p) => Number(p))
+    .map((n) => (Number.isFinite(n) ? n : 0))
+}
+
+function isVersionAtLeast(version, minParts) {
+  const cur = parseVersionParts(version)
+  const base = minParts || IOS_MIN_WECHAT
+  for (let i = 0; i < base.length; i += 1) {
+    const a = cur[i] || 0
+    const b = base[i] || 0
+    if (a > b) return true
+    if (a < b) return false
+  }
+  return true
+}
+
+/** iOS 需微信 ≥ 8.0.68；其它端放行。 */
+function canUseVirtualPayOnClient({ platform, version }) {
+  if (!isIosPlatform(platform)) return { ok: true, message: '' }
+  if (isVersionAtLeast(version, IOS_MIN_WECHAT)) return { ok: true, message: '' }
+  return { ok: false, message: IOS_UPDATE_WECHAT }
+}
+
 function orderErrorToast(err, platform) {
+  void platform
   const code = err && err.error
-  if (
-    isIosPlatform(platform) ||
-    code === 'PAY_NOT_CONFIGURED' ||
-    code === 'NO_SESSION_KEY'
-  ) {
+  if (code === 'PAY_NOT_CONFIGURED' || code === 'NO_SESSION_KEY') {
     return PAY_UNAVAILABLE
   }
   if (code === 'FIRST_PURCHASE_USED') {
-    return '该档首购已用过，请按页价购买'
+    return '首购优惠已用过，请按页价购买'
   }
+  if (code === 'PENDING_ORDER_EXISTS') return '请先处理待支付订单'
   if (code === 'ORDER_EXPIRED') return ORDER_CANCELLED_TOAST
   if (code === 'ORDER_BUSY') return '请稍后再试'
   if (code === 'BAD_SKU') return '套餐无效'
@@ -72,14 +88,41 @@ function formatRemain(ms) {
   return m + ':' + String(s).padStart(2, '0')
 }
 
+function formatOrderTime(iso) {
+  if (!iso) return ''
+  const raw = String(iso)
+  const ms = Date.parse(raw)
+  if (!Number.isFinite(ms)) {
+    if (raw.length >= 16 && raw[10] === 'T') return raw.slice(0, 16).replace('T', ' ')
+    return raw.slice(0, 10)
+  }
+  const d = new Date(ms)
+  const pad = (n) => String(n).padStart(2, '0')
+  return (
+    d.getFullYear() +
+    '-' +
+    pad(d.getMonth() + 1) +
+    '-' +
+    pad(d.getDate()) +
+    ' ' +
+    pad(d.getHours()) +
+    ':' +
+    pad(d.getMinutes())
+  )
+}
+
 function decorateOrders(orders) {
   return (orders || []).map((o) => {
     const remain = o && o.canPay && Number.isFinite(Number(o.remainMs)) ? Math.max(0, Number(o.remainMs)) : 0
+    const timeSrc = (o && (o.paidAt || o.createdAt)) || ''
+    let statusLabel = '已结束'
+    if (o && o.canPay) statusLabel = '待支付'
+    else if (o && o.status === 'paid') statusLabel = '' // 已支付不展示文案
     return Object.assign({}, o, {
       remainLabel: o && o.canPay ? formatRemain(remain) : '',
       remainMsLocal: remain,
-      statusLabel:
-        o && o.status === 'paid' ? '已支付' : o && o.canPay ? '待支付' : '已结束'
+      timeLabel: formatOrderTime(timeSrc),
+      statusLabel
     })
   })
 }
@@ -152,6 +195,7 @@ function applyStatus(payload, prevSelectedSku, prevBuyExpanded, clientNow) {
     offers,
     orders,
     selectedSku,
+    selectedSkuLabel: TIER_LABEL[selectedSku] || selectedSku || '',
     isMember,
     statusText: statusHeadline(status),
     usageText: usageText(status),
@@ -192,15 +236,20 @@ module.exports = {
   BENEFITS,
   NOTICE_ITEMS,
   NOTICE_KEY,
+  IOS_MIN_WECHAT,
+  IOS_UPDATE_WECHAT,
   ORDER_CANCELLED_TOAST,
   PAY_UNAVAILABLE,
   POLL_MAX,
   TIER_LABEL,
   applyStatus,
+  canUseVirtualPayOnClient,
   decorateOffers,
   decorateOrders,
+  formatOrderTime,
   formatRemain,
   isIosPlatform,
+  isVersionAtLeast,
   orderErrorToast,
   payFailToast,
   pendingOtherSkuCopy,

@@ -23,23 +23,49 @@ const {
 } = require('./view.js')
 
 describe('membership view copy', () => {
-  it('lists stage-1 benefits without ad-free claims', () => {
-    const titles = BENEFITS.map((b) => b.title)
-    assert.deepEqual(titles, ['换菜不限次', '日常菜数放宽', '免换菜激励预告'])
+  it('lists stage-1 benefit comparison rows without ad-free claims', () => {
+    assert.deepEqual(
+      BENEFITS.map((b) => b.dim),
+      ['换菜次数', '推荐菜数量', '视频广告']
+    )
+    assert.ok(BENEFITS.every((b) => b.member && b.free))
+    assert.equal(BENEFITS[0].member, '不限')
+    assert.equal(BENEFITS[0].free, '每日 3 次')
+    assert.equal(BENEFITS[1].free, '每次 12 道')
+    assert.equal(BENEFITS[2].member, '免看')
+    assert.equal(BENEFITS[2].free, '解锁限制')
     const blob = JSON.stringify(BENEFITS)
     assert.equal(blob.includes('已免广告'), false)
     assert.equal(blob.includes('清单广告'), false)
   })
 
-  it('has five purchase-notice items covering design §6', () => {
+  it('has purchase-notice items for renew / grant / first-buy / stack / refund', () => {
     assert.equal(NOTICE_ITEMS.length, 5)
     const blob = NOTICE_ITEMS.join('\n')
     assert.match(blob, /不自动续费/)
     assert.match(blob, /刷新会员状态/)
+    assert.match(blob, /联系客服/)
     assert.match(blob, /首购/)
-    assert.match(blob, /换菜功能激励/)
+    assert.match(blob, /叠加/)
     assert.match(blob, /不退/)
+    assert.equal(blob.includes('换菜功能激励'), false)
+    assert.equal(blob.includes('10 万'), false)
     assert.equal(blob.includes('已免广告'), false)
+  })
+})
+
+describe('iOS WeChat version gate', () => {
+  it('requires WeChat ≥ 8.0.68 on iOS and allows Android', () => {
+    const { canUseVirtualPayOnClient, IOS_MIN_WECHAT } = require('./view.js')
+    assert.deepEqual(IOS_MIN_WECHAT, [8, 0, 68])
+    assert.equal(canUseVirtualPayOnClient({ platform: 'android', version: '7.0.0' }).ok, true)
+    assert.equal(canUseVirtualPayOnClient({ platform: 'ios', version: '8.0.68' }).ok, true)
+    assert.equal(canUseVirtualPayOnClient({ platform: 'ios', version: '8.0.67' }).ok, false)
+    assert.equal(canUseVirtualPayOnClient({ platform: 'ios', version: '8.1.0' }).ok, true)
+    assert.match(
+      canUseVirtualPayOnClient({ platform: 'ios', version: '8.0.0' }).message,
+      /微信更新/
+    )
   })
 })
 
@@ -122,6 +148,7 @@ describe('decorateOffers / applyStatus', () => {
     )
     assert.equal(next.isMember, true)
     assert.equal(next.selectedSku, 'quarter')
+    assert.equal(next.selectedSkuLabel, '季卡')
     assert.equal(next.tierLabel, '季卡')
     assert.equal(next.expiresLabel, '2027-02-19')
     assert.equal(next.buyExpanded, false)
@@ -167,7 +194,8 @@ describe('decorateOffers / applyStatus', () => {
             status: 'paid',
             canPay: false,
             canCancel: false,
-            remainMs: 0
+            remainMs: 0,
+            paidAt: '2026-11-18T15:20:00.000Z'
           }
         ],
         serverNow: 1_000_000
@@ -179,8 +207,9 @@ describe('decorateOffers / applyStatus', () => {
     assert.equal(next.orders.length, 2)
     assert.equal(next.orders[0].remainLabel, '2:05')
     assert.equal(next.orders[0].statusLabel, '待支付')
-    assert.equal(next.orders[1].statusLabel, '已支付')
+    assert.equal(next.orders[1].statusLabel, '')
     assert.equal(next.orders[1].remainLabel, '')
+    assert.match(next.orders[1].timeLabel, /^2026-11-18 \d{2}:\d{2}$/)
   })
 })
 
@@ -207,7 +236,7 @@ describe('order countdown + pending copy', () => {
 })
 
 describe('pay unavailable + poll', () => {
-  it('maps iOS and PAY_NOT_CONFIGURED to the friendly pay message', () => {
+  it('maps PAY_NOT_CONFIGURED to the friendly pay message without blanket iOS block', () => {
     assert.equal(isIosPlatform('ios'), true)
     assert.equal(isIosPlatform('android'), false)
     assert.equal(PAY_UNAVAILABLE, '当前环境暂无法支付')
@@ -219,9 +248,9 @@ describe('pay unavailable + poll', () => {
     assert.equal(orderErrorToast({ error: 'ORDER_BUSY' }, 'android'), '请稍后再试')
     assert.equal(
       orderErrorToast({ error: 'FIRST_PURCHASE_USED' }, 'android'),
-      '该档首购已用过，请按页价购买'
+      '首购优惠已用过，请按页价购买'
     )
-    assert.equal(orderErrorToast({}, 'ios'), PAY_UNAVAILABLE)
+    assert.equal(orderErrorToast({}, 'ios'), '下单失败')
     assert.equal(orderErrorToast(null, 'android'), '下单失败')
     assert.equal(payFailToast({ errCode: -2 }, false), '支付未完成')
     assert.equal(payFailToast({ errCode: -1 }, true), PAY_UNAVAILABLE)

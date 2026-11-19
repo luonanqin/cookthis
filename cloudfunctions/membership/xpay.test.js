@@ -117,7 +117,52 @@ describe('xpay.buildVirtualPayParams', () => {
 })
 
 describe('xpay.queryOrder', () => {
-  it('stubs null until WeChat query is wired', async () => {
-    assert.equal(await queryOrder('xxxxxx'), null)
+  const PAY_ENV = { XPAY_OFFER_ID: '123', XPAY_APP_KEY: APP_KEY, XPAY_ENV: '0' }
+
+  it('returns null when pay env or openid/orderId is missing', async () => {
+    assert.equal(await queryOrder({ orderId: 'o1', openid: 'o', env: {} }), null)
+    assert.equal(
+      await queryOrder({ orderId: '', openid: 'o', env: PAY_ENV, getAccessToken: async () => 'tok' }),
+      null
+    )
+  })
+
+  it('POSTs /xpay/query_order with pay_sig and maps a paid order', async () => {
+    const body =
+      '{"openid":"oUSER","env":0,"order_id":"morder001"}'
+    let saw = null
+    const res = await queryOrder({
+      orderId: 'morder001',
+      openid: 'oUSER',
+      env: PAY_ENV,
+      getAccessToken: async () => 'ACCESS',
+      postJson: async (url, postBody) => {
+        saw = { url, postBody }
+        return {
+          errcode: 0,
+          errmsg: 'ok',
+          order: { order_id: 'morder001', status: 'paid', wx_order_id: 'wx_1' }
+        }
+      }
+    })
+    assert.equal(saw.postBody, body)
+    assert.match(saw.url, /access_token=ACCESS/)
+    assert.match(
+      saw.url,
+      new RegExp('pay_sig=' + calcPaySig('/xpay/query_order', body, APP_KEY))
+    )
+    assert.equal(res.status, 'paid')
+    assert.equal(res.wx_order_id, 'wx_1')
+  })
+
+  it('returns null when WeChat errcode is non-zero', async () => {
+    const res = await queryOrder({
+      orderId: 'morder001',
+      openid: 'oUSER',
+      env: PAY_ENV,
+      getAccessToken: async () => 'ACCESS',
+      postJson: async () => ({ errcode: 40001, errmsg: 'invalid' })
+    })
+    assert.equal(res, null)
   })
 })

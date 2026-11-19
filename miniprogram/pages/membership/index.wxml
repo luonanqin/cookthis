@@ -1,16 +1,37 @@
 <view class="page {{typeScaleClass}}">
-  <page-header title="会员" subtitle="买一次算一次，不自动续费" />
+  <page-header title="会员中心" subtitle="买菜搭配，更自由" />
   <view wx:if="{{pageReady}}" class="page-body membership-body">
     <view class="status-card">
-      <text class="status-text">{{statusText}}</text>
-      <text wx:if="{{payUnavailable}}" class="pay-banner">请将微信更新至最新版后再支付</text>
+      <view class="status-main">
+        <view class="status-copy">
+          <text class="status-text">{{statusText}}</text>
+          <text wx:if="{{payUnavailable}}" class="pay-banner">请将微信更新至最新版后再支付</text>
+        </view>
+        <view
+          class="status-refresh"
+          hover-class="tap-hover"
+          hover-stay-time="80"
+          bindtap="onRefresh"
+        >刷新会员状态</view>
+      </view>
     </view>
 
-    <view class="surface-card benefits">
-      <view class="section-label">会员权益</view>
+    <view class="benefit-card">
+      <view class="benefit-head">
+        <image
+          class="benefit-vip-mark"
+          src="/assets/images/icons/vip-entry.png"
+          mode="aspectFit"
+          aria-hidden="true"
+        />
+        <view class="benefit-head-copy">
+          <text class="benefit-title">会员权益</text>
+          <text class="benefit-sub">让每日买菜省心一点</text>
+        </view>
+      </view>
       <view class="benefit-table">
         <view class="benefit-table-row head">
-          <text class="benefit-dim"></text>
+          <text class="benefit-dim">权益项目</text>
           <text class="benefit-col benefit-col--member head-label">会员</text>
           <text class="benefit-col benefit-col--free head-label">免费</text>
         </view>
@@ -26,13 +47,16 @@
       </view>
     </view>
 
-    <view class="surface-card usage">
-      <view class="section-label">今日换菜</view>
-      <text class="usage-text">{{usageText}}</text>
-    </view>
-
-    <view wx:if="{{!isMember || buyExpanded}}" class="offers">
-      <view class="section-label offers-label">选择套餐</view>
+    <view class="offers">
+      <view class="section-head">
+        <text class="section-title">选择套餐</text>
+        <view
+          class="section-note section-note-link"
+          hover-class="tap-hover"
+          hover-stay-time="80"
+          bindtap="onOpenNotice"
+        >购买须知</view>
+      </view>
       <view class="offers-row">
         <view
           wx:for="{{offers}}"
@@ -45,77 +69,50 @@
           <text wx:if="{{item.isFirstPurchase}}" class="offer-badge">首购</text>
           <text class="offer-title">{{item.title}}</text>
           <text class="pay-price">¥{{item.labelYuan}}</text>
-          <text wx:if="{{item.showList}}" class="list-price">¥{{item.listYuan}}</text>
+          <text wx:if="{{item.showList}}" class="list-price">原价 ¥{{item.listYuan}}</text>
           <text class="offer-hint">{{item.hint}}</text>
+          <view
+            class="offer-radio {{selectedSku === item.sku ? 'on' : ''}}"
+            aria-hidden="true"
+          ></view>
         </view>
       </view>
     </view>
 
-    <view wx:if="{{orders.length}}" class="surface-card orders">
-      <view class="section-label">订单</view>
-      <view
-        wx:for="{{orders}}"
-        wx:key="orderId"
-        class="order-row"
-      >
-        <view class="order-main">
-          <view class="order-title-row">
-            <text class="order-title">{{item.title}}</text>
-            <text class="order-status">{{item.statusLabel}}</text>
+    <view wx:if="{{orders.length}}" class="orders">
+      <view class="section-head">
+        <text class="section-title">最近订单</text>
+      </view>
+      <view class="order-card">
+        <view
+          wx:for="{{orders}}"
+          wx:key="orderId"
+          class="order-row"
+        >
+          <view class="order-main">
+            <text class="order-name">{{item.title}} · ¥{{item.labelYuan}}</text>
+            <text wx:if="{{item.statusLabel}}" class="order-pending">{{item.statusLabel}}{{item.remainLabel ? ' · 剩余 ' + item.remainLabel : ''}}</text>
           </view>
-          <text class="order-meta">¥{{item.labelYuan}}{{item.canPay && item.remainLabel ? ' · 剩余 ' + item.remainLabel : ''}}</text>
-        </view>
-        <view wx:if="{{item.canPay}}" class="order-actions">
-          <view
-            class="order-action ghost"
-            data-order-id="{{item.orderId}}"
-            hover-class="tap-hover"
-            bindtap="onCancelOrder"
-          >取消</view>
-          <view
-            class="order-action primary"
-            data-order-id="{{item.orderId}}"
-            hover-class="tap-hover"
-            bindtap="onPayOrder"
-          >去支付</view>
+          <view class="order-right">
+            <view wx:if="{{item.canPay}}" class="order-actions">
+              <view
+                class="order-action ghost"
+                data-order-id="{{item.orderId}}"
+                hover-class="tap-hover"
+                bindtap="onCancelOrder"
+              >取消</view>
+              <view
+                class="order-action primary"
+                data-order-id="{{item.orderId}}"
+                hover-class="tap-hover"
+                bindtap="onPayOrder"
+              >去支付</view>
+            </view>
+            <text wx:if="{{item.timeLabel}}" class="order-date">{{item.timeLabel}}</text>
+          </view>
         </view>
       </view>
     </view>
-
-    <view wx:if="{{isMember}}" class="surface-card member-info">
-      <view class="section-label">会员信息</view>
-      <view class="info-row">
-        <text class="info-k">档位</text>
-        <text class="info-v">{{tierLabel || '会员'}}</text>
-      </view>
-      <view class="info-row">
-        <text class="info-k">到期日</text>
-        <text class="info-v">{{expiresLabel || '—'}}</text>
-      </view>
-      <view
-        class="link-btn"
-        hover-class="tap-hover"
-        bindtap="onRefresh"
-      >刷新会员状态</view>
-      <view
-        wx:if="{{!buyExpanded}}"
-        class="link-btn fold-buy"
-        hover-class="tap-hover"
-        bindtap="onExpandBuy"
-      >续费/再买</view>
-    </view>
-    <view
-      wx:else
-      class="link-btn refresh-entry"
-      hover-class="tap-hover"
-      bindtap="onRefresh"
-    >刷新会员状态</view>
-
-    <view
-      class="notice-entry"
-      hover-class="tap-hover"
-      bindtap="onOpenNotice"
-    >购买须知</view>
 
     <view wx:if="{{showDevTools}}" class="dev-tools">
       <view class="dev-tools-title">调试（仅开发/体验版）</view>
@@ -152,10 +149,22 @@
           bindtap="onDevResetFirstPurchase"
         >重置首购</view>
       </view>
+      <view class="dev-tools-row">
+        <view
+          class="dev-btn"
+          hover-class="tap-hover"
+          bindtap="onDevCreatePending"
+        >待支付20s</view>
+        <view
+          class="dev-btn"
+          hover-class="tap-hover"
+          bindtap="onDevClearOrders"
+        >清历史订单</view>
+      </view>
     </view>
   </view>
 
-  <view wx:if="{{pageReady && (!isMember || buyExpanded)}}" class="footer">
+  <view wx:if="{{pageReady}}" class="footer">
     <button
       wx:if="{{!isMember}}"
       type="primary"
@@ -184,19 +193,8 @@
           <text class="notice-copy">{{item}}</text>
         </view>
       </view>
-      <view class="sheet-actions">
-        <button
-          wx:if="{{!noticeAcked}}"
-          type="primary"
-          size="mini"
-          bindtap="onAckNotice"
-        >已知晓</button>
-        <button
-          wx:else
-          class="btn-outline"
-          size="mini"
-          bindtap="onCloseNotice"
-        >关闭</button>
+      <view class="sheet-actions" wx:if="{{!noticeAcked}}">
+        <button type="primary" size="mini" bindtap="onAckNotice">已知晓</button>
       </view>
     </view>
   </view>

@@ -27,7 +27,7 @@
       <text class="scene-bar-edit" hover-class="tap-hover" hover-stay-time="80" bindtap="onBack">修改 ></text>
     </view>
     <view
-      wx:if="{{showDishCapTip}}"
+      wx:if="{{membershipEnabled && showDishCapTip}}"
       class="dish-cap-banner"
       hover-class="tap-hover"
       hover-stay-time="80"
@@ -72,7 +72,7 @@
                 wx:key="name"
               >
                 <text class="dish-name-text">{{dish.name}}</text>
-                <text wx:if="{{dish.softLocked}}" class="dish-locked-hint">会员可展开</text>
+                <text wx:if="{{membershipEnabled && dish.softLocked}}" class="dish-locked-hint">会员可展开</text>
               </view>
             </view>
           </view>
@@ -126,15 +126,14 @@
           <view class="reject-dish-names">
             <view
               class="reject-dish-item {{dish.checked ? 'on' : ''}}"
+              hover-class="tap-hover"
+              hover-stay-time="80"
               wx:for="{{group.dishes}}"
               wx:for-item="dish"
               wx:key="key"
               data-key="{{dish.key}}"
               bindtap="onRejectDishToggle"
-            >
-              <text class="reject-dish-name">{{dish.name}}</text>
-              <text wx:if="{{dish.checked}}" class="reject-dish-x" aria-hidden="true">×</text>
-            </view>
+            >{{dish.name}}</view>
           </view>
         </view>
       </scroll-view>
@@ -176,7 +175,11 @@
       <view class="swap-cap-title">今日免费换菜已用完</view>
       <view class="swap-cap-desc">当前方案仍可去买菜</view>
       <button class="btn-main" bindtap="onSwapCapGoShopping">去买菜</button>
-      <button class="btn-outline" bindtap="onSwapCapGoMember">开通会员，换菜不限次</button>
+      <button
+        wx:if="{{membershipEnabled}}"
+        class="btn-outline"
+        bindtap="onSwapCapGoMember"
+      >开通会员，换菜不限次</button>
       <button class="btn-outline" bindtap="onSwapCapClose">关闭</button>
     </view>
   </view>

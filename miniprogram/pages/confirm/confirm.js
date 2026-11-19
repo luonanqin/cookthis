@@ -216,7 +216,8 @@ Page({
     seasonalSelectAllLabel: '全选',
     yearRoundChecked: {},
     yearRoundExpanded: false,
-    seasonalDrawerOpen: false,
+    seasonalExpanded: false,
+    headerHeight: 140,
     manuals: [],
     manualInput: '',
     manualSuggestions: [],
@@ -670,6 +671,7 @@ Page({
       seasonalSelectAllLabel: this._seasonalSelectAllLabel(seasonal, seasonalChecked),
       yearRoundChecked,
       yearRoundExpanded: preserveSelection ? this.data.yearRoundExpanded : false,
+      seasonalExpanded: preserveSelection ? this.data.seasonalExpanded : false,
       manuals,
       listEmpty: seasonal.length === 0 && yearRound.length === 0,
       ...this._counts(seasonalChecked, yearRoundChecked, manuals, {
@@ -828,13 +830,19 @@ Page({
     }
   },
 
+  onHeaderHeight(e) {
+    const height = e && e.detail && e.detail.height
+    if (!height || height === this.data.headerHeight) return
+    this.setData({ headerHeight: height })
+  },
+
   onOpenSeasonalDrawer() {
     if (this.data.listEmpty) return
-    this.setData({ seasonalDrawerOpen: true })
+    this.setData({ seasonalExpanded: true })
   },
 
   onCloseSeasonalDrawer() {
-    this.setData({ seasonalDrawerOpen: false })
+    this.setData({ seasonalExpanded: false })
   },
 
   _seasonalSelectAllLabel(seasonal, seasonalChecked) {

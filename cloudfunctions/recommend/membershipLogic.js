@@ -1,5 +1,4 @@
 'use strict'
-// Vendored: keep in sync with cloudfunctions/_shared/membershipLogic.js
 
 const { getSku, formatYuanFromFen } = require('./membershipCatalog.js')
 
@@ -28,8 +27,19 @@ function computeNewExpiry(prevExpiresAt, days, nowMs) {
   return new Date(base + Number(days) * DAY_MS).toISOString()
 }
 
-function isFirstPurchaseOpen(sku, firstPurchaseUsedMap) {
-  return !(firstPurchaseUsedMap && firstPurchaseUsedMap[sku])
+/** 账号级首购：任一档付过费（或标记 any）后，所有档均不再享首购价 */
+function hasUsedFirstPurchase(firstPurchaseUsedMap) {
+  if (!firstPurchaseUsedMap || typeof firstPurchaseUsedMap !== 'object') return false
+  if (firstPurchaseUsedMap.any === true || firstPurchaseUsedMap.used === true) return true
+  return !!(
+    firstPurchaseUsedMap.month ||
+    firstPurchaseUsedMap.quarter ||
+    firstPurchaseUsedMap.year
+  )
+}
+
+function isFirstPurchaseOpen(_sku, firstPurchaseUsedMap) {
+  return !hasUsedFirstPurchase(firstPurchaseUsedMap)
 }
 
 function resolvePriceFen(sku, firstPurchaseUsedMap) {
@@ -70,17 +80,17 @@ function buildSkuOffer(sku, firstPurchaseUsedMap) {
 }
 
 function firstPurchaseUsedFromOrders(paidSkuSet) {
-  const used = {}
-  if (!(paidSkuSet instanceof Set)) return used
+  if (!(paidSkuSet instanceof Set)) return {}
   for (const sku of paidSkuSet) {
-    if (getSku(sku)) used[sku] = true
+    if (getSku(sku)) return { any: true }
   }
-  return used
+  return {}
 }
 
 module.exports = {
   isMemberActive,
   computeNewExpiry,
+  hasUsedFirstPurchase,
   resolvePriceFen,
   resolveProductId,
   isFirstPurchaseProduct,

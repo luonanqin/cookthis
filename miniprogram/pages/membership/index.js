@@ -10,6 +10,7 @@ const {
   NOTICE_ITEMS,
   ORDER_CANCELLED_TOAST,
   PAY_UNAVAILABLE,
+  TIER_LABEL,
   applyStatus,
   canUseVirtualPayOnClient,
   orderErrorToast,
@@ -64,6 +65,7 @@ Page({
     offers: [],
     orders: [],
     selectedSku: 'month',
+    selectedSkuLabel: '月卡',
     busy: true,
     pageReady: false,
     showNotice: false,
@@ -142,7 +144,10 @@ Page({
     const sku = e.currentTarget.dataset.sku
     if (!sku || sku === this.data.selectedSku) return
     tapFeedback('light')
-    this.setData({ selectedSku: sku })
+    this.setData({
+      selectedSku: sku,
+      selectedSkuLabel: TIER_LABEL[sku] || sku
+    })
     track('membership_sku_select', { sku, from: this.data.from })
   },
 
@@ -189,6 +194,10 @@ Page({
 
   onDevGrant(e) {
     if (!this.data.showDevTools || this.data.busy) return
+    if ((this.data.orders || []).some((o) => o && o.canPay)) {
+      wx.showToast({ title: '请先处理待支付订单', icon: 'none' })
+      return
+    }
     const sku = (e && e.currentTarget && e.currentTarget.dataset.sku) || 'month'
     tapFeedback('light')
     this._runDev(membership.devGrant(sku))
@@ -212,6 +221,19 @@ Page({
     this._runDev(membership.devResetFirstPurchase())
   },
 
+  onDevClearOrders() {
+    if (!this.data.showDevTools || this.data.busy) return
+    tapFeedback('light')
+    this._runDev(membership.devClearOrders())
+  },
+
+  onDevCreatePending() {
+    if (!this.data.showDevTools || this.data.busy) return
+    const sku = this.data.selectedSku || 'month'
+    tapFeedback('light')
+    this._runDev(membership.devCreatePending(sku))
+  },
+
   _runDev(promise) {
     this.setData({ busy: true })
     Promise.resolve(promise)
@@ -227,7 +249,7 @@ Page({
       .catch((err) => {
         this.setData({ busy: false })
         wx.showToast({
-          title: (err && err.error) || '调试失败',
+          title: orderErrorToast(err, this._platform) || '调试失败',
           icon: 'none'
         })
       })
