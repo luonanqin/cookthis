@@ -2,7 +2,7 @@
 
 微信小程序 + 云开发。
 
-**分支与发版：** **`develop`**（完整，可含调试）+ **`main`**（可上线，**不含调试代码**）+ 短生命周期 `feat/<topic>-YYYY-MM-DD`（须带日期戳）；用 `MEMBERSHIP_ENABLED` / `ADS_ENABLED` 裁剪无会员/广告。详见 [`doc/分支与发布约定.md`](doc/分支与发布约定.md)。
+**分支与发版：** **`develop`**（完整，可含调试）+ **`main`**（可上线，**不含调试代码**）+ 短生命周期 `feat/<topic>-YYYY-MM-DD`（**从 `develop` 拉**，须带日期戳；勿从 `main` 拉再合回 `develop`，以免 strip 污染调试线）。用 `MEMBERSHIP_ENABLED` / `ADS_ENABLED` 裁剪无会员/广告。详见 [`doc/分支与发布约定.md`](doc/分支与发布约定.md)。
 
 按切片验收时：**只做该切片列出的准备**；后面切片是在前面基础上**增量**补东西。
 
