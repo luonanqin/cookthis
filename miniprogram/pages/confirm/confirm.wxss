@@ -769,6 +769,23 @@
   line-height: 1.35;
 }
 
+.sheet-meal-gate {
+  max-height: 50vh;
+}
+
+.meal-gate-actions {
+  flex-shrink: 0;
+  padding: 16rpx 28rpx calc(20rpx + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.meal-gate-actions button {
+  margin: 0 !important;
+  width: 100% !important;
+}
+
 .scale-actions {
   flex-shrink: 0;
   padding: 16rpx 28rpx calc(20rpx + env(safe-area-inset-bottom));
