@@ -1,7 +1,7 @@
 'use strict'
 
 const membership = require('../../services/membership.js')
-const { MEMBERSHIP_ENABLED } = membership
+const { MEMBERSHIP_ENABLED, setMembershipLite } = membership
 const { track } = require('../../utils/track.js')
 const { tapFeedback } = require('../../utils/haptic.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
@@ -407,6 +407,8 @@ Page({
       Date.now()
     )
     this._ordersAppliedAt = next._ordersAppliedAt || Date.now()
+    // 供确认页「更多」餐判断会员态，避免回页后仍当非会员弹门槛
+    setMembershipLite(res)
     const patch = Object.assign({}, next, { pageReady: true })
     if (opts && opts.clearBusy) patch.busy = false
     this.setData(patch)

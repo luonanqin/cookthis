@@ -1207,23 +1207,60 @@ Page({
   },
 
   onOpenCustomMealCount() {
-    const lite = getMembershipLite()
-    const isMember = !!(this.data.isMember || (lite && lite.isMember))
-    const unlockedToday = !!this.data.dailyMealUnlockedToday
     const adOn = canOfferDailyMealRewardAd()
     const memberOn = !!MEMBERSHIP_ENABLED
     const monetizationOff = !adOn && !memberOn
+    const unlockedToday = !!this.data.dailyMealUnlockedToday
+    const isMember = this._resolveIsMember()
     if (isMember && !this.data.isMember) {
       this.setData({ isMember: true })
     }
-    // 会员/广告都未上线：7～10 直接可选；否则要会员或当日解锁
+    // 会员 / 当日已解锁 / 双开关关闭：直接出 7～10，不弹门槛
     if (canAccessMoreDailyMeals({ isMember, unlockedToday, monetizationOff })) {
       this.setData({ showMoreMeals: true, showMealGate: false })
       return
     }
+    // 会员开关开着但本地还不是：先拉 getStatus，避免刚开卡/回页竞态误弹门槛
+    if (memberOn && !isMember) {
+      if (this._mealAccessLoading) return
+      this._mealAccessLoading = true
+      getStatus()
+        .then((res) => {
+          this._applyDailyMealAccess(res)
+          const nowMember = !!(res && res.isMember)
+          const nowUnlocked =
+            !!this.data.dailyMealUnlockedToday ||
+            ((res && res.dailyMealCustomUnlockDay) || '') === todayStr()
+          if (
+            canAccessMoreDailyMeals({
+              isMember: nowMember,
+              unlockedToday: nowUnlocked,
+              monetizationOff: false
+            })
+          ) {
+            this.setData({ showMoreMeals: true, showMealGate: false })
+          } else {
+            this._openMealGate(adOn, memberOn)
+          }
+        })
+        .catch(() => this._openMealGate(adOn, memberOn))
+        .then(() => {
+          this._mealAccessLoading = false
+        })
+      return
+    }
+    this._openMealGate(adOn, memberOn)
+  },
+
+  _resolveIsMember() {
+    const lite = getMembershipLite()
+    return !!(this.data.isMember || (lite && lite.isMember))
+  },
+
+  _openMealGate(adOn, memberOn) {
     track('daily_meal_custom_gate_show', {
-      ad: adOn,
-      membership: memberOn
+      ad: !!adOn,
+      membership: !!memberOn
     })
     this._mealGateOpenedAt = Date.now()
     this._clearMealGateActionsTimer()
@@ -1232,8 +1269,8 @@ Page({
       showMealGate: true,
       showMoreMeals: false,
       mealGateActionsReady: false,
-      adRewardEnabled: adOn,
-      membershipEnabled: memberOn
+      adRewardEnabled: !!adOn,
+      membershipEnabled: !!memberOn
     })
     this._mealGateActionsTimer = setTimeout(() => {
       this._mealGateActionsTimer = null

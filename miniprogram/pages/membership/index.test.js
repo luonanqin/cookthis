@@ -31,6 +31,11 @@ describe('membership page wiring', () => {
     assert.match(js, /navigateBack/)
   })
 
+  it('writes membershipLite when status applies so confirm more-meals sees member', () => {
+    assert.match(js, /setMembershipLite/)
+    assert.match(js, /_applyStatus\([\s\S]*?setMembershipLite\(res\)/)
+  })
+
   it('renders blocks in the brief order', () => {
     const statusAt = wxml.indexOf('status-text')
     const benefitsAt = wxml.indexOf('benefit-card')
