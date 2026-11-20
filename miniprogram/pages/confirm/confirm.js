@@ -1208,17 +1208,15 @@ Page({
     const lite = getMembershipLite()
     const isMember = !!(this.data.isMember || (lite && lite.isMember))
     const unlockedToday = !!this.data.dailyMealUnlockedToday
+    const adOn = canOfferDailyMealRewardAd()
+    const memberOn = !!MEMBERSHIP_ENABLED
+    const monetizationOff = !adOn && !memberOn
     if (isMember && !this.data.isMember) {
       this.setData({ isMember: true })
     }
-    if (canAccessMoreDailyMeals({ isMember, unlockedToday })) {
+    // 会员/广告都未上线：7～10 直接可选；否则要会员或当日解锁
+    if (canAccessMoreDailyMeals({ isMember, unlockedToday, monetizationOff })) {
       this.setData({ showMoreMeals: true, showMealGate: false })
-      return
-    }
-    const adOn = canOfferDailyMealRewardAd()
-    const memberOn = !!MEMBERSHIP_ENABLED
-    if (!adOn && !memberOn) {
-      wx.showToast({ title: '更多餐暂未开放', icon: 'none' })
       return
     }
     track('daily_meal_custom_gate_show', {
@@ -1321,10 +1319,12 @@ Page({
 
   onPickMoreMealCount(e) {
     const n = clampMoreMealCount(e.currentTarget.dataset.count)
+    const monetizationOff = !canOfferDailyMealRewardAd() && !MEMBERSHIP_ENABLED
     if (
       !canUseDailyMealCount(n, {
         isMember: this.data.isMember,
-        unlockedToday: this.data.dailyMealUnlockedToday
+        unlockedToday: this.data.dailyMealUnlockedToday,
+        monetizationOff
       }).ok
     ) {
       wx.showToast({ title: '开通会员或看广告后可选更多餐', icon: 'none' })

@@ -69,16 +69,25 @@ function normalizeMealSlotLabel(slot, index0) {
 function canUseDailyMealCount(count, opts) {
   const isMember = !!(opts && opts.isMember)
   const unlockedToday = !!(opts && opts.unlockedToday)
+  const monetizationOff = !!(opts && opts.monetizationOff)
   const n = Number(count)
   if (Number.isFinite(n) && n <= FREE_DAILY_MEAL_MAX) return { ok: true }
-  if (Number.isFinite(n) && n <= MEMBER_DAILY_MEAL_MAX && (isMember || unlockedToday)) {
+  if (
+    Number.isFinite(n) &&
+    n <= MEMBER_DAILY_MEAL_MAX &&
+    (monetizationOff || isMember || unlockedToday)
+  ) {
     return { ok: true }
   }
   return { ok: false, error: 'MEAL_COUNT_GATE' }
 }
 
-/** 是否可直接打开 7～10 餐选择（会员或当日已广告解锁） */
+/**
+ * 是否可直接打开 7～10 餐选择。
+ * monetizationOff：会员与广告都未上线时全员可进，不弹门槛。
+ */
 function canAccessMoreDailyMeals(opts) {
+  if (opts && opts.monetizationOff) return true
   return !!(opts && (opts.isMember || opts.unlockedToday))
 }
 

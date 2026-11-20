@@ -71,5 +71,9 @@ describe('dailyMealSlots', () => {
     assert.equal(canUseDailyMealCount(7, { unlockedToday: true }).ok, true)
     assert.equal(canUseDailyMealCount(6, { isMember: false }).ok, true)
     assert.equal(canUseDailyMealCount(11, { isMember: true }).ok, false)
+    assert.equal(
+      canUseDailyMealCount(8, { isMember: false, unlockedToday: false, monetizationOff: true }).ok,
+      true
+    )
   })
 })

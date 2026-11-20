@@ -9,11 +9,15 @@ const {
 } = require('./dailyMealSlots.js')
 
 describe('more-meals access + gate tap-through guard', () => {
-  it('canAccessMoreDailyMeals requires member or unlockedToday', () => {
+  it('canAccessMoreDailyMeals requires member or unlockedToday unless monetizationOff', () => {
     assert.equal(canAccessMoreDailyMeals({}), false)
     assert.equal(canAccessMoreDailyMeals({ isMember: false, unlockedToday: false }), false)
     assert.equal(canAccessMoreDailyMeals({ isMember: true }), true)
     assert.equal(canAccessMoreDailyMeals({ unlockedToday: true }), true)
+    assert.equal(
+      canAccessMoreDailyMeals({ isMember: false, unlockedToday: false, monetizationOff: true }),
+      true
+    )
   })
 
   it('isMealGateActionTooSoon blocks actions in the grace window after open', () => {

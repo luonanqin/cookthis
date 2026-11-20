@@ -379,7 +379,7 @@ Slice 19（日常顿数）依赖确认页 + `recommend.create`；会员门槛测
 | `true`（**当前联调**） | 首页 VIP、「我的」会员态、推荐页「开通会员」/「会员可展开」、会员页可见；确认页「更多」门槛可出「开通会员」 |
 
 - **广告**走 `miniprogram/utils/ads.js` 的 `ADS_ENABLED`（当前联调 `true`；确认页「看广告解锁」跟此开关），与会员开关**无关**。  
-- **上线前**：若暂不卖会员 / 流量主未就绪，分别把 `MEMBERSHIP_ENABLED`、`ADS_ENABLED` 改回 `false`。  
+- **上线前**：若暂不卖会员 / 流量主未就绪，分别把 `MEMBERSHIP_ENABLED`、`ADS_ENABLED` 改回 `false`（此时「更多」7～10 全员直接可选；云 `recommend` 也勿设对应环境变量，否则仍会门禁）。  
 - **正式卖会员 / 接广告**：虚拟支付或激励 unitId 就绪后保持或改回 `true` 再上传。  
 - 分支策略见 [`doc/分支与发布约定.md`](doc/分支与发布约定.md)。
 
@@ -496,7 +496,7 @@ node --test cloudfunctions/membership/*.test.js miniprogram/pages/membership/*.t
 1. **小程序**（确认页 / 推荐 / 已选 / 场景摘要 / 会员权益）  
 2. **云函数 `recommend`**（门禁 ≤6 免费；7～10 需会员或当日解锁；标签 `第N餐`）  
 3. **云函数 `membership`**（`unlockDailyMealCustom` 写 `users.dailyMealCustomUnlockDay`；`getStatus` 带回该字段）  
-4. `ADS_ENABLED=true` 时确认页门槛才有「看广告解锁」；可选填 `AD_UNITS.rewardedDailyMealCustom`；未填时 **开发/体验版**点按钮会**模拟完播**解锁当日。`ADS_ENABLED=false` 且会员开着时，门槛只留「开通会员」+「关闭」 
+4. 门槛跟开关：`ADS_ENABLED` →「看广告解锁」；`MEMBERSHIP_ENABLED` →「开通会员」。**两个都关**时 7～10 **直接可用**（首发无广告/会员）。只开会员时门槛剩「开通会员」+「关闭」。激励 unitId 未填时开发/体验版点「看广告」会模拟完播。云函数 `recommend` 用环境变量 `MEMBERSHIP_ENABLED` / `ADS_ENABLED`（任一为真才门禁；都未设则放行） 
 
 **部署顺序建议：** 发 `membership` + `recommend` → 再编小程序 → 对照「Slice 19 验收清单」。
 

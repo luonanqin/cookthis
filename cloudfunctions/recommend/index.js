@@ -88,6 +88,19 @@ function isComboPresent(combo) {
   return meat + veg + soup > 0
 }
 
+/** 云环境 MEMBERSHIP_ENABLED / ADS_ENABLED 任一为真则开启多餐门槛 */
+function isEnvFlagOn(v) {
+  const s = String(v == null ? '' : v)
+    .trim()
+    .toLowerCase()
+  return s === '1' || s === 'true' || s === 'yes'
+}
+
+function isDailyMealMonetizationOn(env) {
+  const e = env || {}
+  return isEnvFlagOn(e.MEMBERSHIP_ENABLED) || isEnvFlagOn(e.ADS_ENABLED)
+}
+
 function makeRequestId() {
   return `req_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`
 }
@@ -529,9 +542,12 @@ async function handleCreate(event, uid, user) {
     const n = (scene.mealSlots || []).length
     const membership = await loadMembership(uid)
     const unlockedToday = user.dailyMealCustomUnlockDay === dayKeyChina(Date.now())
+    // 与小程序 MEMBERSHIP_ENABLED / ADS_ENABLED 对齐：都未开时 7～10 全员可用
+    const monetizationOff = !isDailyMealMonetizationOn(process.env)
     const gate = canUseDailyMealCount(n, {
       isMember: isMemberActive(membership, Date.now()),
-      unlockedToday
+      unlockedToday,
+      monetizationOff
     })
     if (!gate.ok) {
       return { ok: false, error: 'MEAL_COUNT_GATE', limit: FREE_DAILY_MEAL_MAX, max: MEMBER_DAILY_MEAL_MAX }
