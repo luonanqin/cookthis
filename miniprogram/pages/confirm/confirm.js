@@ -307,6 +307,8 @@ Page({
   _aliasIndex: null,
 
   onLoad() {
+    // meal-count handlers: onPickDailyMealCount / onOpenCustomMealCount（热重载后若缺失请清缓存重编译）
+    console.log('[confirm] meal-count ui ready')
     this._loadManualSuggestContext()
     try {
       this._initSceneFromSession()

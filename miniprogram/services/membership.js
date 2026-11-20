@@ -36,6 +36,7 @@ function refresh() {
 }
 
 function unlockDailyMealCustom() {
+  // used by confirm「更多」餐解锁；改动此文件后请重新编译小程序
   return callCloud('membership', { action: 'unlockDailyMealCustom' })
 }
 
