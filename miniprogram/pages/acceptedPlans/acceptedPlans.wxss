@@ -275,14 +275,14 @@
   font-weight: var(--fw-regular);
 }
 
-/* tips 蒙层：不可点关；仅首菜热区可点 */
+/* tips 蒙层：盖过页眉(100)/提示条(99)；不可点关；仅首菜热区可点 */
 .tip-mask {
   position: fixed;
   left: 0;
   right: 0;
   top: 0;
   bottom: 0;
-  z-index: 20;
+  z-index: 200;
   background: rgba(26, 26, 26, 0.45);
 }
 
