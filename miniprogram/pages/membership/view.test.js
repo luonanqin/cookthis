@@ -27,23 +27,24 @@ describe('membership view copy', () => {
   it('lists stage-1 benefit comparison rows without ad-free claims', () => {
     assert.deepEqual(
       BENEFITS.map((b) => b.dim),
-      ['换菜次数', '推荐菜数量', '视频广告', '日常多餐']
+      ['换菜次数', '推荐菜数量', '餐数上限', '视频广告']
     )
     assert.deepEqual(
       BENEFITS.map((b) => b.id),
-      ['swap', 'dishes', 'reward', 'meals']
+      ['swap', 'dishes', 'meals', 'reward']
     )
     assert.ok(BENEFITS.every((b) => b.member && b.free))
     assert.equal(BENEFITS[0].member, '不限')
     assert.equal(BENEFITS[0].free, '每日 3 次')
     assert.equal(BENEFITS[1].free, '每次 12 道')
-    assert.equal(BENEFITS[2].member, '免看')
-    assert.equal(BENEFITS[2].free, '解锁限制')
-    assert.equal(BENEFITS[3].member, '日常最多 10 餐')
-    assert.equal(BENEFITS[3].free, '快捷 ≤6')
+    assert.equal(BENEFITS[2].member, '10餐')
+    assert.equal(BENEFITS[2].free, '6餐')
+    assert.equal(BENEFITS[3].member, '免看')
+    assert.equal(BENEFITS[3].free, '解锁限制')
     const mealsAt = BENEFITS.findIndex((b) => b.id === 'meals')
     const rewardAt = BENEFITS.findIndex((b) => b.id === 'reward')
-    assert.ok(mealsAt > rewardAt)
+    assert.ok(mealsAt < rewardAt)
+    assert.equal(rewardAt, BENEFITS.length - 1)
     const blob = JSON.stringify(BENEFITS)
     assert.equal(blob.includes('已免广告'), false)
     assert.equal(blob.includes('清单广告'), false)
