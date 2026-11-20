@@ -954,7 +954,7 @@ node --test cloudfunctions/membership/*.test.js miniprogram/pages/membership/*.t
 
 **本切片不验：** 分享落地页历史午晚文案对齐（可选）、正式环境未配激励 unitId 时的真广告（开发版可模拟）。
 
-**部署提醒：** `membership`（含 unlock / clearDailyMealCustomUnlock）与 `recommend` 同发后再编小程序。正式环境填好 `rewardedDailyMealCustom` unitId。开发/体验版首页有「清除「更多餐」广告解锁（测试）」；上线前按 Slice 18 / 分支约定处理调试开关。
+**部署提醒：** `membership`（含 `unlockDailyMealCustom`）与 `recommend` 同发后再编小程序。正式环境填好 `rewardedDailyMealCustom` unitId。清除当日广告解锁的调试入口只在 **`develop`**（见分支约定调试层），不上 `main`。
 
 ---
 
