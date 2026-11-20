@@ -24,6 +24,8 @@ const {
   formatMealCountChipLabel,
   formatMealSlotsSummary,
   canUseDailyMealCount,
+  canAccessMoreDailyMeals,
+  isMealGateActionTooSoon,
   clampMoreMealCount
 } = require('../../utils/dailyMealSlots.js')
 const {
@@ -307,8 +309,6 @@ Page({
   _aliasIndex: null,
 
   onLoad() {
-    // meal-count handlers: onPickDailyMealCount / onOpenCustomMealCount（热重载后若缺失请清缓存重编译）
-    console.log('[confirm] meal-count ui ready')
     this._loadManualSuggestContext()
     try {
       this._initSceneFromSession()
@@ -1178,7 +1178,11 @@ Page({
   },
 
   _canCustomDailyMeals() {
-    return !!(this.data.isMember || this.data.dailyMealUnlockedToday)
+    const lite = getMembershipLite()
+    return canAccessMoreDailyMeals({
+      isMember: !!(this.data.isMember || (lite && lite.isMember)),
+      unlockedToday: !!this.data.dailyMealUnlockedToday
+    })
   },
 
   onPickDailyMealCount(e) {
@@ -1200,22 +1204,26 @@ Page({
 
   onOpenCustomMealCount() {
     const lite = getMembershipLite()
-    if (lite && lite.isMember) {
+    const isMember = !!(this.data.isMember || (lite && lite.isMember))
+    const unlockedToday = !!this.data.dailyMealUnlockedToday
+    if (isMember && !this.data.isMember) {
       this.setData({ isMember: true })
     }
-    if (this._canCustomDailyMeals()) {
+    if (canAccessMoreDailyMeals({ isMember, unlockedToday })) {
       this.setData({ showMoreMeals: true, showMealGate: false })
       return
     }
     track('daily_meal_custom_gate_show', {})
-    this.setData({ showMealGate: true })
+    this._mealGateOpenedAt = Date.now()
+    this.setData({ showMealGate: true, showMoreMeals: false })
   },
 
   onCloseMealGate() {
-    this.setData({ showMealGate: false })
+    this.setData({ showMealGate: false, showMoreMeals: false })
   },
 
   onMealGateGoMember() {
+    if (isMealGateActionTooSoon(this._mealGateOpenedAt, Date.now())) return
     tapFeedback()
     track('daily_meal_custom_gate_member', {})
     this.setData({ showMealGate: false })
@@ -1223,6 +1231,7 @@ Page({
   },
 
   onMealGateWatchAd() {
+    if (isMealGateActionTooSoon(this._mealGateOpenedAt, Date.now())) return
     tapFeedback()
     track('daily_meal_custom_gate_ad', {})
     this._watchDailyMealUnlockAd()

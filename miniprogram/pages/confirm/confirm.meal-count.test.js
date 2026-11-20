@@ -35,6 +35,9 @@ describe('confirm daily meal count chips', () => {
 describe('confirm more-meals sheet and gate', () => {
   it('opens 7-10 chip sheet when unlocked; otherwise gate with ad primary', () => {
     assert.match(js, /_canCustomDailyMeals\(\)/)
+    assert.match(js, /canAccessMoreDailyMeals/)
+    assert.match(js, /isMealGateActionTooSoon/)
+    assert.match(js, /_mealGateOpenedAt\s*=\s*Date\.now\(\)/)
     assert.match(js, /showMoreMeals/)
     assert.match(js, /MORE_MEAL_COUNTS/)
     assert.match(js, /onPickMoreMealCount/)

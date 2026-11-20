@@ -77,16 +77,37 @@ function canUseDailyMealCount(count, opts) {
   return { ok: false, error: 'MEAL_COUNT_GATE' }
 }
 
+/** 是否可直接打开 7～10 餐选择（会员或当日已广告解锁） */
+function canAccessMoreDailyMeals(opts) {
+  return !!(opts && (opts.isMember || opts.unlockedToday))
+}
+
+/** 门槛弹层刚打开时忽略按钮点击，避免「更多」触摸穿透到「看广告解锁」 */
+const MEAL_GATE_ACTION_GRACE_MS = 400
+
+function isMealGateActionTooSoon(openedAtMs, nowMs, graceMs) {
+  const opened = Number(openedAtMs)
+  const now = Number(nowMs)
+  const graceRaw = Number(graceMs)
+  const grace =
+    Number.isFinite(graceRaw) && graceRaw >= 0 ? graceRaw : MEAL_GATE_ACTION_GRACE_MS
+  if (!Number.isFinite(opened) || !Number.isFinite(now)) return false
+  return now - opened < grace
+}
+
 module.exports = {
   FREE_DAILY_MEAL_MAX,
   CUSTOM_DAILY_MEAL_MIN,
   MEMBER_DAILY_MEAL_MAX,
   MORE_MEAL_COUNTS,
+  MEAL_GATE_ACTION_GRACE_MS,
   clampDailyMealCount,
   clampMoreMealCount,
   buildDailySlotsByCount,
   formatMealCountChipLabel,
   formatMealSlotsSummary,
   normalizeMealSlotLabel,
-  canUseDailyMealCount
+  canUseDailyMealCount,
+  canAccessMoreDailyMeals,
+  isMealGateActionTooSoon
 }
