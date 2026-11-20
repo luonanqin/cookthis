@@ -31,10 +31,10 @@ const {
 } = require('../../utils/dailyMealSlots.js')
 const {
   MEMBERSHIP_ENABLED,
-  getStatus,
   unlockDailyMealCustom,
   getMembershipLite,
-  setMembershipLite
+  setMembershipLite,
+  ensureMembershipStatus
 } = require('../../services/membership.js')
 const { AD_UNITS, canOfferDailyMealRewardAd } = require('../../utils/ads.js')
 const {
@@ -91,6 +91,47 @@ function isNonReleaseEnv() {
   } catch (e) {
     return false
   }
+}
+
+function readWindowSize() {
+  try {
+    if (typeof wx.getWindowInfo === 'function') {
+      const info = wx.getWindowInfo()
+      return {
+        windowWidth: Number(info.windowWidth) || 375,
+        windowHeight: Number(info.windowHeight) || 667
+      }
+    }
+  } catch (e) {}
+  try {
+    const info = wx.getSystemInfoSync() || {}
+    return {
+      windowWidth: Number(info.windowWidth) || 375,
+      windowHeight: Number(info.windowHeight) || 667
+    }
+  } catch (e) {
+    return { windowWidth: 375, windowHeight: 667 }
+  }
+}
+
+/**
+ * 锚定「更多」芯片：右缘对齐芯片右缘，宽度由内容撑开（不居中、不拉满）。
+ * 上方空间不够则翻到芯片下方。
+ */
+function computeMoreMealsPopStyle(rect) {
+  const { windowWidth: ww, windowHeight: wh } = readWindowSize()
+  const gap = 8
+  const side = 8
+  if (!rect || !rect.width) {
+    return `right:${side}px;bottom:${Math.round(wh * 0.22)}px;`
+  }
+  const right = Math.max(side, ww - rect.right)
+  const spaceAbove = rect.top - gap
+  const spaceBelow = wh - rect.bottom - gap
+  if (spaceAbove >= 80 || spaceAbove >= spaceBelow) {
+    return `right:${Math.round(right)}px;bottom:${Math.round(wh - rect.top + gap)}px;`
+  }
+  return `right:${Math.round(right)}px;top:${Math.round(rect.bottom + gap)}px;`
 }
 
 function defaultYearRoundChecked(items, familyAvoids) {
@@ -273,6 +314,7 @@ Page({
     moreMealCounts: MORE_MEAL_COUNTS,
     customChipLabel: '更多',
     showMoreMeals: false,
+    moreMealsPopStyle: '',
     showMealGate: false,
     mealGateActionsReady: false,
     isMember: false,
@@ -352,11 +394,14 @@ Page({
     const user = getUser() || {}
     const accessPatch = {}
     if (lite) accessPatch.isMember = !!lite.isMember
-    if (user.dailyMealCustomUnlockDay === todayStr()) {
+    const unlockDay =
+      (lite && lite.dailyMealCustomUnlockDay) || user.dailyMealCustomUnlockDay || ''
+    if (unlockDay === todayStr()) {
       accessPatch.dailyMealUnlockedToday = true
     }
     if (Object.keys(accessPatch).length) this.setData(accessPatch)
-    getStatus()
+    // 有新鲜本地缓存则不查库；过期或缺失才 ensure
+    ensureMembershipStatus()
       .then((res) => this._applyDailyMealAccess(res))
       .catch(() => {})
     this._loadManualSuggestContext()
@@ -1207,6 +1252,10 @@ Page({
   },
 
   onOpenCustomMealCount() {
+    if (this.data.showMoreMeals) {
+      this.onCloseMoreMeals()
+      return
+    }
     const adOn = canOfferDailyMealRewardAd()
     const memberOn = !!MEMBERSHIP_ENABLED
     const monetizationOff = !adOn && !memberOn
@@ -1217,14 +1266,14 @@ Page({
     }
     // 会员 / 当日已解锁 / 双开关关闭：直接出 7～10，不弹门槛
     if (canAccessMoreDailyMeals({ isMember, unlockedToday, monetizationOff })) {
-      this.setData({ showMoreMeals: true, showMealGate: false })
+      this._openMoreMeals()
       return
     }
-    // 会员开关开着但本地还不是：先拉 getStatus，避免刚开卡/回页竞态误弹门槛
+    // 本地还不是会员：强制对齐一次（支付回页竞态 / 多端），再决定是否弹门槛
     if (memberOn && !isMember) {
       if (this._mealAccessLoading) return
       this._mealAccessLoading = true
-      getStatus()
+      ensureMembershipStatus({ force: true })
         .then((res) => {
           this._applyDailyMealAccess(res)
           const nowMember = !!(res && res.isMember)
@@ -1238,7 +1287,7 @@ Page({
               monetizationOff: false
             })
           ) {
-            this.setData({ showMoreMeals: true, showMealGate: false })
+            this._openMoreMeals()
           } else {
             this._openMealGate(adOn, memberOn)
           }
@@ -1250,6 +1299,27 @@ Page({
       return
     }
     this._openMealGate(adOn, memberOn)
+  },
+
+  _openMoreMeals() {
+    const apply = (rect) => {
+      this.setData({
+        showMoreMeals: true,
+        showMealGate: false,
+        moreMealsPopStyle: computeMoreMealsPopStyle(rect)
+      })
+    }
+    try {
+      wx.createSelectorQuery()
+        .in(this)
+        .select('#moreMealChip')
+        .boundingClientRect((rect) => {
+          apply(rect && rect.width ? rect : null)
+        })
+        .exec()
+    } catch (e) {
+      apply(null)
+    }
   },
 
   _resolveIsMember() {
@@ -1355,6 +1425,16 @@ Page({
       .then((res) => {
         const day = (res && res.dailyMealCustomUnlockDay) || ''
         patchUser({ dailyMealCustomUnlockDay: day })
+        const lite = getMembershipLite() || {}
+        setMembershipLite(
+          Object.assign({}, lite, {
+            dailyMealCustomUnlockDay: day,
+            isMember: !!lite.isMember,
+            expiresAt: lite.expiresAt || null,
+            expiresLabel: lite.expiresLabel || '',
+            updatedAt: lite.updatedAt
+          })
+        )
         this._clearMealGateActionsTimer()
         // 只标记当日解锁并收门槛；再点「更多」才出 7～10，避免误解锁后立刻出现选择项
         this.setData({
@@ -1377,7 +1457,7 @@ Page({
   noop() {},
 
   onCloseMoreMeals() {
-    this.setData({ showMoreMeals: false })
+    this.setData({ showMoreMeals: false, moreMealsPopStyle: '' })
   },
 
   onPickMoreMealCount(e) {
@@ -1396,6 +1476,7 @@ Page({
     const mealSlots = buildDailySlotsByCount(n, MEMBER_DAILY_MEAL_MAX)
     this.setData({
       showMoreMeals: false,
+      moreMealsPopStyle: '',
       dailySlotMode: 'custom',
       dailySlotPresetId: '',
       customMealCount: n,

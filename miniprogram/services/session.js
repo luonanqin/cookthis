@@ -147,6 +147,13 @@ function ensureLogin(opts) {
     try {
       prefetchCatalog(slim)
     } catch (e) {}
+    // 会员态：登录后软拉一次写入本地缓存（有新鲜缓存则跳过）
+    try {
+      const { MEMBERSHIP_ENABLED, ensureMembershipStatus } = require('./membership.js')
+      if (MEMBERSHIP_ENABLED) {
+        ensureMembershipStatus().catch(() => {})
+      }
+    } catch (e) {}
     return slim
   })
 }

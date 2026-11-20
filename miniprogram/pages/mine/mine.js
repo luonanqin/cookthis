@@ -2,10 +2,10 @@ const { ensureLogin, getUser, patchUser } = require('../../services/session.js')
 const { callCloud } = require('../../services/cloud.js')
 const {
   MEMBERSHIP_ENABLED,
-  getStatus,
   memberStatusLabel,
   getMembershipLite,
-  setMembershipLite
+  setMembershipLite,
+  ensureMembershipStatus
 } = require('../../services/membership.js')
 const {
   clearShelfCache,
@@ -411,10 +411,13 @@ Page({
     if (lite) {
       this.setData({ memberStatusLabel: memberStatusLabel(lite) })
     }
-    getStatus()
+    ensureMembershipStatus()
       .then((res) => {
-        setMembershipLite(res)
-        this.setData({ memberStatusLabel: memberStatusLabel(res) })
+        if (res) setMembershipLite(res)
+        const next = getMembershipLite() || res
+        if (next) {
+          this.setData({ memberStatusLabel: memberStatusLabel(next) })
+        }
       })
       .catch(() => {})
   },

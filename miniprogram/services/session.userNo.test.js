@@ -15,4 +15,9 @@ describe('session slim userNo cache', () => {
     assert.match(slim, /Number\.isInteger\(user\.userNo\) && user\.userNo >= 1 \? user\.userNo : null/)
     assert.match(slim, /userNoRevealSeen:\s*!!user\.userNoRevealSeen/)
   })
+
+  it('soft-loads membership cache after login without blocking', () => {
+    assert.match(src, /ensureMembershipStatus\(\)\.catch/)
+    assert.match(src, /MEMBERSHIP_ENABLED/)
+  })
 })

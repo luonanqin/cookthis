@@ -184,9 +184,10 @@
             bindtap="onPickDailyMealCount"
           >{{item.label}}</view>
           <view
-            class="chip chip--meal-count {{dailySlotMode === 'custom' ? 'chip-on' : ''}}"
+            id="moreMealChip"
+            class="chip chip--meal-count {{dailySlotMode === 'custom' ? 'chip-on' : ''}} {{showMoreMeals ? 'chip--above-mask' : ''}}"
             bindtap="onOpenCustomMealCount"
-          >{{customChipLabel}}</view>
+          >{{showMoreMeals ? '餐数' : customChipLabel}}</view>
         </view>
       </view>
 
@@ -287,14 +288,21 @@
     </view>
   </view>
 
+  <!-- 对齐购买页菜谱弹层：毛玻璃遮罩 + 锚定「更多」芯片的浮卡 -->
   <view
-    class="mask mask-custom-slots"
+    class="more-meals-mask"
     wx:if="{{showMoreMeals}}"
     catchtouchmove="true"
     bindtap="onCloseMoreMeals"
+  />
+  <view
+    class="more-meals-pop"
+    wx:if="{{showMoreMeals && moreMealsPopStyle}}"
+    style="{{moreMealsPopStyle}}"
+    catchtap="noop"
+    catchtouchmove="true"
   >
-    <view class="custom-slots-panel" catchtap="noop" catchtouchmove="true">
-      <view class="custom-slots-title">选择餐数</view>
+    <view class="more-meals-pop-body">
       <view class="chip-row chip-row--meal-count more-meals-row">
         <view
           wx:for="{{moreMealCounts}}"
