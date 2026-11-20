@@ -35,6 +35,14 @@ function refresh() {
   return callCloud('membership', { action: 'refresh' })
 }
 
+function unlockDailyMealCustom() {
+  return callCloud('membership', { action: 'unlockDailyMealCustom' })
+}
+
+function clearDailyMealCustomUnlock() {
+  return callCloud('membership', { action: 'clearDailyMealCustomUnlock' })
+}
+
 function devGrant(sku) {
   return callCloud('membership', { action: 'devGrant', sku })
 }
@@ -90,6 +98,8 @@ module.exports = {
   payOrder,
   cancelOrder,
   refresh,
+  unlockDailyMealCustom,
+  clearDailyMealCustomUnlock,
   devGrant,
   devClear,
   devExpireSoon,

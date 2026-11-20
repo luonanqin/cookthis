@@ -176,6 +176,12 @@
   border-bottom: none;
 }
 
+.benefit-table-row.is-highlight {
+  background: rgba(244, 225, 170, 0.16);
+  box-shadow: inset 4rpx 0 0 var(--benefit-gold);
+  border-radius: 8rpx;
+}
+
 .benefit-table-row.head {
   min-height: 40rpx;
   padding-top: 0;
@@ -211,6 +217,7 @@
   font-weight: var(--fw-bold);
   color: var(--benefit-gold);
   background: transparent;
+  white-space: normal;
 }
 
 .benefit-col--free {

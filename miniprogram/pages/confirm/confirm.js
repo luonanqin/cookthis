@@ -17,11 +17,22 @@ const {
   normalizeTierCounts
 } = require('../../utils/members.js')
 const {
-  buildDailySlotsFromCounts,
-  formatCustomChipLabel,
-  clampMealCount,
-  canIncrement
+  FREE_DAILY_MEAL_MAX,
+  MEMBER_DAILY_MEAL_MAX,
+  MORE_MEAL_COUNTS,
+  buildDailySlotsByCount,
+  formatMealCountChipLabel,
+  formatMealSlotsSummary,
+  canUseDailyMealCount,
+  clampMoreMealCount
 } = require('../../utils/dailyMealSlots.js')
+const {
+  getStatus,
+  unlockDailyMealCustom,
+  getMembershipLite,
+  setMembershipLite
+} = require('../../services/membership.js')
+const { AD_UNITS, canOfferDailyMealRewardAd } = require('../../utils/ads.js')
 const {
   effectiveFromChoice,
   labelForChoice
@@ -62,26 +73,21 @@ function householdTotal(counts) {
 // 与家庭忌口词表一致（含新增组）；硬排除靠 ingredients.avoidTags
 const { AVOID_OPTIONS: PARTY_AVOID_OPTIONS } = require('../../utils/avoidOptions.js')
 
-const DAILY_SLOT_PRESETS = [
-  {
-    id: 'one_dinner',
-    label: '一顿晚饭',
-    slots: [{ meal: 'dinner', label: '晚饭①' }]
-  },
-  {
-    id: 'one_lunch',
-    label: '一顿午饭',
-    slots: [{ meal: 'lunch', label: '午饭①' }]
-  },
-  {
-    id: 'lunch_dinner',
-    label: '1午+1晚',
-    slots: [
-      { meal: 'lunch', label: '午饭①' },
-      { meal: 'dinner', label: '晚饭①' }
-    ]
+const DAILY_MEAL_COUNT_PRESETS = [1, 2, 3, 4, 5, 6].map((n) => ({
+  id: 'count_' + n,
+  label: String(n),
+  count: n
+}))
+
+function isNonReleaseEnv() {
+  try {
+    const info = wx.getAccountInfoSync && wx.getAccountInfoSync()
+    const env = info && info.miniProgram && info.miniProgram.envVersion
+    return env === 'develop' || env === 'trial'
+  } catch (e) {
+    return false
   }
-]
+}
 
 function defaultYearRoundChecked(items, familyAvoids) {
   const avoids = new Set(familyAvoids || [])
@@ -181,7 +187,7 @@ function buildPartySlots(n) {
   for (let i = 0; i < count; i++) {
     slots.push({
       meal: 'other',
-      label: count === 1 ? '本场' : '第' + (i + 1) + '顿'
+      label: count === 1 ? '本场' : '第' + (i + 1) + '餐'
     })
   }
   return slots
@@ -255,16 +261,18 @@ Page({
     combo: { meat: 0, veg: 0, soup: 0 },
     partyComboSeed: '',
     listEmpty: false,
-    dailySlotPresets: DAILY_SLOT_PRESETS,
+    dailyMealCountPresets: DAILY_MEAL_COUNT_PRESETS,
     dailySlotMode: 'preset',
-    dailySlotPresetId: 'one_dinner',
-    mealSlots: DAILY_SLOT_PRESETS[0].slots,
-    customLunchCount: 0,
-    customDinnerCount: 0,
-    customChipLabel: '自定义',
-    showCustomSlots: false,
-    draftLunchCount: 0,
-    draftDinnerCount: 0,
+    dailySlotPresetId: 'count_1',
+    mealSlots: buildDailySlotsByCount(1),
+    customMealCount: 0,
+    moreMealCounts: MORE_MEAL_COUNTS,
+    customChipLabel: '更多',
+    showMoreMeals: false,
+    showMealGate: false,
+    isMember: false,
+    dailyMealUnlockedToday: false,
+    adRewardEnabled: canOfferDailyMealRewardAd(),
     partySlotCount: 1,
     partySlotOptions: [1, 2, 3],
     partyAvoidOptions: PARTY_AVOID_OPTIONS,
@@ -334,6 +342,17 @@ Page({
 
   onShow() {
     this.applyTypeScale()
+    const lite = getMembershipLite()
+    const user = getUser() || {}
+    const accessPatch = {}
+    if (lite) accessPatch.isMember = !!lite.isMember
+    if (user.dailyMealCustomUnlockDay === todayStr()) {
+      accessPatch.dailyMealUnlockedToday = true
+    }
+    if (Object.keys(accessPatch).length) this.setData(accessPatch)
+    getStatus()
+      .then((res) => this._applyDailyMealAccess(res))
+      .catch(() => {})
     this._loadManualSuggestContext()
     // 从推荐页返回时清 busy，避免遮罩一直挡住
     if (this.data.submitting || this.data.liteBusy) {
@@ -562,8 +581,8 @@ Page({
           isDaily: true,
           isHoliday: false,
           peopleIndex: 0,
-          dailySlotPresetId: 'one_dinner',
-          mealSlots: DAILY_SLOT_PRESETS[0].slots.map((s) => Object.assign({}, s)),
+          dailySlotPresetId: 'count_1',
+          mealSlots: buildDailySlotsByCount(1),
           partySlotCount: 1,
           partyAvoidChecked: {},
           upcomingHolidays,
@@ -1081,11 +1100,11 @@ Page({
       patch.vegIndex = indexOfValue(COMBO_RANGE, combo.veg, 1)
       patch.soupIndex = indexOfValue(COMBO_RANGE, combo.soup, 0)
       patch.dailySlotMode = 'preset'
-      patch.dailySlotPresetId = 'one_dinner'
-      patch.mealSlots = DAILY_SLOT_PRESETS[0].slots.map(s => Object.assign({}, s))
-      // 定稿：文案恢复「自定义」；保留 customLunchCount/customDinnerCount 供再开弹窗
-      patch.customChipLabel = '自定义'
-      patch.showCustomSlots = false
+      patch.dailySlotPresetId = 'count_1'
+      patch.mealSlots = buildDailySlotsByCount(1)
+      patch.customChipLabel = '更多'
+      patch.showMoreMeals = false
+      patch.showMealGate = false
       patch.partyAvoidChecked = {}
       patch.holidayId = ''
       patch.holidayDate = ''
@@ -1143,86 +1162,152 @@ Page({
     this._syncWarnClears()
   },
 
-  onDailySlotPreset(e) {
-    const id = e.currentTarget.dataset.id
-    const preset = DAILY_SLOT_PRESETS.find(p => p.id === id)
-    if (!preset) return
+  _applyDailyMealAccess(res) {
+    if (res) setMembershipLite(res)
+    const today = todayStr()
+    const user = getUser() || {}
+    const lite = getMembershipLite()
+    const unlockDay =
+      (res && res.dailyMealCustomUnlockDay) || user.dailyMealCustomUnlockDay || ''
     this.setData({
-      dailySlotMode: 'preset',
-      dailySlotPresetId: id,
-      mealSlots: preset.slots.map(s => Object.assign({}, s)),
-      // 芯片上自定义文案仍可用上次 n/m；点回预设后 chip 显示「自定义」——见 format：
-      // 规格：点回预设后自定义芯片文案恢复「自定义」
-      customChipLabel: '自定义'
-      // 保留 customLunchCount/customDinnerCount 供再次打开弹窗
-    })
-    this._syncWarnClears()
-    track('scene_meal_slots_change', {
-      meal_slots_mode: 'preset',
-      presetId: id,
-      slots: preset.slots.length
+      isMember: !!(res && res.isMember) || !!(lite && lite.isMember),
+      dailyMealUnlockedToday: unlockDay === today
     })
   },
 
-  onOpenCustomSlots() {
-    // 定稿：首次进入固定 0+0；再次打开用上次确认的 n/m
-    // 「再次」= 已有确认过的计数，或已是 custom 模式
-    const useSaved =
-      this.data.dailySlotMode === 'custom' ||
-      this.data.customLunchCount > 0 ||
-      this.data.customDinnerCount > 0
+  _canCustomDailyMeals() {
+    return !!(this.data.isMember || this.data.dailyMealUnlockedToday)
+  },
+
+  onPickDailyMealCount(e) {
+    const id = e.currentTarget.dataset.id
+    const preset = DAILY_MEAL_COUNT_PRESETS.find((p) => p.id === id)
+    if (!preset) return
+    const mealSlots = buildDailySlotsByCount(preset.count, FREE_DAILY_MEAL_MAX)
     this.setData({
-      showCustomSlots: true,
-      draftLunchCount: useSaved ? this.data.customLunchCount : 0,
-      draftDinnerCount: useSaved ? this.data.customDinnerCount : 0
+      dailySlotMode: 'preset',
+      dailySlotPresetId: id,
+      mealSlots,
+      customMealCount: 0,
+      customChipLabel: '更多',
+      showMoreMeals: false
     })
+    this._syncWarnClears()
+    track('confirm_slot_pick', { mode: 'preset', mealCount: preset.count })
+  },
+
+  onOpenCustomMealCount() {
+    const lite = getMembershipLite()
+    if (lite && lite.isMember) {
+      this.setData({ isMember: true })
+    }
+    if (this._canCustomDailyMeals()) {
+      this.setData({ showMoreMeals: true, showMealGate: false })
+      return
+    }
+    track('daily_meal_custom_gate_show', {})
+    this.setData({ showMealGate: true })
+  },
+
+  onCloseMealGate() {
+    this.setData({ showMealGate: false })
+  },
+
+  onMealGateGoMember() {
+    tapFeedback()
+    track('daily_meal_custom_gate_member', {})
+    this.setData({ showMealGate: false })
+    wx.navigateTo({ url: '/pages/membership/index?from=daily_meal_custom' })
+  },
+
+  onMealGateWatchAd() {
+    tapFeedback()
+    track('daily_meal_custom_gate_ad', {})
+    this._watchDailyMealUnlockAd()
+  },
+
+  _watchDailyMealUnlockAd() {
+    const unitId = AD_UNITS.rewardedDailyMealCustom
+    if (unitId && typeof wx.createRewardedVideoAd === 'function') {
+      try {
+        if (!this._dailyMealRewardAd) {
+          this._dailyMealRewardAd = wx.createRewardedVideoAd({ adUnitId: unitId })
+          this._dailyMealRewardAd.onClose((res) => {
+            if (res && res.isEnded) this._finishDailyMealUnlock()
+            else wx.showToast({ title: '需看完广告才能解锁', icon: 'none' })
+          })
+          this._dailyMealRewardAd.onError(() => {
+            wx.showToast({ title: '广告加载失败', icon: 'none' })
+          })
+        }
+        this._dailyMealRewardAd
+          .show()
+          .catch(() =>
+            this._dailyMealRewardAd
+              .load()
+              .then(() => this._dailyMealRewardAd.show())
+              .catch(() => wx.showToast({ title: '广告加载失败', icon: 'none' }))
+          )
+        return
+      } catch (e) {
+        /* fall through */
+      }
+    }
+    if (isNonReleaseEnv()) {
+      this._finishDailyMealUnlock()
+      return
+    }
+    wx.showToast({ title: '广告暂未开通', icon: 'none' })
+  },
+
+  _finishDailyMealUnlock() {
+    unlockDailyMealCustom()
+      .then((res) => {
+        const day = (res && res.dailyMealCustomUnlockDay) || ''
+        patchUser({ dailyMealCustomUnlockDay: day })
+        this.setData({
+          dailyMealUnlockedToday: true,
+          showMealGate: false,
+          showMoreMeals: true
+        })
+        track('daily_meal_custom_unlock', {})
+      })
+      .catch((err) => {
+        wx.showToast({
+          title: (err && err.error) || '解锁失败',
+          icon: 'none'
+        })
+      })
   },
 
   noop() {},
 
-  onCloseCustomSlots() {
-    this.setData({ showCustomSlots: false })
+  onCloseMoreMeals() {
+    this.setData({ showMoreMeals: false })
   },
 
-  bumpCustomDraft(e) {
-    const which = e.currentTarget.dataset.which // 'lunch' | 'dinner'
-    const delta = Number(e.currentTarget.dataset.delta) || 0
-    let l = this.data.draftLunchCount
-    let d = this.data.draftDinnerCount
-    if (delta > 0) {
-      if (!canIncrement(l, d, which)) return
-      if (which === 'lunch') l += 1
-      else d += 1
-    } else {
-      if (which === 'lunch') l = Math.max(0, l - 1)
-      else d = Math.max(0, d - 1)
+  onPickMoreMealCount(e) {
+    const n = clampMoreMealCount(e.currentTarget.dataset.count)
+    if (
+      !canUseDailyMealCount(n, {
+        isMember: this.data.isMember,
+        unlockedToday: this.data.dailyMealUnlockedToday
+      }).ok
+    ) {
+      wx.showToast({ title: '开通会员或看广告后可选更多餐', icon: 'none' })
+      return
     }
+    const mealSlots = buildDailySlotsByCount(n, MEMBER_DAILY_MEAL_MAX)
     this.setData({
-      draftLunchCount: clampMealCount(l),
-      draftDinnerCount: clampMealCount(d)
-    })
-  },
-
-  onConfirmCustomSlots() {
-    const l = clampMealCount(this.data.draftLunchCount)
-    const d = clampMealCount(this.data.draftDinnerCount)
-    const mealSlots = buildDailySlotsFromCounts(l, d)
-    this.setData({
-      showCustomSlots: false,
+      showMoreMeals: false,
       dailySlotMode: 'custom',
       dailySlotPresetId: '',
-      customLunchCount: l,
-      customDinnerCount: d,
-      customChipLabel: formatCustomChipLabel(l, d),
+      customMealCount: n,
+      customChipLabel: formatMealCountChipLabel(n),
       mealSlots
     })
     this._syncWarnClears()
-    track('scene_meal_slots_change', {
-      meal_slots_mode: 'custom',
-      lunchCount: l,
-      dinnerCount: d,
-      slots: mealSlots.length
-    })
+    track('confirm_slot_pick', { mode: 'more', mealCount: n })
   },
 
   onPartySlotPick(e) {
@@ -1312,15 +1397,7 @@ Page({
       const td = this.data.tierDisplay || {}
       scene.peopleCount =
         (Number(td.adult) || 0) + (Number(td.child) || 0) + (Number(td.elder) || 0)
-      // 推荐顶栏几顿文案：与确认页芯片一致（预设名 / 自定义 n午+m晚）
-      if (this.data.dailySlotMode === 'custom') {
-        scene.mealSlotsSummary = this.data.customChipLabel || '自定义'
-      } else {
-        const preset = DAILY_SLOT_PRESETS.find(
-          (p) => p.id === this.data.dailySlotPresetId
-        )
-        scene.mealSlotsSummary = (preset && preset.label) || ''
-      }
+      scene.mealSlotsSummary = formatMealSlotsSummary(mealSlots)
       scene.partyAvoids = null
       scene.holidayId = null
       scene.holidayDate = null
@@ -1434,8 +1511,8 @@ Page({
         wx.showToast({
           title:
             this.data.isDaily && this.data.dailySlotMode === 'custom'
-              ? '请先选择吃几顿'
-              : '请选择几顿',
+              ? '请先选择吃几餐'
+              : '请选择几餐',
           icon: 'none'
         })
       }
@@ -1454,8 +1531,7 @@ Page({
       meal_slots_mode: this.data.isDaily
         ? this.data.dailySlotMode
         : 'party',
-      lunchCount: this.data.isDaily ? this.data.customLunchCount : undefined,
-      dinnerCount: this.data.isDaily ? this.data.customDinnerCount : undefined,
+      mealCount: (scene.mealSlots || []).length,
       slotCount: (scene.mealSlots || []).length
     })
 
@@ -1595,6 +1671,18 @@ Page({
       .catch((err) => {
         console.error(err)
         this.setData({ submitting: false })
+        if (err && err.error === 'MEAL_COUNT_GATE') {
+          const mealSlots = buildDailySlotsByCount(FREE_DAILY_MEAL_MAX)
+          this.setData({
+            mealSlots,
+            dailySlotMode: 'preset',
+            dailySlotPresetId: 'count_' + FREE_DAILY_MEAL_MAX,
+            customChipLabel: '更多',
+            customMealCount: 0
+          })
+          wx.showToast({ title: '多餐需会员或看广告解锁', icon: 'none' })
+          return
+        }
         const title = (err && (err.error || err.message)) || '推荐失败'
         wx.showToast({ title: String(title), icon: 'none' })
       })

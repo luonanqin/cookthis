@@ -165,7 +165,8 @@
 
 .meal-label {
   display: inline-block;
-  margin-bottom: 12rpx;
+  /* 与 dish-names 左齐：type-badge min-width 44 + dish-row gap 36 */
+  margin: 0 0 12rpx 80rpx;
   padding: 4rpx 14rpx;
   border-radius: 8rpx;
   background: var(--color-primary-soft);

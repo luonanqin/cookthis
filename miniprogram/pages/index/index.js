@@ -21,7 +21,10 @@ const {
 const confirmIngredientsCache = require('../../services/confirmIngredientsCache.js')
 const typeScaleBehavior = require('../../behaviors/typeScale.js')
 const { getNavMetrics } = require('../../utils/navBar.js')
-const { MEMBERSHIP_ENABLED } = require('../../services/membership.js')
+const {
+  MEMBERSHIP_ENABLED,
+  clearDailyMealCustomUnlock
+} = require('../../services/membership.js')
 
   /** 数字滚定后稍顿，再放礼花 */
 const CEREMONY_LABEL_HOLD_MS = 520
@@ -974,6 +977,20 @@ Page({
       title: debugForceNoLocation ? '已开：模拟无定位' : '已关：用真实定位',
       icon: 'none'
     })
+  },
+
+  onDebugClearDailyMealAdUnlock() {
+    if (!isNonReleaseEnv()) return
+    tapFeedback()
+    clearDailyMealCustomUnlock()
+      .then(() => {
+        patchUser({ dailyMealCustomUnlockDay: null })
+        wx.showToast({ title: '已清除广告解锁', icon: 'none' })
+      })
+      .catch((err) => {
+        console.error(err)
+        wx.showToast({ title: '失败，请部署 membership', icon: 'none' })
+      })
   },
 
   onDebugMarketScaleClear() {

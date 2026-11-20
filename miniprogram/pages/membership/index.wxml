@@ -36,7 +36,7 @@
           <text class="benefit-col benefit-col--free head-label">免费</text>
         </view>
         <view
-          class="benefit-table-row"
+          class="benefit-table-row {{highlightBenefit === item.id ? 'is-highlight' : ''}}"
           wx:for="{{benefitRows}}"
           wx:key="id"
         >

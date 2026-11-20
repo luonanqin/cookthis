@@ -81,6 +81,12 @@
           hover-stay-time="80"
           bindtap="onResetPreferenceTest"
         >重置偏好（测试）</view>
+        <view
+          class="link link-dev"
+          hover-class="tap-hover"
+          hover-stay-time="80"
+          bindtap="onDebugClearDailyMealAdUnlock"
+        >清除「更多餐」广告解锁（测试）</view>
 
         <view wx:if="{{showMarketScaleDebug}}" class="dev-scale-panel">
           <view class="dev-scale-title">菜场规模（测试）</view>

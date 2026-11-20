@@ -3,39 +3,73 @@
 const { describe, it } = require('node:test')
 const assert = require('node:assert/strict')
 const {
-  buildDailySlotsFromCounts,
-  formatCustomChipLabel,
-  clampMealCount,
-  canIncrement
+  FREE_DAILY_MEAL_MAX,
+  CUSTOM_DAILY_MEAL_MIN,
+  MEMBER_DAILY_MEAL_MAX,
+  MORE_MEAL_COUNTS,
+  clampDailyMealCount,
+  clampMoreMealCount,
+  buildDailySlotsByCount,
+  formatMealCountChipLabel,
+  formatMealSlotsSummary,
+  normalizeMealSlotLabel,
+  canUseDailyMealCount
 } = require('./dailyMealSlots.js')
 
 describe('dailyMealSlots', () => {
-  it('buildDailySlotsFromCounts orders lunch then dinner with labels', () => {
-    const slots = buildDailySlotsFromCounts(2, 1)
-    assert.deepEqual(slots, [
-      { meal: 'lunch', label: '午饭①' },
-      { meal: 'lunch', label: '午饭②' },
-      { meal: 'dinner', label: '晚饭①' }
+  it('exports free / more / member bounds', () => {
+    assert.equal(FREE_DAILY_MEAL_MAX, 6)
+    assert.equal(CUSTOM_DAILY_MEAL_MIN, 7)
+    assert.equal(MEMBER_DAILY_MEAL_MAX, 10)
+    assert.deepEqual(MORE_MEAL_COUNTS, [7, 8, 9, 10])
+  })
+
+  it('clampDailyMealCount keeps integers in 1..max and maps illegal to 1', () => {
+    assert.equal(clampDailyMealCount(3, 10), 3)
+    assert.equal(clampDailyMealCount(0, 10), 1)
+    assert.equal(clampDailyMealCount(11, 10), 10)
+  })
+
+  it('clampMoreMealCount keeps 7..10', () => {
+    assert.equal(clampMoreMealCount(7), 7)
+    assert.equal(clampMoreMealCount(10), 10)
+    assert.equal(clampMoreMealCount(6), 7)
+    assert.equal(clampMoreMealCount(11), 10)
+    assert.equal(clampMoreMealCount(NaN), 7)
+  })
+
+  it('buildDailySlotsByCount 3 uses 第N餐', () => {
+    assert.deepEqual(buildDailySlotsByCount(3), [
+      { meal: 'other', label: '第1餐' },
+      { meal: 'other', label: '第2餐' },
+      { meal: 'other', label: '第3餐' }
     ])
   })
 
-  it('buildDailySlotsFromCounts 0+0 yields empty', () => {
-    assert.deepEqual(buildDailySlotsFromCounts(0, 0), [])
+  it('formatMealCountChipLabel shows digit for 7-10 else 更多', () => {
+    assert.equal(formatMealCountChipLabel(7), '7')
+    assert.equal(formatMealCountChipLabel(10), '10')
+    assert.equal(formatMealCountChipLabel(3), '更多')
+    assert.equal(formatMealCountChipLabel(0), '更多')
   })
 
-  it('formatCustomChipLabel', () => {
-    assert.equal(formatCustomChipLabel(0, 0), '自定义')
-    assert.equal(formatCustomChipLabel(0, 3), '3晚')
-    assert.equal(formatCustomChipLabel(2, 0), '2午')
-    assert.equal(formatCustomChipLabel(1, 2), '1午+2晚')
+  it('formatMealSlotsSummary uses N餐', () => {
+    assert.equal(formatMealSlotsSummary(3), '3餐')
+    assert.equal(formatMealSlotsSummary(buildDailySlotsByCount(4)), '4餐')
   })
 
-  it('clampMealCount and canIncrement respect 0-7 and sum<=14', () => {
-    assert.equal(clampMealCount(-1), 0)
-    assert.equal(clampMealCount(8), 7)
-    assert.equal(canIncrement(7, 0, 'lunch'), false)
-    assert.equal(canIncrement(7, 7, 'dinner'), false)
-    assert.equal(canIncrement(6, 7, 'lunch'), true)
-    assert.equal(canIncrement(7, 6, 'dinner'), true)
+  it('normalizeMealSlotLabel keeps 第N餐 and rewrites 顿/午饭/晚饭', () => {
+    assert.equal(normalizeMealSlotLabel({ label: '第3餐' }, 0), '第3餐')
+    assert.equal(normalizeMealSlotLabel({ label: '第2顿' }, 0), '第2餐')
+    assert.equal(normalizeMealSlotLabel({ meal: 'lunch', label: '午饭①' }, 0), '第1餐')
+    assert.equal(normalizeMealSlotLabel({ meal: 'dinner', label: '晚饭' }, 1), '第2餐')
+  })
+
+  it('canUseDailyMealCount gates 7 for free', () => {
+    assert.equal(canUseDailyMealCount(7, { isMember: false, unlockedToday: false }).ok, false)
+    assert.equal(canUseDailyMealCount(7, { isMember: true }).ok, true)
+    assert.equal(canUseDailyMealCount(7, { unlockedToday: true }).ok, true)
+    assert.equal(canUseDailyMealCount(6, { isMember: false }).ok, true)
+    assert.equal(canUseDailyMealCount(11, { isMember: true }).ok, false)
   })
 })

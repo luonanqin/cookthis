@@ -277,12 +277,37 @@ describe('getStatus', () => {
     assert.equal(res.tier, null)
     assert.equal(res.expiresAt, null)
     assert.equal(res.expiresLabel, null)
+    assert.equal(res.dailyMealCustomUnlockDay, null)
     assert.deepEqual(res.swap, { used: 1, limit: 3, rewardExtra: 0 })
     assert.equal(res.noticeAckRequired, true)
     assert.equal(res.offers.length, 3)
     assert.equal(res.offers[0].sku, 'month')
     assert.equal(res.offers[0].payFen, 99)
     assert.equal(res.offers[0].isFirstPurchase, true)
+  })
+})
+
+describe('unlockDailyMealCustom', () => {
+  it('writes Shanghai day key onto the user', async () => {
+    const db = createMemoryDb()
+    await seedUser(db)
+    const { dayKeyChina } = require('./swapQuota.js')
+    const res = await api(db).unlockDailyMealCustom('user-1')
+    assert.equal(res.ok, true)
+    assert.equal(res.dailyMealCustomUnlockDay, dayKeyChina(NOW))
+    const user = (await db.collection('users').where({ uid: 'user-1' }).limit(1).get()).data[0]
+    assert.equal(user.dailyMealCustomUnlockDay, dayKeyChina(NOW))
+  })
+
+  it('clearDailyMealCustomUnlock clears the day mark', async () => {
+    const db = createMemoryDb()
+    await seedUser(db)
+    await api(db).unlockDailyMealCustom('user-1')
+    const cleared = await api(db).clearDailyMealCustomUnlock('user-1')
+    assert.equal(cleared.ok, true)
+    assert.equal(cleared.dailyMealCustomUnlockDay, null)
+    const user = (await db.collection('users').where({ uid: 'user-1' }).limit(1).get()).data[0]
+    assert.equal(user.dailyMealCustomUnlockDay, null)
   })
 })
 

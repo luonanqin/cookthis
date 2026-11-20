@@ -304,6 +304,7 @@ function createMembershipApi(deps) {
       tier: membership ? membership.tier : null,
       expiresAt: membership ? expiresAt : null,
       expiresLabel: membership ? expiresLabel(membership.expiresAt) : null,
+      dailyMealCustomUnlockDay: (user && user.dailyMealCustomUnlockDay) || null,
       swap: {
         used: swapDaily.used,
         limit: isMember ? null : FREE_SWAP_LIMIT,
@@ -316,6 +317,25 @@ function createMembershipApi(deps) {
       payTtlMs: PAY_TTL_MS,
       noticeAckRequired: true
     }
+  }
+
+  async function unlockDailyMealCustom(uid) {
+    const user = await loadUser(db, uid)
+    if (!user || !user._id) return { ok: false, error: 'NO_USER' }
+    const day = dayKeyChina(nowMs)
+    await db.collection('users').doc(user._id).update({
+      data: { dailyMealCustomUnlockDay: day }
+    })
+    return { ok: true, dailyMealCustomUnlockDay: day }
+  }
+
+  async function clearDailyMealCustomUnlock(uid) {
+    const user = await loadUser(db, uid)
+    if (!user || !user._id) return { ok: false, error: 'NO_USER' }
+    await db.collection('users').doc(user._id).update({
+      data: { dailyMealCustomUnlockDay: null }
+    })
+    return { ok: true, dailyMealCustomUnlockDay: null }
   }
 
   async function createOrder(uid, sku, opts) {
@@ -689,6 +709,8 @@ function createMembershipApi(deps) {
     payOrder,
     cancelOrder,
     refresh,
+    unlockDailyMealCustom,
+    clearDailyMealCustomUnlock,
     devGrant,
     devClear,
     devExpireSoon,
@@ -752,6 +774,8 @@ async function handleMain(event, ctx) {
   if (action === 'payOrder') return api.payOrder(uid, eventObj.orderId)
   if (action === 'cancelOrder') return api.cancelOrder(uid, eventObj.orderId)
   if (action === 'refresh') return api.refresh(uid)
+  if (action === 'unlockDailyMealCustom') return api.unlockDailyMealCustom(uid)
+  if (action === 'clearDailyMealCustomUnlock') return api.clearDailyMealCustomUnlock(uid)
   if (action === 'devGrant') return api.devGrant(uid, eventObj.sku)
   if (action === 'devClear') return api.devClear(uid)
   if (action === 'devExpireSoon') return api.devExpireSoon(uid)
