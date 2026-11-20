@@ -35,15 +35,23 @@ function startOfDay(d) {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
 }
 
-/** 最近几天突出相对日；更早仍用完整日期 */
-function formatTimeText(value) {
+/** 本周一起点（周一为一周开始） */
+function startOfWeekMonday(d) {
+  const day = d.getDay() // 0日 … 6六
+  const offset = day === 0 ? 6 : day - 1
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate() - offset).getTime()
+}
+
+/** 今天/昨天；同自然周用周几；跨周用完整日期 */
+function formatTimeText(value, now) {
   const d = toDate(value)
   if (!d) return ''
+  const today = now instanceof Date ? now : new Date()
   const hm = pad2(d.getHours()) + ':' + pad2(d.getMinutes())
-  const dayDiff = Math.round((startOfDay(new Date()) - startOfDay(d)) / 86400000)
+  const dayDiff = Math.round((startOfDay(today) - startOfDay(d)) / 86400000)
   if (dayDiff === 0) return '今天 ' + hm
   if (dayDiff === 1) return '昨天 ' + hm
-  if (dayDiff > 1 && dayDiff < 7) {
+  if (dayDiff > 1 && startOfWeekMonday(today) === startOfWeekMonday(d)) {
     const week = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
     return week[d.getDay()] + ' ' + hm
   }
@@ -70,7 +78,7 @@ function groupDishesByMeal(dishes) {
         mealLabel,
         displayLabel: mealLabel
           ? normalizeMealSlotLabel({ label: mealLabel }, groups.length)
-          : '本顿',
+          : '本餐',
         dishes: []
       })
     }
@@ -340,7 +348,7 @@ Page({
     this._loadGen += 1
     const gen = this._loadGen
     this.setData({ loading: true, loadingMore: false, nextCursor: null, tipSpot: null })
-    callCloud('recommend', { action: 'listAccepted' })
+    callCloud('acceptedPlans', { action: 'listAccepted' })
       .then((result) => {
         if (gen !== this._loadGen) return
         const items = ((result && result.items) || []).map(mapItem)
@@ -376,7 +384,7 @@ Page({
     if (!cursor || this.data.loading || this.data.loadingMore) return
     const gen = this._loadGen
     this.setData({ loadingMore: true })
-    callCloud('recommend', { action: 'listAccepted', cursor })
+    callCloud('acceptedPlans', { action: 'listAccepted', cursor })
       .then((result) => {
         if (gen !== this._loadGen) {
           this.setData({ loadingMore: false })

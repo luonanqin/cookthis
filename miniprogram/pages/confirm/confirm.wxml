@@ -1,4 +1,4 @@
-<page-meta page-style="{{showCustomSlots || showMealGate || showProfileLite || showMarketScale || seasonalExpanded ? 'overflow: hidden;' : ''}}" />
+<page-meta page-style="{{showMoreMeals || showMealGate || showProfileLite || showMarketScale || seasonalExpanded ? 'overflow: hidden;' : ''}}" />
 <view class="page {{typeScaleClass}}">
   <page-header
     title="确认食材"
@@ -174,24 +174,24 @@
       </view>
 
       <view class="field" wx:if="{{isDaily}}">
-        <text class="field-label {{warnSlots ? 'title-warn' : ''}} {{warnSlots && warnPulse ? 'title-pulse' : ''}}">几顿</text>
-        <view class="chip-row">
+        <text class="field-label {{warnSlots ? 'title-warn' : ''}} {{warnSlots && warnPulse ? 'title-pulse' : ''}}">几餐</text>
+        <view class="chip-row chip-row--meal-count">
           <view
             wx:for="{{dailyMealCountPresets}}"
             wx:key="id"
-            class="chip {{dailySlotMode === 'preset' && dailySlotPresetId === item.id ? 'chip-on' : ''}}"
+            class="chip chip--meal-count {{dailySlotMode === 'preset' && dailySlotPresetId === item.id ? 'chip-on' : ''}}"
             data-id="{{item.id}}"
             bindtap="onPickDailyMealCount"
           >{{item.label}}</view>
           <view
-            class="chip {{dailySlotMode === 'custom' ? 'chip-on' : ''}}"
+            class="chip chip--meal-count {{dailySlotMode === 'custom' ? 'chip-on' : ''}}"
             bindtap="onOpenCustomMealCount"
           >{{customChipLabel}}</view>
         </view>
       </view>
 
       <view class="field" wx:else>
-        <text class="field-label {{warnSlots ? 'title-warn' : ''}} {{warnSlots && warnPulse ? 'title-pulse' : ''}}">几顿</text>
+        <text class="field-label {{warnSlots ? 'title-warn' : ''}} {{warnSlots && warnPulse ? 'title-pulse' : ''}}">几餐</text>
         <view class="chip-row">
           <view
             wx:for="{{partySlotOptions}}"
@@ -289,23 +289,20 @@
 
   <view
     class="mask mask-custom-slots"
-    wx:if="{{showCustomSlots}}"
+    wx:if="{{showMoreMeals}}"
     catchtouchmove="true"
-    bindtap="onCloseCustomSlots"
+    bindtap="onCloseMoreMeals"
   >
     <view class="custom-slots-panel" catchtap="noop" catchtouchmove="true">
-      <view class="custom-slots-title">自定义几顿</view>
-      <view class="custom-slot-row">
-        <view class="custom-slot-cluster">
-          <text class="custom-slot-name">顿数</text>
-          <text class="step-btn" data-delta="-1" bindtap="bumpCustomDraftCount">−</text>
-          <text class="slot-count">{{customDraftCount}}</text>
-          <text class="step-btn" data-delta="1" bindtap="bumpCustomDraftCount">+</text>
-        </view>
-      </view>
-      <view class="custom-slots-actions">
-        <button size="mini" class="btn-outline" bindtap="onCloseCustomSlots">取 消</button>
-        <button size="mini" type="primary" bindtap="onConfirmCustomMealCount">确 认</button>
+      <view class="custom-slots-title">选择餐数</view>
+      <view class="chip-row chip-row--meal-count more-meals-row">
+        <view
+          wx:for="{{moreMealCounts}}"
+          wx:key="*this"
+          class="chip chip--meal-count {{customMealCount === item ? 'chip-on' : ''}}"
+          data-count="{{item}}"
+          bindtap="onPickMoreMealCount"
+        >{{item}}</view>
       </view>
     </view>
   </view>
@@ -318,16 +315,16 @@
   >
     <view class="sheet-confirm sheet-meal-gate" catchtap="noop">
       <view class="sheet-confirm-hd">
-        <view class="sheet-title">自定义更多顿</view>
-        <view class="sheet-hint">开通会员后可选最多 10 顿</view>
+        <view class="sheet-title">解锁更多餐</view>
+        <view class="sheet-hint">看广告解锁当日可选 7～10 餐；会员免广告</view>
       </view>
       <view class="meal-gate-actions">
-        <button type="primary" bindtap="onMealGateGoMember">开通会员</button>
         <button
           wx:if="{{adRewardEnabled}}"
-          class="btn-outline"
+          type="primary"
           bindtap="onMealGateWatchAd"
         >看广告解锁</button>
+        <button class="btn-outline" bindtap="onMealGateGoMember">开通会员</button>
         <button class="btn-outline" bindtap="onCloseMealGate">关闭</button>
       </view>
     </view>

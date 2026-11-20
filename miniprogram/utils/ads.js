@@ -10,7 +10,14 @@ const ADS_ENABLED = false
  */
 const AD_UNITS = {
   // 购买清单原生模板（主位 A）
-  shoppingNative: ''
+  shoppingNative: '',
+  // 确认页「更多」餐数激励视频（填 unitId 后真机完播解锁当日）
+  rewardedDailyMealCustom: ''
+}
+
+/** 确认页门槛展示「看广告解锁」；有 unitId 走真广告，开发/体验无 unitId 可模拟完播 */
+function canOfferDailyMealRewardAd() {
+  return true
 }
 
 function shoppingAdSlots(mealType) {
@@ -25,4 +32,9 @@ function shoppingAdSlots(mealType) {
   return slots
 }
 
-module.exports = { ADS_ENABLED, AD_UNITS, shoppingAdSlots }
+module.exports = {
+  ADS_ENABLED,
+  AD_UNITS,
+  shoppingAdSlots,
+  canOfferDailyMealRewardAd
+}

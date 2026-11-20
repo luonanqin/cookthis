@@ -28,6 +28,7 @@
 | 16 | Slice 16 | **用户序号与首启仪式**（原子 `userNo` / 首页①→② 连贯蒙层 / 「我的」小字） |
 | 17 | Slice 17 | **手补食材联想与规范名**（确认页拼音/别名联想 / 点选落 canonical / 未命中可加） |
 | 18 | Slice 18 | **会员开通与虚拟支付**（权益页 / 道具直购 / 发货推送 / 查单补发 / 换菜与菜数软挡） |
+| 19 | Slice 19 | **日常几餐只选餐数**（确认页 1～6 +「更多」7～10 / 激励当日解锁 / 第N餐 / 服务端门禁） |
 | — | 语音 | 前端已下线，暂不点验 |
 
 新用户进首页：若未看过首启且已有 `userNo`，先播 **Slice 16** ①→②（左「先逛逛」/右「完善偏好」）；否则仍可能弹旧「去设置 / 先逛逛」。选「先逛逛」或引导页「暂时跳过」即可继续测 Slice 1～4。完整引导放到 **Slice 6** 再验。跳过/轻量跳过后的**弱提醒与快捷补全**放到 **Slice 10** 再验。
@@ -58,7 +59,7 @@
 | `shoppingChecks.js` | 小程序 `miniprogram/utils/shoppingChecks.js`（清单勾选 key / 清理） |
 | `confirmCandidates.js` | `meals/confirmCandidates.js` |
 | `removeMealLog.js` | `meals/removeMealLog.js`（§4.2 删除归属校验） |
-| `listAccepted.js` | `recommend/listAccepted.js`（自产 + `received_plans` 合并；含 `source` / `badge`） |
+| `listAccepted.js` | `acceptedPlans/listAccepted.js` + `recommend/listAccepted.js`（自产 + `received_plans` 合并；列表主路径为轻量云函数 `acceptedPlans`） |
 | `planAte.js` | `meals/planAte.js` |
 | `unconventionalPlans.js` | `recommend/unconventionalPlans.js` |
 | `feedbackLogic.js` | `feedback/feedbackLogic.js`（校验 / sortKey / shapeFeedback） |
@@ -79,6 +80,8 @@ Slice 16（用户序号）另需集合 **`counters`**（文档 `userNo`，字段
 Slice 17（手补联想）改 `aliases.json` 后须重跑 `scripts/build-manual-suggest-index.py` + `scripts/sync-alias-runtime-data.js`，再部署 `catalog`。细节见下方「Slice 17 准备」。
 
 Slice 18（会员 / 虚拟支付）另需集合 **`memberships`**、**`membership_orders`**；索引以 **`uid+createdAt DESC`** 为主（未支付扫描不强制 ASC/DESC 双索引，见 §B.2）。MP 开通虚拟支付 + 6 个道具；云函数环境变量与发货推送。细节见下方「Slice 18 准备」。
+
+Slice 19（日常顿数）依赖确认页 + `recommend.create`；会员门槛测自定义 7～10 时需 **`MEMBERSHIP_ENABLED=true`**（或 `develop` 调试开卡）。细节见下方「Slice 19 准备」。
 
 ---
 
@@ -170,7 +173,7 @@ Slice 18（会员 / 虚拟支付）另需集合 **`memberships`**、**`membershi
 假定 **Slice 3～4 准备已完成**（能「去买菜」、有 `meal_logs`；建议也已部署最新 `recommend` / `meals`）。再补：
 
 1. **云开发控制台**：集合 `recommendations` 建复合索引 `uid` + `accepted` + `acceptedAt`（见上方公共准备说明）；缺索引时列表分页会报错或无法上拉。
-2. **重新部署**云函数：`recommend`（含 `listAccepted.js`）、`meals`（含 `planAte.js` / `removeMealLog.js`）。
+2. **上传并部署**云函数：`acceptedPlans`（已选列表轻量入口；云端安装依赖）；并**重新部署** `recommend`（兼容旧 `listAccepted`）、`meals`（含 `planAte.js` / `removeMealLog.js`）。
 3. 小程序重新编译（含 `pages/acceptedPlans`、「我的」入口）。
 4. 本地：`npm test`（含 `listAccepted` / `planAte` / `plan_ate` 进场确认回归）。
 
@@ -478,6 +481,24 @@ node --test cloudfunctions/membership/*.test.js miniprogram/pages/membership/*.t
 
 计划：[`docs/superpowers/plans/2026-11-17-会员开通与权益.md`](docs/superpowers/plans/2026-11-17-会员开通与权益.md)。  
 设计：[`docs/superpowers/specs/2026-11-17-会员开通与权益-design.md`](docs/superpowers/specs/2026-11-17-会员开通与权益-design.md)。
+
+---
+
+## Slice 19 准备（日常几餐只选餐数）
+
+假定 **Slice 2～3 已能出推荐**；日常「几餐」快捷 **1～6**，「更多」浮层 **7～10**（会员免广告；非会员看激励当日解锁）。
+
+计划：[`docs/superpowers/plans/2026-11-19-日常几顿只选顿数.md`](docs/superpowers/plans/2026-11-19-日常几顿只选顿数.md)。  
+设计：[`docs/superpowers/specs/2026-10-11-日常几顿快捷与自定义-design.md`](docs/superpowers/specs/2026-10-11-日常几顿快捷与自定义-design.md)（2026-11-19 修订，文案已改为「餐」）。
+
+### 你需要部署的
+
+1. **小程序**（确认页 / 推荐 / 已选 / 场景摘要 / 会员权益）  
+2. **云函数 `recommend`**（门禁 ≤6 免费；7～10 需会员或当日解锁；标签 `第N餐`）  
+3. **云函数 `membership`**（`unlockDailyMealCustom` 写 `users.dailyMealCustomUnlockDay`；`getStatus` 带回该字段）  
+4. （可选）`miniprogram/utils/ads.js` → `AD_UNITS.rewardedDailyMealCustom` 填激励 unitId；未填时 **开发/体验版**点「看广告解锁」会**模拟完播**便于联调  
+
+**部署顺序建议：** 发 `membership` + `recommend` → 再编小程序 → 对照「Slice 19 验收清单」。
 
 ---
 
@@ -896,6 +917,35 @@ node --test cloudfunctions/membership/*.test.js miniprogram/pages/membership/*.t
 **本切片不验：** 代币/币种体系、自动续费、激励视频换菜（阶段 2）、清单去广告（阶段 2）、成长值/饭友等级、退款接口自动化（Android 可后台手退一笔抽查即可）、定时每 5 分钟扫单（现靠进页/`refresh` 触发查单）。
 
 **部署提醒：** 先按 §B.2 建精简索引（**不必**为未支付建 `createdAt` ASC/DESC 双索引）；再配 OfferID/AppKey 与 6 道具、绑推送。改定价或 productId 须与 MP 道具同步。个人主体接入检查项也可对照官方文末「部署前检查清单」。**上线前准备**：① 检出 **`main`**（无调试代码）；② 正式云无 `MEMBERSHIP_ALLOW_DEV_GRANT=1`；③ 核对 `MEMBERSHIP_ENABLED`（默认 `false` 无会员先上；卖会员则 `true`）；④ `ADS_ENABLED` 仍按流量主进度。联调调试按钮仅在 **`develop`**。总述见 [`doc/分支与发布约定.md`](doc/分支与发布约定.md)。
+
+---
+
+## 本切片验收清单（Slice 19）
+
+**状态：待点验**（须部署 `membership` + `recommend` + 本切片小程序）
+
+**自动化：**
+
+- [ ] `node --test cloudfunctions/_shared/dailyMealSlots.test.js miniprogram/utils/sceneSummary.test.js miniprogram/pages/confirm/confirm.meal-count.test.js cloudfunctions/recommend/index.mealCount.test.js` PASS（或根目录 `npm test`）。
+
+**需人工 · 确认页（日常）：**
+
+1. [ ] **芯片**：日常「几餐」为加大数字卡 **1～6** + **更多**；无「顿/餐」单位后缀；默认 **1**。  
+2. [ ] **点 3**：推荐多餐标题 **第1餐～第3餐**，场景摘要 **3餐**；无「午」「晚」「顿」作单位。  
+3. [ ] **非会员点更多**：门槛半屏主按钮 **看广告解锁**；次 **开通会员**。开发/体验版无广告 unitId 时可模拟完播 → 弹出 **7 8 9 10** 浮层。  
+4. [ ] **选 8**：更多位显示 **8** 并选中；再点更多可改 7～10；当日再进无需重看广告。  
+5. [ ] **非会员未解锁不能提交 7+**：异常请求 Toast「多餐需会员或看广告解锁」并回落 ≤6。  
+6. [ ] **会员**：免广告，点更多直接出 7～10；可选到 10；摘要 **10餐**。  
+7. [ ] **聚会**：仍 1～3；单场可「本场」；聚会标签可用「第N餐」。  
+
+**需人工 · 展示与权益：**
+
+8. [ ] **已选方案**：历史「晚饭①」等归一为 **第N餐**；空标「本餐」。  
+9. [ ] **会员权益**：**日常多餐**（「日常最多 10 餐」/「快捷 ≤6」），在激励之后、广告之前；`from=daily_meal_custom` 可高亮。  
+
+**本切片不验：** 分享落地页历史午晚文案对齐（可选）、正式环境未配激励 unitId 时的真广告（开发版可模拟）。
+
+**部署提醒：** `membership`（含 unlock / clearDailyMealCustomUnlock）与 `recommend` 同发后再编小程序。正式环境填好 `rewardedDailyMealCustom` unitId。开发/体验版首页有「清除「更多餐」广告解锁（测试）」；上线前按 Slice 18 / 分支约定处理调试开关。
 
 ---
 

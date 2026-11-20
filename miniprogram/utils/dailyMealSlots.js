@@ -1,7 +1,9 @@
 'use strict'
 
 const FREE_DAILY_MEAL_MAX = 6
+const CUSTOM_DAILY_MEAL_MIN = 7
 const MEMBER_DAILY_MEAL_MAX = 10
+const MORE_MEAL_COUNTS = [7, 8, 9, 10]
 
 function clampDailyMealCount(n, max) {
   const cap = Math.floor(Number(max))
@@ -12,31 +14,45 @@ function clampDailyMealCount(n, max) {
   return x
 }
 
+/** 自定义/更多：整数夹到 7..10；非法 → 7 */
+function clampMoreMealCount(n) {
+  const x = Math.floor(Number(n))
+  if (!Number.isFinite(x) || x < CUSTOM_DAILY_MEAL_MIN) return CUSTOM_DAILY_MEAL_MIN
+  if (x > MEMBER_DAILY_MEAL_MAX) return MEMBER_DAILY_MEAL_MAX
+  return x
+}
+
 function buildDailySlotsByCount(n, max = MEMBER_DAILY_MEAL_MAX) {
   const count = clampDailyMealCount(n, max)
   const slots = []
   for (let i = 1; i <= count; i++) {
-    slots.push({ meal: 'other', label: '第' + i + '顿' })
+    slots.push({ meal: 'other', label: '第' + i + '餐' })
   }
   return slots
 }
 
+/** 更多芯片：有效数字显示纯数字；否则「更多」 */
 function formatMealCountChipLabel(n) {
   const x = Number(n)
-  if (!Number.isInteger(x) || x < 1) return '自定义'
-  return x + '顿'
+  if (!Number.isInteger(x) || x < CUSTOM_DAILY_MEAL_MIN || x > MEMBER_DAILY_MEAL_MAX) {
+    return '更多'
+  }
+  return String(x)
 }
 
 function formatMealSlotsSummary(slotsOrCount) {
-  if (Array.isArray(slotsOrCount)) return slotsOrCount.length + '顿'
+  if (Array.isArray(slotsOrCount)) return slotsOrCount.length + '餐'
   const x = Math.floor(Number(slotsOrCount))
-  if (!Number.isFinite(x) || x < 0) return '0顿'
-  return x + '顿'
+  if (!Number.isFinite(x) || x < 0) return '0餐'
+  return x + '餐'
 }
 
 function normalizeMealSlotLabel(slot, index0) {
   const label = slot && typeof slot.label === 'string' ? slot.label.trim() : ''
-  if (/^第\d+顿$/.test(label)) return label
+  const mealMatch = label.match(/^第(\d+)餐$/)
+  if (mealMatch) return '第' + mealMatch[1] + '餐'
+  const dunMatch = label.match(/^第(\d+)顿$/)
+  if (dunMatch) return '第' + dunMatch[1] + '餐'
   const meal = slot && typeof slot.meal === 'string' ? slot.meal : ''
   const idx = Math.floor(Number(index0))
   const n = (Number.isFinite(idx) && idx >= 0 ? idx : 0) + 1
@@ -44,8 +60,9 @@ function normalizeMealSlotLabel(slot, index0) {
     meal === 'lunch' ||
     meal === 'dinner' ||
     label.includes('午饭') ||
-    label.includes('晚饭')
-  if (legacy || !label) return '第' + n + '顿'
+    label.includes('晚饭') ||
+    label.includes('顿')
+  if (legacy || !label) return '第' + n + '餐'
   return label
 }
 
@@ -62,8 +79,11 @@ function canUseDailyMealCount(count, opts) {
 
 module.exports = {
   FREE_DAILY_MEAL_MAX,
+  CUSTOM_DAILY_MEAL_MIN,
   MEMBER_DAILY_MEAL_MAX,
+  MORE_MEAL_COUNTS,
   clampDailyMealCount,
+  clampMoreMealCount,
   buildDailySlotsByCount,
   formatMealCountChipLabel,
   formatMealSlotsSummary,

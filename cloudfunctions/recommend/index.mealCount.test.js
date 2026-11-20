@@ -55,7 +55,7 @@ describe('recommend.create daily meal count gate', () => {
     assert.doesNotMatch(src, /daily' \? 6/)
   })
 
-  it('normalizes daily slot labels to 第N顿 / meal:other', () => {
+  it('normalizes daily slot labels to 第N餐 / meal:other', () => {
     const src = handleCreateSource()
     assert.match(src, /normalizeMealSlotLabel/)
     assert.match(src, /meal:\s*'other'/)

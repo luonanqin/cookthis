@@ -89,7 +89,7 @@ function selectedNamesFromSnap(snap) {
 const MEAT_VEG_ORDER = ['meat', 'veg', 'soup']
 const MEAT_VEG_LABELS = { meat: '荤', veg: '素', soup: '汤' }
 
-/** 顿内按荤素汤分组，供两列展示 */
+/** 餐内按荤素汤分组，供两列展示 */
 function groupDishesByMeatVeg(dishes) {
   const buckets = { meat: [], veg: [], soup: [], other: [] }
   for (const d of dishes || []) {

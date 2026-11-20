@@ -46,10 +46,10 @@ function tierCountsFromScene(scene) {
 
 /**
  * 场景摘要两行。
- * 行1：类型 · 人数 · 大/小/老（及聚会顿次若有）
- * 行2：日常荤素汤 · 顿次（N顿）；已选方案 omitSlots 时行2可无荤素汤外的顿次
+ * 行1：类型 · 人数 · 大/小/老（及聚会餐次若有）
+ * 行2：日常荤素汤 · 餐次（N餐）；已选方案 omitSlots 时行2可无荤素汤外的餐次
  * 例行1：日常 · 2人 · 1大 0小 1老
- * 例行2：5荤4素2汤 · 3顿
+ * 例行2：5荤4素2汤 · 3餐
  */
 function formatSceneSummaryLines(scene, opts) {
   if (!scene || typeof scene !== 'object') {
@@ -90,8 +90,8 @@ function formatSceneSummaryLines(scene, opts) {
         ? scene.mealSlotsSummary.trim()
         : ''
     // 日常：有 mealSlotsSummary 且含「午/晚」→ 忽略，改用 slots.length
-    // 聚会：沿用 summary 或 slot.label join（本场 / 第N顿）
-    if (isDaily && summary && /午|晚/.test(summary)) summary = ''
+    // 聚会：沿用 summary 或 slot.label join（本场 / 第N餐）
+    if (isDaily && summary && /午|晚|顿/.test(summary)) summary = ''
     if (summary) {
       line2.push(summary)
     } else if (isDaily) {

@@ -17,15 +17,15 @@ const SKU_HINT = {
   year: '365 天 · 约 ¥4.7/月'
 }
 
-/** 权益对照表：左会员右免费。多顿在换菜激励之后、展示类广告预告之前。 */
+/** 权益对照表：左会员右免费。多餐在换菜激励之后、展示类广告预告之前。 */
 const BENEFITS = [
   { id: 'swap', dim: '换菜次数', member: '不限', free: '每日 3 次' },
   { id: 'dishes', dim: '推荐菜数量', member: '不限', free: '每次 12 道' },
   { id: 'reward', dim: '视频广告', member: '免看', free: '解锁限制' },
-  { id: 'meals', dim: '日常多顿', member: '日常最多 10 顿', free: '快捷 ≤6' }
+  { id: 'meals', dim: '日常多餐', member: '日常最多 10 餐', free: '快捷 ≤6' }
 ]
 
-/** 从自定义多顿门槛进来时高亮「日常多顿」。 */
+/** 从「更多」餐门槛进来时高亮「日常多餐」。 */
 function highlightBenefitId(from) {
   return from === 'daily_meal_custom' ? 'meals' : ''
 }

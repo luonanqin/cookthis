@@ -407,6 +407,24 @@
   line-height: 1.25;
 }
 
+.chip-row--meal-count {
+  gap: 16rpx;
+}
+
+.chip--meal-count {
+  min-width: 72rpx;
+  min-height: 72rpx;
+  padding: 16rpx 20rpx;
+  justify-content: center;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+}
+
+.more-meals-row {
+  margin-top: 8rpx;
+  justify-content: center;
+}
+
 .chip-on {
   border-color: var(--color-primary);
   color: var(--color-primary);
@@ -519,16 +537,17 @@
 .mask.mask-custom-slots {
   align-items: flex-end;
   justify-content: center;
-  padding: 0 48rpx calc(20vh + env(safe-area-inset-bottom));
+  padding: 0 48rpx calc(120rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
 
 .custom-slots-panel {
-  width: 100%;
-  max-width: 560rpx;
+  width: auto;
+  max-width: 420rpx;
+  margin: 0 auto;
   background: var(--color-surface);
   border-radius: var(--radius-sheet);
-  padding: 32rpx 28rpx 28rpx;
+  padding: 28rpx 24rpx 24rpx;
   box-sizing: border-box;
   text-align: center;
 }

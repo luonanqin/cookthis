@@ -17,13 +17,13 @@ function groupDishesByMealSource() {
 }
 
 describe('acceptedPlans meal group labels', () => {
-  it('normalizes displayLabel to 第N顿 by group order and keeps 本顿 for empty', () => {
+  it('normalizes displayLabel to 第N餐 by group order and keeps 本餐 for empty', () => {
     const src = groupDishesByMealSource()
     assert.match(js, /normalizeMealSlotLabel/)
     assert.match(js, /require\('\.\.\/\.\.\/utils\/dailyMealSlots\.js'\)/)
     assert.match(
       src,
-      /displayLabel:\s*mealLabel\s*\?\s*normalizeMealSlotLabel\(\s*\{\s*label:\s*mealLabel\s*\},\s*groups\.length\s*\)\s*:\s*'本顿'/
+      /displayLabel:\s*mealLabel\s*\?\s*normalizeMealSlotLabel\(\s*\{\s*label:\s*mealLabel\s*\},\s*groups\.length\s*\)\s*:\s*'本餐'/
     )
     assert.match(wxml, /g\.displayLabel/)
     assert.equal(js.includes('午饭'), false)

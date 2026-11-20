@@ -35,6 +35,14 @@ function refresh() {
   return callCloud('membership', { action: 'refresh' })
 }
 
+function unlockDailyMealCustom() {
+  return callCloud('membership', { action: 'unlockDailyMealCustom' })
+}
+
+function clearDailyMealCustomUnlock() {
+  return callCloud('membership', { action: 'clearDailyMealCustomUnlock' })
+}
+
 function memberStatusLabel(status) {
   if (status && status.isMember) {
     const exp = status.expiresLabel ? String(status.expiresLabel) : ''
@@ -66,6 +74,8 @@ module.exports = {
   payOrder,
   cancelOrder,
   refresh,
+  unlockDailyMealCustom,
+  clearDailyMealCustomUnlock,
   memberStatusLabel,
   getMembershipLite,
   setMembershipLite
