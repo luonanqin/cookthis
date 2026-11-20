@@ -4,12 +4,13 @@ const { callCloud } = require('./cloud.js')
 
 /**
  * 会员购买 / 入口总开关（发版形态见 doc/分支与发布约定.md）。
- * - false（默认）：无会员先上——隐藏 VIP / 「我的」会员态 / 会员页 / 「开通会员」导流；
+ * - false：无会员先上——隐藏 VIP / 「我的」会员态 / 会员页 / 「开通会员」导流；
  *   换菜日限、菜数软限仍可生效。
  * - true：开放购买与会员 UI（联调或正式卖会员时打开）。
  * 广告位走 utils/ads.js（ADS_ENABLED），与本开关无关。
+ * 当前联调为 true；上线前若暂不卖会员改回 false。
  */
-const MEMBERSHIP_ENABLED = false
+const MEMBERSHIP_ENABLED = true
 
 let membershipLite = null
 

@@ -29,6 +29,7 @@ const {
   clampMoreMealCount
 } = require('../../utils/dailyMealSlots.js')
 const {
+  MEMBERSHIP_ENABLED,
   getStatus,
   unlockDailyMealCustom,
   getMembershipLite,
@@ -275,6 +276,7 @@ Page({
     isMember: false,
     dailyMealUnlockedToday: false,
     adRewardEnabled: canOfferDailyMealRewardAd(),
+    membershipEnabled: MEMBERSHIP_ENABLED,
     partySlotCount: 1,
     partySlotOptions: [1, 2, 3],
     partyAvoidOptions: PARTY_AVOID_OPTIONS,
@@ -1213,9 +1215,23 @@ Page({
       this.setData({ showMoreMeals: true, showMealGate: false })
       return
     }
-    track('daily_meal_custom_gate_show', {})
+    const adOn = canOfferDailyMealRewardAd()
+    const memberOn = !!MEMBERSHIP_ENABLED
+    if (!adOn && !memberOn) {
+      wx.showToast({ title: '更多餐暂未开放', icon: 'none' })
+      return
+    }
+    track('daily_meal_custom_gate_show', {
+      ad: adOn,
+      membership: memberOn
+    })
     this._mealGateOpenedAt = Date.now()
-    this.setData({ showMealGate: true, showMoreMeals: false })
+    this.setData({
+      showMealGate: true,
+      showMoreMeals: false,
+      adRewardEnabled: adOn,
+      membershipEnabled: memberOn
+    })
   },
 
   onCloseMealGate() {
@@ -1224,6 +1240,7 @@ Page({
 
   onMealGateGoMember() {
     if (isMealGateActionTooSoon(this._mealGateOpenedAt, Date.now())) return
+    if (!MEMBERSHIP_ENABLED) return
     tapFeedback()
     track('daily_meal_custom_gate_member', {})
     this.setData({ showMealGate: false })
@@ -1232,12 +1249,17 @@ Page({
 
   onMealGateWatchAd() {
     if (isMealGateActionTooSoon(this._mealGateOpenedAt, Date.now())) return
+    if (!canOfferDailyMealRewardAd()) return
     tapFeedback()
     track('daily_meal_custom_gate_ad', {})
     this._watchDailyMealUnlockAd()
   },
 
   _watchDailyMealUnlockAd() {
+    if (!canOfferDailyMealRewardAd()) {
+      wx.showToast({ title: '广告暂未开通', icon: 'none' })
+      return
+    }
     const unitId = AD_UNITS.rewardedDailyMealCustom
     if (unitId && typeof wx.createRewardedVideoAd === 'function') {
       try {

@@ -10,8 +10,8 @@ const {
 } = require('./membership.js')
 
 describe('MEMBERSHIP_ENABLED', () => {
-  it('defaults to false for no-membership ship (set true when selling membership)', () => {
-    assert.equal(MEMBERSHIP_ENABLED, false)
+  it('is true while membership联调; set false before ship if not selling yet', () => {
+    assert.equal(MEMBERSHIP_ENABLED, true)
   })
 })
 

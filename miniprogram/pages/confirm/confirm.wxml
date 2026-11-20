@@ -316,7 +316,8 @@
     <view class="sheet-confirm sheet-meal-gate" catchtap="noop">
       <view class="sheet-confirm-hd">
         <view class="sheet-title">解锁更多餐</view>
-        <view class="sheet-hint">看广告解锁当日可选 7～10 餐；会员免广告</view>
+        <view wx:if="{{adRewardEnabled}}" class="sheet-hint">看广告解锁当日可选 7～10 餐；会员免广告</view>
+        <view wx:elif="{{membershipEnabled}}" class="sheet-hint">开通会员后可选 7～10 餐</view>
       </view>
       <view class="meal-gate-actions">
         <button
@@ -324,7 +325,11 @@
           type="primary"
           bindtap="onMealGateWatchAd"
         >看广告解锁</button>
-        <button class="btn-outline" bindtap="onMealGateGoMember">开通会员</button>
+        <button
+          wx:if="{{membershipEnabled}}"
+          class="btn-outline"
+          bindtap="onMealGateGoMember"
+        >开通会员</button>
         <button class="btn-outline" bindtap="onCloseMealGate">关闭</button>
       </view>
     </view>
