@@ -326,15 +326,6 @@ function createMembershipApi(deps) {
     return { ok: true, dailyMealCustomUnlockDay: day }
   }
 
-  async function clearDailyMealCustomUnlock(uid) {
-    const user = await loadUser(db, uid)
-    if (!user || !user._id) return { ok: false, error: 'NO_USER' }
-    await db.collection('users').doc(user._id).update({
-      data: { dailyMealCustomUnlockDay: null }
-    })
-    return { ok: true, dailyMealCustomUnlockDay: null }
-  }
-
   async function createOrder(uid, sku, opts) {
     const item = getSku(sku)
     if (!item) return { ok: false, error: 'BAD_SKU' }
@@ -523,8 +514,7 @@ function createMembershipApi(deps) {
     payOrder,
     cancelOrder,
     refresh,
-    unlockDailyMealCustom,
-    clearDailyMealCustomUnlock
+    unlockDailyMealCustom
   }
 }
 
@@ -583,7 +573,6 @@ async function handleMain(event, ctx) {
   if (action === 'cancelOrder') return api.cancelOrder(uid, eventObj.orderId)
   if (action === 'refresh') return api.refresh(uid)
   if (action === 'unlockDailyMealCustom') return api.unlockDailyMealCustom(uid)
-  if (action === 'clearDailyMealCustomUnlock') return api.clearDailyMealCustomUnlock(uid)
   return { ok: false, error: 'UNKNOWN_ACTION' }
 }
 

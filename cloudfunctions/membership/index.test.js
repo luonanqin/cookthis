@@ -296,16 +296,6 @@ describe('unlockDailyMealCustom', () => {
     assert.equal(user.dailyMealCustomUnlockDay, dayKeyChina(NOW))
   })
 
-  it('clearDailyMealCustomUnlock clears the day mark', async () => {
-    const db = createMemoryDb()
-    await seedUser(db)
-    await api(db).unlockDailyMealCustom('user-1')
-    const cleared = await api(db).clearDailyMealCustomUnlock('user-1')
-    assert.equal(cleared.ok, true)
-    assert.equal(cleared.dailyMealCustomUnlockDay, null)
-    const user = (await db.collection('users').where({ uid: 'user-1' }).limit(1).get()).data[0]
-    assert.equal(user.dailyMealCustomUnlockDay, null)
-  })
 })
 
 describe('push deliver notify', () => {
