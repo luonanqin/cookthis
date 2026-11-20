@@ -319,7 +319,7 @@
         <view wx:if="{{adRewardEnabled}}" class="sheet-hint">看广告解锁当日可选 7～10 餐；会员免广告</view>
         <view wx:elif="{{membershipEnabled}}" class="sheet-hint">开通会员后可选 7～10 餐</view>
       </view>
-      <view class="meal-gate-actions">
+      <view wx:if="{{mealGateActionsReady}}" class="meal-gate-actions">
         <button
           wx:if="{{adRewardEnabled}}"
           type="primary"

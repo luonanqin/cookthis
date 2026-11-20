@@ -20,6 +20,7 @@ const {
   FREE_DAILY_MEAL_MAX,
   MEMBER_DAILY_MEAL_MAX,
   MORE_MEAL_COUNTS,
+  MEAL_GATE_ACTION_GRACE_MS,
   buildDailySlotsByCount,
   formatMealCountChipLabel,
   formatMealSlotsSummary,
@@ -273,6 +274,7 @@ Page({
     customChipLabel: '更多',
     showMoreMeals: false,
     showMealGate: false,
+    mealGateActionsReady: false,
     isMember: false,
     dailyMealUnlockedToday: false,
     adRewardEnabled: canOfferDailyMealRewardAd(),
@@ -1224,16 +1226,36 @@ Page({
       membership: memberOn
     })
     this._mealGateOpenedAt = Date.now()
+    this._clearMealGateActionsTimer()
+    // 先不渲染按钮，避免「更多」同一次触摸穿透到「看广告」误解锁
     this.setData({
       showMealGate: true,
       showMoreMeals: false,
+      mealGateActionsReady: false,
       adRewardEnabled: adOn,
       membershipEnabled: memberOn
     })
+    this._mealGateActionsTimer = setTimeout(() => {
+      this._mealGateActionsTimer = null
+      if (!this.data.showMealGate) return
+      this.setData({ mealGateActionsReady: true })
+    }, MEAL_GATE_ACTION_GRACE_MS)
+  },
+
+  _clearMealGateActionsTimer() {
+    if (this._mealGateActionsTimer) {
+      clearTimeout(this._mealGateActionsTimer)
+      this._mealGateActionsTimer = null
+    }
   },
 
   onCloseMealGate() {
-    this.setData({ showMealGate: false, showMoreMeals: false })
+    this._clearMealGateActionsTimer()
+    this.setData({
+      showMealGate: false,
+      showMoreMeals: false,
+      mealGateActionsReady: false
+    })
   },
 
   onMealGateGoMember() {
@@ -1296,12 +1318,16 @@ Page({
       .then((res) => {
         const day = (res && res.dailyMealCustomUnlockDay) || ''
         patchUser({ dailyMealCustomUnlockDay: day })
+        this._clearMealGateActionsTimer()
+        // 只标记当日解锁并收门槛；再点「更多」才出 7～10，避免误解锁后立刻出现选择项
         this.setData({
           dailyMealUnlockedToday: true,
           showMealGate: false,
-          showMoreMeals: true
+          showMoreMeals: false,
+          mealGateActionsReady: false
         })
         track('daily_meal_custom_unlock', {})
+        wx.showToast({ title: '已解锁，请再点更多', icon: 'none' })
       })
       .catch((err) => {
         wx.showToast({
