@@ -104,8 +104,9 @@
     </view>
   </block>
   <view wx:if="{{loadingMore}}" class="more">加载中…</view>
+  </view>
 
-  <!-- 强制点选首菜：蒙层不可点关，仅热区可点 -->
+  <!-- 强制点选首菜：挂在 page 下，z-index 盖过页眉/提示条；蒙层不可点关，仅热区可点 -->
   <view wx:if="{{showTip && tipSpot}}" class="tip-mask" catchtouchmove="true" catchtap="noop">
     <view
       class="tip-bubble"
@@ -128,6 +129,5 @@
       <text class="sheet-chip-text">{{tipSpot.name}}</text>
       <text wx:if="{{tipSpot.ate}}" class="ate-tag">吃过</text>
     </view>
-  </view>
   </view>
 </view>

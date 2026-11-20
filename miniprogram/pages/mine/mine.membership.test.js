@@ -22,9 +22,10 @@ describe('mine membership status', () => {
     assert.match(wxss, /\.member-status\s*\{[^}]*margin-left:\s*auto/)
   })
 
-  it('loads getStatus onShow and labels from membership helpers', () => {
+  it('loads membership via ensureMembershipStatus onShow and labels from helpers', () => {
     const onShow = js.slice(js.indexOf('onShow()'), js.indexOf('refreshFromAuth()'))
-    assert.match(onShow, /getStatus\s*\(/)
+    assert.match(onShow, /_loadMembershipStatus/)
+    assert.match(js, /ensureMembershipStatus/)
     assert.match(js, /memberStatusLabel/)
     assert.match(js, /getMembershipLite|setMembershipLite/)
     assert.match(js, /require\('\.\.\/\.\.\/services\/membership\.js'\)/)
@@ -37,9 +38,8 @@ describe('mine membership status', () => {
     )
     assert.match(wxml, /bindtap="goMembership"/)
     assert.match(js, /_loadMembershipStatus\(\)\s*\{[\s\S]*?if \(!MEMBERSHIP_ENABLED\) return/)
-    const load = js.includes('_loadMembershipStatus')
-      ? js.slice(js.indexOf('_loadMembershipStatus'))
-      : js.slice(js.indexOf('getStatus'))
+    const load = js.slice(js.indexOf('_loadMembershipStatus'))
+    assert.match(load, /ensureMembershipStatus/)
     assert.match(load, /\.catch\(/)
     assert.doesNotMatch(load.slice(0, 800), /showToast|showModal/)
   })

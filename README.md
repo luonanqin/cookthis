@@ -150,7 +150,7 @@ Slice 19（日常顿数）依赖确认页 + `recommend.create`；会员门槛测
 
 1. **重新部署**云函数：`auth`、`profile`、`recommend`、`meals`（及已有 `analytics`）。
 2. 集合 `members`（若未建）；`events` 继续收埋点。
-3. 广告：`miniprogram/utils/ads.js` 的 `ADS_ENABLED`（未开通前保持 `false`）+ 可选 `shoppingNative` unitId；日常清单 1 条、非日常最多 2 条。
+3. 广告：`miniprogram/utils/ads.js` 的 `ADS_ENABLED`（联调可 `true`；上线前流量主未就绪改 `false`）+ 可选 `shoppingNative` / `rewardedDailyMealCustom` unitId；日常清单 1 条、非日常最多 2 条。
 
 做完即可对照下方「Slice 6 验收清单」。
 
@@ -375,12 +375,12 @@ Slice 19（日常顿数）依赖确认页 + `recommend.create`；会员门槛测
 
 | 值 | 行为 |
 |----|------|
-| `false`（**仓库默认 · 无会员先上**） | 上述入口与文案**全部隐藏**；直开会员页会 toast「会员暂未开放」并返回。换菜日额度 / 菜数软限仍可生效，但**不**再导流到会员页 |
-| `true` | 首页 VIP、「我的」会员态、推荐页「开通会员」/「会员可展开」、会员页可见 |
+| `false` | 上述入口与文案**全部隐藏**；直开会员页会 toast「会员暂未开放」并返回。换菜日额度 / 菜数软限仍可生效，但**不**再导流到会员页 |
+| `true`（**当前联调**） | 首页 VIP、「我的」会员态、推荐页「开通会员」/「会员可展开」、会员页可见；确认页「更多」门槛可出「开通会员」 |
 
-- **广告**走 `miniprogram/utils/ads.js` 的 `ADS_ENABLED`（默认 `false`），与会员开关**无关**。  
-- **联调会员**：本地临时改为 `true`；发无会员包前改回 `false`。  
-- **正式卖会员**：虚拟支付就绪后改为 `true` 再上传小程序（云函数 / 道具可提前备好）。  
+- **广告**走 `miniprogram/utils/ads.js` 的 `ADS_ENABLED`（当前联调 `true`；确认页「看广告解锁」跟此开关），与会员开关**无关**。  
+- **上线前**：若暂不卖会员 / 流量主未就绪，分别把 `MEMBERSHIP_ENABLED`、`ADS_ENABLED` 改回 `false`（此时「更多」7～10 全员直接可选；云 `recommend` 也勿设对应环境变量，否则仍会门禁）。  
+- **正式卖会员 / 接广告**：虚拟支付或激励 unitId 就绪后保持或改回 `true` 再上传。  
 - 分支策略见 [`doc/分支与发布约定.md`](doc/分支与发布约定.md)。
 
 ### 调试开关 `MEMBERSHIP_ALLOW_DEV_GRANT`（本分支联调用）
@@ -505,7 +505,7 @@ node --test cloudfunctions/membership/*.test.js miniprogram/pages/membership/*.t
 1. **小程序**（确认页 / 推荐 / 已选 / 场景摘要 / 会员权益）  
 2. **云函数 `recommend`**（门禁 ≤6 免费；7～10 需会员或当日解锁；标签 `第N餐`）  
 3. **云函数 `membership`**（`unlockDailyMealCustom` 写 `users.dailyMealCustomUnlockDay`；`getStatus` 带回该字段）  
-4. （可选）`miniprogram/utils/ads.js` → `AD_UNITS.rewardedDailyMealCustom` 填激励 unitId；未填时 **开发/体验版**点「看广告解锁」会**模拟完播**便于联调  
+4. 门槛跟开关：`ADS_ENABLED` →「看广告解锁」；`MEMBERSHIP_ENABLED` →「开通会员」。**两个都关**时 7～10 **直接可用**（首发无广告/会员）。只开会员时门槛剩「开通会员」+「关闭」。激励 unitId 未填时开发/体验版点「看广告」会模拟完播。云函数 `recommend` 用环境变量 `MEMBERSHIP_ENABLED` / `ADS_ENABLED`（任一为真才门禁；都未设则放行） 
 
 **部署顺序建议：** 发 `membership` + `recommend` → 再编小程序 → 对照「Slice 19 验收清单」。
 
@@ -925,7 +925,7 @@ node --test cloudfunctions/membership/*.test.js miniprogram/pages/membership/*.t
 
 **本切片不验：** 代币/币种体系、自动续费、激励视频换菜（阶段 2）、清单去广告（阶段 2）、成长值/饭友等级、退款接口自动化（Android 可后台手退一笔抽查即可）、定时每 5 分钟扫单（现靠进页/`refresh` 触发查单）。
 
-**部署提醒：** 先按 §B.2 建精简索引（**不必**为未支付建 `createdAt` ASC/DESC 双索引）；再配 OfferID/AppKey 与 6 道具、绑推送。改定价或 productId 须与 MP 道具同步。个人主体接入检查项也可对照官方文末「部署前检查清单」。**上线前准备**：① 检出 **`main`**（无调试代码）；② 正式云无 `MEMBERSHIP_ALLOW_DEV_GRANT=1`；③ 核对 `MEMBERSHIP_ENABLED`（默认 `false` 无会员先上；卖会员则 `true`）；④ `ADS_ENABLED` 仍按流量主进度。联调调试按钮仅在 **`develop`**。总述见 [`doc/分支与发布约定.md`](doc/分支与发布约定.md)。
+**部署提醒：** 先按 §B.2 建精简索引（**不必**为未支付建 `createdAt` ASC/DESC 双索引）；再配 OfferID/AppKey 与 6 道具、绑推送。改定价或 productId 须与 MP 道具同步。个人主体接入检查项也可对照官方文末「部署前检查清单」。**上线前准备**：① 检出 **`main`**（无调试代码）；② 正式云无 `MEMBERSHIP_ALLOW_DEV_GRANT=1`；③ 核对 `MEMBERSHIP_ENABLED` / `ADS_ENABLED`（联调可为 `true`；暂不卖会员或流量主未就绪则改 `false`）。联调调试按钮仅在 **`develop`**。总述见 [`doc/分支与发布约定.md`](doc/分支与发布约定.md)。
 
 ---
 
@@ -950,7 +950,7 @@ node --test cloudfunctions/membership/*.test.js miniprogram/pages/membership/*.t
 **需人工 · 展示与权益：**
 
 8. [ ] **已选方案**：历史「晚饭①」等归一为 **第N餐**；空标「本餐」。  
-9. [ ] **会员权益**：**日常多餐**（「日常最多 10 餐」/「快捷 ≤6」），在激励之后、广告之前；`from=daily_meal_custom` 可高亮。  
+9. [ ] **会员权益**：**餐数上限**（会员「10餐」/免费「6餐」），在广告之前；**视频广告永远最后**；`from=daily_meal_custom` 可高亮。  
 
 **本切片不验：** 分享落地页历史午晚文案对齐（可选）、正式环境未配激励 unitId 时的真广告（开发版可模拟）。
 

@@ -421,8 +421,16 @@
 }
 
 .more-meals-row {
-  margin-top: 8rpx;
-  justify-content: center;
+  margin-top: 4rpx;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  gap: 12rpx;
+}
+
+/* 弹层打开时「更多」浮在遮罩之上，保持可见可点 */
+.chip--above-mask {
+  position: relative;
+  z-index: 20;
 }
 
 .chip-on {
@@ -533,30 +541,47 @@
   text-align: center;
 }
 
-/* 自定义几顿：下半屏略抬高、水平居中的独立卡片（非贴底 sheet） */
-.mask.mask-custom-slots {
-  align-items: flex-end;
-  justify-content: center;
-  padding: 0 48rpx calc(120rpx + env(safe-area-inset-bottom));
-  box-sizing: border-box;
+/* 「更多」餐数：对齐购买页 recipe-pop（毛玻璃遮罩 + 锚定浮卡） */
+.more-meals-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 18;
+  background: rgba(255, 252, 248, 0.1);
+  backdrop-filter: blur(16px) saturate(1.15);
+  -webkit-backdrop-filter: blur(16px) saturate(1.15);
 }
 
-.custom-slots-panel {
-  width: auto;
-  max-width: 420rpx;
-  margin: 0 auto;
+.more-meals-pop {
+  position: fixed;
+  z-index: 19;
+  width: max-content;
+  max-width: calc(100vw - 24rpx);
   background: var(--color-surface);
-  border-radius: var(--radius-sheet);
-  padding: 28rpx 24rpx 24rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 8rpx 28rpx rgba(26, 26, 26, 0.16);
+  border: 1rpx solid var(--color-border);
   box-sizing: border-box;
-  text-align: center;
+  overflow: hidden;
+  animation: more-meals-pop-in 0.16s ease-out;
 }
 
-.custom-slots-title {
-  font-weight: var(--fw-semibold);
-  font-size: var(--fs-title);
-  color: var(--color-text);
-  text-align: center;
+@keyframes more-meals-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(12rpx) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.more-meals-pop-body {
+  padding: 10rpx;
+  box-sizing: border-box;
 }
 
 .custom-slot-row {

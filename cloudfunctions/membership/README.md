@@ -33,7 +33,7 @@ node --test cloudfunctions/membership/*.test.js
 
 ## 前端总开关
 
-小程序 `MEMBERSHIP_ENABLED`（`miniprogram/services/membership.js`）：`false` 时隐藏所有会员入口/页；广告不受影响。说明见根目录 README **Slice 18 · 会员功能总开关**与 [`doc/分支与发布约定.md`](../../doc/分支与发布约定.md)。仓库默认 `false`（无会员先上）；联调/卖会员时改为 `true`。
+小程序 `MEMBERSHIP_ENABLED`（`miniprogram/services/membership.js`）：`false` 时隐藏所有会员入口/页；广告不受影响。说明见根目录 README **Slice 18 · 会员功能总开关**与 [`doc/分支与发布约定.md`](../../doc/分支与发布约定.md)。联调可为 `true`；上线前若暂不卖会员改回 `false`。
 
 ## 手测
 

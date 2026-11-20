@@ -184,9 +184,10 @@
             bindtap="onPickDailyMealCount"
           >{{item.label}}</view>
           <view
-            class="chip chip--meal-count {{dailySlotMode === 'custom' ? 'chip-on' : ''}}"
+            id="moreMealChip"
+            class="chip chip--meal-count {{dailySlotMode === 'custom' ? 'chip-on' : ''}} {{showMoreMeals ? 'chip--above-mask' : ''}}"
             bindtap="onOpenCustomMealCount"
-          >{{customChipLabel}}</view>
+          >{{showMoreMeals ? '餐数' : customChipLabel}}</view>
         </view>
       </view>
 
@@ -287,14 +288,21 @@
     </view>
   </view>
 
+  <!-- 对齐购买页菜谱弹层：毛玻璃遮罩 + 锚定「更多」芯片的浮卡 -->
   <view
-    class="mask mask-custom-slots"
+    class="more-meals-mask"
     wx:if="{{showMoreMeals}}"
     catchtouchmove="true"
     bindtap="onCloseMoreMeals"
+  />
+  <view
+    class="more-meals-pop"
+    wx:if="{{showMoreMeals && moreMealsPopStyle}}"
+    style="{{moreMealsPopStyle}}"
+    catchtap="noop"
+    catchtouchmove="true"
   >
-    <view class="custom-slots-panel" catchtap="noop" catchtouchmove="true">
-      <view class="custom-slots-title">选择餐数</view>
+    <view class="more-meals-pop-body">
       <view class="chip-row chip-row--meal-count more-meals-row">
         <view
           wx:for="{{moreMealCounts}}"
@@ -316,15 +324,20 @@
     <view class="sheet-confirm sheet-meal-gate" catchtap="noop">
       <view class="sheet-confirm-hd">
         <view class="sheet-title">解锁更多餐</view>
-        <view class="sheet-hint">看广告解锁当日可选 7～10 餐；会员免广告</view>
+        <view wx:if="{{adRewardEnabled}}" class="sheet-hint">看广告解锁当日可选 7～10 餐；会员免广告</view>
+        <view wx:elif="{{membershipEnabled}}" class="sheet-hint">开通会员后可选 7～10 餐</view>
       </view>
-      <view class="meal-gate-actions">
+      <view wx:if="{{mealGateActionsReady}}" class="meal-gate-actions">
         <button
           wx:if="{{adRewardEnabled}}"
           type="primary"
           bindtap="onMealGateWatchAd"
         >看广告解锁</button>
-        <button class="btn-outline" bindtap="onMealGateGoMember">开通会员</button>
+        <button
+          wx:if="{{membershipEnabled}}"
+          class="btn-outline"
+          bindtap="onMealGateGoMember"
+        >开通会员</button>
         <button class="btn-outline" bindtap="onCloseMealGate">关闭</button>
       </view>
     </view>

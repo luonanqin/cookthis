@@ -456,9 +456,15 @@ Page({
 
     const ate = !!loc.dish.ate
     const tipStep = this.data.showTip ? this.data.tipStep : 0
-    // 引导第 1 步期望「记上」；第 2 步期望「取消」
-    if (tipStep === 1 && ate) return
-    if (tipStep === 2 && !ate) return
+    // 引导第 1 步期望「记上」；第 2 步期望「取消」。已达目标态则推进/收尾，避免静默无响应
+    if (tipStep === 1 && ate) {
+      this.setData({ tipStep: 2, tipText: '再点击取消记录' })
+      return
+    }
+    if (tipStep === 2 && !ate) {
+      this.finishTip()
+      return
+    }
 
     const nextAte = !ate
     const key = dishKey(requestId, name)

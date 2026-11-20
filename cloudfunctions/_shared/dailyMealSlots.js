@@ -69,12 +69,39 @@ function normalizeMealSlotLabel(slot, index0) {
 function canUseDailyMealCount(count, opts) {
   const isMember = !!(opts && opts.isMember)
   const unlockedToday = !!(opts && opts.unlockedToday)
+  const monetizationOff = !!(opts && opts.monetizationOff)
   const n = Number(count)
   if (Number.isFinite(n) && n <= FREE_DAILY_MEAL_MAX) return { ok: true }
-  if (Number.isFinite(n) && n <= MEMBER_DAILY_MEAL_MAX && (isMember || unlockedToday)) {
+  if (
+    Number.isFinite(n) &&
+    n <= MEMBER_DAILY_MEAL_MAX &&
+    (monetizationOff || isMember || unlockedToday)
+  ) {
     return { ok: true }
   }
   return { ok: false, error: 'MEAL_COUNT_GATE' }
+}
+
+/**
+ * 是否可直接打开 7～10 餐选择。
+ * monetizationOff：会员与广告都未上线时全员可进，不弹门槛。
+ */
+function canAccessMoreDailyMeals(opts) {
+  if (opts && opts.monetizationOff) return true
+  return !!(opts && (opts.isMember || opts.unlockedToday))
+}
+
+/** 门槛弹层刚打开时忽略按钮点击，避免「更多」触摸穿透到「看广告解锁」 */
+const MEAL_GATE_ACTION_GRACE_MS = 400
+
+function isMealGateActionTooSoon(openedAtMs, nowMs, graceMs) {
+  const opened = Number(openedAtMs)
+  const now = Number(nowMs)
+  const graceRaw = Number(graceMs)
+  const grace =
+    Number.isFinite(graceRaw) && graceRaw >= 0 ? graceRaw : MEAL_GATE_ACTION_GRACE_MS
+  if (!Number.isFinite(opened) || !Number.isFinite(now)) return false
+  return now - opened < grace
 }
 
 module.exports = {
@@ -82,11 +109,14 @@ module.exports = {
   CUSTOM_DAILY_MEAL_MIN,
   MEMBER_DAILY_MEAL_MAX,
   MORE_MEAL_COUNTS,
+  MEAL_GATE_ACTION_GRACE_MS,
   clampDailyMealCount,
   clampMoreMealCount,
   buildDailySlotsByCount,
   formatMealCountChipLabel,
   formatMealSlotsSummary,
   normalizeMealSlotLabel,
-  canUseDailyMealCount
+  canUseDailyMealCount,
+  canAccessMoreDailyMeals,
+  isMealGateActionTooSoon
 }

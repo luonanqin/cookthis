@@ -40,6 +40,8 @@ describe('recommend.create daily meal count gate', () => {
     assert.match(src, /loadMembership\(uid\)/)
     assert.match(src, /dailyMealCustomUnlockDay/)
     assert.match(src, /isMemberActive\(membership/)
+    assert.match(src, /isDailyMealMonetizationOn/)
+    assert.match(src, /monetizationOff/)
     assert.match(src, /error:\s*'MEAL_COUNT_GATE'/)
     assert.match(src, /limit:\s*FREE_DAILY_MEAL_MAX/)
     assert.match(src, /max:\s*MEMBER_DAILY_MEAL_MAX/)
@@ -76,11 +78,20 @@ describe('recommend.create daily meal count gate', () => {
     const unlockedToday = user.dailyMealCustomUnlockDay === dayKeyChina(now)
     const gate = canUseDailyMealCount(n, {
       isMember: isMemberActive(membership, now),
-      unlockedToday
+      unlockedToday,
+      monetizationOff: false
     })
     assert.equal(n > FREE_DAILY_MEAL_MAX, true)
     assert.equal(gate.ok, false)
     assert.equal(gate.error, 'MEAL_COUNT_GATE')
+    assert.equal(
+      canUseDailyMealCount(n, {
+        isMember: false,
+        unlockedToday: false,
+        monetizationOff: true
+      }).ok,
+      true
+    )
     const src = handleCreateSource()
     assert.match(src, /canUseDailyMealCount\(/)
     assert.match(src, /error:\s*'MEAL_COUNT_GATE'/)
