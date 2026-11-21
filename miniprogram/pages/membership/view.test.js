@@ -38,7 +38,7 @@ describe('membership view copy', () => {
     assert.equal(BENEFITS[0].free, '每日 3 次')
     assert.equal(BENEFITS[1].free, '每次 12 道')
     assert.equal(BENEFITS[2].member, '10餐')
-    assert.equal(BENEFITS[2].free, '6餐')
+    assert.equal(BENEFITS[2].free, '5餐')
     assert.equal(BENEFITS[3].member, '免看')
     assert.equal(BENEFITS[3].free, '解锁限制')
     const mealsAt = BENEFITS.findIndex((b) => b.id === 'meals')

@@ -64,14 +64,14 @@ describe('recommend.create daily meal count gate', () => {
     assert.match(src, /label:\s*normalizeMealSlotLabel/)
   })
 
-  it('rejects non-member forging 7 daily slots with MEAL_COUNT_GATE', () => {
+  it('rejects non-member forging 6 daily slots with MEAL_COUNT_GATE', () => {
     const {
       canUseDailyMealCount,
       FREE_DAILY_MEAL_MAX
     } = require('./dailyMealSlots.js')
     const { isMemberActive } = require('./membershipLogic.js')
     const { dayKeyChina } = require('./swapQuota.js')
-    const n = 7
+    const n = 6
     const now = Date.now()
     const user = {}
     const membership = null

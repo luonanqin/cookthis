@@ -18,10 +18,10 @@ const {
 
 describe('dailyMealSlots', () => {
   it('exports free / more / member bounds', () => {
-    assert.equal(FREE_DAILY_MEAL_MAX, 6)
-    assert.equal(CUSTOM_DAILY_MEAL_MIN, 7)
+    assert.equal(FREE_DAILY_MEAL_MAX, 5)
+    assert.equal(CUSTOM_DAILY_MEAL_MIN, 6)
     assert.equal(MEMBER_DAILY_MEAL_MAX, 10)
-    assert.deepEqual(MORE_MEAL_COUNTS, [7, 8, 9, 10])
+    assert.deepEqual(MORE_MEAL_COUNTS, [6, 7, 8, 9, 10])
   })
 
   it('clampDailyMealCount keeps integers in 1..max and maps illegal to 1', () => {
@@ -30,12 +30,12 @@ describe('dailyMealSlots', () => {
     assert.equal(clampDailyMealCount(11, 10), 10)
   })
 
-  it('clampMoreMealCount keeps 7..10', () => {
-    assert.equal(clampMoreMealCount(7), 7)
+  it('clampMoreMealCount keeps 6..10', () => {
+    assert.equal(clampMoreMealCount(6), 6)
     assert.equal(clampMoreMealCount(10), 10)
-    assert.equal(clampMoreMealCount(6), 7)
+    assert.equal(clampMoreMealCount(5), 6)
     assert.equal(clampMoreMealCount(11), 10)
-    assert.equal(clampMoreMealCount(NaN), 7)
+    assert.equal(clampMoreMealCount(NaN), 6)
   })
 
   it('buildDailySlotsByCount 3 uses 第N餐', () => {
@@ -46,8 +46,8 @@ describe('dailyMealSlots', () => {
     ])
   })
 
-  it('formatMealCountChipLabel shows digit for 7-10 else 更多', () => {
-    assert.equal(formatMealCountChipLabel(7), '7')
+  it('formatMealCountChipLabel shows digit for 6-10 else 更多', () => {
+    assert.equal(formatMealCountChipLabel(6), '6')
     assert.equal(formatMealCountChipLabel(10), '10')
     assert.equal(formatMealCountChipLabel(3), '更多')
     assert.equal(formatMealCountChipLabel(0), '更多')
@@ -65,11 +65,11 @@ describe('dailyMealSlots', () => {
     assert.equal(normalizeMealSlotLabel({ meal: 'dinner', label: '晚饭' }, 1), '第2餐')
   })
 
-  it('canUseDailyMealCount gates 7 for free', () => {
-    assert.equal(canUseDailyMealCount(7, { isMember: false, unlockedToday: false }).ok, false)
-    assert.equal(canUseDailyMealCount(7, { isMember: true }).ok, true)
-    assert.equal(canUseDailyMealCount(7, { unlockedToday: true }).ok, true)
-    assert.equal(canUseDailyMealCount(6, { isMember: false }).ok, true)
+  it('canUseDailyMealCount gates 6 for free', () => {
+    assert.equal(canUseDailyMealCount(6, { isMember: false, unlockedToday: false }).ok, false)
+    assert.equal(canUseDailyMealCount(6, { isMember: true }).ok, true)
+    assert.equal(canUseDailyMealCount(6, { unlockedToday: true }).ok, true)
+    assert.equal(canUseDailyMealCount(5, { isMember: false }).ok, true)
     assert.equal(canUseDailyMealCount(11, { isMember: true }).ok, false)
     assert.equal(
       canUseDailyMealCount(8, { isMember: false, unlockedToday: false, monetizationOff: true }).ok,

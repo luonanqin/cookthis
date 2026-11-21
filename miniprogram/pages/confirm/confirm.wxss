@@ -408,23 +408,37 @@
 }
 
 .chip-row--meal-count {
-  gap: 16rpx;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 12rpx;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .chip--meal-count {
-  min-width: 72rpx;
-  min-height: 72rpx;
-  padding: 16rpx 20rpx;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 88rpx;
+  padding: 20rpx 8rpx;
   justify-content: center;
-  font-size: var(--fs-md);
+  font-size: var(--fs-title);
   font-weight: var(--fw-semibold);
 }
 
 .more-meals-row {
-  margin-top: 4rpx;
+  margin-top: 0;
   flex-wrap: nowrap;
   justify-content: flex-start;
-  gap: 12rpx;
+  gap: 10rpx;
+  width: 100%;
+}
+
+.more-meals-row .chip--meal-count {
+  flex: 0 0 auto;
+  min-width: 64rpx;
+  min-height: 80rpx;
+  padding: 16rpx 18rpx;
+  font-size: var(--fs-md);
 }
 
 /* 弹层打开时「更多」浮在遮罩之上，保持可见可点 */
@@ -818,12 +832,12 @@
   background: rgba(26, 26, 26, 0.28);
   backdrop-filter: blur(16px) saturate(1.15);
   -webkit-backdrop-filter: blur(16px) saturate(1.15);
-  padding: 48rpx 56rpx;
+  padding: 48rpx 120rpx;
 }
 
 .meal-gate-dialog {
   width: 100%;
-  max-width: 560rpx;
+  max-width: 420rpx;
   background: var(--color-surface);
   border-radius: var(--radius-sheet);
   box-sizing: border-box;
@@ -844,7 +858,8 @@
 }
 
 .meal-gate-hd {
-  padding: 36rpx 32rpx 8rpx;
+  padding: 36rpx 28rpx 8rpx;
+  text-align: center;
 }
 
 .meal-gate-title {
@@ -852,17 +867,11 @@
   font-weight: var(--fw-semibold);
   color: var(--color-text);
   line-height: 1.35;
-}
-
-.meal-gate-hint {
-  margin-top: 10rpx;
-  font-size: var(--fs-sm);
-  color: var(--color-text-secondary);
-  line-height: 1.45;
+  text-align: center;
 }
 
 .meal-gate-actions {
-  padding: 20rpx 28rpx 28rpx;
+  padding: 20rpx 24rpx 28rpx;
   display: flex;
   flex-direction: column;
   gap: 16rpx;

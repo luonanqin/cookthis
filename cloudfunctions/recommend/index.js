@@ -542,7 +542,7 @@ async function handleCreate(event, uid, user) {
     const n = (scene.mealSlots || []).length
     const membership = await loadMembership(uid)
     const unlockedToday = user.dailyMealCustomUnlockDay === dayKeyChina(Date.now())
-    // 与小程序 MEMBERSHIP_ENABLED / ADS_ENABLED 对齐：都未开时 7～10 全员可用
+    // 与小程序 MEMBERSHIP_ENABLED / ADS_ENABLED 对齐：都未开时 6～10 全员可用
     const monetizationOff = !isDailyMealMonetizationOn(process.env)
     const gate = canUseDailyMealCount(n, {
       isMember: isMemberActive(membership, Date.now()),

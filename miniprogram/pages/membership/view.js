@@ -21,7 +21,7 @@ const SKU_HINT = {
 const BENEFITS = [
   { id: 'swap', dim: '换菜次数', member: '不限', free: '每日 3 次' },
   { id: 'dishes', dim: '推荐菜数量', member: '不限', free: '每次 12 道' },
-  { id: 'meals', dim: '餐数上限', member: '10餐', free: '6餐' },
+  { id: 'meals', dim: '餐数上限', member: '10餐', free: '5餐' },
   { id: 'reward', dim: '视频广告', member: '免看', free: '解锁限制' }
 ]
 
