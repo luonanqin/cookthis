@@ -421,8 +421,8 @@
   min-height: 88rpx;
   padding: 20rpx 8rpx;
   justify-content: center;
-  font-size: var(--fs-title);
-  font-weight: var(--fw-semibold);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-regular);
 }
 
 .more-meals-row {
@@ -438,7 +438,7 @@
   min-width: 64rpx;
   min-height: 80rpx;
   padding: 16rpx 18rpx;
-  font-size: var(--fs-md);
+  font-size: var(--fs-body);
 }
 
 /* 弹层打开时「更多」浮在遮罩之上，保持可见可点 */
