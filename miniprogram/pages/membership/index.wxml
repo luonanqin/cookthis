@@ -31,18 +31,18 @@
       </view>
       <view class="benefit-table">
         <view class="benefit-table-row head">
-          <text class="benefit-dim">权益项目</text>
-          <text class="benefit-col benefit-col--member head-label">会员</text>
-          <text class="benefit-col benefit-col--free head-label">免费</text>
+          <view class="benefit-dim">权益项目</view>
+          <view class="benefit-col benefit-col--member head-label">会员</view>
+          <view class="benefit-col benefit-col--free head-label">免费</view>
         </view>
         <view
           class="benefit-table-row {{highlightBenefit === item.id ? 'is-highlight' : ''}}"
           wx:for="{{benefitRows}}"
           wx:key="id"
         >
-          <text class="benefit-dim">{{item.dim}}</text>
-          <text class="benefit-col benefit-col--member">{{item.member}}</text>
-          <text class="benefit-col benefit-col--free">{{item.free}}</text>
+          <view class="benefit-dim">{{item.dim}}</view>
+          <view class="benefit-col benefit-col--member">{{item.member}}</view>
+          <view class="benefit-col benefit-col--free">{{item.free}}</view>
         </view>
       </view>
     </view>

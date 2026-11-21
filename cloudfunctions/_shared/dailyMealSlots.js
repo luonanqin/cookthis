@@ -1,9 +1,9 @@
 'use strict'
 
-const FREE_DAILY_MEAL_MAX = 6
-const CUSTOM_DAILY_MEAL_MIN = 7
+const FREE_DAILY_MEAL_MAX = 5
+const CUSTOM_DAILY_MEAL_MIN = 6
 const MEMBER_DAILY_MEAL_MAX = 10
-const MORE_MEAL_COUNTS = [7, 8, 9, 10]
+const MORE_MEAL_COUNTS = [6, 7, 8, 9, 10]
 
 function clampDailyMealCount(n, max) {
   const cap = Math.floor(Number(max))
@@ -14,7 +14,7 @@ function clampDailyMealCount(n, max) {
   return x
 }
 
-/** 自定义/更多：整数夹到 7..10；非法 → 7 */
+/** 自定义/更多：整数夹到 6..10；非法 → 6 */
 function clampMoreMealCount(n) {
   const x = Math.floor(Number(n))
   if (!Number.isFinite(x) || x < CUSTOM_DAILY_MEAL_MIN) return CUSTOM_DAILY_MEAL_MIN
@@ -83,7 +83,7 @@ function canUseDailyMealCount(count, opts) {
 }
 
 /**
- * 是否可直接打开 7～10 餐选择。
+ * 是否可直接打开 6～10 餐选择。
  * monetizationOff：会员与广告都未上线时全员可进，不弹门槛。
  */
 function canAccessMoreDailyMeals(opts) {

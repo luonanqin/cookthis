@@ -77,7 +77,7 @@ function householdTotal(counts) {
 // 与家庭忌口词表一致（含新增组）；硬排除靠 ingredients.avoidTags
 const { AVOID_OPTIONS: PARTY_AVOID_OPTIONS } = require('../../utils/avoidOptions.js')
 
-const DAILY_MEAL_COUNT_PRESETS = [1, 2, 3, 4, 5, 6].map((n) => ({
+const DAILY_MEAL_COUNT_PRESETS = [1, 2, 3, 4, 5].map((n) => ({
   id: 'count_' + n,
   label: String(n),
   count: n
@@ -1266,7 +1266,7 @@ Page({
     if (isMember && !this.data.isMember) {
       this.setData({ isMember: true })
     }
-    // 会员 / 当日已解锁 / 双开关关闭：直接出 7～10，不弹门槛
+    // 会员 / 当日已解锁 / 双开关关闭：直接出 6～10，不弹门槛
     if (canAccessMoreDailyMeals({ isMember, unlockedToday, monetizationOff })) {
       this._openMoreMeals()
       return
@@ -1438,7 +1438,7 @@ Page({
           })
         )
         this._clearMealGateActionsTimer()
-        // 只标记当日解锁并收门槛；再点「更多」才出 7～10，避免误解锁后立刻出现选择项
+        // 只标记当日解锁并收门槛；再点「更多」才出 6～10，避免误解锁后立刻出现选择项
         this.setData({
           dailyMealUnlockedToday: true,
           showMealGate: false,

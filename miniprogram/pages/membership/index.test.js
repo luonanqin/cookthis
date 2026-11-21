@@ -65,6 +65,13 @@ describe('membership page wiring', () => {
     assert.match(wxml, /highlightBenefit === item\.id/)
     assert.match(wxml, /is-highlight/)
     assert.match(wxss, /\.benefit-table-row\.is-highlight/)
+    assert.match(wxss, /background:\s*rgba\(244,\s*225,\s*170/)
+    assert.doesNotMatch(wxss, /inset 4rpx/)
+    assert.doesNotMatch(wxss, /\.benefit-table-row\.is-highlight::before/)
+    assert.doesNotMatch(
+      wxss,
+      /\.benefit-table-row\.is-highlight\s*\{[^}]*border-bottom:\s*3rpx/
+    )
   })
 
   it('gates first paint behind busy overlay until status ready', () => {

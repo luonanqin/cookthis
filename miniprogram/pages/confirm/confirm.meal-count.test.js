@@ -11,8 +11,8 @@ const wxml = fs.readFileSync(path.join(dir, 'confirm.wxml'), 'utf8')
 const wxss = fs.readFileSync(path.join(dir, 'confirm.wxss'), 'utf8')
 
 describe('confirm daily meal count chips', () => {
-  it('wires 1-6 digit presets plus 更多 chip, not lunch/dinner copy', () => {
-    assert.match(js, /DAILY_MEAL_COUNT_PRESETS/)
+  it('wires 1-5 digit presets plus 更多 chip, not lunch/dinner copy', () => {
+    assert.match(js, /DAILY_MEAL_COUNT_PRESETS\s*=\s*\[1,\s*2,\s*3,\s*4,\s*5\]/)
     assert.match(js, /label:\s*String\(n\)/)
     assert.match(js, /customChipLabel:\s*'更多'/)
     assert.match(js, /onPickDailyMealCount/)
@@ -20,6 +20,7 @@ describe('confirm daily meal count chips', () => {
     assert.match(wxml, /几餐/)
     assert.match(wxml, /chip--meal-count/)
     assert.match(wxml, /showMoreMeals \? '餐数' : customChipLabel/)
+    assert.match(wxss, /\.chip--meal-count[\s\S]*?flex:\s*1\s+1\s+0/)
     assert.equal(js.includes('一顿晚饭'), false)
     assert.equal(wxml.includes('午饭'), false)
     assert.equal(wxml.includes('晚饭'), false)
@@ -33,7 +34,7 @@ describe('confirm daily meal count chips', () => {
 })
 
 describe('confirm more-meals sheet and gate', () => {
-  it('opens 7-10 chip sheet when unlocked; otherwise gate with ad primary', () => {
+  it('opens 6-10 chip sheet when unlocked; otherwise gate with ad primary', () => {
     assert.match(js, /_canCustomDailyMeals\(\)/)
     assert.match(js, /canAccessMoreDailyMeals/)
     assert.match(js, /isMealGateActionTooSoon/)
@@ -61,10 +62,21 @@ describe('confirm more-meals sheet and gate', () => {
     assert.match(js, /开通会员或看广告后可选更多餐/)
     assert.match(wxml, /showMoreMeals/)
     assert.match(wxml, /moreMealCounts/)
-    assert.match(wxml, /看广告解锁/)
+    assert.match(wxml, />看广告</)
+    assert.doesNotMatch(wxml, /meal-gate-hint/)
     assert.match(wxml, /wx:if="\{\{membershipEnabled\}\}"/)
     assert.match(wxml, /开通会员/)
     assert.match(wxml, /解锁更多餐/)
+    assert.match(wxml, /mask-center mask-meal-gate/)
+    assert.match(wxml, /meal-gate-dialog/)
+    assert.doesNotMatch(wxml, /sheet-meal-gate/)
+    assert.match(wxss, /\.mask\.mask-meal-gate/)
+    assert.match(wxss, /backdrop-filter:\s*blur/)
+    assert.match(wxss, /\.meal-gate-dialog/)
+    assert.match(wxss, /\.meal-gate-title[\s\S]*text-align:\s*center/)
+    assert.match(wxss, /max-width:\s*420rpx/)
+    assert.doesNotMatch(wxss, /\.sheet-meal-gate/)
+    assert.doesNotMatch(wxss, /\.meal-gate-hint/)
     assert.doesNotMatch(wxml, /customDraftCount/)
     assert.doesNotMatch(wxml, /bumpCustomDraftCount/)
     assert.match(wxss, /chip--meal-count/)
@@ -115,7 +127,7 @@ describe('confirm more-meals sheet and gate', () => {
     assert.doesNotMatch(confirm, /lunchCount/)
   })
 
-  it('toasts MEAL_COUNT_GATE on create and rolls back to ≤6', () => {
+  it('toasts MEAL_COUNT_GATE on create and rolls back to ≤5', () => {
     const submit = js.slice(js.indexOf('_submitRecommend('), js.indexOf('onEmptyDialogOk'))
     assert.match(submit, /err\.error === 'MEAL_COUNT_GATE'/)
     assert.match(submit, /多餐需会员或看广告解锁/)
