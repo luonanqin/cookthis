@@ -167,7 +167,8 @@
   align-items: center;
   gap: 10rpx;
   min-height: 54rpx;
-  padding: 10rpx 0;
+  padding: 12rpx 12rpx;
+  margin: 0 -12rpx;
   border-bottom: 1rpx solid var(--benefit-row-line);
   box-sizing: border-box;
 }
@@ -177,9 +178,8 @@
 }
 
 .benefit-table-row.is-highlight {
-  background: rgba(244, 225, 170, 0.16);
-  box-shadow: inset 4rpx 0 0 var(--benefit-gold);
-  border-radius: 8rpx;
+  background: rgba(244, 225, 170, 0.28);
+  border-radius: 10rpx;
 }
 
 .benefit-table-row.head {
